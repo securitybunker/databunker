@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Data Bunker - user profile</title>
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
+        integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/7.0.4/jsoneditor.min.css" rel="stylesheet"
+        type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/7.0.4/jsoneditor.min.js"></script>
+    <script src="site.js"></script>
+</head>
+
+<body>
+    <div class="container col-md-6">
+        <div class="row col-12 col-md-12 ">
+            <div style="width:100%;">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <a class="navbar-brand" href="#">Menu</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
+                        aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                        <div class="navbar-nav">
+                            <a class="nav-item nav-link active" href="#">Profile <span
+                                    class="sr-only">(current)</span></a>
+                            <a class="nav-item nav-link" href="user-apps.html">Apps</a>
+                            <a class="nav-item nav-link" href="user-data-processing.html">Confirmations</a>
+                            <a class="nav-item nav-link" href="user-audit.html">Audit</a>
+                            <a class="nav-item nav-link" href="javascript:bunker_logout();">Logout</a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="bigblock">
+                <h4>User record profile</h4>
+                <p id="msg">text</p>
+                <div id="jsoneditor" style="width: 400px; height: 400px;"></div>
+                <pre id="data"></pre>
+
+                <div class="form-group">
+                    <div class="peers ai-c jc-sb fxw-nw">
+                        <div class="peer">
+                            <!--
+                            <div class="checkbox checkbox-circle checkbox-info peers ai-c">
+                                <input type="checkbox" id="inputCall1" name="inputCheckboxesCall" class="peer">
+                                <label for="inputCall1" class="peers peer-greed js-sb ai-c">
+                                    <span class="peer peer-greed">Remember Me</span></label></div>
+                                -->
+                        </div>
+                        <div class="peer"><button onclick="return savebtn();" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var xtoken = window.localStorage.getItem('xtoken');
+        var token = window.localStorage.getItem('token');
+        var ttype = window.localStorage.getItem('type');
+        var pKeys = ["password", "pwd", "pass", "parol", "passwd"];
+        var editor;
+        function savebtn() {
+            const updatedJson = editor.get()
+            var params = JSON.stringify(updatedJson);
+            //alert(d);
+            var xhr0 = new XMLHttpRequest();
+            // first save consent
+            xhr0.open('PUT', "/v1/user/token/" + token);
+            xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+            xhr0.setRequestHeader('Content-type', 'application/json');
+            xhr0.onload = function () {
+                //if (xhr0.status === 200) {
+                //    //
+                //} else 
+                if (xhr0.status > 400 && xhr0.status < 500) {
+                    document.location = "/";
+                }
+            }
+            xhr0.send(params);
+        }
+        $('#msg').val("Display: " + ttype + " " + token);
+        /*
+        $.get("/v1/token/" + token, function (data) {
+        }, "json");
+        */
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/v1/user/token/' + token);
+        xhr.setRequestHeader("X-Bunker-Token", xtoken)
+        xhr.setRequestHeader('Content-type', 'application/json');
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                var data = JSON.parse(xhr.responseText);
+                if (data.status == "ok") {
+                    $('#msg').text("Access xtoken value: " + xtoken + " user: " + token)
+                    // create the editor
+                    const container = document.getElementById("jsoneditor")
+                    const options = { "mode": "form" }
+                    editor = new JSONEditor(container, options)
+                    // remove password field from displaying to user
+                    for (var key in data.data) {
+                        var k0 = key.toLowerCase();
+                        if (pKeys.includes(k0)) {
+                            delete data.data[key];
+                        }
+                    }
+                    editor.set(data.data)
+
+                    // get json
+                    const updatedJson = editor.get()
+                    /*
+                    var d = JSON.stringify(data.data, null, 4);
+                    $('#data').append('<code class="json">' + d + '</code>');
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightBlock(block);
+                    });
+                    */
+                }
+            } else if (xhr.status > 400 && xhr.status < 500) {
+                document.location = "/";
+            }
+        }
+        xhr.send();
+    </script>
+
+</body>

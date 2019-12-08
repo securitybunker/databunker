@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Data Bunker Login</title>
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
+        integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container col-md-6 pY-120">
+        <div class="row col-12 col-md-12 ">
+            <div class="bigblock">
+                <h4>Verification step</h4>
+                <p>Enter the code you received by email or SMS</p>
+                <form id="loginform">
+                    <div class="form-group"><label class="text-normal text-dark">Enter code</label>
+                        <input id="codevalue" type="login" class="form-control" placeholder="Enter..."></div>
+                    <div class="form-group">
+                        <div class="peers ai-c jc-sb fxw-nw">
+                            <div class="peer">
+                                <!--
+                                <div class="checkbox checkbox-circle checkbox-info peers ai-c">
+                                    <input type="checkbox" id="inputCall1" name="inputCheckboxesCall" class="peer">
+                                    <label for="inputCall1" class="peers peer-greed js-sb ai-c">
+                                        <span class="peer peer-greed">Remember Me</span></label></div>
+                                    -->
+                            </div>
+                            <div class="peer"><button id="submitbtn" class="btn btn-primary">Enter</button></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('#submitbtn').on('click', function (e) {
+            e.preventDefault();
+            var code = $('#codevalue').val();
+            var login = window.localStorage.getItem('login')
+            if (login.indexOf('@') > 0) {
+                $.get("/v1/enter/email/" + encodeURI(login) + "/" + encodeURI(code), function (data) {
+                    window.localStorage.setItem('login', "");
+                    if (data.xtoken) {
+                        window.localStorage.setItem('xtoken', data.xtoken);
+                        window.localStorage.setItem('token', data.token);
+                        document.location = "user-profile.html";
+                    } else {
+                        document.location = "/";
+                    }
+                }, "json");
+            } else {
+                $.get("/v1/enter/phone/" + encodeURI(login) + "/" + encodeURI(code), function (data) {
+                    window.localStorage.setItem('login', "");
+                    if (data.xtoken) {
+                        window.localStorage.setItem('xtoken', data.xtoken);
+                        window.localStorage.setItem('token', data.token);
+                        document.location = "user-profile.html";
+                    } else {
+                        document.location = "/";
+                    }
+                }, "json");
+            }
+        })
+    </script>
+</body>

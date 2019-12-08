@@ -1,0 +1,218 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Data Bunker Login</title>
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="site/style.css">
+</head>
+
+<body>
+    <div class="container col-md-6 pY-120">
+        <div class="row col-12 col-md-12 ">
+            <div class="bigblock">
+                <h4>Login form</h4>
+                <p>Select login method and enter login details:</p>
+                <form id="loginform">
+                    <div class="form-group">
+                        <select onchange="changemethod(this);" class="custom-select" required id="keymethod">
+                            <option value="token">Token</option>
+                            <option value="Email">Email</option>
+                            <option value="Phone">Phone</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="email-conf-form" style="display:none;">
+                        <p>We will send you email with access code using <a target="_blank"
+                                href="https://www.mailgun.com/">https://www.mailgun.com/</a>&nbsp;-&nbsp;<a
+                                target="_blank" href="https://www.mailgun.com/gdpr/">Mailgun GDPR page</a></p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" onclick="hidealert();" id="emailchk">
+                            <label class="form-check-label" for="emailchk">Confirm to allow sending access code with
+                                mailgun.com</label>
+                        </div>
+                    </div>
+                    <div class="form-group" id="sms-conf-form" style="display:none;">
+                        <p>We will send you SMS with access code using <a target="_blank"
+                                href="https://www.twilio.com/">https://www.twilio.com/</a>&nbsp;-&nbsp;<a
+                                target="_blank" href="https://www.twilio.com/gdpr">Twilio GDPR page</a></p>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" onclick="hidealert();" id="smschk">
+                            <label class="form-check-label" for="smschk">Confirm to allow sending access code with
+                                twilio.com</label>
+                        </div>
+                    </div>
+                    <div id="confalert" class="alert alert-warning" role="alert" style="display:none;">
+                        We can not send you access code!
+                    </div>
+                    <div id="badformat" class="alert alert-warning" role="alert" style="display:none;">
+                        Bad input value!
+                    </div>
+                    <div class="form-group">
+                        <input id="loginvalue" type="login" class="form-control" onclick="hidebadformat();"
+                            placeholder="Enter token...">
+                    </div>
+                    <div class="form-group">
+                        <div class="peers ai-c jc-sb fxw-nw">
+                            <div class="peer">
+                                <!--
+                                <div class="checkbox checkbox-circle checkbox-info peers ai-c">
+                                    <input type="checkbox" id="inputCall1" name="inputCheckboxesCall" class="peer">
+                                    <label for="inputCall1" class="peers peer-greed js-sb ai-c">
+                                        <span class="peer peer-greed">Remember Me</span></label></div>
+                                    -->
+                            </div>
+                            <div class="peer"><button onclick="return submitbtn();"
+                                    class="btn btn-primary">Login</button></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function isUUID(uuid) {
+            let s = "" + uuid;
+            s = s.match('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$');
+            if (s === null) {
+                return false;
+            }
+            return true;
+        }
+        function hidealert() {
+            var confalert = document.getElementById('confalert');
+            confalert.style.display = "none";
+            var badformat = document.getElementById('badformat');
+            badformat.style.display = "none";
+        }
+        function hidebadformat() {
+            var badformat = document.getElementById('badformat');
+            badformat.style.display = "none";
+        }
+        function changemethod(obj) {
+            var element = document.getElementById('loginvalue');
+            var smsform = document.getElementById('sms-conf-form');
+            var emailform = document.getElementById('email-conf-form');
+            var smschk = document.getElementById('smschk');
+            var emailchk = document.getElementById('emailchk');
+            var confalert = document.getElementById('confalert');
+            var badformat = document.getElementById('badformat');
+
+            if (!element || !smsform || !emailform ||
+                !smschk || !emailchk || !confalert || !badformat) {
+                return false;
+            }
+            var value = obj.value;
+            if (!value) {
+                return false;
+            }
+            badformat.style.display = "none";
+            smschk.checked = false;
+            emailchk.checked = false;
+            value = value.toLowerCase();
+            var key = element.placeholder = "Enter " + value + "...";
+            confalert.style.display = "none";
+            if (value == "email") {
+                smsform.style.display = "none";
+                emailform.style.display = "block";
+            } else if (value == "phone") {
+                smsform.style.display = "block";
+                emailform.style.display = "none";
+            } else {
+                smsform.style.display = "none";
+                emailform.style.display = "none";
+            }
+        }
+
+        function submitbtn() {
+            var element = document.getElementById('loginvalue')
+            var smschk = document.getElementById('smschk');
+            var emailchk = document.getElementById('emailchk');
+            var confalert = document.getElementById('confalert');
+            var keymethod = document.getElementById('keymethod');
+            var badformat = document.getElementById('badformat');
+
+            if (!element || !smschk || !emailchk || !confalert || !keymethod) {
+                return false;
+            }
+            var key = element.value;
+            if (!key) {
+                return false;
+            }
+            var kkk = keymethod.options[keymethod.selectedIndex].value;
+            if ((kkk == "Email" && emailchk.checked == false) ||
+                (kkk == "Phone" && smschk.checked == false)) {
+                confalert.style.display = "block";
+                return false;
+            }
+
+
+            if (kkk == "Token" && isUUID(key) == true) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', "/v1/xtoken/" + key);
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        var data = JSON.parse(xhr.responseText);
+                        if (data && data.status && data.status == "ok") {
+                            window.localStorage.setItem('xtoken', key);
+                            window.localStorage.setItem('type', data.type);
+                            if (data.data) {
+                                document.location = "/site/display-data.html";
+                            } else {
+                                document.location = "/site/admin-events.html";
+                            }
+                        }
+                    }
+                };
+                xhr.send();
+            } else if (kkk == "Email" && key.indexOf('@') > 0) {
+                var params = 'brief=send-email-mailgun-on-login';
+                window.localStorage.setItem('login', key);
+                var xhr0 = new XMLHttpRequest();
+                // first save consent
+                xhr0.open('POST', "/v1/consent/email/" + encodeURI(key));
+                xhr0.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                xhr0.onload = function () {
+                    if (xhr0.status === 200) {
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('GET', "/v1/login/email/" + encodeURI(key));
+                        xhr.onload = function () {
+                            if (xhr.status === 200) {
+                                document.location = "/site/enter.html";
+                            }
+                        }
+                        xhr.send();
+                    }
+                }
+                xhr0.send(params);
+
+
+            } else if (kkk == "Phone") {
+                window.localStorage.setItem('login', key);
+                var params = 'brief=send-sms-twilio-on-login';
+                var xhr0 = new XMLHttpRequest();
+                xhr0.open('POST', "/v1/consent/phone/" + encodeURI(key));
+                xhr0.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                xhr0.onload = function () {
+                    if (xhr0.status === 200) {
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('GET', "/v1/login/phone/" + encodeURI(key));
+                        xhr.onload = function () {
+                            if (xhr.status === 200) {
+                                document.location = "/site/enter.html";
+                            }
+                        }
+                        xhr.send();
+                    }
+                }
+                xhr0.send(params);
+            } else {
+                badformat.style.display = "block";
+            }
+            return false;
+        }
+    </script>
+</body>
