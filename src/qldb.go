@@ -503,8 +503,93 @@ func (dbobj dbcon) cleanupRecord(t Tbl, keyName string, keyValue string, data in
 }
 
 func (dbobj dbcon) getList(t Tbl, keyName string, keyValue string, start int32, limit int32) ([]bson.M, error) {
-	fmt.Println("TODO")
-	return nil, nil
+	table := getTable(t)
+	if limit > 100 {
+		limit = 100
+	}
+
+	q := "select * from " + table + " WHERE " + keyName + "=\"" + keyValue + "\""
+	if limit > 0 {
+		q = q + " LIMIT " + strconv.FormatInt(int64(limit), 10)
+	}
+	fmt.Printf("q: %s\n", q)
+	tx, err := dbobj.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+	rows, err := tx.Query(q)
+	if err == sql.ErrNoRows {
+		fmt.Println("nothing found")
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	columnNames, err := rows.Columns()
+	if err != nil {
+		return nil, err
+	}
+	//fmt.Printf("names: %s\n", columnNames)
+	if err := rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+	var results []bson.M
+	//pointers := make([]interface{}, len(columnNames))
+	//rows.Next()
+	for rows.Next() {
+		recBson := bson.M{}
+		//fmt.Println("parsing result line")
+		columnPointers := make([]interface{}, len(columnNames))
+		//for i, _ := range columnNames {
+		//		columnPointers[i] = new(interface{})
+		//}
+		columns := make([]interface{}, len(columnNames))
+		for i, _ := range columns {
+			columnPointers[i] = &columns[i]
+		}
+
+		err = rows.Scan(columnPointers...)
+		if err == sql.ErrNoRows {
+			fmt.Println("nothing found")
+			return nil, nil
+		}
+		if err != nil {
+			fmt.Printf("nothing found: %s\n", err)
+			return nil, nil
+		}
+		for i, colName := range columnNames {
+			switch t := columns[i].(type) {
+			case string:
+				recBson[colName] = columns[i]
+			case []uint8:
+				recBson[colName] = string(columns[i].([]uint8))
+			case int64:
+				recBson[colName] = int32(columns[i].(int64))
+			case nil:
+				//fmt.Printf("is nil, not interesting\n")
+			default:
+				fmt.Printf("field: %s - %s, unknown: %s - %T\n", colName, columns[i], t, t)
+			}
+		}
+		results = append(results, recBson)
+	}
+	err = rows.Close()
+	if err == sql.ErrNoRows {
+		fmt.Println("nothing found2")
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+	if len(results) == 0 {
+		fmt.Println("no result!!!")
+		return nil, nil
+	}
+	if err = tx.Commit(); err != nil {
+		return results, err
+	}
+	return results, nil
 }
 
 func (dbobj dbcon) getAllTables() ([]string, error) {
