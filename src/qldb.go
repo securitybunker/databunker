@@ -86,6 +86,9 @@ func (dbobj dbcon) initDB() error {
 	}
 	return nil
 }
+func (dbobj dbcon) closeDB() {
+	dbobj.db.Close()
+}
 
 func (dbobj dbcon) initUserApps() error {
 	return nil
@@ -354,8 +357,9 @@ func (dbobj dbcon) updateRecordInTableDo(table string, filter string, bdoc *bson
 }
 
 func (dbobj dbcon) getRecord(t Tbl, keyName string, keyValue string) (bson.M, error) {
-	tbl := getTable(t)
-	return dbobj.getRecordInTable(tbl, keyName, keyValue)
+	table := getTable(t)
+	q := "select * from " + table + " WHERE " + keyName + "=\"" + keyValue + "\""
+	return dbobj.getRecordInTableDo(q)
 }
 
 func (dbobj dbcon) getRecordInTable(table string, keyName string, keyValue string) (bson.M, error) {
@@ -365,8 +369,10 @@ func (dbobj dbcon) getRecordInTable(table string, keyName string, keyValue strin
 
 func (dbobj dbcon) getRecord2(t Tbl, keyName string, keyValue string,
 	keyName2 string, keyValue2 string) (bson.M, error) {
-	tbl := getTable(t)
-	return dbobj.getRecordInTable2(tbl, keyName, keyValue, keyName2, keyValue2)
+	table := getTable(t)
+	q := "select * from " + table + " WHERE " + keyName + "=\"" + keyValue + "\" AND " +
+		keyName2 + "=\"" + keyValue2 + "\""
+	return dbobj.getRecordInTableDo(q)
 }
 
 func (dbobj dbcon) getRecordInTable2(table string, keyName string, keyValue string,
