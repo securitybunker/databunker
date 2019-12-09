@@ -216,19 +216,20 @@ func main() {
 		//log.Panic("error %s", err.Error())
 		fmt.Printf("error %s", err.Error())
 	}
-	db, _ := newDB(masterKey, nil)
 	if *initPtr {
 		fmt.Println("\nDatabunker init\n")
 		masterKey, err = generateMasterKey()
 		fmt.Printf("Master key: %x\n\n", masterKey)
 		fmt.Println("Init databunker.db\n")
+		db, _ := newDB(masterKey, nil)
 		db.initDB()
 		rootToken, err := db.createRootToken()
 		if err != nil {
 			//log.Panic("error %s", err.Error())
 			fmt.Printf("error %s", err.Error())
 		}
-		fmt.Printf("API Root token: %s\n\n", rootToken)
+		fmt.Printf("\nAPI Root token: %s\n\n", rootToken)
+		db.closeDB()
 		os.Exit(0)
 	}
 	if dbExists() == false {
@@ -239,11 +240,16 @@ func main() {
 	}
 	if masterKeyPtr != nil && len(*masterKeyPtr) > 0 {
 		masterKey, err = hex.DecodeString(*masterKeyPtr)
+		if err != nil {
+			fmt.Printf("Failed to decode master key: %s\n", err)
+			os.Exit(0)
+		}
 	} else {
 		fmt.Println(`Masterkey is missing.`)
 		fmt.Println(`Run "./databunker -masterkey key"`)
 		os.Exit(0)
 	}
+	db, _ := newDB(masterKey, nil)
 	db.initUserApps()
 	e := mainEnv{db, cfg}
 	fmt.Printf("host %s\n", cfg.Server.Host+":"+cfg.Server.Port)
@@ -256,6 +262,7 @@ func main() {
 			log.Fatal("ListenAndServe: ", err)
 		}
 	} else {
+		fmt.Println("Loading server")
 		log.Fatal(http.ListenAndServe(cfg.Server.Host+":"+cfg.Server.Port, router))
 	}
 }
