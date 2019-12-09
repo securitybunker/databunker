@@ -15,6 +15,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -30,6 +31,13 @@ type dbcon struct {
 	db        *sql.DB
 	masterKey []byte
 	hash      []byte
+}
+
+func dbExists() bool {
+	if _, err := os.Stat("databunker.db"); os.IsNotExist(err) {
+		return false
+	}
+	return true
 }
 
 func newDB(masterKey []byte, urlurl *string) (dbcon, error) {
@@ -50,9 +58,9 @@ func newDB(masterKey []byte, urlurl *string) (dbcon, error) {
 	*/
 
 	ql.RegisterDriver2()
-	db, err := sql.Open("ql2", "./bql.db")
+	db, err := sql.Open("ql2", "./databunker.db")
 	if err != nil {
-		log.Fatalf("Failed to open ql db: %s", err)
+		log.Fatalf("Failed to open databunker.db file: %s", err)
 	}
 	hash := md5.Sum(masterKey)
 	dbobj = dbcon{db, masterKey, hash[:]}
@@ -61,7 +69,6 @@ func newDB(masterKey []byte, urlurl *string) (dbcon, error) {
 
 func (dbobj dbcon) initDB() error {
 	var err error
-	fmt.Println("init db *****")
 	if err = initUsers(dbobj.db); err != nil {
 		return err
 	}
@@ -573,10 +580,10 @@ func initUsers(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("going to create indexes")
+	//fmt.Println("going to create indexes")
 	_, err = tx.Exec(`CREATE INDEX users_token ON users (token);`)
 	if err != nil {
-		fmt.Println("error in create index")
+		//fmt.Println("error in create index")
 		return err
 	}
 	_, err = tx.Exec(`CREATE INDEX users_login ON users (loginidx);`)

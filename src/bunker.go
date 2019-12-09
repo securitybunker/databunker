@@ -202,41 +202,47 @@ func readEnv(cfg *Config) error {
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	fmt.Println("***MAIN***")
 	lockMemory()
 	var cfg Config
 	readFile(&cfg)
 	readEnv(&cfg)
-	fmt.Printf("%+v\n", cfg)
+	//fmt.Printf("%+v\n", cfg)
 	initPtr := flag.Bool("init", false, "a bool")
 	masterKeyPtr := flag.String("masterkey", "", "master key")
 	flag.Parse()
 	var err error
 	var masterKey []byte
-	if *initPtr {
-		fmt.Println("Init")
-		masterKey, err = generateMasterKey()
-		fmt.Printf("Master key: %x\n", masterKey)
-	} else if masterKeyPtr != nil && len(*masterKeyPtr) > 0 {
-		masterKey, err = hex.DecodeString(*masterKeyPtr)
-	} else {
-		fmt.Println("Run ./databunker -init for the firts time.")
-		log.Fatal("Masterkey is missing. Run ./databunker -masterkey key")
-	}
 	if err != nil {
 		//log.Panic("error %s", err.Error())
 		fmt.Printf("error %s", err.Error())
 	}
 	db, _ := newDB(masterKey, nil)
 	if *initPtr {
-		fmt.Println("Init")
+		fmt.Println("\nDatabunker init\n")
+		masterKey, err = generateMasterKey()
+		fmt.Printf("Master key: %x\n\n", masterKey)
+		fmt.Println("Init databunker.db\n")
 		db.initDB()
 		rootToken, err := db.createRootToken()
 		if err != nil {
 			//log.Panic("error %s", err.Error())
 			fmt.Printf("error %s", err.Error())
 		}
-		fmt.Printf("Root token: %s\n", rootToken)
+		fmt.Printf("API Root token: %s\n\n", rootToken)
+		os.Exit(0)
+	}
+	if dbExists() == false {
+		fmt.Println("\ndatabunker.db file is missing.\n")
+		fmt.Println(`Run "./databunker -init" for the first time.`)
+		fmt.Println("")
+		os.Exit(0)
+	}
+	if masterKeyPtr != nil && len(*masterKeyPtr) > 0 {
+		masterKey, err = hex.DecodeString(*masterKeyPtr)
+	} else {
+		fmt.Println(`Masterkey is missing.`)
+		fmt.Printf(`Run "./databunker -masterkey key"`)
+		os.Exit(0)
 	}
 	db.initUserApps()
 	e := mainEnv{db, cfg}
