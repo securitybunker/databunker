@@ -74,7 +74,6 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	index := ps.ByName("index")
 	event := audit("get user record by "+index, code)
 	defer func() { event.submit(e.db) }()
-
 	if e.enforceAuth(w, r, event) == false {
 		return
 	}
@@ -97,7 +96,7 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		return
 	}
 	if resultJSON == nil {
-		returnError(w, r, "not found", 405, nil, event)
+		returnError(w, r, "record not found", 405, nil, event)
 		return
 	}
 	finalJSON := fmt.Sprintf(`{"status":"ok","token":"%s","data":%s}`, userTOKEN, resultJSON)
@@ -277,7 +276,7 @@ func (e mainEnv) userLoginEnter(w http.ResponseWriter, r *http.Request, ps httpr
 			// user ented correct key
 			// generate temp user access code
 			xtoken, err := e.db.generateUserLoginXToken(userTOKEN)
-			fmt.Printf("generate user access token: %s", xtoken)
+			fmt.Printf("generate user access token: %s\n", xtoken)
 			if err != nil {
 				returnError(w, r, "internal error", 405, err, event)
 				return
