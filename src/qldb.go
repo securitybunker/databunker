@@ -291,7 +291,7 @@ func (dbobj dbcon) createRecord(t Tbl, data interface{}) (int, error) {
 
 func (dbobj dbcon) countRecords(t Tbl, keyName string, keyValue string) (int64, error) {
 	tbl := getTable(t)
-	q := "select count(*) from " + tbl + " WHERE " + keyName + "'" + keyValue + "';"
+	q := "select count(*) from " + tbl + " WHERE " + keyName + "=\"" + keyValue + "\""
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
