@@ -241,7 +241,7 @@ func main() {
 		masterKey, err = hex.DecodeString(*masterKeyPtr)
 	} else {
 		fmt.Println(`Masterkey is missing.`)
-		fmt.Printf(`Run "./databunker -masterkey key"`)
+		fmt.Println(`Run "./databunker -masterkey key"`)
 		os.Exit(0)
 	}
 	db.initUserApps()
