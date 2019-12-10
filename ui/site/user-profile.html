@@ -52,8 +52,15 @@
                 </nav>
             </div>
             <div class="bigblock">
-                <h4>User record profile</h4>
-                <p id="msg">text</p>
+                <div class="row">
+                    <div class="col-9 col-md-9 ">
+                        <h4>User record profile</h4>
+                    </div>
+                    <div class="col-3 col-md3 ">
+                            <button onclick="return forgetme();" class="btn btn-warning">Forget me</button>
+                    </div>
+                </div>
+                <p id="msg">You can edit your profile her.</p>
                 <div id="jsoneditor" style="width: 400px; height: 400px;"></div>
                 <pre id="data"></pre>
 
@@ -67,7 +74,8 @@
                                     <span class="peer peer-greed">Remember Me</span></label></div>
                                 -->
                         </div>
-                        <div class="peer"><button onclick="return savebtn();" class="btn btn-primary">Save</button>
+                        <div class="peer">
+                            <button onclick="return savebtn();" class="btn btn-primary">Save</button>
                         </div>
                     </div>
                 </div>
@@ -80,6 +88,54 @@
         var ttype = window.localStorage.getItem('type');
         var pKeys = ["password", "pwd", "pass", "parol", "passwd"];
         var editor;
+        function forgetme() {
+            var heading = "Confirm action";
+            var question = "Are you sure? This can not be undone.";
+            var cancelButtonTxt = "Close popup";
+            var okButtonTxt = "Forget me!";
+            var confirmModal =
+                $('<div class="modal fade" role="dialog"><div class="modal-dialog" role="document"><div class="modal-content">' +
+                    '<div class="modal-header">' +
+                    '<h5 class="modal-title">' + heading + '</h5>' +
+                    '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+                        '<span aria-hidden="true">&times;</span></button>' +
+                    '</div>' +
+                    '<div class="modal-body">' +
+                    '<p>' + question + '</p>' +
+                    '</div>' +
+                    '<div class="modal-footer">' +
+                    '<a href="#" class="btn" data-dismiss="modal">' +
+                    cancelButtonTxt +
+                    '</a>' +
+                    '<a href="#" id="okButton" class="btn btn-primary">' +
+                    okButtonTxt +
+                    '</a>' +
+                    '</div>' +
+                    '</div></div></div>');
+
+            confirmModal.find('#okButton').click(function (event) {
+                //callback();
+                forgetMeDo();
+                confirmModal.modal('hide');
+            });
+
+            confirmModal.modal('show');
+        }
+        function forgetMeDo(brief) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('DELETE', "/v1/user/token/" + token);
+            xhr.setRequestHeader("X-Bunker-Token", xtoken)
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    bunker_logout();
+                } else if (xhr.status > 400 && xhr.status < 500) {
+                    alert("error, try again");
+                    //document.location = "/";
+                }
+            }
+            xhr.send();
+        }
         function savebtn() {
             const updatedJson = editor.get()
             var params = JSON.stringify(updatedJson);
@@ -112,7 +168,7 @@
             if (xhr.status === 200) {
                 var data = JSON.parse(xhr.responseText);
                 if (data.status == "ok") {
-                    $('#msg').text("Access xtoken value: " + xtoken + " user: " + token)
+                    //$('#msg').text("Access xtoken value: " + xtoken + " user: " + token)
                     // create the editor
                     const container = document.getElementById("jsoneditor")
                     const options = { "mode": "form" }
