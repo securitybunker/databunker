@@ -11,7 +11,7 @@
 | Resource / HTTP method | POST (create)    | GET (read)    | PUT (update)     | DELETE (delete)  |
 | ---------------------- | ---------------- | ------------- | ---------------- | ---------------- |
 | /v1/user               | Create new user  | Error         | Error            | Error            |
-| /v1/user/uuid/{token}  | Error            | Get user      | Update user      | Delete user PII  |
+| /v1/user/token/{token} | Error            | Get user      | Update user      | Delete user PII  |
 | /v1/user/login/{login} | Error            | Get user      | Update user      | Delete user PII  |
 | /v1/user/email/{email} | Error            | Get user      | Update user      | Delete user PII  |
 | /v1/user/phone/{phone} | Error            | Get user      | Update user      | Delete user PII  |
@@ -45,21 +45,21 @@ Create used by posting JSON:
 
 ```
 curl -s http://localhost:3000/v1/user -XPOST \
-  -H "X-Bunker-Token: cb2537f9-14e2-7019-503f-b36a1a8f6e7f" \
+  -H "X-Bunker-Token: $XTOKEN" \
   -H "Content-Type: application/json" \
   -d '{"firstName": "John","lastName":"Doe","email":"user@gmail.com"}'
-{"status":"ok","uuid":"db80789b-0ad7-0690-035a-fd2c42531e87"}
+{"status":"ok","token":"db80789b-0ad7-0690-035a-fd2c42531e87"}
 ```
 
 Create user by POSTing user key/value fiels as post parameters:
 
 ```
 curl -s http://localhost:3000/v1/user -XPOST \
-  -H "X-Bunker-Token: $TOKEN" \
+  -H "X-Bunker-Token: $XTOKEN" \
   -d 'firstName=John' \
   -d 'lastName=Doe' \
   -d 'email=user2@gmail.com'
-{"status":"ok","uuid":"db80789b-0ad7-0690-035a-fd2c42531e87"}
+{"status":"ok","token":"db80789b-0ad7-0690-035a-fd2c42531e87"}
 ```
 
 **NOTE**: Keep this user token privately as it provides user private information in your system.
@@ -69,28 +69,28 @@ For semi-trusted environments or 3rd party companies, use **shareable identity**
 ---
 
 ## Get user record
-### `GET /v1/user/{uuid,login,email,phone}/{indexValue}`
+### `GET /v1/user/{token,login,email,phone}/{indexValue}`
 
 ### Explanation
-This API is used to get user PII records. You can lookup user token by **uuid** (token), **email**, **phone** or **login**.
+This API is used to get user PII records. You can lookup user token by **token**, **email**, **phone** or **login**.
 
 ### Example:
 
 Fetch by user token:
 
 ```
-curl --header "X-Bunker-Token: $TOKEN" -XGET \
-   https://localhost:3000/v1/user/uuid/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
-{"uuid":"DAD2474A-E9A7-4BA7-BFC2-C4506880198E","data":{"k1":[1,10,20],
+curl --header "X-Bunker-Token: $XTOKEN" -XGET \
+   https://localhost:3000/v1/user/token/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
+{"status":"ok","token":"DAD2474A-E9A7-4BA7-BFC2-C4506880198E","data":{"k1":[1,10,20],
 "k2":{"f1":"t1","f3":{"a":"b"}},"login":"user1","name":"tom"}}
 ```
 
 Fetch by "login" name:
 
 ```
-curl --header "X-Bunker-Token: $TOKEN" -XGET \
+curl --header "X-Bunker-Token: $XTOKEN" -XGET \
    https://localhost:3000/v1/user/login/user1
-{"uuid":"DAD2474A-E9A7-4BA7-BFC2-C4506880198E","data":{"k1":[1,10,20],
+{"status":"ok","token":"DAD2474A-E9A7-4BA7-BFC2-C4506880198E","data":{"k1":[1,10,20],
 "k2":{"f1":"t1","f3":{"a":"b"}},"login":"user1","name":"tom"}}
 ```
 
@@ -98,11 +98,11 @@ curl --header "X-Bunker-Token: $TOKEN" -XGET \
 ---
 
 ## Update user record
-### `PUT /v1/user/{uuid,login,email,phone}/{indexValue}`
+### `PUT /v1/user/{token,login,email,phone}/{indexValue}`
 
 ### Explanation
 
-This API is used to update user record. You can update user by **uuid** (token), **email**, **phone** or **login**.
+This API is used to update user record. You can update user by **token**, **email**, **phone** or **login**.
 This call returns update status on success or error message on error.
 
 ### POST Body Format
@@ -121,53 +121,53 @@ The following content type supported:
 The following command will change user name to "Alex". An audit event will be generated showing previous and new value.
 
 ```
-curl --header "X-Bunker-Token: $TOKEN" -d 'name=Alex' -XPUT \
-   https://localhost:3000/v1/user/uuid/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
+curl --header "X-Bunker-Token: $XTOKEN" -d 'name=Alex' -XPUT \
+   https://localhost:3000/v1/user/token/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
 ```
 
 ---
 
 ## Delete user by record
-### `DELETE /v1/user/{uuid,login,email,phone}/{indexValue}`
+### `DELETE /v1/user/{token,login,email,phone}/{indexValue}`
 
 This command will remove all user records from the database, leaving only user token id.
 
 ```
-curl -header "X-Bunker-Token: $TOKEN" -XDELETE \
-  https://localhost:3000/v1/user/uuid/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
+curl -header "X-Bunker-Token: $XTOKEN" -XDELETE \
+  https://localhost:3000/v1/user/token/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
 {"status":"ok","result":"done"}
 ```
 
 ## User App Api
 
 
-| Resource / HTTP method          | POST (create)       | GET (read)            | PUT (update)  | DELETE |
-| ------------------------------- | ------------------- | --------------------- | ------------- | ------ |
-| /v1/userapp/uuid/:uuid/:appname | Create new user app | Get record            | Change record | Delete |
-| /v1/userapp/uuid/:uuid          | Error               | Get all user app list | Error         | Error  |
-| /v1/userapp/list                | Error               | Get all app list      | Error         | Error  |
+| Resource / HTTP method            | POST (create)       | GET (read)        | PUT (update)  | DELETE |
+| --------------------------------- | ------------------- | ----------------- | ------------- | ------ |
+| /v1/userapp/token/:token/:appname | Create new user app | Get record        | Change record | Delete |
+| /v1/userapp/token/:token          | Error               | Get user app list | Error         | Error  |
+| /v1/userapp/list                  | Error               | Get all app list  | Error         | Error  |
 
 
 ## Create user app record
-### `POST /v1/userapp/uuid/:uuid/:appname`
+### `POST /v1/userapp/token/:token/:appname`
 
 ### Explanation
 
-This API is used to create new user app record and if the request is successful it returns new `{token}`.
+This API is used to create new user app record and if the request is successful it returns `{"status":"ok"}`.
 
 
 ---
 
 ## User Session Api
 
-| Resource / HTTP method    | POST (create)      | GET (read)     | PUT (update)   | DELETE (delete) |
-| ------------------------- | ------------------ | -------------- | -------------- | --------------- |
-| /v1/session/uuid/:uuid    | Create new session | Get sessions   | Error          | Error           |
-| /v1/session/session/:uuid | Error              | Get session    | Error??        | Error??         |
-| /v1/session/clientip/:ip  | Error              | Get sessions   | Error          | Error           |
+| Resource / HTTP method       | POST (create)      | GET (read)     | PUT (update)   | DELETE (delete) |
+| ---------------------------- | ------------------ | -------------- | -------------- | --------------- |
+| /v1/session/token/:token      | Create new session | Get sessions   | Error          | Error           |
+| /v1/session/session/:session | Error              | Get session    | Error??        | Error??         |
+| /v1/session/clientip/:ip     | Error              | Get sessions   | Error          | Error           |
 
 ## Create user session record
-### `POST /v1/session/uuid/:uuid`
+### `POST /v1/session/token/:token`
 
 ### Explanation
 
@@ -188,14 +188,14 @@ This API returns session data.
 
 
 ## Get session records by user token.
-### `GET /v1/session/uuid/:session`
+### `GET /v1/session/token/:token`
 
 ### Explanation
 
 This API returns an array of sessions of the same user.
 
 ## Get session records by ip address.
-### `GET /v1/session/clientip/:session`
+### `GET /v1/session/clientip/:ipaddress`
 
 ### Explanation
 
@@ -207,11 +207,11 @@ This API returns an array of user sessions by IP address. These sessions can be 
 
 | Resource / HTTP method | POST (create)     | GET (read)    | PUT (update)     | DELETE (delete)  |
 | ---------------------- | ----------------- | ------------- | ---------------- | ---------------- |
-| /v1/token/:uuid        | Create new record | Error         | Error            | Error            |
-| /v1/token/:token       | Error             | Get data      | Error            | Error            |
+| /v1/xtoken/:token      | Create new record | Error         | Error            | Error            |
+| /v1/xtoken/:token      | Error             | Get data      | Error            | Error            |
 
-	router.POST("/v1/token/:token", e.userNewToken)
-	router.GET("/v1/token/:xtoken", e.userCheckToken)
+	router.POST("/v1/xtoken/:token", e.userNewToken)
+	router.GET("/v1/xtoken/:xtoken", e.userCheckToken)
 
 
 ---
@@ -220,7 +220,7 @@ This API returns an array of user sessions by IP address. These sessions can be 
 
 | Resource / HTTP method | POST (create)     | GET (read)    | PUT (update)     | DELETE (delete)  |
 | ---------------------- | ----------------- | ------------- | ---------------- | ---------------- |
-| /v1/shareable/:uuid    | Create new record | Error         | Error            | Error            |
+| /v1/shareable/:token   | Create new record | Error         | Error            | Error            |
 | /v1/shareable/:token   | Error             | Get data      | Error            | Error            |
 
 
@@ -239,7 +239,7 @@ Afterward, access will be blocked.
 The following command will generate a token to access user email and name for 7 days:
 
 ```
-curl --header "X-Bunker-Token: $TOKEN" -d 'fields=email,name' -d 'expiration=7d' -d 'partner=sms' \
+curl --header "X-Bunker-Token: $XTOKEN" -d 'fields=email,name' -d 'expiration=7d' -d 'partner=sms' \
    https://bunker.company.com/gentokens/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
 ```
 
@@ -269,7 +269,7 @@ curl -d 'ip=user@example.com' \
    https://bunker.company.com/gensession/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
 ```
 
-It will generate a new uuid, that you can now pass to 3rd party system as a user id.
+It will generate a new token, that you can now pass to 3rd party system as a user id.
 
 
 ## User consent management
@@ -289,21 +289,21 @@ To comply with this requirement, we added support to manage user consent. We sup
 ### List granted
 
 ```
-curl --header "X-Bunker-Token: $TOKEN" \
+curl --header "X-Bunker-Token: $XTOKEN" \
    https://bunker.company.com/consent/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
 ```
 
 ### List all
 
 ```
-curl --header "X-Bunker-Token: $TOKEN" \
+curl --header "X-Bunker-Token: $XTOKEN" \
    https://bunker.company.com/consent/DAD2474A-E9A7-4BA7-BFC2-C4506880198E?all
 ```
 
 ### Cancel consent
 
 ```
-curl --header "X-Bunker-Token: $TOKEN" -XDELETE \
+curl --header "X-Bunker-Token: $XTOKEN" -XDELETE \
    https://bunker.company.com/consent/DAD2474A-E9A7-4BA7-BFC2-C4506880198E/<consent-id>
 ```
 
@@ -344,8 +344,6 @@ locked
 
 
 ## Audit API
-
-
 
 
 It is not compliant, unless you have a real reason to share this specific personal sub-record. For example,
