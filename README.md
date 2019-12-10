@@ -1,6 +1,6 @@
 # Paranoid Guy Data Bunker
 
-[API DOCUMENT](API.md)
+Other documents: [API LIST](API.md)
 
 **Data Bunker is advanced personal information tokenization and storage service build to comply with GDPR.**
 
@@ -393,3 +393,7 @@ he will not get a full controll over the Data Bunker service as root token will 
 application server.
 
 This is all done with the help of custom plugin we build for Hashicorp Vault.
+
+---
+
+Other documents: [API LIST](API.md)
