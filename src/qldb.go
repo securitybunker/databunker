@@ -42,23 +42,23 @@ func dbExists() bool {
 
 func newDB(masterKey []byte, urlurl *string) (dbcon, error) {
 	dbobj := dbcon{nil, nil, nil}
+	dbfile := "./databunker.db"
 
-	/*
-		if db, err := ql.OpenFile("./bunker.db", &ql.Options{}); err != nil {
-			fmt.Println("open db")
-			a, err := db.Info()
-			if err != nil {
-				fmt.Printf("error in db info: %s\n", err)
-			}
-			for _, v := range a.Tables {
-				fmt.Printf("dbinfo: %s\n", string(v.Name))
-			}
-			db.Close()
+	// collect list of all tables
+	if _, err := os.Stat(dbfile); !os.IsNotExist(err) {
+		db2, err := ql.OpenFile(dbfile, &ql.Options{FileFormat: 2})
+		if err != nil {
+			return dbobj, err
 		}
-	*/
+		dbinfo, err := db2.Info()
+		for _, v := range dbinfo.Tables {
+			knownApps = append(knownApps, v.Name)
+		}
+		db2.Close()
+	}
 
 	ql.RegisterDriver2()
-	db, err := sql.Open("ql2", "./databunker.db")
+	db, err := sql.Open("ql2", dbfile)
 	if err != nil {
 		log.Fatalf("Failed to open databunker.db file: %s", err)
 	}
@@ -599,14 +599,9 @@ func (dbobj dbcon) getList(t Tbl, keyName string, keyValue string, start int32, 
 }
 
 func (dbobj dbcon) getAllTables() ([]string, error) {
-	//for nm, tab := range dbobj.db.root.tables {
-	//
-	//	}
-	// HasNextResultSet()
-	a := []string{"aaa"}
-	a = append(a, "test123")
-	return a, nil
+	return knownApps, nil
 }
+
 func (dbobj dbcon) indexNewApp(appName string) {
 	if contains(knownApps, appName) == false {
 		// it is a new app, create an index
@@ -708,7 +703,7 @@ func initXTokens(db *sql.DB) error {
 	  type STRING,
 	  app STRING,
 	  fields STRING,
-	  endtime int32
+	  endtime int
 	);
 	`)
 	if err != nil {
@@ -835,6 +830,10 @@ func initSessions(db *sql.DB) error {
 		return err
 	}
 	_, err = tx.Exec(`CREATE INDEX sessions_token ON sessions (token);`)
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(`CREATE INDEX sessions_session ON sessions (session);`)
 	if err != nil {
 		return err
 	}
