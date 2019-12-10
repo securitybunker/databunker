@@ -152,15 +152,14 @@ give him access to his account at Data Bunker.
 
 ## Why Open Source?
 
-I am a big fan of the open-source movement. After a lot of thoughts and consultations,
+We are a big fan of the open-source movement. After a lot of thoughts and consultations,
 the main Data Bunker product will be open source.
 
-We are doing this to give our customers a steady base to continue using this solution in case
-the company is closed.
+We are doing this to boost adoption of our product in corporate world.
 
 Enterprise version will be closed source.
 
-## What is considered PII?
+## What is considered PII or what information is recomended to store in Data Bunker?
 
 Following it a partial list.
 
@@ -186,7 +185,8 @@ Following it a partial list.
 
 ## Technology stack?
 
-I am a big fan of go language and I use it extensively.
+We use golang or simply go to build the whole project. Open source version comes with internal
+database and web gui as one executable file to make the project easy to start with.
 
 
 ## Project technical features:
@@ -237,7 +237,7 @@ Detailed usecase for each table is covered bellow.
 
 ---
 
-## Personal information tokanization
+## Personal information tokenization
 
 User information, or PII, received in HTML POST key/value format of or JSON format is serialized, encrypted
 with a 32 byte key and saved in database. You will get a user token to use in internal databases. Afterwords,
@@ -251,7 +251,8 @@ you can query the Data Bunker service to receive personal information, saving au
 
 When creating application, I suppose you do not want to mix your customer data with data from other applications.
 In addition to personal information record, Data Bunker provides you a way to store your app user information in a
-specific type of record for that. So, you can retreave only your app' user personal information.
+specific type of record for that. So, you can retreave only your app' user personal information. For example you
+can store user shipping information is additional app table.
 
 ![picture](images/create-user-app-record.png)
 
@@ -283,7 +284,7 @@ user personal record or application level data or a session record for a limited
 Your partner can retrieve this information and only specific fields during this specific timeframe.
 Afterward, access will be blocked.
 
-**IMAGE**
+**TODO: IMAGE**
 
 ---
 
@@ -303,7 +304,7 @@ This identity, can link bacck to the user personal record or user app record or 
 
 Optionally, Data Bunker can incorporate partner name in identity so, you track this identity usage.
 
-**IMAGE**
+**TODO: IMAGE**
 
 ---
 
@@ -343,7 +344,7 @@ Each audit record consists of:
 * Change before and after if applicable
 * User session info if available: IP address, headers, etc...
 
-**IMAGE**
+** TODO: IMAGE**
 
 Example from google: https://console.cloud.google.com/home/activity
 
@@ -366,7 +367,7 @@ According to GDPR, controller must provide Data subject with:
 
 ---
 
-# Enterprise features
+# Enterprise features (not in open source version)
 
 ## Advanced role management, ACL
 
