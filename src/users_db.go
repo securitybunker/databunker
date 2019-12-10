@@ -311,9 +311,13 @@ func (dbobj dbcon) deleteUserRecord(userTOKEN string) (bool, error) {
 		appNameFull := "app_" + appName
 		dbobj.deleteRecordInTable(appNameFull, "token", userTOKEN)
 	}
+	//delete in audit
+	dbobj.deleteRecordInTable("audit", "record", userTOKEN)
+	dbobj.deleteRecordInTable("sessions", "token", userTOKEN)
 	// cleanup user record
 	bdel := bson.M{}
 	bdel["data"] = ""
+	bdel["key"] = ""
 	bdel["loginidx"] = ""
 	bdel["emailidx"] = ""
 	bdel["phoneidx"] = ""
