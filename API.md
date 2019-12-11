@@ -81,8 +81,8 @@ Fetch by user token:
 ```
 curl --header "X-Bunker-Token: $XTOKEN" -XGET \
    https://localhost:3000/v1/user/token/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
-{"status":"ok","token":"DAD2474A-E9A7-4BA7-BFC2-C4506880198E","data":{"k1":[1,10,20],
-"k2":{"f1":"t1","f3":{"a":"b"}},"login":"user1","name":"tom"}}
+{"status":"ok","token":"DAD2474A-E9A7-4BA7-BFC2-C4506880198E",
+"data":{"fname":"paranoid","lname":"guy","login":"user1123"}}
 ```
 
 Fetch by "login" name:
@@ -90,8 +90,8 @@ Fetch by "login" name:
 ```
 curl --header "X-Bunker-Token: $XTOKEN" -XGET \
    https://localhost:3000/v1/user/login/user1
-{"status":"ok","token":"DAD2474A-E9A7-4BA7-BFC2-C4506880198E","data":{"k1":[1,10,20],
-"k2":{"f1":"t1","f3":{"a":"b"}},"login":"user1","name":"tom"}}
+{"status":"ok","token":"DAD2474A-E9A7-4BA7-BFC2-C4506880198E",
+"data":{"fname":"paranoid","lname":"guy","login":"user1123"}}
 ```
 
 
@@ -118,11 +118,12 @@ The following content type supported:
 
 ### Example:
 
-The following command will change user name to "Alex". An audit event will be generated showing previous and new value.
+The following command will change user name to "Alex". An Audit event will be generated showing previous and new value.
 
 ```
 curl --header "X-Bunker-Token: $XTOKEN" -d 'name=Alex' -XPUT \
    https://localhost:3000/v1/user/token/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
+{"status":"ok","token":"db80789b-0ad7-0690-035a-fd2c42531e87"}
 ```
 
 ---
@@ -140,12 +141,14 @@ curl -header "X-Bunker-Token: $XTOKEN" -XDELETE \
 
 ## User App Api
 
+This API is used when you want to store additional information about the user and do not want to 
+mix is with profile data. For example shipping information.
 
-| Resource / HTTP method            | POST (create)       | GET (read)        | PUT (update)  | DELETE |
-| --------------------------------- | ------------------- | ----------------- | ------------- | ------ |
-| /v1/userapp/token/:token/:appname | Create new user app | Get record        | Change record | Delete |
-| /v1/userapp/token/:token          | Error               | Get user app list | Error         | Error  |
-| /v1/userapp/list                  | Error               | Get all app list  | Error         | Error  |
+| Resource / HTTP method            | POST (create)       | GET (read)        | PUT (update)  | DELETE  |
+| --------------------------------- | ------------------- | ----------------- | ------------- | ------- |
+| /v1/userapp/token/:token/:appname | New user app record | Get record        | Change record | Delete  |
+| /v1/userapp/token/:token          | Error               | Get user app list | Error         | Error   |
+| /v1/userapp/list                  | Error               | Get all app list  | Error         | Error   |
 
 
 ## Create user app record
@@ -162,9 +165,10 @@ This API is used to create new user app record and if the request is successful 
 
 | Resource / HTTP method       | POST (create)      | GET (read)     | PUT (update)   | DELETE (delete) |
 | ---------------------------- | ------------------ | -------------- | -------------- | --------------- |
-| /v1/session/token/:token      | Create new session | Get sessions   | Error          | Error           |
+| /v1/session/token/:token     | Create new session | Get sessions   | Error          | Error           |
 | /v1/session/session/:session | Error              | Get session    | Error??        | Error??         |
 | /v1/session/clientip/:ip     | Error              | Get sessions   | Error          | Error           |
+
 
 ## Create user session record
 ### `POST /v1/session/token/:token`
@@ -345,32 +349,3 @@ locked
 
 ## Audit API
 
-
-It is not compliant, unless you have a real reason to share this specific personal sub-record. For example,
-sending customer phone when notifying customer using 3rd party SMS gateway.
-
-
-
-# SECTION IS NOT UPDATED BELLOW
-
-## Data Bunker init
-
-Upon initial init, the Data Bunker service will check if the system is initialized for the first time, and if yes,
-it will generate root password, master key and derived keys out of it. Otherwise, an error will be printed.
-
-```
-bunker init
-```
-
-Output:
-
-```
-Root password: 123456
-Key1: abcdefg
-Key2: abcdefg
-key3: abcdefg
-Key4: abcdefg
-Key5: abcdefg
-```
-
-**TODO**: Secret keys printed to output can be easily extracted in cloud environments for example in Kubernetes logs!
