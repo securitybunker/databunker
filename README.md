@@ -31,7 +31,7 @@ need to consult with an attorney specializing in privacy.
 
 ---
 
-# This project resolves most of the GDPR requirements you will need to handle including:
+# This project resolves most of the GDPR requirements for you including:
 
 ## Right of access
 
@@ -132,7 +132,25 @@ can store user shipping information is additional app table.
 
 ## Audit of all operations with personal records
 
-See Transperancy above.
+Data Bunker saves audit events on all API operation. For example, new personal record added or changed; personal information
+record retreaved, etc...
+
+By providing Audit of events, in relation to personal data, provides response to GDRP Article 15 requirement:
+*Right of access by the data subject*.
+
+Special features:
+
+* Personal information in audit event is encrypted.
+* User can view his own records only.
+
+Each audit record consists of:
+
+* Date and time
+* Operation title
+* Operation status
+* Operation description
+* Change before and after if applicable
+* User session info if available: IP address, headers, etc...
 
 ## GDPR compliant logging : Web and mobile app session data storage
 
@@ -148,13 +166,30 @@ for a limited time as in GDPR. For example one month.
 ![picture](images/create-user-session-flow.png)
 
 
+## Shareable user identity for 3rd parties
+
+When sharing data with 3rd party services like web analytics, logging, intelligence, etc... sometimes we need to
+share user id, for example, customer original IP address or email address. All these pieces of information
+are considred user identifiable information and must be minimized when sending to 3rd paty systems.
+
+***Do not share your customer user name, IP, emails, etc... because they look nice in reports!***
+
+According to GDPR: *The personal data should be adequate, relevant and **limited to what is necessary** for the
+purposes for which they are processed.*
+
+Our system can generate you time-limited shareable identity token that you can share with 3rd parties as an identity.
+This identity, can link back to the user personal record or user app record or to specific user session.
+
+Optionally, Data Bunker can incorporate partner name in identity so, you track this identity usage.
+
+
 ## Consent management, i.e. withdawal
 
 According to GDPR, if you want to send your customer SMS using 3rd party gateway,
 you must show to your customer a detailed notification message that you will send
-his phone number to a specific SMS gateway company and the user needs to confirm that.
+his phone number to a specific SMS gateway company and the user needs to confirm this operation.
 
-You need to store these confirmations and Data Bunker will be doing it for you.
+You need to store these confirmations and Data Bunker can do it for you.
 
 Consent must be freely given, specific, informed and unambiguous. From GDPR, Article 7, item 3:
 
@@ -168,6 +203,7 @@ In Data Bunker:
 * Removing consent for a user is as easy as granting it in the first place.
 
 
+
 ## Custom application signup and sign-in
 
 When implementing signup and sign-in in your customer-facing applications, we recommend you to
@@ -178,6 +214,18 @@ our service.
 Index by email and index by phone allow us to give your customers passwordless access to their
 personal profile at Data Bunker. We send your user a one-time login code by SMS or email to
 give him access to his account at Data Bunker.
+
+
+## Time-limited passwordless access tokens to personal information
+
+Sometimes you want to share user, app or session private information in less trusted systems without providing
+access to system root token.
+
+Data Bunker has an API that allows you to generate temprorary access token to access specific fields in the
+user personal record or application level data or a session record for a limited time only.
+
+Your partner can retrieve this information and only specific fields during this specific timeframe.
+Afterward, access will be blocked.
 
 
 ---
@@ -217,12 +265,10 @@ Following it a partial list.
 * Genetic info
 * Ethnic information
 
-## Technology stack?
+# Technology stack?
 
 We use golang/go to build the whole project. Open source version comes with internal
 database and web ui as one executable file to make the project easy to deploy.
-
----
 
 ## Encryption in motion and encryption in storage
 
@@ -230,8 +276,6 @@ All access to Data Bunker API is done using HTTPS SSL certificate. All records t
 are encrypted or securely hashed in the databases. All user records are encrypted with a 32 byte key comprizing of
 System Master key (24 bytes, stored in memory, not on disk) and user record key (8 bytes, stored on disk).
 Enterprise version supports **Master key split**. The Master key is kept in RAM and is never stored to disk.
-
----
 
 ## Data Bunker internal tables
 
@@ -241,83 +285,6 @@ Detailed usecase for each table is covered bellow.
 
 
 ![picture](images/data-bunker-tables.png)
-
----
-
-## Time-limited passwordless access to personal information
-
-Sometimes you want to share user, app or session private information in less trusted systems without providing
-access to system root token.
-
-Data Bunker has an API that allows you to generate temprorary access token to access specific fields in the
-user personal record or application level data or a session record for a limited time only.
-
-Your partner can retrieve this information and only specific fields during this specific timeframe.
-Afterward, access will be blocked.
-
-**TODO: IMAGE**
-
----
-
-## Shareable user identity for 3rd parties
-
-When sharing data with 3rd party services like web analytics, logging, intelligence, etc... sometimes we need to
-share user id, for example, customer original IP address or email address. All these pieces of information
-are considred user identifiable information and must be minimized when sending to 3rd paty systems.
-
-***Do not share your customer user name, IP, emails, etc... because they look nice in reports!***
-
-According to GDPR: *The personal data should be adequate, relevant and **limited to what is necessary** for the
-purposes for which they are processed.*
-
-Our system can generate you time-limited shareable identity token that you can share with 3rd parties as an identity.
-This identity, can link back to the user personal record or user app record or to specific user session.
-
-Optionally, Data Bunker can incorporate partner name in identity so, you track this identity usage.
-
-**TODO: IMAGE**
-
----
-
-## User consent management
-
-Consent in GDPR terms is clear approval for example to share user information with 3rd party, for example with SMS
-gateway company to send him urgent notifications.
-
-Consent must be freely given, specific, informed and unambiguous. From GDPR, Article 7, item 3:
-
-* **The data subject shall have the right to withdraw his or her consent at any time.**
-* **It shall be as easy to withdraw as to give consent.**
-
-To comply with this requirement, we support storage and management of user consent by API level and in user UI.
-
----
-
-## Audit
-
-Data Bunker saves audit events on all API operation. For example, new personal record added or changed; personal information
-record retreaved, etc...
-
-By providing Audit of events, in relation to personal data, provides response to GDRP Article 15 requirement:
-*Right of access by the data subject*.
-
-Special features:
-
-* Personal information in audit event is encrypted.
-* User can view his own records only.
-
-Each audit record consists of:
-
-* Date and time
-* Operation title
-* Operation status
-* Operation description
-* Change before and after if applicable
-* User session info if available: IP address, headers, etc...
-
-** TODO: IMAGE**
-
-Example from google: https://console.cloud.google.com/home/activit
 
 ---
 
