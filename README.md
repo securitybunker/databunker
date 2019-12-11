@@ -351,24 +351,7 @@ Each audit record consists of:
 
 ** TODO: IMAGE**
 
-Example from google: https://console.cloud.google.com/home/activity
-
----
-
-## User UI
-
-Internal UI is build to allow users to login with their email and access all data collected by this system.
-You can easily change it to your requirements.
-
-According to GDPR, controller must provide Data subject with:
-
-* Right of access by the data subject (Article 15)
-* Right to rectification (Article 16)
-* Right to be forgotten (Article 17)
-* Right to restriction of processing (Article 18)
-* Notification obligation regarding rectification or erasure of personal data or restriction of processing (Article 19)
-* Right to data portability (Article 20)
-* Right to object (Article 21)
+Example from google: https://console.cloud.google.com/home/activit
 
 ---
 
