@@ -5,7 +5,8 @@ Other documents: [API LIST](API.md)
 **Data Bunker is an information tokenization and storage service build to comply with GDPR and CCPA privacy requirements.**
 
 In a world ruled by google, facebook, twitter and other menacing organizations, our privacy and information are nonexistent.
-The EU has been working to remediate this fallacy with GDPR, and the US follows with first signs called CCPA. 
+The EU has been working to remediate this fallacy with GDPR, and the US follows with first signs called CCPA.
+
 Data Bunker Project is intended to bring the power back to the hands of the people, the real data owners and allow them 
 to know who is using their data, what is he doing with it and the freedom to decide if the agree to that or not. 
 
