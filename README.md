@@ -227,15 +227,7 @@ database and web ui as one executable file to make the project easy to deploy.
 All access to Data Bunker API is done using HTTPS SSL certificate. All records that have user personal information
 are encrypted or securely hashed in the databases. All user records are encrypted with a 32 byte key comprizing of
 System Master key (24 bytes, stored in memory, not on disk) and user record key (8 bytes, stored on disk).
-
-### Master key split in Enterprise version
-
-Upon initial start, the **Enterprise version** generates a secret master key and 5 keys out of it.
-These 5 keys are generated using Shamir's Secret Sharing algorithm. Combining 3 of any of the keys,
-ejects original master key and that can be used to decrypt all records.
-
-The Master key is kept in RAM and is never stored to disk. You will need to provide 3 kits to unlock the application.
-It is possible to save these keys in the AWS secret store and other vault services.
+Enterprise version supports **Master key split**. The Master key is kept in RAM and is never stored to disk.
 
 ---
 
@@ -381,6 +373,15 @@ According to GDPR, controller must provide Data subject with:
 ---
 
 # Enterprise features (not in open source version)
+
+## Master key split
+
+Upon initial start, the **Enterprise version** generates a secret master key and 5 keys out of it.
+These 5 keys are generated using Shamir's Secret Sharing algorithm. Combining 3 of any of the keys,
+ejects original master key and that can be used to decrypt all records.
+
+The Master key is kept in RAM and is never stored to disk. You will need to provide 3 kits to unlock the application.
+It is possible to save these keys in the AWS secret store and other vault services.
 
 ## Advanced role management, ACL
 
