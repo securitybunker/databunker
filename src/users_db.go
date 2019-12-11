@@ -80,6 +80,18 @@ func (dbobj dbcon) generateTempLoginCode(userTOKEN string) string {
 	return rnd
 }
 
+func (dbobj dbcon) generateDemoLoginCode(userTOKEN string) string {
+	rnd := "4444"
+	fmt.Printf("random: %s\n", rnd)
+	bdoc := bson.M{}
+	bdoc["tempcode"] = "4444"
+	expired := int32(time.Now().Unix()) + 60
+	bdoc["tempcodeexp"] = expired
+	//fmt.Printf("op json: %s\n", update)
+	dbobj.updateRecord(TblName.Users, "token", userTOKEN, &bdoc)
+	return rnd
+}
+
 // int 0 - same value
 // int -1 remove
 // int 1 add

@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"mime"
 	"net/http"
+	"net/url"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -25,9 +26,24 @@ var (
 	regexExpiration = regexp.MustCompile("^([0-9]+)([mhds])$")
 )
 
+func normalizeEmail(email0 string) string {
+	email, _ := url.QueryUnescape(email0)
+	email = strings.ToLower(email)
+	email = strings.TrimSpace(email)
+	if email0 != email {
+		fmt.Printf("email before: %s, after: %s\n", email0, email)
+	}
+	return email
+}
+
 func normalizePhone(phone string, default_country string) string {
+	// 4444 is a phone number for testing, no need to normilize it
+	phone = strings.TrimSpace(phone)
+	if phone == "4444" {
+		return "4444"
+	}
 	if len(default_country) == 0 {
-		default_country = "IL"
+		default_country = "UK"
 	}
 	res, err := libphonenumber.Parse(phone, default_country)
 	if err != nil {
@@ -257,16 +273,13 @@ func getJSONPost(r *http.Request, default_country string) (userJSON, error) {
 	if value, ok := records["email"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			result.emailIdx = value.(string)
-			result.emailIdx = strings.TrimSpace(result.emailIdx)
+			result.emailIdx = normalizeEmail(result.emailIdx)
 		}
 	}
 	if value, ok := records["phone"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			result.phoneIdx = value.(string)
-			result.phoneIdx = strings.TrimSpace(result.phoneIdx)
-			if len(result.phoneIdx) > 0 {
-				result.phoneIdx = normalizePhone(result.phoneIdx, default_country)
-			}
+			result.phoneIdx = normalizePhone(result.phoneIdx, default_country)
 		}
 	}
 

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"net/url"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -88,6 +87,11 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		}
 		resultJSON, err = e.db.getUser(code)
 	} else {
+		if index == "email" {
+			code = normalizeEmail(code)
+		} else if index == "phone" {
+			code = normalizePhone(code, e.conf.Sms.Default_country)
+		}
 		// TODO: decode url in code!
 		resultJSON, userTOKEN, err = e.db.getUserIndex(code, index)
 	}
@@ -130,6 +134,11 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	userTOKEN := code
 	if index != "token" {
+		if index == "email" {
+			code = normalizeEmail(code)
+		} else if index == "phone" {
+			code = normalizePhone(code, e.conf.Sms.Default_country)
+		}
 		userBson, err := e.db.lookupUserRecordByIndex(index, code)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
@@ -168,6 +177,11 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	userTOKEN := code
 	if index != "token" {
+		if index == "email" {
+			code = normalizeEmail(code)
+		} else if index == "phone" {
+			code = normalizePhone(code, e.conf.Sms.Default_country)
+		}
 		userBson, err := e.db.lookupUserRecordByIndex(index, code)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
@@ -206,9 +220,7 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 	if index == "email" {
-		fmt.Printf("email before: %s\n", address)
-		address, _ = url.QueryUnescape(address)
-		fmt.Printf("email after: %s\n", address)
+		address = normalizeEmail(address)
 	} else if index == "phone" {
 		fmt.Printf("phone before: %s\n", address)
 		address = normalizePhone(address, e.conf.Sms.Default_country)
@@ -224,11 +236,18 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	}
 	if userBson != nil {
 		userTOKEN := userBson["token"].(string)
-		rnd := e.db.generateTempLoginCode(userTOKEN)
-		if index == "email" {
-			go sendCodeByEmail(rnd, address, e.conf)
-		} else if index == "phone" {
-			go sendCodeByPhone(rnd, address, e.conf)
+		if address == "4444" || address == "test@paranoidguy.com" {
+			// check if it is demo account.
+			// the code is always 4444
+			// no need to send any notifications
+			e.db.generateDemoLoginCode(userTOKEN)
+		} else {
+			rnd := e.db.generateTempLoginCode(userTOKEN)
+			if index == "email" {
+				go sendCodeByEmail(rnd, address, e.conf)
+			} else if index == "phone" {
+				go sendCodeByPhone(rnd, address, e.conf)
+			}
 		}
 	} else {
 		fmt.Println("user record not found, stil returning ok status")
@@ -250,9 +269,7 @@ func (e mainEnv) userLoginEnter(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 	if index == "email" {
-		fmt.Printf("email before: %s\n", code)
-		code, _ = url.QueryUnescape(code)
-		fmt.Printf("email after: %s\n", code)
+		code = normalizeEmail(code)
 	} else if index == "phone" {
 		fmt.Printf("phone before: %s\n", code)
 		code = normalizePhone(code, e.conf.Sms.Default_country)
@@ -272,7 +289,7 @@ func (e mainEnv) userLoginEnter(w http.ResponseWriter, r *http.Request, ps httpr
 		userTOKEN := userBson["token"].(string)
 		fmt.Printf("Found user record: %s\n", userTOKEN)
 		tmpCode := userBson["tempcode"].(string)
-		if tmp == tmpCode || tmp == "4444" {
+		if tmp == tmpCode {
 			// user ented correct key
 			// generate temp user access code
 			xtoken, err := e.db.generateUserLoginXToken(userTOKEN)
