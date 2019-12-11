@@ -113,19 +113,40 @@ consult with an attorney specializing in privacy.
 
 # Data Bunker usecases
 
-## Personal Information tokenization and storage: REWRITE
+## Personal information tokenization and storage
 
-Data Bunker has a layer of application level personal information storage and each user in the database can be linked to a number of
-application records (saved in Data Bunker).
+User information, or PII, received in HTML POST key/value format of or JSON format is serialized, encrypted
+with a 32 byte key and saved in database. You will get a user token to use in internal databases. Afterwords,
+you can query the Data Bunker service to receive personal information, saving audit trail.
+
+![picture](images/create-user-token-flow.png)
+
+## Application data separation
+
+When creating application, I suppose you do not want to mix your customer data with data from other applications.
+In addition to personal information record, Data Bunker provides you a way to store your app user information in a
+specific type of record for that. So, you can retreave only your app' user personal information. For example you
+can store user shipping information is additional app table.
+
+![picture](images/create-user-app-record.png)
 
 ## Audit of all operations with personal records
 
 See Transperancy above.
 
-## GDPR compliant logging : REWRITE
+## GDPR compliant logging : Web and mobile app session data storage
 
-Data Bunker supports a number of API that can help you to store user information in logs in
-GDPR compliant way and work with cloud logging companies.
+Web or mobile application session data is very similar. They contain customer IP address, browser information,
+web server headers, logged-in user info, etc... Many systems, including popular webservers, like Nginx, Apache
+simply store this information in logs. This information, according to GDPR is considered personal identifiable
+information and must be secured and controlled.
+
+So, you can not save user ip or browser information in logs now. Insead, Data Bunker will generate you a special token to
+save in logs. Data Bunker provides you an API to retreave this info out of Data Bunker without additional password
+for a limited time as in GDPR. For example one month.
+
+![picture](images/create-user-session-flow.png)
+
 
 ## Consent management, i.e. withdawal
 
@@ -147,7 +168,7 @@ In Data Bunker:
 * Removing consent for a user is as easy as granting it in the first place.
 
 
-## User signup and sign-in
+## Custom application signup and sign-in
 
 When implementing signup and sign-in in your customer-facing applications, we recommend you to
 store all signup records in the Data Bunker database. We support 3 types of indexes, index
@@ -201,25 +222,6 @@ Following it a partial list.
 We use golang/go to build the whole project. Open source version comes with internal
 database and web ui as one executable file to make the project easy to deploy.
 
-
-## Project technical features:
-
-* [Encrypted storage for personal information](#personal-information-tokanization)
-* [Application data separation](#application-data-separation)
-* [Time-limited passwordless access to personal information](#time-limited-passwordless-access-to-personal-information)
-* [Web and mobile app session data storage](#web-and-mobile-app-session-data-storage)
-* [Time-limited passwordless access to web and app session data](#web-and-mobile-app-session-data-storage)
-* [Share user identiy with 3rd party services](#share-user-identity-with-3rd-parties)
-* [User consent management, storage & withdrawal](#user-consent-management)
-* [Audit of all operations](#audit)
-* [Customer UI](#user-ui)
-* [User passwordless authentication](#custom-user-index)
-
-## Enterprise features
-* [Split master key with Shamir's Secret Sharing algo](#master-key-split-in-enterprise-version)
-* [Advaned role management, ACL](#advanced-acl)
-* [Support Hashicorp Vault](#hashicorp-vault-integration)
-
 ---
 
 ## Encryption in motion and encryption in storage
@@ -239,42 +241,6 @@ Detailed usecase for each table is covered bellow.
 
 
 ![picture](images/data-bunker-tables.png)
-
----
-
-## Personal information tokenization
-
-User information, or PII, received in HTML POST key/value format of or JSON format is serialized, encrypted
-with a 32 byte key and saved in database. You will get a user token to use in internal databases. Afterwords,
-you can query the Data Bunker service to receive personal information, saving audit trail.
-
-![picture](images/create-user-token-flow.png)
-
----
-
-## Application data separation
-
-When creating application, I suppose you do not want to mix your customer data with data from other applications.
-In addition to personal information record, Data Bunker provides you a way to store your app user information in a
-specific type of record for that. So, you can retreave only your app' user personal information. For example you
-can store user shipping information is additional app table.
-
-![picture](images/create-user-app-record.png)
-
----
-
-## Web and mobile app session data storage
-
-Web or mobile application session data is very similar. They contain customer IP address, browser information,
-web server headers, logged-in user info, etc... Many systems, including popular webservers, like Nginx, Apache
-simply store this information in logs. This information, according to GDPR is considered personal identifiable
-information and must be secured and controlled.
-
-So, you can not save user ip or browser information in logs now. Insead, Data Bunker will generate you a token to
-save in logs. Data Bunker provides you an API to retreave this info out of Data Bunker without additional password
-for a limited time as in GDPR. For example one month.
-
-![picture](images/create-user-session-flow.png)
 
 ---
 
@@ -305,7 +271,7 @@ According to GDPR: *The personal data should be adequate, relevant and **limited
 purposes for which they are processed.*
 
 Our system can generate you time-limited shareable identity token that you can share with 3rd parties as an identity.
-This identity, can link bacck to the user personal record or user app record or to specific user session.
+This identity, can link back to the user personal record or user app record or to specific user session.
 
 Optionally, Data Bunker can incorporate partner name in identity so, you track this identity usage.
 
