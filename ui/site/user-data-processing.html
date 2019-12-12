@@ -145,8 +145,8 @@
         }
         function prepareRow(row) {
             var msg = row.brief;
-            if (row.message != "") {
-                msg = row.message;
+            if (!row.message) {
+                msg = row.brief;
             }
             var start = '<div class="d-flex flex-row bd-highlight mb-4">';
             var d = '<div class="p-2 bd-highlight">When: ' + dateFormat(row.when) + '</div>'

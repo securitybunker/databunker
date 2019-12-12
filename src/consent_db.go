@@ -89,3 +89,25 @@ func (dbobj dbcon) listConsentRecords(userTOKEN string) ([]byte, int, error) {
 	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, count, nil
 }
+
+func (dbobj dbcon) viewConsentRecord(userTOKEN string, brief string) ([]byte, error) {
+	record, err := dbobj.getRecord2(TblName.Consent, "token", userTOKEN, "brief", brief)
+	if err != nil {
+		return nil, err
+	}
+	resultJSON, err := json.Marshal(record)
+	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
+	return resultJSON, nil
+}
+
+func (dbobj dbcon) filterConsentRecords(brief string, offset int32, limit int32) ([]byte, int64, error) {
+	//var results []*auditEvent
+	count, err := dbobj.countRecords2(TblName.Consent, "brief", brief, "status", "accept")
+	if err != nil {
+		return nil, 0, err
+	}
+	records, err := dbobj.getList(TblName.Consent, "brief", brief, offset, limit)
+	resultJSON, err := json.Marshal(records)
+	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
+	return resultJSON, count, nil
+}

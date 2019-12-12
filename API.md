@@ -144,15 +144,15 @@ curl -header "X-Bunker-Token: $XTOKEN" -XDELETE \
 This API is used when you want to store additional information about the user and do not want to 
 mix is with profile data. For example shipping information.
 
-| Resource / HTTP method            | POST (create)       | GET (read)        | PUT (update)  | DELETE  |
-| --------------------------------- | ------------------- | ----------------- | ------------- | ------- |
-| /v1/userapp/token/:token/:appname | New user app record | Get record        | Change record | Delete  |
-| /v1/userapp/token/:token          | Error               | Get user app list | Error         | Error   |
-| /v1/userapp/list                  | Error               | Get all app list  | Error         | Error   |
+| Resource / HTTP method              | POST (create)       | GET (read)        | PUT (update)  | DELETE  |
+| ----------------------------------- | ------------------- | ----------------- | ------------- | ------- |
+| /v1/userapp/token/{token}/{appname} | New user app record | Get record        | Change record | Delete  |
+| /v1/userapp/token/{token}           | Error               | Get user app list | Error         | Error   |
+| /v1/userapp/list                    | Error               | Get all app list  | Error         | Error   |
 
 
 ## Create user app record
-### `POST /v1/userapp/token/:token/:appname`
+### `POST /v1/userapp/token/{token}/{appname}`
 
 ### Explanation
 
@@ -165,13 +165,13 @@ This API is used to create new user app record and if the request is successful 
 
 | Resource / HTTP method       | POST (create)      | GET (read)     | PUT (update)   | DELETE (delete) |
 | ---------------------------- | ------------------ | -------------- | -------------- | --------------- |
-| /v1/session/token/:token     | Create new session | Get sessions   | Error          | Error           |
+| /v1/session/token/{token}     | Create new session | Get sessions   | Error          | Error           |
 | /v1/session/session/:session | Error              | Get session    | Error??        | Error??         |
 | /v1/session/clientip/:ip     | Error              | Get sessions   | Error          | Error           |
 
 
 ## Create user session record
-### `POST /v1/session/token/:token`
+### `POST /v1/session/token/{token}`
 
 ### Explanation
 
@@ -192,7 +192,7 @@ This API returns session data.
 
 
 ## Get session records by user token.
-### `GET /v1/session/token/:token`
+### `GET /v1/session/token/{token}`
 
 ### Explanation
 
@@ -209,19 +209,28 @@ This API returns an array of user sessions by IP address. These sessions can be 
 
 ## User consent management API
 
-One of the GDPR requirements is the storage of user consent. For example, your customer must approve to receive email marketing information. Data bunker provides an API for user consent management. 
+One of the GDPR requirements is the storage of user consent. For example, your customer must approve to receive
+email marketing information. Data bunker provides an API for user consent management. 
+
+When working with consent, Data bunker is using `brief` value as a consent name.
+It is unique per user, short consent id. Allowed chars are [a-z0-9\-] . Max 64 chars.
 
 
-| Resource / HTTP method     | POST (create)     | GET (read)    | DELETE (delete)   |
-| -------------------------- | ----------------- | ------------- | ----------------- |
-| /v1/consent/token/{token}  | Create / Approve  | List records  | Withdraw consent  |
-| /v1/consent/login/{login}  | Create / Approve  | List records  | Withdraw consent  |
-| /v1/consent/email/{email}  | Create / Approve  | List records  | Withdraw consent  |
-| /v1/consent/phone/{phone}  | Create / Approve  | List records  | Withdraw consent  |
+| Resource / HTTP method            | POST (create)     | GET (read)    | DELETE (delete)    |
+| --------------------------------- | ----------------- | ------------- | ----------------- |
+| /v1/consent/token/{token}/{brief} | Create / Approve  | Get record    | Withdraw consent  |
+| /v1/consent/login/{login}/{brief} | Create / Approve  | Get record    | Withdraw consent  |
+| /v1/consent/email/{email}/{brief} | Create / Approve  | Get record    | Withdraw consent  |
+| /v1/consent/phone/{phone}/{brief} | Create / Approve  | Get record    | Withdraw consent  |
+| /v1/consent/token/{token}         | N/A               | Get records   | N/A               |
+| /v1/consent/login/{login}         | N/A               | Get records   | N/A               |
+| /v1/consent/email/{email}         | N/A               | Get records   | N/A               |
+| /v1/consent/phone/{phone}         | N/A               | Get records   | N/A               |
+| /v1/consent/filter/{brief}        | N/A               | Get all users | N/A               |
 
 
 ## Create consent record
-### `POST /v1/consent/{token,login,email,phone}/{address}`
+### `POST /v1/consent/{token,login,email,phone}/{address}/{brief}`
 
 ### Explanation
 
@@ -229,13 +238,12 @@ This API is used to store user consent.
 
 ### POST Body Format
 
-POST Body can contain regular form data or JSON. Expected values are `brief`, `message`, `status`.
+POST Body can contain regular form data or JSON. Expected values are `message`, `status`.
 
-| Parameter     | Required   | Description                                                             |
-| ------------- | ---------- | ----------------------------------------------------------------------- |
-| brief         | Yes        | Short code for consent. Allowed values [a-z0-9\-] .                         |
-| status        | No         | Consent status. Default value is **accept**. Allowed values: cancel/accept. |
-| message       | No         | Free text message describing codnsent. If it is empty, brief code is used.  |
+| Parameter   | Required  | Description                                                                 |
+| ----------- | --------- | --------------------------------------------------------------------------- |
+| status      | No        | Consent status. Default value is **accept**. Allowed values: cancel/accept. |
+| message     | No        | Optional text message describing consent.                                   |
 
 
 ### Example:
@@ -243,33 +251,52 @@ POST Body can contain regular form data or JSON. Expected values are `brief`, `m
 Create consent by posting JSON:
 
 ```
-curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com -XPOST \
+curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/send-sms -XPOST \
   -H "X-Bunker-Token: $XTOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"brief": "send-sms","mesasge":"Long text here."}'
+  -d '{"mesasge":"Optional long text here."}'
 {"status":"ok"}
 ```
 
-Create consent by POSTing user key/value fiels as post parameters:
+Create consent by POSTing user key/value fiels as POST fields:
 
 ```
-curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com -XPOST \
-  -H "X-Bunker-Token: $XTOKEN" \
-  -d 'msg=send-sms'
+curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/send-sms -XPOST \
+  -H "X-Bunker-Token: $XTOKEN"
+  -d 'mesasge=optional+text'
 {"status":"ok"}
 ```
 
 ---
 
-## Get user consent records
-### `GET /v1/consent/{token,login,email,phone}/{address}`
+## Withdraw consent record
+### `DELETE /v1/consent/{token,login,email,phone}/{address}/{brief}`
 
 ### Explanation
-This API returns an array of all user consents.
+
+This API is used to withdraw user consent.
 
 ### Example:
 
-Fetch by user token:
+Withdraw consent:
+
+```
+curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/send-sms -XDELETE \
+  -H "X-Bunker-Token: $XTOKEN"
+{"status":"ok"}
+```
+
+---
+
+## Get a list of all user consent records
+### `GET /v1/consent/{token,login,email,phone}/{address}`
+
+### Explanation
+This API returns an array of all user consent records.
+
+### Example:
+
+Fetch by user email:
 
 ```
 curl --header "X-Bunker-Token: $XTOKEN" -XGET \
@@ -295,14 +322,6 @@ curl --header "X-Bunker-Token: $XTOKEN" \
    https://bunker.company.com/consent/DAD2474A-E9A7-4BA7-BFC2-C4506880198E?all
 ```
 
-### Cancel consent
-
-```
-curl --header "X-Bunker-Token: $XTOKEN" -XDELETE \
-   https://bunker.company.com/consent/DAD2474A-E9A7-4BA7-BFC2-C4506880198E/<consent-id>
-```
-
-
 ### FINISH: Easily cancel consent for email marketing
 
 For example, for email marketing, users got distracted, when they need to login in order to unsubscribe from the newsletter.
@@ -315,10 +334,10 @@ To simplify this operation, users will be allowed to unsubscribe only using emai
 
 | Resource / HTTP method | POST (create)     | GET (read)    | PUT (update)     | DELETE (delete)  |
 | ---------------------- | ----------------- | ------------- | ---------------- | ---------------- |
-| /v1/xtoken/:token      | Create new record | Error         | Error            | Error            |
+| /v1/xtoken/{token}      | Create new record | Error         | Error            | Error            |
 | /v1/xtoken/:xtoken     | Error             | Get data      | Error            | Error            |
 
-	router.POST("/v1/xtoken/:token", e.userNewToken)
+	router.POST("/v1/xtoken/{token}", e.userNewToken)
 	router.GET("/v1/xtoken/:xtoken", e.userCheckToken)
 
 
@@ -328,8 +347,8 @@ To simplify this operation, users will be allowed to unsubscribe only using emai
 
 | Resource / HTTP method | POST (create)     | GET (read)    | PUT (update)     | DELETE (delete)  |
 | ---------------------- | ----------------- | ------------- | ---------------- | ---------------- |
-| /v1/shareable/:token   | Create new record | Error         | Error            | Error            |
-| /v1/shareable/:token   | Error             | Get data      | Error            | Error            |
+| /v1/shareable/{token}   | Create new record | Error         | Error            | Error            |
+| /v1/shareable/{token}   | Error             | Get data      | Error            | Error            |
 
 
 ---

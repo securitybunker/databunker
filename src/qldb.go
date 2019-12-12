@@ -313,6 +313,29 @@ func (dbobj dbcon) countRecords(t Tbl, keyName string, keyValue string) (int64, 
 	return int64(count), nil
 }
 
+func (dbobj dbcon) countRecords2(t Tbl, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
+	tbl := getTable(t)
+	q := "select count(*) from " + tbl + " WHERE " + keyName + "=\"" + keyValue + "\"" +
+		" AND " + keyName2 + "=\"" + keyValue2 + "\""
+	fmt.Printf("q: %s\n", q)
+
+	tx, err := dbobj.db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+	row := tx.QueryRow(q)
+	// Columns
+	var count int
+	err = row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	if err = tx.Commit(); err != nil {
+		return 0, err
+	}
+	return int64(count), nil
+}
 func (dbobj dbcon) updateRecord(t Tbl, keyName string, keyValue string, bdoc *bson.M) (int64, error) {
 	table := getTable(t)
 	filter := keyName + "=\"" + keyValue + "\""
