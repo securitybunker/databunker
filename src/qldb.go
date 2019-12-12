@@ -101,7 +101,7 @@ func decodeFieldsValues(data interface{}) (string, string) {
 
 	switch t := data.(type) {
 	case primitive.M:
-		fmt.Println("format is: primitive.M")
+		fmt.Println("decodeFieldsValues format is: primitive.M")
 		for idx, val := range data.(primitive.M) {
 			if len(fields) == 0 {
 				fields = idx
@@ -125,7 +125,7 @@ func decodeFieldsValues(data interface{}) (string, string) {
 			}
 		}
 	case *primitive.M:
-		fmt.Println("format is: *primitive.M")
+		fmt.Println("decodeFieldsValues format is: *primitive.M")
 		for idx, val := range *data.(*primitive.M) {
 			if len(fields) == 0 {
 				fields = idx
@@ -149,7 +149,7 @@ func decodeFieldsValues(data interface{}) (string, string) {
 			}
 		}
 	case map[string]interface{}:
-		fmt.Println("format is: map[string]interface{}")
+		fmt.Println("decodeFieldsValues format is: map[string]interface{}")
 		for idx, val := range data.(map[string]interface{}) {
 			if len(fields) == 0 {
 				fields = idx
@@ -273,6 +273,7 @@ func (dbobj dbcon) createRecordInTable(tbl string, data interface{}) (int, error
 	if err != nil {
 		return 0, err
 	}
+	defer tx.Rollback()
 	_, err = tx.Exec(q)
 	if err != nil {
 		return 0, err
@@ -298,6 +299,7 @@ func (dbobj dbcon) countRecords(t Tbl, keyName string, keyValue string) (int64, 
 	if err != nil {
 		return 0, err
 	}
+	defer tx.Rollback()
 	row := tx.QueryRow(q)
 	// Columns
 	var count int
@@ -793,7 +795,7 @@ func initConsent(db *sql.DB) error {
 	_, err = tx.Exec(`
 	CREATE TABLE IF NOT EXISTS consent (
 	  who STRING,
-	  type STRING,
+	  mode STRING,
 	  token STRING,
 	  brief STRING,
 	  message STRING,
