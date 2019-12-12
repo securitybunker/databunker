@@ -63,9 +63,6 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 		//returnError(w, r, "internal error", 405, nil, event)
 		return
 	}
-	if len(message) == 0 {
-		message = brief
-	}
 	e.db.createConsentRecord(userTOKEN, mode, address, brief, message, status)
 }
 

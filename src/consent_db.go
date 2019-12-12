@@ -16,7 +16,7 @@ type consentEvent struct {
 	Mode    string `json:"mode,omitempty" structs:"mode"`
 	Token   string `json:"token,omitempty" structs:"token"`
 	Brief   string `json:"brief,omitempty" structs:"brief"`
-	Message string `json:"message,omitempty" structs:"message"`
+	Message string `json:"message,omitempty" structs:"message,omitempty"`
 	Status  string `json:"status,omitempty" structs:"status"`
 }
 
@@ -54,7 +54,12 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode s
 	}
 	// in any case - insert record
 	fmt.Printf("insert consent record\n")
-	dbobj.createRecord(TblName.Consent, structs.Map(ev))
+	num, err := dbobj.createRecord(TblName.Consent, structs.Map(ev))
+	if err != nil {
+		fmt.Printf("error to insert record: %s\n", err)
+	} else {
+		fmt.Printf("num records created: %d\n", num)
+	}
 }
 
 func (dbobj dbcon) cancelConsentRecord(userTOKEN string, brief string) error {
