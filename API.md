@@ -207,12 +207,113 @@ This API returns an array of user sessions by IP address. These sessions can be 
 
 ---
 
+## User consent management API
+
+One of the GDPR requirements is the storage of user consent. For example, your customer must approve to receive email marketing information. Data bunker provides an API for user consent management. 
+
+
+| Resource / HTTP method     | POST (create)     | GET (read)    | DELETE (delete)   |
+| -------------------------- | ----------------- | ------------- | ----------------- |
+| /v1/consent/token/{token}  | Create / Approve  | List records  | Withdraw consent  |
+| /v1/consent/login/{login}  | Create / Approve  | List records  | Withdraw consent  |
+| /v1/consent/email/{email}  | Create / Approve  | List records  | Withdraw consent  |
+| /v1/consent/phone/{phone}  | Create / Approve  | List records  | Withdraw consent  |
+
+
+## Create consent record
+### `POST /v1/consent/{token,login,email,phone}/{address}`
+
+### Explanation
+
+This API is used to store user consent.
+
+### POST Body Format
+
+POST Body can contain regular form data or JSON. Expected values are `brief`, `message`, `status`.
+
+| Parameter     | Required   | Description                                                             |
+| ------------- | ---------- | ----------------------------------------------------------------------- |
+| brief         | Yes        | Short code for consent. Allowed values [a-z0-9\-] .                         |
+| status        | No         | Consent status. Default value is **accept**. Allowed values: cancel/accept. |
+| message       | No         | Free text message describing codnsent. If it is empty, brief code is used.  |
+
+
+### Example:
+
+Create consent by posting JSON:
+
+```
+curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com -XPOST \
+  -H "X-Bunker-Token: $XTOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"brief": "send-sms","mesasge":"Long text here."}'
+{"status":"ok"}
+```
+
+Create consent by POSTing user key/value fiels as post parameters:
+
+```
+curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com -XPOST \
+  -H "X-Bunker-Token: $XTOKEN" \
+  -d 'msg=send-sms'
+{"status":"ok"}
+```
+
+---
+
+## Get user consent records
+### `GET /v1/consent/{token,login,email,phone}/{address}`
+
+### Explanation
+This API returns an array of all user consents.
+
+### Example:
+
+Fetch by user token:
+
+```
+curl --header "X-Bunker-Token: $XTOKEN" -XGET \
+   https://localhost:3000/v1/consent/email/test@paranoidguy.com
+{"status":"ok","total":2,"rows":[
+   {"brief":"send-email-mailgun-on-login","message":"send-email-mailgun-on-login","status":"accept","token":"254d2abf-e927-bdcf-9cb2-f43c3cb7a8fa","type":"email","when":1576154130,"who":"test@paranoidguy.com"},{"brief":"send-sms-twilio-on-login","message":"send-sms-twilio-on-login","status":"accept","token":"254d2abf-e927-bdcf-9cb2-f43c3cb7a8fa","type":"phone","when":1576174683,"who":"4444"}]}
+```
+
+### List granted
+
+```
+curl --header "X-Bunker-Token: $XTOKEN" \
+   https://bunker.company.com/consent/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
+```
+
+### List all
+
+```
+curl --header "X-Bunker-Token: $XTOKEN" \
+   https://bunker.company.com/consent/DAD2474A-E9A7-4BA7-BFC2-C4506880198E?all
+```
+
+### Cancel consent
+
+```
+curl --header "X-Bunker-Token: $XTOKEN" -XDELETE \
+   https://bunker.company.com/consent/DAD2474A-E9A7-4BA7-BFC2-C4506880198E/<consent-id>
+```
+
+
+### FINISH: Easily cancel consent for email marketing
+
+For example, for email marketing, users got distracted, when they need to login in order to unsubscribe from the newsletter.
+To simplify this operation, users will be allowed to unsubscribe only using email address without full login operation.
+
+
+---
+
 ## Passwordless tokens API
 
 | Resource / HTTP method | POST (create)     | GET (read)    | PUT (update)     | DELETE (delete)  |
 | ---------------------- | ----------------- | ------------- | ---------------- | ---------------- |
 | /v1/xtoken/:token      | Create new record | Error         | Error            | Error            |
-| /v1/xtoken/:token      | Error             | Get data      | Error            | Error            |
+| /v1/xtoken/:xtoken     | Error             | Get data      | Error            | Error            |
 
 	router.POST("/v1/xtoken/:token", e.userNewToken)
 	router.GET("/v1/xtoken/:xtoken", e.userCheckToken)
@@ -275,50 +376,6 @@ curl -d 'ip=user@example.com' \
 
 It will generate a new token, that you can now pass to 3rd party system as a user id.
 
-
-## User consent management
-
-One of the GDPR requirements is the storage of user consent. For example, your customer must approve to receive email marketing information.
-
-Using the GDPR language, your customer must give explicit consent to receive marketing information.
-
-Consent must be freely given, specific, informed and unambiguous. From GDPR, Article 7, item 3:
-
-* **The data subject shall have the right to withdraw his or her consent at any time.**
-* **It shall be as easy to withdraw as to give consent.**
-
-To comply with this requirement, we added support to manage user consent. We support the following APIs:
-
-
-### List granted
-
-```
-curl --header "X-Bunker-Token: $XTOKEN" \
-   https://bunker.company.com/consent/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
-```
-
-### List all
-
-```
-curl --header "X-Bunker-Token: $XTOKEN" \
-   https://bunker.company.com/consent/DAD2474A-E9A7-4BA7-BFC2-C4506880198E?all
-```
-
-### Cancel consent
-
-```
-curl --header "X-Bunker-Token: $XTOKEN" -XDELETE \
-   https://bunker.company.com/consent/DAD2474A-E9A7-4BA7-BFC2-C4506880198E/<consent-id>
-```
-
-### User gives consent
-
-**TODO**
-
-### Easily cancel consent for email marketing
-
-For example, for email marketing, users got distracted, when they need to login in order to unsubscribe from the newsletter.
-To simplify this operation, users will be allowed to unsubscribe only using email address without full login operation.
 
 ### Unlock bunker
 
