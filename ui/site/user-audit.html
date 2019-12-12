@@ -29,7 +29,7 @@
       var xtoken = window.localStorage.getItem('xtoken');
       var token = window.localStorage.getItem('token');
       var ttype = window.localStorage.getItem('type');
-      $('#msg').text("Access xtoken value: " + xtoken + " user: " + token)
+      //$('#msg').text("Loading data")
       //token = "faa006da-475e-45c6-a4a1-6586dce8b8d2";
       $('#table').bootstrapTable({
         /*data: mydata */
@@ -81,7 +81,7 @@
       </div>
       <div class="bigblock">
         <h4>Audit table</h4>
-        <p id="msg">text here, text, text</p>
+        <p id="msg">List of audit events</p>
         <table id="table" class="table">
           <thead>
             <tr>
