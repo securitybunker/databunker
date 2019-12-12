@@ -40,7 +40,7 @@ Data Bunker knows to extract customer email and phone out of user personal recor
 We do this by generating a random access key that we send by email or by SMS to your customer.
 Your custome can view all information collected and saved by Data Bunker in connection to his profile.
 
-![login form](images/ui-login-form.png) ![login with email](images/ui-login-form.png) ![login with code](images/ui-login-code.png)
+![login form](images/ui-login-form.png) ![login with email](images/ui-login-email.png) ![login with code](images/ui-login-code.png)
 
 ## Right to restrict processing / Right to object / Consent withdrawal
 
