@@ -41,9 +41,9 @@ We do this by generating a random access key that we send by email or by SMS to 
 Your custome can view all information collected and saved by Data Bunker in connection to his profile.
 
 <p float="middle">
-  <img style="vertical-align: top;" src="images/ui-login-form.png" alt="login form" />
-  <img style="vertical-align: top;" src="images/ui-login-email.png" alt="login with email" /> 
-  <img style="vertical-align: top;" src="images/ui-login-code.png"  alt="verify login with code" />
+  <img align="top" style="vertical-align: top;" src="images/ui-login-form.png" alt="login form" />
+  <img align="top" style="vertical-align: top;" src="images/ui-login-email.png" alt="login with email" /> 
+  <img align="top" style="vertical-align: top;" src="images/ui-login-code.png"  alt="verify login with code" />
 </p>
 
 ## Right to restrict processing / Right to object / Consent withdrawal
