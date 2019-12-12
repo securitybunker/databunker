@@ -35,10 +35,10 @@ need to consult with an attorney specializing in privacy.
 
 ## Right of access
 
-Data Bunker knows to extract customer email and phone out of user personal records allowing
-**passwordless** login for the customer into the Data bunker personal account.
-We do this by generating a random access key that we send by email or by SMS to your customer.
-Your custome can view all information collected and saved by Data Bunker in connection to his profile.
+Data Bunker knows to extract your **customer email** and **customer phone** out of user personal records giving 
+**passwordless** access for the customer into their Data bunker' personal account.
+This is done by generating a random access key that Data Bunker sends to your customer by email or by SMS.
+Your customer login and can view all information collected and saved by Data Bunker in connection to his profile.
 
 <p float="middle">
   <img align="top" style="vertical-align: top;" src="images/ui-login-form.png" alt="login form" />
@@ -51,6 +51,10 @@ Your custome can view all information collected and saved by Data Bunker in conn
 Data Bunker manages all user consents. User can **cancel specific consent** in his personal account at Data 
 Bunker, for example, to block sending him emails. Your backend can work with Data Bunker using our API to add, or cancel
 consents and a callback operation will be fired when a user action takes place.
+
+![Consent management](images/ui-consent-management.png)
+
+![Consent withdrawal](images/ui-consent-withdrawal.png)
 
 ## Privacy by design
 
