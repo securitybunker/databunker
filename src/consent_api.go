@@ -10,23 +10,23 @@ import (
 
 func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var err error
-	code := ps.ByName("code")
-	index := ps.ByName("index")
-	event := audit("consent accept by "+index, code)
+	address := ps.ByName("address")
+	mode := ps.ByName("mode")
+	event := audit("consent accept by "+mode, address)
 	defer func() { event.submit(e.db) }()
 
 	userTOKEN := ""
-	if index == "token" {
-		if enforceUUID(w, code, event) == false {
+	if mode == "token" {
+		if enforceUUID(w, address, event) == false {
 			return
 		}
-		userBson, _ := e.db.lookupUserRecord(code)
+		userBson, _ := e.db.lookupUserRecord(address)
 		if userBson != nil {
-			userTOKEN = code
+			userTOKEN = address
 		}
 	} else {
 		// TODO: decode url in code!
-		userBson, _ := e.db.lookupUserRecordByIndex(index, code)
+		userBson, _ := e.db.lookupUserRecordByIndex(mode, address)
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 		}
@@ -66,15 +66,15 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 	if len(message) == 0 {
 		message = brief
 	}
-	e.db.createConsentRecord(userTOKEN, index, code, brief, message, status)
+	e.db.createConsentRecord(userTOKEN, mode, address, brief, message, status)
 }
 
 func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	code := ps.ByName("code")
-	index := ps.ByName("index")
-	event := audit("consent cancel by "+index, code)
+	address := ps.ByName("address")
+	mode := ps.ByName("mode")
+	event := audit("consent cancel by "+mode, address)
 	defer func() { event.submit(e.db) }()
-	userTOKEN := code
+	userTOKEN := address
 	if enforceUUID(w, userTOKEN, event) == false {
 		return
 	}
@@ -104,11 +104,11 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 }
 
 func (e mainEnv) consentList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	code := ps.ByName("code")
-	index := ps.ByName("index")
-	event := audit("consent list of events by "+index, code)
+	address := ps.ByName("address")
+	mode := ps.ByName("mode")
+	event := audit("consent list of events by "+mode, address)
 	defer func() { event.submit(e.db) }()
-	userTOKEN := code
+	userTOKEN := address
 	if enforceUUID(w, userTOKEN, event) == false {
 		return
 	}

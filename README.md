@@ -219,12 +219,12 @@ In Data Bunker:
 
 When implementing signup and sign-in in your customer-facing applications, we recommend you to
 store all signup records in the Data Bunker database. We support 3 types of indexes, index
-by login name, index by email and index by phone. So you can easily implement login logic with
-our service.
+by login name, index by email address and index by phone number. So you can easily implement
+login logic into your solution with our service.
 
 Index by email and index by phone allow us to give your customers passwordless access to their
 personal profile at Data Bunker. We send your user a one-time login code by SMS or email to
-give him access to his account at Data Bunker.
+give them access to thier account at Data Bunker.
 
 
 ## Time-limited passwordless access tokens to personal information

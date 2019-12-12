@@ -54,7 +54,7 @@ func normalizePhone(phone string, default_country string) string {
 	return phone
 }
 
-func validateIndex(index string) bool {
+func validateMode(index string) bool {
 	if index == "token" {
 		return true
 	}

@@ -69,7 +69,7 @@ For semi-trusted environments or 3rd party companies, use **shareable identity**
 ---
 
 ## Get user record
-### `GET /v1/user/{token,login,email,phone}/{indexValue}`
+### `GET /v1/user/{token,login,email,phone}/{address}`
 
 ### Explanation
 This API is used to get user PII records. You can lookup user token by **token**, **email**, **phone** or **login**.
@@ -98,7 +98,7 @@ curl --header "X-Bunker-Token: $XTOKEN" -XGET \
 ---
 
 ## Update user record
-### `PUT /v1/user/{token,login,email,phone}/{indexValue}`
+### `PUT /v1/user/{token,login,email,phone}/{address}`
 
 ### Explanation
 
@@ -129,7 +129,7 @@ curl --header "X-Bunker-Token: $XTOKEN" -d 'name=Alex' -XPUT \
 ---
 
 ## Delete user by record
-### `DELETE /v1/user/{token,login,email,phone}/{indexValue}`
+### `DELETE /v1/user/{token,login,email,phone}/{address}`
 
 This command will remove all user records from the database, leaving only user token id.
 

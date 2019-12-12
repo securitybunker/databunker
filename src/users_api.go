@@ -69,31 +69,31 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var err error
 	var resultJSON []byte
-	code := ps.ByName("code")
-	index := ps.ByName("index")
-	event := audit("get user record by "+index, code)
+	address := ps.ByName("address")
+	mode := ps.ByName("mode")
+	event := audit("get user record by "+mode, address)
 	defer func() { event.submit(e.db) }()
 	if e.enforceAuth(w, r, event) == false {
 		return
 	}
-	if validateIndex(index) == false {
-		returnError(w, r, "bad index", 405, nil, event)
+	if validateMode(mode) == false {
+		returnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
-	userTOKEN := code
-	if index == "token" {
-		if enforceUUID(w, code, event) == false {
+	userTOKEN := address
+	if mode == "token" {
+		if enforceUUID(w, address, event) == false {
 			return
 		}
-		resultJSON, err = e.db.getUser(code)
+		resultJSON, err = e.db.getUser(address)
 	} else {
-		if index == "email" {
-			code = normalizeEmail(code)
-		} else if index == "phone" {
-			code = normalizePhone(code, e.conf.Sms.Default_country)
+		if mode == "email" {
+			address = normalizeEmail(address)
+		} else if mode == "phone" {
+			address = normalizePhone(address, e.conf.Sms.Default_country)
 		}
-		// TODO: decode url in code!
-		resultJSON, userTOKEN, err = e.db.getUserIndex(code, index)
+		// TODO: decode url in address!
+		resultJSON, userTOKEN, err = e.db.getUserIndex(address, mode)
 	}
 	if err != nil {
 		returnError(w, r, "internal error", 405, nil, event)
@@ -112,19 +112,19 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 }
 
 func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	code := ps.ByName("code")
-	index := ps.ByName("index")
-	event := audit("change user record by "+index, code)
+	address := ps.ByName("address")
+	mode := ps.ByName("mode")
+	event := audit("change user record by "+mode, address)
 	defer func() { event.submit(e.db) }()
 
 	if e.enforceAuth(w, r, event) == false {
 		return
 	}
-	if validateIndex(index) == false {
+	if validateMode(mode) == false {
 		returnError(w, r, "bad index", 405, nil, event)
 		return
 	}
-	if index == "token" && enforceUUID(w, code, event) == false {
+	if mode == "token" && enforceUUID(w, address, event) == false {
 		return
 	}
 	parsedData, err := getJSONPost(r, e.conf.Sms.Default_country)
@@ -132,14 +132,14 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
-	userTOKEN := code
-	if index != "token" {
-		if index == "email" {
-			code = normalizeEmail(code)
-		} else if index == "phone" {
-			code = normalizePhone(code, e.conf.Sms.Default_country)
+	userTOKEN := address
+	if mode != "token" {
+		if mode == "email" {
+			address = normalizeEmail(address)
+		} else if mode == "phone" {
+			address = normalizePhone(address, e.conf.Sms.Default_country)
 		}
-		userBson, err := e.db.lookupUserRecordByIndex(index, code)
+		userBson, err := e.db.lookupUserRecordByIndex(mode, address)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
@@ -160,29 +160,29 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 }
 
 func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	code := ps.ByName("code")
-	index := ps.ByName("index")
-	event := audit("delete user record by "+index, code)
+	address := ps.ByName("address")
+	mode := ps.ByName("mode")
+	event := audit("delete user record by "+mode, address)
 	defer func() { event.submit(e.db) }()
 
 	if e.enforceAuth(w, r, event) == false {
 		return
 	}
-	if validateIndex(index) == false {
-		returnError(w, r, "bad index", 405, nil, event)
+	if validateMode(mode) == false {
+		returnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
-	if index == "token" && enforceUUID(w, code, event) == false {
+	if mode == "token" && enforceUUID(w, address, event) == false {
 		return
 	}
-	userTOKEN := code
-	if index != "token" {
-		if index == "email" {
-			code = normalizeEmail(code)
-		} else if index == "phone" {
-			code = normalizePhone(code, e.conf.Sms.Default_country)
+	userTOKEN := address
+	if mode != "token" {
+		if mode == "email" {
+			address = normalizeEmail(address)
+		} else if mode == "phone" {
+			address = normalizePhone(address, e.conf.Sms.Default_country)
 		}
-		userBson, err := e.db.lookupUserRecordByIndex(index, code)
+		userBson, err := e.db.lookupUserRecordByIndex(mode, address)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
@@ -210,8 +210,8 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 }
 
 func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	address := ps.ByName("code")
-	index := ps.ByName("index")
+	address := ps.ByName("address")
+	index := ps.ByName("mode")
 	event := audit("user login by "+index, address)
 	defer func() { event.submit(e.db) }()
 
@@ -238,7 +238,7 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		userTOKEN := userBson["token"].(string)
 		if address == "4444" || address == "test@paranoidguy.com" {
 			// check if it is demo account.
-			// the code is always 4444
+			// the address is always 4444
 			// no need to send any notifications
 			e.db.generateDemoLoginCode(userTOKEN)
 		} else {
@@ -259,27 +259,27 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 
 func (e mainEnv) userLoginEnter(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	tmp := ps.ByName("tmp")
-	code := ps.ByName("code")
-	index := ps.ByName("index")
-	event := audit("user login by "+index, code)
+	address := ps.ByName("address")
+	mode := ps.ByName("mode")
+	event := audit("user login by "+mode, address)
 	defer func() { event.submit(e.db) }()
 
-	if index != "phone" && index != "email" {
-		returnError(w, r, "bad index", 405, nil, event)
+	if mode != "phone" && mode != "email" {
+		returnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
-	if index == "email" {
-		code = normalizeEmail(code)
-	} else if index == "phone" {
-		fmt.Printf("phone before: %s\n", code)
-		code = normalizePhone(code, e.conf.Sms.Default_country)
-		if len(code) == 0 {
-			returnError(w, r, "bad index", 405, nil, event)
+	if mode == "email" {
+		address = normalizeEmail(address)
+	} else if mode == "phone" {
+		fmt.Printf("phone before: %s\n", address)
+		address = normalizePhone(address, e.conf.Sms.Default_country)
+		if len(address) == 0 {
+			returnError(w, r, "bad mode", 405, nil, event)
 		}
-		fmt.Printf("phone after: %s\n", code)
+		fmt.Printf("phone after: %s\n", address)
 	}
 
-	userBson, err := e.db.lookupUserRecordByIndex(index, code)
+	userBson, err := e.db.lookupUserRecordByIndex(mode, address)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return

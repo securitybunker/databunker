@@ -118,20 +118,20 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 
 	router := httprouter.New()
 	router.POST("/v1/user", e.userNew)
-	router.GET("/v1/user/:index/:code", e.userGet)
-	router.DELETE("/v1/user/:index/:code", e.userDelete)
-	router.PUT("/v1/user/:index/:code", e.userChange)
+	router.GET("/v1/user/:mode/:address", e.userGet)
+	router.DELETE("/v1/user/:mode/:address", e.userDelete)
+	router.PUT("/v1/user/:mode/:address", e.userChange)
 
-	router.GET("/v1/login/:index/:code", e.userLogin)
-	router.GET("/v1/enter/:index/:code/:tmp", e.userLoginEnter)
+	router.GET("/v1/login/:mode/:address", e.userLogin)
+	router.GET("/v1/enter/:mode/:address/:tmp", e.userLoginEnter)
 
 	router.POST("/v1/xtoken/:token", e.userNewToken)
 	router.GET("/v1/xtoken/:xtoken", e.userCheckToken)
 
-	router.GET("/v1/consent/:index/:code", e.consentList)
-	router.POST("/v1/consent/:index/:code", e.consentAccept)
-	//router.PATCH("/v1/consent/:index/:code", e.consentCancel)
-	router.DELETE("/v1/consent/:index/:code", e.consentCancel)
+	router.GET("/v1/consent/:mode/:address", e.consentList)
+	router.POST("/v1/consent/:mode/:address", e.consentAccept)
+	//router.PATCH("/v1/consent/:mode/:address", e.consentCancel)
+	router.DELETE("/v1/consent/:mode/:address", e.consentCancel)
 
 	router.POST("/v1/userapp/token/:token/:appname", e.userappNew)
 	router.GET("/v1/userapp/token/:token/:appname", e.userappGet)

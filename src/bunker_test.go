@@ -104,7 +104,7 @@ func TestCreateAPIUser(t *testing.T) {
 	//var resp http.ResponseWriter
 	rr = httptest.NewRecorder()
 	p4 := httprouter.Param{"code", userTOKEN}
-	p5 := httprouter.Param{"index", "token"}
+	p5 := httprouter.Param{"mode", "token"}
 	ps4 := []httprouter.Param{p4, p5}
 	e.userDelete(rr, request, ps4)
 	fmt.Printf("after userDelete------------------\n%s\n\n\n", rr.Body)
