@@ -340,7 +340,7 @@ This is all done with the help of custom plugin we build for Hashicorp Vault.
 
 For technical questions or for product demo you can talk with Yuli Stremovsky at stremovsky@gmail.com
 
-For business inquiries, partnership requests you can talk with Boaz Shunami at boaz.shunami@komodosec.com
+For business inquiries, partnership requests you can talk with Boaz Shunami at boaz@komodosec.com
 
 ---
 
