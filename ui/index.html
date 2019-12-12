@@ -169,11 +169,10 @@
                 };
                 xhr.send();
             } else if (kkk == "Email" && key.indexOf('@') > 0) {
-                var params = 'brief=send-email-mailgun-on-login';
                 window.localStorage.setItem('login', key);
                 var xhr0 = new XMLHttpRequest();
                 // first save consent
-                xhr0.open('POST', "/v1/consent/email/" + encodeURI(key));
+                xhr0.open('POST', "/v1/consent/email/" + encodeURI(key) + "/send-email-mailgun-on-login");
                 xhr0.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
                 xhr0.onload = function () {
                     if (xhr0.status === 200) {
@@ -187,14 +186,13 @@
                         xhr.send();
                     }
                 }
-                xhr0.send(params);
+                xhr0.send();
 
 
             } else if (kkk == "Phone") {
                 window.localStorage.setItem('login', key);
-                var params = 'brief=send-sms-twilio-on-login';
                 var xhr0 = new XMLHttpRequest();
-                xhr0.open('POST', "/v1/consent/phone/" + encodeURI(key));
+                xhr0.open('POST', "/v1/consent/phone/" + encodeURI(key) + "/send-sms-twilio-on-login");
                 xhr0.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
                 xhr0.onload = function () {
                     if (xhr0.status === 200) {
@@ -208,7 +206,7 @@
                         xhr.send();
                     }
                 }
-                xhr0.send(params);
+                xhr0.send();
             } else {
                 badformat.style.display = "block";
             }

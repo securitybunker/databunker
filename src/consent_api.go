@@ -11,6 +11,7 @@ import (
 func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var err error
 	address := ps.ByName("address")
+	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
 	event := audit("consent accept by "+mode, address)
 	defer func() { event.submit(e.db) }()
@@ -41,14 +42,8 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 		//returnError(w, r, "internal error", 405, err, event)
 		return
 	}
-	brief := ""
 	message := ""
 	status := "accept"
-	if value, ok := records["brief"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			brief = value.(string)
-		}
-	}
 	if value, ok := records["message"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			message = value.(string)
@@ -68,6 +63,7 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 
 func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
+	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
 	event := audit("consent cancel by "+mode, address)
 	defer func() { event.submit(e.db) }()
@@ -79,28 +75,13 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 	if e.enforceAuth(w, r, event) == false {
 		return
 	}
-	records, err := getJSONPostData(r)
-	if err != nil {
-		returnError(w, r, "internal error", 405, err, event)
-		return
-	}
-	brief := ""
-	if value, ok := records["brief"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			brief = value.(string)
-		}
-	}
-	if len(brief) == 0 {
-		returnError(w, r, "consent brief code is missing", 405, nil, event)
-		return
-	}
 	e.db.cancelConsentRecord(userTOKEN, brief)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"status":"ok"}`))
 }
 
-func (e mainEnv) consentList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
 	event := audit("consent list of events by "+mode, address)
@@ -115,6 +96,64 @@ func (e mainEnv) consentList(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 
 	resultJSON, numRecords, err := e.db.listConsentRecords(userTOKEN)
+	if err != nil {
+		returnError(w, r, "internal error", 405, err, event)
+		return
+	}
+	fmt.Printf("Total count of rows: %d\n", numRecords)
+	//fmt.Fprintf(w, "<html><head><title>title</title></head>")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, numRecords, resultJSON)
+	w.Write([]byte(str))
+}
+
+func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	address := ps.ByName("address")
+	brief := ps.ByName("brief")
+	mode := ps.ByName("mode")
+	event := audit("consent event by "+mode, address)
+	defer func() { event.submit(e.db) }()
+	userTOKEN := address
+	if enforceUUID(w, userTOKEN, event) == false {
+		return
+	}
+	// make sure that user is logged in here, unless he wants to cancel emails
+	if e.enforceAuth(w, r, event) == false {
+		return
+	}
+
+	resultJSON, err := e.db.viewConsentRecord(userTOKEN, brief)
+	if err != nil {
+		returnError(w, r, "internal error", 405, err, event)
+		return
+	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	str := fmt.Sprintf(`{"status":"ok","data":%s}`, resultJSON)
+	w.Write([]byte(str))
+}
+
+func (e mainEnv) consentFilterRecords(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	brief := ps.ByName("brief")
+	event := audit("consent filter by "+brief, "")
+	defer func() { event.submit(e.db) }()
+	if e.enforceAuth(w, r, event) == false {
+		return
+	}
+
+	var offset int32
+	var limit int32 = 10
+	args := r.URL.Query()
+	if value, ok := args["offset"]; ok {
+		offset = atoi(value[0])
+	}
+	if value, ok := args["limit"]; ok {
+		limit = atoi(value[0])
+	}
+	resultJSON, numRecords, err := e.db.filterConsentRecords(brief, offset, limit)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
