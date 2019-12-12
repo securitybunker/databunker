@@ -53,7 +53,6 @@ Bunker, for example, to block sending him emails. Your backend can work with Dat
 consents and a callback operation will be fired when a user action takes place.
 
 ![Consent management](images/ui-consent-management.png)
-
 ![Consent withdrawal](images/ui-consent-withdrawal.png)
 
 ## Privacy by design
@@ -61,17 +60,22 @@ consents and a callback operation will be fired when a user action takes place.
 This product, from the architecture level and up was built to comply with strict privacy laws. Deploying this project will make your architecture 
 **privacy by design** compliant.
 
-## Transparency
+## Transparency and Accountability principle
 
-All operations with personal records are **saved in the audit log**. Your customer can log in to his account at Data Bunker
-and view the audit trail.
+Any system or user that connects to Data Bunker must provide an access token to do any operation or the operation will be aborted. A user can login into his profile with a random code we sned by email or SMS.
+
+All operations with personal records are **saved in the audit log**.
+
+Your customer can log in to his account at Data Bunker and view the audit trail.
+
+![Forget me](images/ui-audit-log.png)
 
 ## Right to be forgotten / Right to erasure
 
 When your customer asks for his **right to be forgotten** legal right, his private records will be
 wiped out of the Data Bunker database, giving you the possibility to leave all internal databases unchanged.
 
-#### Diagram
+![Forget me](images/ui-forget-me.png)
 
 **NOTE**: You just need to make sure that you do not have any user identifiable information in your other databases,
 logs, files. 
@@ -82,12 +86,16 @@ logs, files.
 Your customer/user can log in to his personal account at Data Bunker and change his records. Data Bunker will
 fire a callback operation when a user action takes place.
 
+![Change profile](images/ui-profile-edit-and-save.png)
+
+
 ## Right to data portability
 
 Your customer/user can log in to his personal account at Data Bunker and view and extract all his records stored at
 Data Bunker.
 
 **NOTE**: You need to provide your customers with a way to extract data from other internal databases.
+
 
 ## Data minimization and GDPR Scope reduction
 
@@ -99,19 +107,12 @@ that is time-bound.
 ## Diagram - Boaz
 
 
-
 ## Integrity and confidentiality
 
 All personal data is encrypted. An audit log is written for all operations with personal records.
 All-access to Data Bunker API is done using an HTTPS SSL certificate. Enterprise version supports Shamir's Secret Sharing
 algorithm to split the master key to a number of keys. A number of keys (that can be saved in different hands in the
 organization) are required to bring up the system.
-
-## Accountability principle
-
-Any system or user that connects to Data Bunker must provide an access token to do any operation or the operation will be aborted. A user needs to
-login to access his own account. All operations are recorded in the audit log.
-
 
 
 ## NOTE
