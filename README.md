@@ -42,6 +42,12 @@ Your custome can view all information collected and saved by Data Bunker in conn
 
 ![login form](images/ui-login-form.png) ![login with email](images/ui-login-email.png) ![login with code](images/ui-login-code.png)
 
+<p float="left">
+  <img src="images/ui-login-form.png" />
+  <img src="images/ui-login-email.png" /> 
+  <img src="images/ui-login-code.png" />
+</p>
+
 ## Right to restrict processing / Right to object / Consent withdrawal
 
 Data Bunker manages all user consents. User can **cancel specific consent** in his personal account at Data 
