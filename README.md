@@ -35,10 +35,12 @@ need to consult with an attorney specializing in privacy.
 
 ## Right of access
 
-The built in **passwordless** login into the data bunker service will allow your customer/user to log in into his personal account
-at Data Bunker and view all information collected by Data Bunker in connection to his profile.
+Data Bunker knows to extract customer email and phone out of user personal records allowing
+**passwordless** login for the customer into the Data bunker personal account.
+We do this by generating a random access key that we send by email or by SMS to your customer.
+Your custome can view all information collected and saved by Data Bunker in connection to his profile.
 
-#### Add IMAGE
+![login form](images/ui-login-form.png) ![login with email](images/ui-login-form.png) ![login with code](images/ui-login-code.png)
 
 ## Right to restrict processing / Right to object / Consent withdrawal
 
