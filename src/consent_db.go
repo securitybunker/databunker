@@ -13,14 +13,14 @@ import (
 type consentEvent struct {
 	When    int32  `json:"when,omitempty" structs:"when"`
 	Who     string `json:"who,omitempty" structs:"who"`
-	Type    string `json:"type,omitempty" structs:"type"`
+	Mode    string `json:"mode,omitempty" structs:"mode"`
 	Token   string `json:"token,omitempty" structs:"token"`
 	Brief   string `json:"brief,omitempty" structs:"brief"`
 	Message string `json:"message,omitempty" structs:"message"`
 	Status  string `json:"status,omitempty" structs:"status"`
 }
 
-func (dbobj dbcon) createConsentRecord(userTOKEN string, usertype string, usercode string, brief string, message string, status string) {
+func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode string, brief string, message string, status string) {
 	now := int32(time.Now().Unix())
 	// brief can not be too long, may be hash it ?
 	if len(brief) > 64 {
@@ -47,7 +47,7 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, usertype string, userco
 		When:    now,
 		Who:     usercode,
 		Token:   userTOKEN,
-		Type:    usertype,
+		Mode:    mode,
 		Brief:   brief,
 		Message: message,
 		Status:  status,

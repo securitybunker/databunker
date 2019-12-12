@@ -275,7 +275,10 @@ Fetch by user token:
 curl --header "X-Bunker-Token: $XTOKEN" -XGET \
    https://localhost:3000/v1/consent/email/test@paranoidguy.com
 {"status":"ok","total":2,"rows":[
-   {"brief":"send-email-mailgun-on-login","message":"send-email-mailgun-on-login","status":"accept","token":"254d2abf-e927-bdcf-9cb2-f43c3cb7a8fa","type":"email","when":1576154130,"who":"test@paranoidguy.com"},{"brief":"send-sms-twilio-on-login","message":"send-sms-twilio-on-login","status":"accept","token":"254d2abf-e927-bdcf-9cb2-f43c3cb7a8fa","type":"phone","when":1576174683,"who":"4444"}]}
+   {"brief":"send-email-mailgun-on-login","message":"send-email-mailgun-on-login","status":"accept",
+   "token":"254d2abf-e927-bdcf-9cb2-f43c3cb7a8fa","mode":"email","when":1576154130,"who":"test@paranoidguy.com"},
+   {"brief":"send-sms-twilio-on-login","message":"send-sms-twilio-on-login","status":"accept",
+   "token":"254d2abf-e927-bdcf-9cb2-f43c3cb7a8fa","mode":"phone","when":1576174683,"who":"4444"}]}
 ```
 
 ### List granted
