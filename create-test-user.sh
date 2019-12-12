@@ -18,9 +18,9 @@ if [ "$STATUS" == "error" ]; then
 fi
 
 TOKEN=`echo $RESULT | jq ".token" | tr -d '"'`
-echo "User token is  $TOKEN"
+echo "User token is $TOKEN"
 
-RESULT=`curl -s http://localhost:3000/v1/userapp/token/$TOKEN/shiping \
+RESULT=`curl -s http://localhost:3000/v1/userapp/token/$TOKEN/shipping \
   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json" \
   -d '{"country":"Israel","address":"Allenby 1","postcode":"12345","status":"active"}' | jq ".status" | tr -d '"'`
-echo "User shiping record created, status $RESULT"
+echo "User shipping record created, status $RESULT"
