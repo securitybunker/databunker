@@ -68,7 +68,7 @@
                     var data = JSON.parse(xhr0.responseText);
                     if (data.status == "ok") {
                         var d = JSON.stringify(data.data, null, 4);
-                        $('#data').append('<h4>'+app+'</h4><code class="json">' + d + '</code>');
+                        $('#data').append('<h4>Table: '+app+'</h4><code class="json">' + d + '</code>');
                         document.querySelectorAll('pre code').forEach((block) => {
                             hljs.highlightBlock(block);
                         });
@@ -83,7 +83,6 @@
         var xtoken = window.localStorage.getItem('xtoken');
         var token = window.localStorage.getItem('token');
         var ttype = window.localStorage.getItem('type');
-        $('#msg').val("Display: " + ttype + " " + token);
 
         var xhr = new XMLHttpRequest();
         xhr.open('GET', '/v1/userapp/token/' + token);
@@ -91,6 +90,7 @@
         xhr.setRequestHeader('Content-type', 'application/json');
         xhr.onload = function () {
             if (xhr.status === 200) {
+                $('#msg').text("Data loaded.");
                 var data = JSON.parse(xhr.responseText);
                 if (data.apps) {
                     var index;
