@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DATABUNKER_APIKEY='1ca9a727-ee10-9cc6-c1a2-72da05951e69'
+DATABUNKER_APIKEY='689464cf-2485-b7e8-1c65-f2ce40ce507c'
 
 echo "Creating user."
 RESULT=`curl -s http://localhost:3000/v1/user \
@@ -24,3 +24,27 @@ RESULT=`curl -s http://localhost:3000/v1/userapp/token/$TOKEN/shipping \
   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json" \
   -d '{"country":"Israel","address":"Allenby 1","postcode":"12345","status":"active"}' | jq ".status" | tr -d '"'`
 echo "User shipping record created, status $RESULT"
+
+RESULT=`curl -s http://localhost:3000/v1/userapp/token/$TOKEN \
+   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
+echo "View list of all user apps $RESULT"
+
+RESULT=`curl -s http://localhost:3000/v1/userapps \
+   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
+echo "View list of all apps $RESULT"
+
+RESULT=`curl -s http://localhost:3000/v1/consent/token/$TOKEN/send-sms -XPOST \
+   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
+echo "Enable consent send-sms for user by token: $RESULT"
+
+RESULT=`curl -s http://localhost:3000/v1/consent/token/$TOKEN/send-sms \
+   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
+echo "View this specific consent only: $RESULT"
+
+RESULT=`curl -s http://localhost:3000/v1/consent/token/$TOKEN \
+   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
+echo "View all user consents: $RESULT"
+
+RESULT=`curl -s http://localhost:3000/v1/consents/send-sms \
+   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
+echo "View all users with send-sms consent on: $RESULT"
