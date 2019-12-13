@@ -107,7 +107,15 @@ func (dbobj dbcon) filterConsentRecords(brief string, offset int32, limit int32)
 		return nil, 0, err
 	}
 	records, err := dbobj.getList(TblName.Consent, "brief", brief, offset, limit)
-	resultJSON, err := json.Marshal(records)
+	if err != nil {
+		return nil, 0, err
+	}
+	// we need to return only list of tokens
+	var result []string
+	for _, rec := range records {
+		result = append(result, rec["token"].(string))
+	}
+	resultJSON, err := json.Marshal(result)
 	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, count, nil
 }
