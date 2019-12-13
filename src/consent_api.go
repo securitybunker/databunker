@@ -16,15 +16,22 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 	event := audit("consent accept by "+mode, address)
 	defer func() { event.submit(e.db) }()
 
+	defer func() {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(200)
+		w.Write([]byte(`{"status":"ok"}`))
+	}()
 	userTOKEN := ""
 	if mode == "token" {
 		if enforceUUID(w, address, event) == false {
 			return
 		}
 		userBson, _ := e.db.lookupUserRecord(address)
-		if userBson != nil {
-			userTOKEN = address
+		if userBson == nil {
+			// if token not found, exit from here
+			return
 		}
+		userTOKEN = address
 	} else {
 		// TODO: decode url in code!
 		userBson, _ := e.db.lookupUserRecordByIndex(mode, address)
@@ -32,11 +39,7 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 			userTOKEN = userBson["token"].(string)
 		}
 	}
-	defer func() {
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		w.Write([]byte(`{"status":"ok"}`))
-	}()
+
 	records, err := getJSONPostData(r)
 	if err != nil {
 		//returnError(w, r, "internal error", 405, err, event)
