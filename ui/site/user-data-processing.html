@@ -80,7 +80,7 @@
             }
         }
         xhr.send();
-        function cancelThis(brief) {
+        function confirmWithdrawal(brief) {
             var heading = "Confirm consent cancellation";
             var question = "Are you sure?";
             var cancelButtonTxt = "Close popup";
@@ -107,13 +107,13 @@
 
             confirmModal.find('#okButton').click(function (event) {
                 //callback();
-                cancelThisDo(brief);
+                cancelConsent(brief);
                 confirmModal.modal('hide');
             });
 
             confirmModal.modal('show');
         }
-        function cancelThisDo(brief) {
+        function cancelConsent(brief) {
             var xhr = new XMLHttpRequest();
             xhr.open('DELETE', "/v1/consent/token/" + token + "/" + brief);
             xhr.setRequestHeader("X-Bunker-Token", xtoken)
@@ -127,7 +127,7 @@
             }
             xhr.send();
         }
-        function acceptThis(brief) {
+        function acceptConsent(brief) {
             var xhr = new XMLHttpRequest();
             xhr.open('POST', "/v1/consent/token/" + token + "/" + brief);
             xhr.setRequestHeader("X-Bunker-Token", xtoken)
@@ -149,8 +149,8 @@
             var start = '<div class="d-flex flex-row bd-highlight mb-4">';
             var d = '<div class="p-2 bd-highlight">When: ' + dateFormat(row.when) + '</div>'
             var identity = '<div class="p-2 flex-fill bd-highlight">Identity: ' + row.who + ' (' + row.mode + ')<br/>' + msg + '</div>'
-            var cancel = "<a href=\"javascript:cancelThis('" + row.brief + "');\">cancel</a>";
-            var accept = "<a href=\"javascript:acceptThis('" + row.brief + "');\">accept</a>";
+            var cancel = "<a href=\"javascript:confirmWithdrawal('" + row.brief + "');\">cancel</a>";
+            var accept = "<a href=\"javascript:acceptConsent('" + row.brief + "');\">accept</a>";
             var op = cancel;
             if (row.status == 'cancel') {
                 op = accept;
