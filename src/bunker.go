@@ -139,7 +139,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/userapp/token/:token/:appname", e.userappGet)
 	router.PUT("/v1/userapp/token/:token/:appname", e.userappChange)
 	router.GET("/v1/userapp/token/:token", e.userappList)
-	router.GET("/v1/userapp/list", e.appList)
+	router.GET("/v1/userapps", e.appList)
 
 	router.GET("/v1/metrics", e.metrics)
 
