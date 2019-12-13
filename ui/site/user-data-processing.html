@@ -114,9 +114,8 @@
             confirmModal.modal('show');
         }
         function cancelThisDo(brief) {
-            var params = 'brief=' + brief;
             var xhr = new XMLHttpRequest();
-            xhr.open('DELETE', "/v1/consent/token/" + token);
+            xhr.open('DELETE', "/v1/consent/token/" + token + "/" + brief);
             xhr.setRequestHeader("X-Bunker-Token", xtoken)
             xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
             xhr.onload = function () {
@@ -126,12 +125,11 @@
                     document.location = "/";
                 }
             }
-            xhr.send(params);
+            xhr.send();
         }
         function acceptThis(brief) {
-            var params = 'brief=' + brief;
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', "/v1/consent/token/" + token);
+            xhr.open('POST', "/v1/consent/token/" + token + "/" + brief);
             xhr.setRequestHeader("X-Bunker-Token", xtoken)
             xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
             xhr.onload = function () {
@@ -141,7 +139,7 @@
                     document.location = "/";
                 }
             }
-            xhr.send(params);
+            xhr.send();
         }
         function prepareRow(row) {
             var msg = row.brief;
