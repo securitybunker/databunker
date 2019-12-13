@@ -249,6 +249,9 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
+		if len(body) < 3 {
+			return records, nil
+		}
 		err = json.Unmarshal(body, &records)
 		if err != nil {
 			return nil, err
