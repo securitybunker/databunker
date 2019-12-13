@@ -148,7 +148,7 @@ mix is with profile data. For example shipping information.
 | ----------------------------------- | ------------------- | ----------------- | ------------- | ------- |
 | /v1/userapp/token/{token}/{appname} | New user app record | Get record        | Change record | Delete  |
 | /v1/userapp/token/{token}           | Error               | Get user app list | Error         | Error   |
-| /v1/userapp/list                    | Error               | Get all app list  | Error         | Error   |
+| /v1/userapps                        | Error               | Get all app list  | Error         | Error   |
 
 
 ## Create user app record
