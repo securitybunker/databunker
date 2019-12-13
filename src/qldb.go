@@ -292,7 +292,7 @@ func (dbobj dbcon) createRecord(t Tbl, data interface{}) (int, error) {
 
 func (dbobj dbcon) countRecords(t Tbl, keyName string, keyValue string) (int64, error) {
 	tbl := getTable(t)
-	q := "select count(*) from " + tbl + " WHERE " + keyName + "=\"" + keyValue + "\""
+	q := "select count(*) from " + tbl + " WHERE " + keyName + "=$1"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -300,7 +300,7 @@ func (dbobj dbcon) countRecords(t Tbl, keyName string, keyValue string) (int64, 
 		return 0, err
 	}
 	defer tx.Rollback()
-	row := tx.QueryRow(q)
+	row := tx.QueryRow(q, keyValue)
 	// Columns
 	var count int
 	err = row.Scan(&count)
@@ -315,8 +315,8 @@ func (dbobj dbcon) countRecords(t Tbl, keyName string, keyValue string) (int64, 
 
 func (dbobj dbcon) countRecords2(t Tbl, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
 	tbl := getTable(t)
-	q := "select count(*) from " + tbl + " WHERE " + keyName + "=\"" + keyValue + "\"" +
-		" AND " + keyName2 + "=\"" + keyValue2 + "\""
+	q := "select count(*) from " + tbl + " WHERE " + keyName + "=$1" +
+		" AND " + keyName2 + "=$2"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -324,7 +324,7 @@ func (dbobj dbcon) countRecords2(t Tbl, keyName string, keyValue string, keyName
 		return 0, err
 	}
 	defer tx.Rollback()
-	row := tx.QueryRow(q)
+	row := tx.QueryRow(q, keyValue, keyValue2)
 	// Columns
 	var count int
 	err = row.Scan(&count)
@@ -492,7 +492,7 @@ func (dbobj dbcon) deleteRecord(t Tbl, keyName string, keyValue string) (int64, 
 }
 
 func (dbobj dbcon) deleteRecordInTable(table string, keyName string, keyValue string) (int64, error) {
-	q := "delete from " + table + " WHERE " + keyName + "=\"" + keyValue + "\""
+	q := "delete from " + table + " WHERE " + keyName + "=$1"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -500,7 +500,7 @@ func (dbobj dbcon) deleteRecordInTable(table string, keyName string, keyValue st
 		return 0, err
 	}
 	defer tx.Rollback()
-	result, err := tx.Exec(q)
+	result, err := tx.Exec(q, keyValue)
 	if err != nil {
 		return 0, err
 	}
@@ -514,7 +514,7 @@ func (dbobj dbcon) deleteRecordInTable(table string, keyName string, keyValue st
 func (dbobj dbcon) cleanupRecord(t Tbl, keyName string, keyValue string, data interface{}) (int64, error) {
 	tbl := getTable(t)
 	cleanup := decodeForCleanup(data)
-	q := "update " + tbl + " SET " + cleanup + " WHERE " + keyName + "=\"" + keyValue + "\""
+	q := "update " + tbl + " SET " + cleanup + " WHERE " + keyName + "=$1"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -522,7 +522,7 @@ func (dbobj dbcon) cleanupRecord(t Tbl, keyName string, keyValue string, data in
 		return 0, err
 	}
 	defer tx.Rollback()
-	result, err := tx.Exec(q)
+	result, err := tx.Exec(q, keyValue)
 	if err != nil {
 		return 0, err
 	}
@@ -539,7 +539,7 @@ func (dbobj dbcon) getList(t Tbl, keyName string, keyValue string, start int32, 
 		limit = 100
 	}
 
-	q := "select * from " + table + " WHERE " + keyName + "=\"" + keyValue + "\""
+	q := "select * from " + table + " WHERE " + keyName + "=$1"
 	if start > 0 {
 		q = q + " LIMIT " + strconv.FormatInt(int64(start), 10) + "," +
 			strconv.FormatInt(int64(limit), 10)
@@ -552,7 +552,7 @@ func (dbobj dbcon) getList(t Tbl, keyName string, keyValue string, start int32, 
 		return nil, err
 	}
 	defer tx.Rollback()
-	rows, err := tx.Query(q)
+	rows, err := tx.Query(q, keyValue)
 	if err == sql.ErrNoRows {
 		fmt.Println("nothing found")
 		return nil, nil
