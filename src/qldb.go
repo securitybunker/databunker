@@ -504,8 +504,8 @@ func (dbobj dbcon) getList(t Tbl, keyName string, keyValue string, start int32, 
 
 	q := "select * from " + table + " WHERE " + keyName + "=$1"
 	if start > 0 {
-		q = q + " LIMIT " + strconv.FormatInt(int64(start), 10) + "," +
-			strconv.FormatInt(int64(limit), 10)
+		q = q + " LIMIT " + strconv.FormatInt(int64(limit), 10) +
+			" OFFSET " + strconv.FormatInt(int64(start), 10)
 	} else if limit > 0 {
 		q = q + " LIMIT " + strconv.FormatInt(int64(limit), 10)
 	}
