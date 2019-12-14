@@ -103,7 +103,7 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 	if e.enforceAuth(w, r, event) == false {
 		return
 	}
-	e.db.cancelConsentRecord(userTOKEN, brief)
+	e.db.cancelConsentRecord(userTOKEN, brief, mode, address)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"status":"ok"}`))
