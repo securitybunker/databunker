@@ -37,6 +37,14 @@ RESULT=`curl -s http://localhost:3000/v1/consent/token/$TOKEN/send-sms -XPOST \
    -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
 echo "Enable consent send-sms for user by token: $RESULT"
 
+RESULT=`curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/send-sms2 -XPOST \
+   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
+echo "Enable consent send-sms for user by email: $RESULT"
+
+RESULT=`curl -s http://localhost:3000/v1/consent/phone/4444/send-sms2 -XDELETE \
+   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
+echo "Disabke consent send-sms for user by phone: $RESULT"
+
 RESULT=`curl -s http://localhost:3000/v1/consent/token/$TOKEN/send-sms \
    -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
 echo "View this specific consent only: $RESULT"
