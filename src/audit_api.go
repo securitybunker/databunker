@@ -9,7 +9,7 @@ import (
 
 func (e mainEnv) getAuditEvents(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	userTOKEN := ps.ByName("token")
-	event := audit("view audit events", userTOKEN)
+	event := audit("view audit events", userTOKEN, "token", userTOKEN)
 	defer func() { event.submit(e.db) }()
 	//fmt.Println("error code")
 	if enforceUUID(w, userTOKEN, event) == false {

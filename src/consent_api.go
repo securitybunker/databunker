@@ -12,7 +12,7 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 	address := ps.ByName("address")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
-	event := audit("consent accept by "+mode, address)
+	event := audit("consent accept for "+brief, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
 	brief = normalizeBrief(brief)
@@ -42,6 +42,7 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
+			event.Record = userTOKEN
 		}
 	}
 
@@ -75,7 +76,7 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 	address := ps.ByName("address")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
-	event := audit("consent cancel by "+mode, address)
+	event := audit("consent withdraw for "+brief, address, mode, address)
 	defer func() { event.submit(e.db) }()
 	userTOKEN := ""
 
@@ -99,6 +100,7 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
+			event.Record = userTOKEN
 		}
 	}
 	// make sure that user is logged in here, unless he wants to cancel emails
@@ -120,7 +122,7 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
-	event := audit("consent list of events by "+mode, address)
+	event := audit("consent list of records for "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 	userTOKEN := ""
 	if mode == "token" {
@@ -138,6 +140,7 @@ func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, p
 		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
+			event.Record = userTOKEN
 		}
 	}
 	// make sure that user is logged in here, unless he wants to cancel emails
@@ -163,7 +166,7 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 	address := ps.ByName("address")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
-	event := audit("consent event by "+mode, address)
+	event := audit("consent record for "+brief, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
 	brief = normalizeBrief(brief)
@@ -187,6 +190,7 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
+			event.Record = userTOKEN
 		}
 	}
 
@@ -209,7 +213,7 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 
 func (e mainEnv) consentFilterRecords(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	brief := ps.ByName("brief")
-	event := audit("consent filter by "+brief, "")
+	event := audit("consent get all for "+brief, brief, "brief", brief)
 	defer func() { event.submit(e.db) }()
 	if e.enforceAuth(w, r, event) == false {
 		return

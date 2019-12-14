@@ -86,7 +86,7 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 
 func (e mainEnv) userappList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	userTOKEN := ps.ByName("token")
-	event := audit("get user app list", userTOKEN)
+	event := audit("get user app list", userTOKEN, "token", userTOKEN)
 	defer func() { event.submit(e.db) }()
 
 	if enforceUUID(w, userTOKEN, event) == false {

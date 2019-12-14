@@ -9,22 +9,24 @@ import (
 )
 
 type auditEvent struct {
-	When   int32  `json:"when"`
-	Who    string `json:"who"`
-	Record string `json:"record"`
-	App    string `json:"app"`
-	Title  string `json:"title"`
-	Status string `json:"status"`
-	Msg    string `json:"msg"`
-	Debug  string `json:"debug"`
-	Before string `json:"before"`
-	After  string `json:"after"`
-	Meta   string `json:"meta"`
+	When     int32  `json:"when"`
+	Who      string `json:"who"`
+	Mode     string `json:"mode"`
+	Identity string `json:"identity"`
+	Record   string `json:"record"`
+	App      string `json:"app"`
+	Title    string `json:"title"`
+	Status   string `json:"status"`
+	Msg      string `json:"msg"`
+	Debug    string `json:"debug"`
+	Before   string `json:"before"`
+	After    string `json:"after"`
+	Meta     string `json:"meta"`
 }
 
-func audit(title string, record string) *auditEvent {
+func audit(title string, record string, mode string, address string) *auditEvent {
 	fmt.Printf("/%s : %s\n", title, record)
-	return &auditEvent{Title: title, Record: record, Status: "ok", When: int32(time.Now().Unix())}
+	return &auditEvent{Title: title, Mode: mode, Who: address, Record: record, Status: "ok", When: int32(time.Now().Unix())}
 }
 
 func auditApp(title string, record string, app string) *auditEvent {
