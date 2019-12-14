@@ -94,10 +94,9 @@ func (dbobj dbcon) initUserApps() error {
 	return nil
 }
 
-func decodeFieldsValues(data interface{}) (string, string) {
+func decodeFieldsValues(data interface{}) (string, []interface{}) {
 	fields := ""
-	values := ""
-	str := ""
+	values := make([]interface{}, 0)
 
 	switch t := data.(type) {
 	case primitive.M:
@@ -108,21 +107,7 @@ func decodeFieldsValues(data interface{}) (string, string) {
 			} else {
 				fields = fields + "," + idx
 			}
-			switch t := val.(type) {
-			case string:
-				str = "\"" + val.(string) + "\""
-			case int:
-				str = strconv.Itoa(val.(int))
-			case int32:
-				str = strconv.FormatInt(int64(val.(int32)), 10)
-			default:
-				fmt.Printf("wrong type: %s\n", t)
-			}
-			if len(values) == 0 {
-				values = str
-			} else {
-				values = values + "," + str
-			}
+			values = append(values, val)
 		}
 	case *primitive.M:
 		fmt.Println("decodeFieldsValues format is: *primitive.M")
@@ -132,21 +117,7 @@ func decodeFieldsValues(data interface{}) (string, string) {
 			} else {
 				fields = fields + "," + idx
 			}
-			switch t := val.(type) {
-			case string:
-				str = "\"" + val.(string) + "\""
-			case int:
-				str = strconv.Itoa(val.(int))
-			case int32:
-				str = strconv.FormatInt(int64(val.(int32)), 10)
-			default:
-				fmt.Printf("wrong type: %s\n", t)
-			}
-			if len(values) == 0 {
-				values = str
-			} else {
-				values = values + "," + str
-			}
+			values = append(values, val)
 		}
 	case map[string]interface{}:
 		fmt.Println("decodeFieldsValues format is: map[string]interface{}")
@@ -156,21 +127,7 @@ func decodeFieldsValues(data interface{}) (string, string) {
 			} else {
 				fields = fields + "," + idx
 			}
-			switch t := val.(type) {
-			case string:
-				str = "\"" + val.(string) + "\""
-			case int:
-				str = strconv.Itoa(val.(int))
-			case int32:
-				str = strconv.FormatInt(int64(val.(int32)), 10)
-			default:
-				fmt.Printf("wrong type: %s\n", t)
-			}
-			if len(values) == 0 {
-				values = str
-			} else {
-				values = values + "," + str
-			}
+			values = append(values, val)
 		}
 	default:
 		fmt.Printf("XXXXXX wrong type: %T\n", t)
@@ -206,9 +163,9 @@ func decodeForCleanup(data interface{}) string {
 	return fields
 }
 
-func decodeForUpdate(bdoc *bson.M, bdel *bson.M) string {
+func decodeForUpdate(bdoc *bson.M, bdel *bson.M) (string, []interface{}) {
+	values := make([]interface{}, 0)
 	fields := ""
-	str := ""
 
 	if bdoc != nil {
 		/*
@@ -219,23 +176,15 @@ func decodeForUpdate(bdoc *bson.M, bdel *bson.M) string {
 		*/
 
 		for idx, val := range *bdoc {
-			switch t := val.(type) {
-			case string:
-				str = "\"" + val.(string) + "\""
-			case int:
-				str = strconv.Itoa(val.(int))
-			case int32:
-				str = strconv.FormatInt(int64(val.(int32)), 10)
-			default:
-				fmt.Printf("wrong type: %s\n", t)
-			}
+			values = append(values, val)
 			if len(fields) == 0 {
-				fields = idx + "=" + str
+				fields = idx + "=$1"
 			} else {
-				fields = fields + "," + idx + "=" + str
+				fields = fields + "," + idx + "=$" + (strconv.Itoa(len(values)))
 			}
 		}
 	}
+
 	if bdel != nil {
 		for idx, _ := range *bdel {
 			if len(fields) == 0 {
@@ -245,7 +194,7 @@ func decodeForUpdate(bdoc *bson.M, bdel *bson.M) string {
 			}
 		}
 	}
-	return fields
+	return fields, values
 }
 
 func getTable(t Tbl) string {
@@ -266,7 +215,13 @@ func getTable(t Tbl) string {
 
 func (dbobj dbcon) createRecordInTable(tbl string, data interface{}) (int, error) {
 	fields, values := decodeFieldsValues(data)
-	q := "insert into " + tbl + " (" + fields + ") values (" + values + ");"
+	values_q := "$1"
+	for idx, _ := range values {
+		if idx > 0 {
+			values_q = values_q + ",$" + (strconv.Itoa(idx + 1))
+		}
+	}
+	q := "insert into " + tbl + " (" + fields + ") values (" + values_q + ")"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -274,7 +229,7 @@ func (dbobj dbcon) createRecordInTable(tbl string, data interface{}) (int, error
 		return 0, err
 	}
 	defer tx.Rollback()
-	_, err = tx.Exec(q)
+	_, err = tx.Exec(q, values...)
 	if err != nil {
 		return 0, err
 	}
@@ -361,7 +316,7 @@ func (dbobj dbcon) updateRecordInTable2(table string, keyName string,
 }
 
 func (dbobj dbcon) updateRecordInTableDo(table string, filter string, bdoc *bson.M, bdel *bson.M) (int64, error) {
-	op := decodeForUpdate(bdoc, bdel)
+	op, values := decodeForUpdate(bdoc, bdel)
 	q := "update " + table + " SET " + op + " WHERE " + filter
 	fmt.Printf("q: %s\n", q)
 
@@ -370,7 +325,7 @@ func (dbobj dbcon) updateRecordInTableDo(table string, filter string, bdoc *bson
 		return 0, err
 	}
 	defer tx.Rollback()
-	result, err := tx.Exec(q)
+	result, err := tx.Exec(q, values...)
 	if err != nil {
 		return 0, err
 	}
@@ -383,38 +338,46 @@ func (dbobj dbcon) updateRecordInTableDo(table string, filter string, bdoc *bson
 
 func (dbobj dbcon) getRecord(t Tbl, keyName string, keyValue string) (bson.M, error) {
 	table := getTable(t)
-	q := "select * from " + table + " WHERE " + keyName + "=\"" + keyValue + "\""
-	return dbobj.getRecordInTableDo(q)
+	q := "select * from " + table + " WHERE " + keyName + "=$1"
+	values := make([]interface{}, 0)
+	values = append(values, keyValue)
+	return dbobj.getRecordInTableDo(q, values)
 }
 
 func (dbobj dbcon) getRecordInTable(table string, keyName string, keyValue string) (bson.M, error) {
-	q := "select * from " + table + " WHERE " + keyName + "=\"" + keyValue + "\""
-	return dbobj.getRecordInTableDo(q)
+	q := "select * from " + table + " WHERE " + keyName + "=$1"
+	values := make([]interface{}, 0)
+	values = append(values, keyValue)
+	return dbobj.getRecordInTableDo(q, values)
 }
 
 func (dbobj dbcon) getRecord2(t Tbl, keyName string, keyValue string,
 	keyName2 string, keyValue2 string) (bson.M, error) {
 	table := getTable(t)
-	q := "select * from " + table + " WHERE " + keyName + "=\"" + keyValue + "\" AND " +
-		keyName2 + "=\"" + keyValue2 + "\""
-	return dbobj.getRecordInTableDo(q)
+	q := "select * from " + table + " WHERE " + keyName + "=$1 AND " + keyName2 + "=$2"
+	values := make([]interface{}, 0)
+	values = append(values, keyValue)
+	values = append(values, keyValue2)
+	return dbobj.getRecordInTableDo(q, values)
 }
 
 func (dbobj dbcon) getRecordInTable2(table string, keyName string, keyValue string,
 	keyName2 string, keyValue2 string) (bson.M, error) {
-	q := "select * from " + table + " WHERE " + keyName + "=\"" + keyValue + "\" AND " +
-		keyName2 + "=\"" + keyValue2 + "\""
-	return dbobj.getRecordInTableDo(q)
+	q := "select * from " + table + " WHERE " + keyName + "=$1 AND " + keyName2 + "=$2"
+	values := make([]interface{}, 0)
+	values = append(values, keyValue)
+	values = append(values, keyValue2)
+	return dbobj.getRecordInTableDo(q, values)
 }
 
-func (dbobj dbcon) getRecordInTableDo(q string) (bson.M, error) {
+func (dbobj dbcon) getRecordInTableDo(q string, values []interface{}) (bson.M, error) {
 	fmt.Printf("q: %s\n", q)
 	tx, err := dbobj.db.Begin()
 	if err != nil {
 		return nil, err
 	}
 	defer tx.Rollback()
-	rows, err := tx.Query(q)
+	rows, err := tx.Query(q, values...)
 	if err == sql.ErrNoRows {
 		fmt.Println("nothing found")
 		return nil, nil
