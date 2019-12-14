@@ -22,9 +22,14 @@ import (
 
 var (
 	regexUUID       = regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$")
+	regexBrief      = regexp.MustCompile("^[a-z0-9\\-]{1,64}$")
 	regexAppName    = regexp.MustCompile("^[a-z][a-z0-9]{1,20}$")
 	regexExpiration = regexp.MustCompile("^([0-9]+)([mhds])$")
 )
+
+func normalizeBrief(brief string) string {
+	return strings.ToLower(brief)
+}
 
 func normalizeEmail(email0 string) string {
 	email, _ := url.QueryUnescape(email0)
@@ -141,6 +146,9 @@ func isValidUUID(uuidCode string) bool {
 
 func isValidApp(app string) bool {
 	return regexAppName.MatchString(app)
+}
+func isValidBrief(brief string) bool {
+	return regexBrief.MatchString(brief)
 }
 
 func returnError(w http.ResponseWriter, r *http.Request, message string, code int, err error, event *auditEvent) {

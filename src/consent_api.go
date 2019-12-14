@@ -9,12 +9,17 @@ import (
 )
 
 func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	var err error
 	address := ps.ByName("address")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
 	event := audit("consent accept by "+mode, address)
 	defer func() { event.submit(e.db) }()
+
+	brief = normalizeBrief(brief)
+	if isValidBrief(brief) == false {
+		returnError(w, r, "bad brief format", 405, nil, event)
+		return
+	}
 
 	defer func() {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -70,9 +75,29 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 	mode := ps.ByName("mode")
 	event := audit("consent cancel by "+mode, address)
 	defer func() { event.submit(e.db) }()
-	userTOKEN := address
-	if enforceUUID(w, userTOKEN, event) == false {
+	userTOKEN := ""
+
+	brief = normalizeBrief(brief)
+	if isValidBrief(brief) == false {
+		returnError(w, r, "bad brief format", 405, nil, event)
 		return
+	}
+	if mode == "token" {
+		if enforceUUID(w, address, event) == false {
+			return
+		}
+		userBson, _ := e.db.lookupUserRecord(address)
+		if userBson == nil {
+			// if token not found, exit from here
+			return
+		}
+		userTOKEN = address
+	} else {
+		// TODO: decode url in code!
+		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		if userBson != nil {
+			userTOKEN = userBson["token"].(string)
+		}
 	}
 	// make sure that user is logged in here, unless he wants to cancel emails
 	if e.enforceAuth(w, r, event) == false {
@@ -89,9 +114,23 @@ func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, p
 	mode := ps.ByName("mode")
 	event := audit("consent list of events by "+mode, address)
 	defer func() { event.submit(e.db) }()
-	userTOKEN := address
-	if enforceUUID(w, userTOKEN, event) == false {
-		return
+	userTOKEN := ""
+	if mode == "token" {
+		if enforceUUID(w, address, event) == false {
+			return
+		}
+		userBson, _ := e.db.lookupUserRecord(address)
+		if userBson == nil {
+			// if token not found, exit from here
+			return
+		}
+		userTOKEN = address
+	} else {
+		// TODO: decode url in code!
+		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		if userBson != nil {
+			userTOKEN = userBson["token"].(string)
+		}
 	}
 	// make sure that user is logged in here, unless he wants to cancel emails
 	if e.enforceAuth(w, r, event) == false {
@@ -118,10 +157,31 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 	mode := ps.ByName("mode")
 	event := audit("consent event by "+mode, address)
 	defer func() { event.submit(e.db) }()
-	userTOKEN := address
-	if enforceUUID(w, userTOKEN, event) == false {
+
+	brief = normalizeBrief(brief)
+	if isValidBrief(brief) == false {
+		returnError(w, r, "bad brief format", 405, nil, event)
 		return
 	}
+	userTOKEN := ""
+	if mode == "token" {
+		if enforceUUID(w, address, event) == false {
+			return
+		}
+		userBson, _ := e.db.lookupUserRecord(address)
+		if userBson == nil {
+			// if token not found, exit from here
+			return
+		}
+		userTOKEN = address
+	} else {
+		// TODO: decode url in code!
+		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		if userBson != nil {
+			userTOKEN = userBson["token"].(string)
+		}
+	}
+
 	// make sure that user is logged in here, unless he wants to cancel emails
 	if e.enforceAuth(w, r, event) == false {
 		return

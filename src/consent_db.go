@@ -22,10 +22,6 @@ type consentEvent struct {
 
 func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode string, brief string, message string, status string) {
 	now := int32(time.Now().Unix())
-	// brief can not be too long, may be hash it ?
-	if len(brief) > 64 {
-		return
-	}
 	if len(userTOKEN) > 0 {
 		// first check if this consent exists, then update
 		raw, err := dbobj.getRecord2(TblName.Consent, "token", userTOKEN, "brief", brief)
