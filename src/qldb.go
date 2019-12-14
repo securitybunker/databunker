@@ -746,8 +746,10 @@ func initAudit(db *sql.DB) error {
 	defer tx.Rollback()
 	_, err = tx.Exec(`
 	CREATE TABLE IF NOT EXISTS audit (
+	  identity STRING,
 	  record STRING,
 	  who STRING,
+	  mode STRING,
 	  app STRING,
 	  title STRING,
 	  status STRING,

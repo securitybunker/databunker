@@ -53,6 +53,12 @@ func (event auditEvent) submit(db dbcon) {
 	if len(event.Who) > 0 {
 		bdoc["who"] = event.Who
 	}
+	if len(event.Mode) > 0 {
+		bdoc["mode"] = event.Mode
+	}
+	if len(event.Identity) > 0 {
+		bdoc["identity"] = event.Identity
+	}
 	if len(event.Record) > 0 {
 		bdoc["record"] = event.Record
 	}
