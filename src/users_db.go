@@ -256,6 +256,9 @@ func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string, 
 	} else if indexName == "phone" {
 		indexValue = normalizePhone(indexValue, conf.Sms.Default_country)
 	}
+	if len(indexValue) == 0 {
+		return nil, nil
+	}
 	idxString := append(dbobj.hash, []byte(indexValue)...)
 	idxStringHash := sha256.Sum256(idxString)
 	idxStringHashHex := base64.StdEncoding.EncodeToString(idxStringHash[:])

@@ -87,12 +87,6 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		}
 		resultJSON, err = e.db.getUser(address)
 	} else {
-		if mode == "email" {
-			address = normalizeEmail(address)
-		} else if mode == "phone" {
-			address = normalizePhone(address, e.conf.Sms.Default_country)
-		}
-		// TODO: decode url in address!
 		resultJSON, userTOKEN, err = e.db.getUserIndex(address, mode, e.conf)
 	}
 	if err != nil {
