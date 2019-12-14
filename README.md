@@ -254,32 +254,26 @@ Enterprise version will be closed source.
 
 ## What is considered PII or what information is recomended to store in Data Bunker?
 
-Following it a partial list.
+Following is a partial list.
 
-* Name
-* Address
-* IP address
-* Browsing history
-* Political opinion
-* Sexual orientation
-* Social Security Number
-* Financial data
-* Banking data
-* Cookie data
-* Contacts
-* Mobile device ID
-* Passport data
-* Driving license
-* Personal ID number
-* Health / medical data
-* RFID
-* Genetic info
-* Ethnic information
+| PII                           | PII                       |
+| ----------------------------- | ------------------------- |
+| * Name                        | * RFID                    |
+| * Address                     | * Contacts                |
+| * IP address                  | * Genetic info            |
+| * Cookie data                 | * Passport data           |
+| * Banking info                | * Driving license         |
+| * Financial data              | * Mobile device ID        |
+| * Browsing history            | * Personal ID number      |
+| * Political opinion           | * Ethnic information      |
+| * Sexual orientation          | * Health / medical data   |
+| * Social Security Number      | * Etc...                  |
+
 
 # Technology stack?
 
 We use golang/go to build the whole project. Open source version comes with internal
-database and web ui as one executable file to make the project easy to deploy.
+database and Web UI as one executable file to make the project easy to deploy.
 
 ## Encryption in motion and encryption in storage
 
