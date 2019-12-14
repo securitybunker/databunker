@@ -24,6 +24,10 @@ func (e mainEnv) userappNew(w http.ResponseWriter, r *http.Request, ps httproute
 		returnError(w, r, "bad appname", 405, nil, event)
 		return
 	}
+	if e.db.validateNewApp("app_"+appName) == false {
+		returnError(w, r, "db limitation", 405, nil, event)
+		return
+	}
 
 	data, err := getJSONPostData(r)
 	if err != nil {
