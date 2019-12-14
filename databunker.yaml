@@ -5,9 +5,9 @@ generic:
   #notification_url: "http://localhost/"
 sms:
   # default country when sending out SMSM
-  twilio_account: "AC"
-  twilio_token: "af"
-  twilio_from: "+180"
+  twilio_account: ""
+  twilio_token: ""
+  twilio_from: ""
   default_country: "UK"
 server:
   host: "localhost"
@@ -16,5 +16,5 @@ smtp:
   server: "smtp.eu.mailgun.org"
   port: 587
   user: "postmaster@mg.your-company.com"
-  pass: "b6"
-  sender: "botdatabunker.your-company.com"
+  pass: ""
+  sender: "bot@databunker.your-company.com"
