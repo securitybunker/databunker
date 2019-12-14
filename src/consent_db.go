@@ -58,7 +58,7 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode s
 	}
 }
 
-func (dbobj dbcon) cancelConsentRecord(userTOKEN string, brief string) error {
+func (dbobj dbcon) cancelConsentRecord(userTOKEN string, brief string, mode string, usercode string) error {
 	// brief can not be too long, may be hash it ?
 	if len(brief) > 64 {
 		return errors.New("Brief value is too long")
@@ -68,6 +68,8 @@ func (dbobj dbcon) cancelConsentRecord(userTOKEN string, brief string) error {
 	// update date, status
 	bdoc := bson.M{}
 	bdoc["when"] = now
+	bdoc["mode"] = mode
+	bdoc["who"] = usercode
 	bdoc["status"] = "cancel"
 	dbobj.updateRecord2(TblName.Consent, "token", userTOKEN, "brief", brief, &bdoc, nil)
 	return nil
