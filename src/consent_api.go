@@ -62,9 +62,11 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 			status = value.(string)
 		}
 	}
-	if len(brief) == 0 {
-		//returnError(w, r, "internal error", 405, nil, event)
-		return
+	switch mode {
+	case "email":
+		address = normalizeEmail(address)
+	case "phone":
+		address = normalizePhone(address, e.conf.Sms.Default_country)
 	}
 	e.db.createConsentRecord(userTOKEN, mode, address, brief, message, status)
 }
@@ -102,6 +104,12 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 	// make sure that user is logged in here, unless he wants to cancel emails
 	if e.enforceAuth(w, r, event) == false {
 		return
+	}
+	switch mode {
+	case "email":
+		address = normalizeEmail(address)
+	case "phone":
+		address = normalizePhone(address, e.conf.Sms.Default_country)
 	}
 	e.db.cancelConsentRecord(userTOKEN, brief, mode, address)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
