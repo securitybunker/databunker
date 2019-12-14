@@ -630,6 +630,16 @@ func (dbobj dbcon) getAllTables() ([]string, error) {
 	return knownApps, nil
 }
 
+func (dbobj dbcon) validateNewApp(appName string) bool {
+	if contains(knownApps, appName) == true {
+		return true
+	}
+	if len(knownApps) >= 10 {
+		return false
+	}
+	return true
+}
+
 func (dbobj dbcon) indexNewApp(appName string) {
 	if contains(knownApps, appName) == false {
 		// it is a new app, create an index
