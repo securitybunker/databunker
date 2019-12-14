@@ -95,7 +95,7 @@ func (dbobj dbcon) generateDemoLoginCode(userTOKEN string) string {
 // int 0 - same value
 // int -1 remove
 // int 1 add
-func (dbobj dbcon) validateIndexChange(indexName string, idxOldValue string, raw map[string]interface{}) (int, error) {
+func (dbobj dbcon) validateIndexChange(indexName string, idxOldValue string, raw map[string]interface{}, conf Config) (int, error) {
 	if len(idxOldValue) == 0 {
 		return 0, nil
 	}
@@ -109,7 +109,7 @@ func (dbobj dbcon) validateIndexChange(indexName string, idxOldValue string, raw
 			if idxStringHashHex != idxOldValue {
 				// old index value renamed
 				// check if this value is uniqueue
-				otherUserBson, _ := dbobj.lookupUserRecordByIndex(indexName, newIdxValue.(string))
+				otherUserBson, _ := dbobj.lookupUserRecordByIndex(indexName, newIdxValue.(string), conf)
 				if otherUserBson != nil {
 					// already exist user with same index value
 					return 0, errors.New("duplicate index")
@@ -137,10 +137,10 @@ func (dbobj dbcon) validateIndexChange(indexName string, idxOldValue string, raw
 	return -1, nil
 }
 
-func (dbobj dbcon) updateUserRecord(parsedData userJSON, userTOKEN string, event *auditEvent) error {
+func (dbobj dbcon) updateUserRecord(parsedData userJSON, userTOKEN string, event *auditEvent, conf Config) error {
 	var err error
 	for x := 0; x < 10; x++ {
-		err = dbobj.updateUserRecordDo(parsedData, userTOKEN, event)
+		err = dbobj.updateUserRecordDo(parsedData, userTOKEN, event, conf)
 		if err == nil {
 			return nil
 		}
@@ -149,7 +149,7 @@ func (dbobj dbcon) updateUserRecord(parsedData userJSON, userTOKEN string, event
 	return err
 }
 
-func (dbobj dbcon) updateUserRecordDo(parsedData userJSON, userTOKEN string, event *auditEvent) error {
+func (dbobj dbcon) updateUserRecordDo(parsedData userJSON, userTOKEN string, event *auditEvent, conf Config) error {
 	//_, err = collection.InsertOne(context.TODO(), bson.M{"name": "The Go Language2", "genre": "Coding", "authorId": "4"})
 	oldUserBson, err := dbobj.lookupUserRecord(userTOKEN)
 	if oldUserBson == nil || err != nil {
@@ -186,7 +186,7 @@ func (dbobj dbcon) updateUserRecordDo(parsedData userJSON, userTOKEN string, eve
 		//fmt.Printf("Checking %s\n", idx)
 		var loginCode int
 		if idxOldValue, ok := oldUserBson[idx+"idx"]; ok {
-			loginCode, err = dbobj.validateIndexChange(idx, idxOldValue.(string), raw)
+			loginCode, err = dbobj.validateIndexChange(idx, idxOldValue.(string), raw, conf)
 			if err != nil {
 				return err
 			}
@@ -197,7 +197,7 @@ func (dbobj dbcon) updateUserRecordDo(parsedData userJSON, userTOKEN string, eve
 			// check if new value is created
 			if newIdxValue, ok3 := raw[idx]; ok3 {
 				//fmt.Printf("adding index? %s\n", raw[idx])
-				otherUserBson, _ := dbobj.lookupUserRecordByIndex(idx, newIdxValue.(string))
+				otherUserBson, _ := dbobj.lookupUserRecordByIndex(idx, newIdxValue.(string), conf)
 				if otherUserBson != nil {
 					// already exist user with same index value
 					return errors.New(fmt.Sprintf("duplicate %s index", idx))
@@ -250,7 +250,12 @@ func (dbobj dbcon) lookupUserRecord(userTOKEN string) (bson.M, error) {
 	return dbobj.getRecord(TblName.Users, "token", userTOKEN)
 }
 
-func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string) (bson.M, error) {
+func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string, conf Config) (bson.M, error) {
+	if indexName == "email" {
+		indexValue = normalizeEmail(indexValue)
+	} else if indexName == "phone" {
+		indexValue = normalizePhone(indexValue, conf.Sms.Default_country)
+	}
 	idxString := append(dbobj.hash, []byte(indexValue)...)
 	idxStringHash := sha256.Sum256(idxString)
 	idxStringHashHex := base64.StdEncoding.EncodeToString(idxStringHash[:])
@@ -285,8 +290,8 @@ func (dbobj dbcon) getUser(userTOKEN string) ([]byte, error) {
 	return decrypted, err
 }
 
-func (dbobj dbcon) getUserIndex(indexValue string, indexName string) ([]byte, string, error) {
-	userBson, err := dbobj.lookupUserRecordByIndex(indexName, indexValue)
+func (dbobj dbcon) getUserIndex(indexValue string, indexName string, conf Config) ([]byte, string, error) {
+	userBson, err := dbobj.lookupUserRecordByIndex(indexName, indexValue, conf)
 	if userBson == nil || err != nil {
 		return nil, "", err
 	}
