@@ -186,7 +186,7 @@ func (e mainEnv) enforceAuth(w http.ResponseWriter, r *http.Request, event *audi
 		//fmt.Printf("error in auth? error %s - %s\n", err, token[0])
 		if err == nil {
 			if event != nil {
-				event.Who = authResult.name
+				event.Identity = authResult.name
 			}
 			if authResult.ttype == "login" {
 				if authResult.token == event.Record {
@@ -200,7 +200,7 @@ func (e mainEnv) enforceAuth(w http.ResponseWriter, r *http.Request, event *audi
 		/*
 			if e.db.checkToken(token[0]) == true {
 				if event != nil {
-					event.Who = "admin"
+					event.Identity = "admin"
 				}
 				return true
 			}

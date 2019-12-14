@@ -7,7 +7,7 @@ import (
 )
 
 func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	uuidCode := ps.ByName("uuidcode")
-	event := audit("create new session", uuidCode)
+	token := ps.ByName("token")
+	event := audit("create new session", token)
 	defer func() { event.submit(e.db) }()
 }

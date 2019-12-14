@@ -13,7 +13,7 @@ import (
 
 func (e mainEnv) userNewToken(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	userTOKEN := ps.ByName("token")
-	event := audit("create user temp access xtoken", userTOKEN)
+	event := audit("create user temp access by token", userTOKEN, "token", userTOKEN)
 	defer func() { event.submit(e.db) }()
 
 	if enforceUUID(w, userTOKEN, event) == false {
@@ -64,6 +64,7 @@ func (e mainEnv) userNewToken(w http.ResponseWriter, r *http.Request, ps httprou
 		returnError(w, r, err.Error(), 405, err, event)
 		return
 	}
+	event.Record = xtokenUUID
 	event.Msg = "Generated " + xtokenUUID
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
@@ -71,10 +72,10 @@ func (e mainEnv) userNewToken(w http.ResponseWriter, r *http.Request, ps httprou
 }
 
 func (e mainEnv) userCheckToken(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	event := audit("get record by user temp access token", "")
+	xtoken := ps.ByName("xtoken")
+	event := audit("get record by user temp access token", xtoken, "xtoken", xtoken)
 	defer func() { event.submit(e.db) }()
 
-	xtoken := ps.ByName("xtoken")
 	if enforceUUID(w, xtoken, event) == false {
 		return
 	}

@@ -8,7 +8,7 @@ import (
 )
 
 func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	event := audit("create user record", "")
+	event := audit("create user record", "", "", "")
 	defer func() { event.submit(e.db) }()
 
 	if e.conf.Generic.Create_user_without_token == false {
@@ -62,6 +62,7 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
+	event.Record = userTOKEN
 	returnUUID(w, userTOKEN)
 	return
 }
@@ -71,7 +72,7 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	var resultJSON []byte
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
-	event := audit("get user record by "+mode, address)
+	event := audit("get user record by "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 	if e.enforceAuth(w, r, event) == false {
 		return
@@ -88,6 +89,7 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		resultJSON, err = e.db.getUser(address)
 	} else {
 		resultJSON, userTOKEN, err = e.db.getUserIndex(address, mode, e.conf)
+		event.Record = userTOKEN
 	}
 	if err != nil {
 		returnError(w, r, "internal error", 405, nil, event)
@@ -108,7 +110,7 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
-	event := audit("change user record by "+mode, address)
+	event := audit("change user record by "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
 	if e.enforceAuth(w, r, event) == false {
@@ -138,6 +140,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 		userTOKEN = userBson["token"].(string)
+		event.Record = userTOKEN
 	}
 	err = e.db.updateUserRecord(parsedData, userTOKEN, event, e.conf)
 	if err != nil {
@@ -151,7 +154,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
-	event := audit("delete user record by "+mode, address)
+	event := audit("delete user record by "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
 	if e.enforceAuth(w, r, event) == false {
@@ -176,6 +179,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 		userTOKEN = userBson["token"].(string)
+		event.Record = userTOKEN
 	}
 	fmt.Printf("deleting user %s", userTOKEN)
 	result, err := e.db.deleteUserRecord(userTOKEN)
@@ -196,7 +200,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
-	event := audit("user login by "+mode, address)
+	event := audit("user login by "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
 	if mode != "phone" && mode != "email" {
@@ -210,6 +214,7 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	}
 	if userBson != nil {
 		userTOKEN := userBson["token"].(string)
+		event.Record = userTOKEN
 		if address == "4444" || address == "test@paranoidguy.com" {
 			// check if it is demo account.
 			// the address is always 4444
@@ -235,7 +240,7 @@ func (e mainEnv) userLoginEnter(w http.ResponseWriter, r *http.Request, ps httpr
 	tmp := ps.ByName("tmp")
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
-	event := audit("user login by "+mode, address)
+	event := audit("user login by "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
 	if mode != "phone" && mode != "email" {
@@ -251,6 +256,7 @@ func (e mainEnv) userLoginEnter(w http.ResponseWriter, r *http.Request, ps httpr
 
 	if userBson != nil {
 		userTOKEN := userBson["token"].(string)
+		event.Record = userTOKEN
 		fmt.Printf("Found user record: %s\n", userTOKEN)
 		tmpCode := userBson["tempcode"].(string)
 		if tmp == tmpCode {
