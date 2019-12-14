@@ -34,7 +34,7 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 		userTOKEN = address
 	} else {
 		// TODO: decode url in code!
-		userBson, _ := e.db.lookupUserRecordByIndex(mode, address)
+		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 		}

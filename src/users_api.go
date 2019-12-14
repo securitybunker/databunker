@@ -25,7 +25,7 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	}
 	// make sure that login, email and phone are unique
 	if len(parsedData.loginIdx) > 0 {
-		otherUserBson, err := e.db.lookupUserRecordByIndex("login", parsedData.loginIdx)
+		otherUserBson, err := e.db.lookupUserRecordByIndex("login", parsedData.loginIdx, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
@@ -36,7 +36,7 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		}
 	}
 	if len(parsedData.emailIdx) > 0 {
-		otherUserBson, err := e.db.lookupUserRecordByIndex("email", parsedData.emailIdx)
+		otherUserBson, err := e.db.lookupUserRecordByIndex("email", parsedData.emailIdx, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
@@ -47,7 +47,7 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		}
 	}
 	if len(parsedData.phoneIdx) > 0 {
-		otherUserBson, err := e.db.lookupUserRecordByIndex("phone", parsedData.phoneIdx)
+		otherUserBson, err := e.db.lookupUserRecordByIndex("phone", parsedData.phoneIdx, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
@@ -93,7 +93,7 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 			address = normalizePhone(address, e.conf.Sms.Default_country)
 		}
 		// TODO: decode url in address!
-		resultJSON, userTOKEN, err = e.db.getUserIndex(address, mode)
+		resultJSON, userTOKEN, err = e.db.getUserIndex(address, mode, e.conf)
 	}
 	if err != nil {
 		returnError(w, r, "internal error", 405, nil, event)
@@ -134,12 +134,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	userTOKEN := address
 	if mode != "token" {
-		if mode == "email" {
-			address = normalizeEmail(address)
-		} else if mode == "phone" {
-			address = normalizePhone(address, e.conf.Sms.Default_country)
-		}
-		userBson, err := e.db.lookupUserRecordByIndex(mode, address)
+		userBson, err := e.db.lookupUserRecordByIndex(mode, address, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
@@ -150,7 +145,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		}
 		userTOKEN = userBson["token"].(string)
 	}
-	err = e.db.updateUserRecord(parsedData, userTOKEN, event)
+	err = e.db.updateUserRecord(parsedData, userTOKEN, event, e.conf)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
@@ -177,12 +172,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	userTOKEN := address
 	if mode != "token" {
-		if mode == "email" {
-			address = normalizeEmail(address)
-		} else if mode == "phone" {
-			address = normalizePhone(address, e.conf.Sms.Default_country)
-		}
-		userBson, err := e.db.lookupUserRecordByIndex(mode, address)
+		userBson, err := e.db.lookupUserRecordByIndex(mode, address, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
@@ -211,25 +201,15 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 
 func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
-	index := ps.ByName("mode")
-	event := audit("user login by "+index, address)
+	mode := ps.ByName("mode")
+	event := audit("user login by "+mode, address)
 	defer func() { event.submit(e.db) }()
 
-	if index != "phone" && index != "email" {
-		returnError(w, r, "bad index", 405, nil, event)
+	if mode != "phone" && mode != "email" {
+		returnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
-	if index == "email" {
-		address = normalizeEmail(address)
-	} else if index == "phone" {
-		fmt.Printf("phone before: %s\n", address)
-		address = normalizePhone(address, e.conf.Sms.Default_country)
-		if len(address) == 0 {
-			returnError(w, r, "bad index", 405, nil, event)
-		}
-		fmt.Printf("phone after: %s\n", address)
-	}
-	userBson, err := e.db.lookupUserRecordByIndex(index, address)
+	userBson, err := e.db.lookupUserRecordByIndex(mode, address, e.conf)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
@@ -243,9 +223,9 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			e.db.generateDemoLoginCode(userTOKEN)
 		} else {
 			rnd := e.db.generateTempLoginCode(userTOKEN)
-			if index == "email" {
+			if mode == "email" {
 				go sendCodeByEmail(rnd, address, e.conf)
-			} else if index == "phone" {
+			} else if mode == "phone" {
 				go sendCodeByPhone(rnd, address, e.conf)
 			}
 		}
@@ -268,18 +248,8 @@ func (e mainEnv) userLoginEnter(w http.ResponseWriter, r *http.Request, ps httpr
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
-	if mode == "email" {
-		address = normalizeEmail(address)
-	} else if mode == "phone" {
-		fmt.Printf("phone before: %s\n", address)
-		address = normalizePhone(address, e.conf.Sms.Default_country)
-		if len(address) == 0 {
-			returnError(w, r, "bad mode", 405, nil, event)
-		}
-		fmt.Printf("phone after: %s\n", address)
-	}
 
-	userBson, err := e.db.lookupUserRecordByIndex(mode, address)
+	userBson, err := e.db.lookupUserRecordByIndex(mode, address, e.conf)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
