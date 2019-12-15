@@ -23,6 +23,13 @@ Web UI files will be fetched from ui/ directory.
 docker build -t paranoidguy/databunker:latest .
 ```
 
+Only for project admin:
+
+```
+docker login
+docker push paranoidguy/databunker:latest
+```
+
 It will generate "paranoidguy/databunker" container.
 
 Other usefull commands for working with containers:
