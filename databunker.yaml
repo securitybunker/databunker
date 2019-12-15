@@ -10,7 +10,7 @@ sms:
   twilio_from: ""
   default_country: "UK"
 server:
-  host: "localhost"
+  host: "0.0.0.0"
   port: 3000
 smtp:
   server: "smtp.eu.mailgun.org"
