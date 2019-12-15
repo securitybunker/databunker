@@ -27,17 +27,21 @@ RUN packr
 RUN go build -o /go/bin/databunker
 # clean packr
 RUN packr clean
-RUN cp ../run.sh /go/bin/databunker.sh
 ############################
 # STEP 2 build a small image
 ############################
 FROM scratch
 # Copy our static executable.
-COPY --from=builder /bin/sh /bin/sh
+COPY --from=builder /bin/busybox /bin/busybox
+COPY --from=builder /bin/busybox /bin/sh
 COPY --from=builder /lib/ld* /lib/
-COPY --from=builder /go/bin/databunker /go/bin/databunker
-COPY --from=builder /go/bin/databunker.sh /go/bin/databunker.sh
+COPY --from=builder /go/bin/databunker /databunker/bin/databunker
+COPY run.sh /databunker/bin/run.sh
+COPY databunker.yaml /databunker/conf/
+RUN /bin/busybox mkdir -p /databunker/data
+RUN /bin/busybox mkdir -p /databunker/certs
+#RUN /bin/busybox ln -s /bin/busybox /bin/sh
 # Run the hello binary.
 #ENTRYPOINT ["/go/bin/databunker"]
-ENTRYPOINT ["/bin/sh", "/go/bin/databunker.sh"]
+ENTRYPOINT ["/bin/sh", "/databunker/bin/run.sh"]
 #CMD ["/bin/sh", "-x", "-c", "/go/bin/databunker -init"]
