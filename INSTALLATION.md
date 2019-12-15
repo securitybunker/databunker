@@ -37,5 +37,24 @@ You can run it again, after it was initalized. Use the following command:
 
 ```
 docker run -v /tmp/data:/databunker/data -p 3000:3000 \
-  -e "DATABUNKER_MASTERKEY=KEY" --rm --name dbunker paranoidguy/databunker
+  -e "DATABUNKER_MASTERKEY=**DATABUNKER_MASTERKEY**" \
+  --rm --name dbunker paranoidguy/databunker
 ```
+
+# Ctreate a test record
+
+You can download and run a small test script that will create a number of records. 
+It will create a test user.
+
+```
+curl https://raw.githubusercontent.com/paranoidguy/databunker/master/create-test-user.sh -o test.sh
+chmod 755 ./test.sh
+./test.sh **DATABUNKER_MASTERKEY**
+```
+
+You can open browser at http://localhost:3000/
+
+Use the following account details:
+Email: test@paranoidguy.com
+Phone: 4444
+Code: 4444
