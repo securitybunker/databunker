@@ -1,6 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
-DATABUNKER_APIKEY='689464cf-2485-b7e8-1c65-f2ce40ce507c'
+DATABUNKER_APIKEY=$1
+if [ -z $DATABUNKER_APIKEY ]; then
+  echo "missing api key parameter"
+  exit
+fi
 
 echo "Creating user."
 RESULT=`curl -s http://localhost:3000/v1/user \

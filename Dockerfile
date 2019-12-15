@@ -37,12 +37,14 @@ COPY --from=builder /bin/busybox /bin/busybox
 COPY --from=builder /bin/busybox /bin/sh
 COPY --from=builder /lib/ld* /lib/
 COPY --from=builder /go/bin/databunker /databunker/bin/databunker
-COPY run.sh /databunker/bin/run.sh
+COPY run.sh /databunker/bin/
+#COPY create-test-user.sh /databunker/bin/
 COPY databunker.yaml /databunker/conf/
 RUN /bin/busybox mkdir -p /databunker/data
 RUN /bin/busybox mkdir -p /databunker/certs
 #RUN /bin/busybox ln -s /bin/busybox /bin/sh
 # Run the hello binary.
 #ENTRYPOINT ["/go/bin/databunker"]
+EXPOSE 3000
 ENTRYPOINT ["/bin/sh", "/databunker/bin/run.sh"]
 #CMD ["/bin/sh", "-x", "-c", "/go/bin/databunker -init"]

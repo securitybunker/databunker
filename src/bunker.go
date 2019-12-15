@@ -252,6 +252,10 @@ func main() {
 		os.Exit(0)
 	}
 	if masterKeyPtr != nil && len(*masterKeyPtr) > 0 {
+		if len(*masterKeyPtr) != 48 {
+			fmt.Printf("Failed to decode master key: bad length\n")
+			os.Exit(0)
+		}
 		masterKey, err = hex.DecodeString(*masterKeyPtr)
 		if err != nil {
 			fmt.Printf("Failed to decode master key: %s\n", err)
