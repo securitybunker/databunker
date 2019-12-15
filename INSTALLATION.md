@@ -36,10 +36,38 @@ docker kill dbunker
 You can run it again, after it was initalized. Use the following command:
 
 ```
-docker run -v /tmp/data:/databunker/data -p 3000:3000 \
+docker run -p 3000:3000 -v /tmp/data:/databunker/data \
   -e "DATABUNKER_MASTERKEY=**DATABUNKER_MASTERKEY**" \
   --rm --name dbunker paranoidguy/databunker
 ```
+
+# SSL certificates
+
+You can generate SSL certificates and place them in the /databunker/certs directory in the running container.
+
+For example you can do this by mounting **/databunker/certs** to a local **certs/** directory as:
+
+```
+docker run -p 3000:3000 -v /tmp/data:/databunker/data \
+  -v certs:/databunker/certs \
+  -e "DATABUNKER_MASTERKEY=**DATABUNKER_MASTERKEY**" \
+  --rm --name dbunker paranoidguy/databunker
+
+```
+
+So, you need to prepare server.crt and server.key files.
+
+## Generate self-signed certificates
+
+You can do the following command to generate one:
+
+```
+openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 \
+    -subj "/C=UK/ST=/L=London/O=Your-company Ltd./CN=databunker.your-company.com" \
+    -keyout server.key -out server.crt
+```
+
+Where:
 
 # Create a test record
 

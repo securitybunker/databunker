@@ -3,6 +3,10 @@ generic:
   # allow to create user object without login
   create_user_without_token: true
   #notification_url: "http://localhost/"
+ssl:
+  # ssl configuration
+  ssl_certificate: "/databunker/certs/server.crt"
+  ssl_certificate_key: "/databunker/certs/server.key"
 sms:
   # default country when sending out SMSM
   twilio_account: ""
