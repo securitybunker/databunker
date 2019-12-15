@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/hex"
 	"flag"
 	"fmt"
@@ -8,7 +9,9 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/gobuffalo/packr"
@@ -271,15 +274,33 @@ func main() {
 	e := mainEnv{db, cfg}
 	fmt.Printf("host %s\n", cfg.Server.Host+":"+cfg.Server.Port)
 	router := e.setupRouter()
+	srv := &http.Server{ Addr: cfg.Server.Host+":"+cfg.Server.Port,	Handler:router}
+	
+	stop := make(chan os.Signal, 2)
+    signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+
+	// Waiting for SIGINT (pkill -2)
+	go func() {
+		<-stop
+		fmt.Println("Closing app...")
+		srv.Shutdown(context.TODO())
+		db.closeDB()	
+        //DeleteFiles()
+        //os.Exit(0)
+	}()
+	
 	if _, err := os.Stat("./server.key"); !os.IsNotExist(err) {
-		//TODO
 		fmt.Printf("Loading ssl\n")
-		err := http.ListenAndServeTLS(":443", "server.ctr", "server.key", router)
+		err := srv.ListenAndServeTLS( "server.ctr", "server.key")
 		if err != nil {
-			log.Fatal("ListenAndServe: ", err)
+			log.Printf("ListenAndServeSSL: %s\n", err)
 		}
 	} else {
 		fmt.Println("Loading server")
-		log.Fatal(http.ListenAndServe(cfg.Server.Host+":"+cfg.Server.Port, router))
+		err := srv.ListenAndServe()
+		if err != nil {
+			log.Printf("ListenAndServe(): %s\n", err)
+		}
 	}
+	
 }
