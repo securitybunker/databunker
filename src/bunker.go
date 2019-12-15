@@ -211,6 +211,7 @@ func main() {
 	//fmt.Printf("%+v\n", cfg)
 	initPtr := flag.Bool("init", false, "a bool")
 	masterKeyPtr := flag.String("masterkey", "", "master key")
+	dbPtr := flag.String("db", "", "database file")
 	flag.Parse()
 	var err error
 	var masterKey []byte
@@ -234,9 +235,9 @@ func main() {
 		db.closeDB()
 		os.Exit(0)
 	}
-	if dbExists() == false {
+	if dbExists(dbPtr) == false {
 		fmt.Println("\ndatabunker.db file is missing.\n")
-		fmt.Println(`Run "./databunker -init" for the first time.`)
+		fmt.Println(`Run "./databunker -init" for the first time to init database.`)
 		fmt.Println("")
 		os.Exit(0)
 	}

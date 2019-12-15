@@ -33,17 +33,27 @@ type dbcon struct {
 	hash      []byte
 }
 
-func dbExists() bool {
-	if _, err := os.Stat("databunker.db"); os.IsNotExist(err) {
+func dbExists(filepath *string) bool {
+	dbfile := "./databunker.db"
+	if filepath != nil {
+		if len(*filepath) > 0 {
+			dbfile = *filepath
+		}
+	}
+	if _, err := os.Stat(dbfile); os.IsNotExist(err) {
 		return false
 	}
 	return true
 }
 
-func newDB(masterKey []byte, urlurl *string) (dbcon, error) {
+func newDB(masterKey []byte, filepath *string) (dbcon, error) {
 	dbobj := dbcon{nil, nil, nil}
 	dbfile := "./databunker.db"
-
+	if filepath != nil {
+		if len(*filepath) > 0 {
+			dbfile = *filepath
+		}
+	}
 	// collect list of all tables
 	if _, err := os.Stat(dbfile); !os.IsNotExist(err) {
 		db2, err := ql.OpenFile(dbfile, &ql.Options{FileFormat: 2})
