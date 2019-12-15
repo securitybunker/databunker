@@ -1,4 +1,5 @@
 #!/bin/sh
+set -x
 
 DATABUNKER_APIKEY=$1
 if [ -z $DATABUNKER_APIKEY ]; then
@@ -47,7 +48,7 @@ echo "Enable consent send-sms for user by email: $RESULT"
 
 RESULT=`curl -s http://localhost:3000/v1/consent/phone/4444/send-sms2 -XDELETE \
    -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
-echo "Disabke consent send-sms for user by phone: $RESULT"
+echo "Withdraw consent send-sms for user by phone: $RESULT"
 
 RESULT=`curl -s http://localhost:3000/v1/consent/token/$TOKEN/send-sms \
    -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
