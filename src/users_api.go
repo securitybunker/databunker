@@ -20,7 +20,7 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	}
 	parsedData, err := getJSONPost(r, e.conf.Sms.Default_country)
 	if err != nil {
-		returnError(w, r, "internal error", 405, err, event)
+		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	// make sure that login, email and phone are unique
@@ -125,7 +125,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	parsedData, err := getJSONPost(r, e.conf.Sms.Default_country)
 	if err != nil {
-		returnError(w, r, "internal error", 405, err, event)
+		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	userTOKEN := address

@@ -24,7 +24,7 @@ func (e mainEnv) userNewToken(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 	records, err := getJSONPostData(r)
 	if err != nil {
-		returnError(w, r, "internal error", 405, err, event)
+		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	fields := ""

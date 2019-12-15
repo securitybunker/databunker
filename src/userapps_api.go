@@ -31,7 +31,7 @@ func (e mainEnv) userappNew(w http.ResponseWriter, r *http.Request, ps httproute
 
 	data, err := getJSONPostData(r)
 	if err != nil {
-		returnError(w, r, "internal error", 405, err, event)
+		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	jsonData, err := json.Marshal(data)
@@ -67,7 +67,7 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 
 	data, err := getJSONPostData(r)
 	if err != nil {
-		returnError(w, r, "internal error", 405, err, event)
+		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	jsonData, err := json.Marshal(data)

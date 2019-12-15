@@ -272,8 +272,11 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 }
 
 func getJSONPost(r *http.Request, default_country string) (userJSON, error) {
-	records, err := getJSONPostData(r)
 	var result userJSON
+	records, err := getJSONPostData(r)
+	if err != nil {
+		return result, err
+	}
 
 	if value, ok := records["login"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
