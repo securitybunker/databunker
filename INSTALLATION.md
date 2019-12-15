@@ -67,7 +67,6 @@ openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 \
     -keyout server.key -out server.crt
 ```
 
-Where:
 
 # Create a test record
 
@@ -82,6 +81,9 @@ chmod 755 ./test.sh
 You can now open browser at http://localhost:3000/
 
 Use the following account details:
+
 Email: test@paranoidguy.com
+
 Phone: 4444
+
 Code: 4444
