@@ -185,8 +185,14 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	return router
 }
 
-func readFile(cfg *Config) error {
-	f, err := os.Open("databunker.yaml")
+func readFile(cfg *Config, filepath *string) error {
+	confFile := "databunker.yaml"
+	if filepath != nil {
+		if len(*filepath) > 0 {
+			confFile = *filepath
+		}
+	}
+	f, err := os.Open(confFile)
 	if err != nil {
 		return err
 	}
@@ -205,14 +211,17 @@ func readEnv(cfg *Config) error {
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	lockMemory()
-	var cfg Config
-	readFile(&cfg)
-	readEnv(&cfg)
 	//fmt.Printf("%+v\n", cfg)
 	initPtr := flag.Bool("init", false, "a bool")
 	masterKeyPtr := flag.String("masterkey", "", "master key")
 	dbPtr := flag.String("db", "", "database file")
+	confPtr := flag.String("conf", "", "configuration file")
 	flag.Parse()
+
+	var cfg Config
+	readFile(&cfg, confPtr)
+	readEnv(&cfg)
+
 	var err error
 	var masterKey []byte
 	if err != nil {
