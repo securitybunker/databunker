@@ -15,7 +15,7 @@ It will generate **databunker** executable. HTML files are built inside executab
 ```
 
 It will generate **databunker** executable that can be run on the same box.
-Web UI will be fetched from ui directory.
+Web UI files will be fetched from ui/ directory.
 
 ## Build container
 
@@ -25,7 +25,7 @@ docker build -t paranoidguy/databunker:latest .
 
 It will generate "paranoidguy/databunker" container.
 
-Other usefull commands for working with docker:
+Other usefull commands for working with containers:
 
 ```
 docker rm dbunker
