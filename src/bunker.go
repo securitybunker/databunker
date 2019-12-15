@@ -233,7 +233,7 @@ func main() {
 		masterKey, err = generateMasterKey()
 		fmt.Printf("Master key: %x\n\n", masterKey)
 		fmt.Println("Init databunker.db\n")
-		db, _ := newDB(masterKey, nil)
+		db, _ := newDB(masterKey, dbPtr)
 		db.initDB()
 		rootToken, err := db.createRootToken()
 		if err != nil {
