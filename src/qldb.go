@@ -54,6 +54,7 @@ func newDB(masterKey []byte, filepath *string) (dbcon, error) {
 			dbfile = *filepath
 		}
 	}
+	fmt.Printf("Databunker db file is: %s\n", dbfile)
 	// collect list of all tables
 	if _, err := os.Stat(dbfile); !os.IsNotExist(err) {
 		db2, err := ql.OpenFile(dbfile, &ql.Options{FileFormat: 2})
