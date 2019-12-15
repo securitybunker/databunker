@@ -45,6 +45,10 @@ type Config struct {
 	Generic struct {
 		Create_user_without_token bool `yaml:"create_user_without_token"`
 	}
+	Ssl struct {
+		Ssl_certificate string `yaml:"ssl_certificate", envconfig:"SSL_CERTIFICATE"`
+		Ssl_certificate_key string `yaml:"ssl_certificate_key", envconfig:"SSL_CERTIFICATE_KEY"`
+	}
 	Sms struct {
 		Default_country string `yaml:"default_country"`
 		Twilio_account  string `yaml:"twilio_account"`
@@ -289,9 +293,9 @@ func main() {
         //os.Exit(0)
 	}()
 	
-	if _, err := os.Stat("./server.key"); !os.IsNotExist(err) {
+	if _, err := os.Stat(cfg.Ssl.Ssl_certificate); !os.IsNotExist(err) {
 		fmt.Printf("Loading ssl\n")
-		err := srv.ListenAndServeTLS( "server.ctr", "server.key")
+		err := srv.ListenAndServeTLS( cfg.Ssl.Ssl_certificate, cfg.Ssl.Ssl_certificate_key)
 		if err != nil {
 			log.Printf("ListenAndServeSSL: %s\n", err)
 		}
