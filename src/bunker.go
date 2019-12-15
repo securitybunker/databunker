@@ -192,6 +192,7 @@ func readFile(cfg *Config, filepath *string) error {
 			confFile = *filepath
 		}
 	}
+	fmt.Printf("Databunker conf file is: %s\n", confFile)
 	f, err := os.Open(confFile)
 	if err != nil {
 		return err
@@ -261,7 +262,7 @@ func main() {
 		fmt.Println(`Run "./databunker -masterkey key"`)
 		os.Exit(0)
 	}
-	db, _ := newDB(masterKey, nil)
+	db, _ := newDB(masterKey, dbPtr)
 	db.initUserApps()
 	e := mainEnv{db, cfg}
 	fmt.Printf("host %s\n", cfg.Server.Host+":"+cfg.Server.Port)
