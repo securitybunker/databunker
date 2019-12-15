@@ -1,6 +1,6 @@
 # Paranoid Guy Data Bunker
 
-Other documents: [API LIST](API.md)
+Other documents: [API LIST](API.md), [INSTALLATION](INSTALLATION.md)
 
 **Data Bunker is an information tokenization and storage service build to comply with GDPR and CCPA privacy requirements.**
 
@@ -338,4 +338,4 @@ For business inquiries, partnership requests you can talk with Boaz Shunami at b
 
 ---
 
-Other documents: [API LIST](API.md)
+Other documents: [API LIST](API.md), [INSTALLATION](INSTALLATION.md)
