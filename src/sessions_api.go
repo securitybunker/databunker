@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -40,7 +41,7 @@ func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 	}
-	expiration := ""
+	expiration := "1d"
 	records, err := getJSONPostData(r)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
@@ -77,6 +78,10 @@ func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httproute
 func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
+	if mode == "session" {
+		e.getSession(w, r, address)
+		return
+	}
 	event := audit("get all user sessions", address, mode, address)
 	defer func() { event.submit(e.db) }()
 
@@ -110,29 +115,29 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
-	resultJSON, err := json.Marshal(records)
+	data := strings.Join(records, ",")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
-	fmt.Fprintf(w, `{"status":"ok","count":"%d","rows":"%"}`, count, resultJSON)
+	fmt.Fprintf(w, `{"status":"ok","count":"%d","rows":%s}`, count, data)
 	return
 }
 
-func (e mainEnv) getSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	session := ps.ByName("session")
+func (e mainEnv) getSession(w http.ResponseWriter, r *http.Request, session string) {
 	event := audit("get session", session, "session", session)
 	defer func() { event.submit(e.db) }()
 
 	if e.enforceAuth(w, r, event) == false {
 		return
 	}
-	record, userTOKEN, err := e.db.getUserSession(session)
+	when, record, userTOKEN, err := e.db.getUserSession(session)
 	if err != nil {
-		returnError(w, r, "internal error", 405, err, event)
+		fmt.Printf("error: %s\n", err)
+		returnError(w, r, err.Error(), 405, err, event)
 		return
 	}
 	event.Record = userTOKEN
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
-	fmt.Fprintf(w, `{"status":"ok","session":"%s","data":"%"}`, session, record)
+	fmt.Fprintf(w, `{"status":"ok","session":"%s","when":%d,"data":%s}`, session, when, record)
 	return
 }
