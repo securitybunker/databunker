@@ -19,20 +19,23 @@ Web UI files will be fetched from ui/ directory.
 
 ## Build container
 
+It will generate "paranoidguy/databunker" container and save it locally.
+
 ```
 docker build -t paranoidguy/databunker:latest .
 ```
 
-Only for project admin:
+## Push container
+
+**Only for project admin:**
 
 ```
 docker login
 docker push paranoidguy/databunker:latest
 ```
 
-It will generate "paranoidguy/databunker" container.
 
-Other usefull commands for working with containers:
+## Other usefull commands for working with containers:
 
 ```
 docker rm dbunker

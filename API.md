@@ -1,7 +1,7 @@
 # Data Bunker API
 
 
-**Data Bunker is advanced personal information tokenization and storage service build to comply with GDPR.**
+**Data Bunker is an information tokenization and storage service build to comply with GDPR and CCPA privacy requirements.**
 
 ---
 
@@ -165,25 +165,27 @@ This API is used to create new user app record and if the request is successful 
 
 | Resource / HTTP method       | POST (create)      | GET (read)     | PUT (update)   | DELETE (delete) |
 | ---------------------------- | ------------------ | -------------- | -------------- | --------------- |
+| /v1/session/phone/{phone}    | Create new session | Get sessions   | Error          | Error           |
+| /v1/session/email/{email}    | Create new session | Get sessions   | Error          | Error           |
 | /v1/session/token/{token}    | Create new session | Get sessions   | Error          | Error           |
 | /v1/session/session/:session | Error              | Get session    | Error          | Error           |
 
 
 
 ## Create user session record
-### `POST /v1/session/token/{token}`
+### `POST /v1/session/{token,email,phone}/{address}`
 
 ### Explanation
 
 This API is used to create new user session and if the request is successful it returns new `{session}`.
-You can now use this id in your logs instead of user IP and browser user-agent info, etc...
+You can now use this session-id in your logs instead of user IP and browser user-agent info, etc...
 
-Our API supports generation of session tokens based on the following information:
+Sesion generation API is flexible and you can push any data you wish to save in session. It can be:
 user ip, mobile device info, user agent, etc...
 
-You can send the data as JSON POST or as regular POST parameters when working with this API.
+You can send the data as JSON POST or as regular POST parameters.
 
-Additional parameter is **expiration** that specifies TTL for this session record.
+Additional parameter is **expiration** specifies TTL for this session record.
 
 
 ## Get user session record
@@ -194,12 +196,12 @@ Additional parameter is **expiration** that specifies TTL for this session recor
 This API returns session data.
 
 
-## Get session records by user token.
-### `GET /v1/session/token/{token}`
+## Get session records by user address.
+### `GET /v1/session/{token,email,phone}/{address}`
 
 ### Explanation
 
-This API returns an array of sessions of the same user.
+This API returns an array of session records for the same user.
 
 
 ---
@@ -331,7 +333,7 @@ To simplify this operation, users will be allowed to unsubscribe only using emai
 
 | Resource / HTTP method | POST (create)     | GET (read)    | PUT (update)     | DELETE (delete)  |
 | ---------------------- | ----------------- | ------------- | ---------------- | ---------------- |
-| /v1/xtoken/{token}      | Create new record | Error         | Error            | Error            |
+| /v1/xtoken/{token}     | Create new record | Error         | Error            | Error            |
 | /v1/xtoken/:xtoken     | Error             | Get data      | Error            | Error            |
 
 	router.POST("/v1/xtoken/{token}", e.userNewToken)
@@ -340,17 +342,19 @@ To simplify this operation, users will be allowed to unsubscribe only using emai
 
 ---
 
+
+**TODO-FINISH: THESE FEATURES ARE UNDER DEVELOPMEN**
+
 ## Shareable token API
 
 | Resource / HTTP method | POST (create)     | GET (read)    | PUT (update)     | DELETE (delete)  |
 | ---------------------- | ----------------- | ------------- | ---------------- | ---------------- |
-| /v1/shareable/{token}   | Create new record | Error         | Error            | Error            |
-| /v1/shareable/{token}   | Error             | Get data      | Error            | Error            |
+| /v1/shareable/{token}  | Create new record | Error         | Error            | Error            |
+| /v1/shareable/{token}  | Error             | Get data      | Error            | Error            |
 
 
 ---
 
-**TODO-FINISH**
 
 
 ## Temporary user access tokens
@@ -394,18 +398,3 @@ curl -d 'ip=user@example.com' \
 ```
 
 It will generate a new token, that you can now pass to 3rd party system as a user id.
-
-
-### Unlock bunker
-
-Run the following command with different keys:
-
-```
-bunker unlock **key**
-```
-
-Or you can provide multiple keys at once:
-
-```
-bunker unlock key1 key2 key3
-```
