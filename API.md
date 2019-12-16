@@ -166,7 +166,7 @@ This API is used to create new user app record and if the request is successful 
 | Resource / HTTP method       | POST (create)      | GET (read)     | PUT (update)   | DELETE (delete) |
 | ---------------------------- | ------------------ | -------------- | -------------- | --------------- |
 | /v1/session/token/{token}    | Create new session | Get sessions   | Error          | Error           |
-| /v1/session/session/:session | Error              | Get session    | Error??        | Error??         |
+| /v1/session/session/:session | Error              | Get session    | Error          | Error           |
 
 
 
@@ -409,19 +409,3 @@ Or you can provide multiple keys at once:
 ```
 bunker unlock key1 key2 key3
 ```
-
-### View lock status
-
-```
-bunker status | jq .lock
-```
-
-Result:
-
-```
-locked
-```
-
-
-## Audit API
-
