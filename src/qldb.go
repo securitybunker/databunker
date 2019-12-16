@@ -17,6 +17,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -475,6 +476,28 @@ func (dbobj dbcon) deleteRecordInTable(table string, keyName string, keyValue st
 	}
 	defer tx.Rollback()
 	result, err := tx.Exec(q, keyValue)
+	if err != nil {
+		return 0, err
+	}
+	if err = tx.Commit(); err != nil {
+		return 0, err
+	}
+	num, err := result.RowsAffected()
+	return num, err
+}
+
+func (dbobj dbcon) deleteExpired(t Tbl, keyName string, keyValue string) (int64, error) {
+	table := getTable(t)
+	q := "delete from " + table + " WHERE when<$1 AND" + keyName + "=$2"
+	fmt.Printf("q: %s\n", q)
+
+	tx, err := dbobj.db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+	now := int32(time.Now().Unix())
+	result, err := tx.Exec(q, now, keyValue)
 	if err != nil {
 		return 0, err
 	}
