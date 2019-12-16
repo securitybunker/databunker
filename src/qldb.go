@@ -735,20 +735,6 @@ func initXTokens(db *sql.DB) error {
 	return nil
 }
 
-/*
-	When   int32  `json:"when"`
-	Who    string `json:"who"`
-	Record string `json:"record"`
-	App    string `json:"app"`
-	Title  string `json:"title"`
-	Status string `json:"status"`
-	Msg    string `json:"msg"`
-	Debug  string `json:"debug"`
-	Before string `json:"before"`
-	After  string `json:"after"`
-	Meta   string `json:"meta"`
-*/
-
 func initAudit(db *sql.DB) error {
 	tx, err := db.Begin()
 	if err != nil {
@@ -768,7 +754,6 @@ func initAudit(db *sql.DB) error {
 	  debug STRING,
 	  before STRING,
 	  after STRING,
-	  meta STRING,
 	  when int
 	);
 	`)
@@ -784,16 +769,6 @@ func initAudit(db *sql.DB) error {
 	}
 	return nil
 }
-
-/*
-	When    int32  `json:"when,omitempty"`
-	Who     string `json:"who,omitempty"`
-	Type    string `json:"type,omitempty"`
-	Token   string `json:"token,omitempty"`
-	Brief   string `json:"brief,omitempty"`
-	Message string `json:"message,omitempty"`
-	Status  string `json:"status,omitempty"`
-*/
 
 func initConsent(db *sql.DB) error {
 	tx, err := db.Begin()

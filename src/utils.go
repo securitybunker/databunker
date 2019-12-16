@@ -27,6 +27,30 @@ var (
 	regexExpiration = regexp.MustCompile("^([0-9]+)([mhds])$")
 )
 
+// Consideration why collection of meta data patch was postpone:
+// 1. Databunker is not anti-fraud solution
+// 2. GDPR stands for data minimalization.
+// 3. Do not store what you actually do not NEED.
+/*
+var interestingHeaders = []string{"x-forwarded", "x-forwarded-for", "x-comming-from", "via",
+	"forwarded-for", "forwarded", "client-ip", "user-agent", "cookie", "referer"}
+
+func getMeta(r *http.Request) string {
+	headers := bson.M{}
+	for idx, val := range r.Header {
+		idx0 := strings.ToLower(idx)
+		fmt.Printf("checking header: %s\n", idx0)
+		if contains(interestingHeaders, idx0) {
+			headers[idx] = val[0]
+		}
+	}
+	headersStr, _ := json.Marshal(headers)
+	meta := fmt.Sprintf(`{"clientip":"%s","headers":%s}`, r.RemoteAddr, headersStr)
+	fmt.Printf("Meta: %s\n", meta)
+	return meta
+}
+*/
+
 func normalizeBrief(brief string) string {
 	return strings.ToLower(brief)
 }
