@@ -78,7 +78,9 @@ func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httproute
 func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
+
 	if mode == "session" {
+		e.db.deleteExpired(TblName.Sessions, "session", address)
 		e.getSession(w, r, address)
 		return
 	}
@@ -110,6 +112,7 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 			return
 		}
 	}
+	e.db.deleteExpired(TblName.Sessions, "token", userTOKEN)
 	records, count, err := e.db.getUserSessionByToken(userTOKEN)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
