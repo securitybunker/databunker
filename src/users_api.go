@@ -23,6 +23,10 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
+	if len(parsedData.jsonData) == 0 {
+		returnError(w, r, "empty body", 405, nil, event)
+		return
+	}
 	// make sure that login, email and phone are unique
 	if len(parsedData.loginIdx) > 0 {
 		otherUserBson, err := e.db.lookupUserRecordByIndex("login", parsedData.loginIdx, e.conf)
@@ -126,6 +130,10 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	parsedData, err := getJSONPost(r, e.conf.Sms.Default_country)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
+		return
+	}
+	if len(parsedData.jsonData) == 0 {
+		returnError(w, r, "empty body", 405, nil, event)
 		return
 	}
 	userTOKEN := address
