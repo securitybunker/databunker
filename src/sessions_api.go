@@ -35,6 +35,9 @@ func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httproute
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 			event.Record = userTOKEN
+		} else {
+			returnError(w, r, "internal error", 405, nil, event)
+			return
 		}
 	}
 	expiration := ""
@@ -68,5 +71,68 @@ func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httproute
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","session":"%s"}`, sessionID)
+	return
+}
+
+func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	address := ps.ByName("address")
+	mode := ps.ByName("mode")
+	event := audit("get all user sessions", address, mode, address)
+	defer func() { event.submit(e.db) }()
+
+	if e.enforceAuth(w, r, event) == false {
+		return
+	}
+	userTOKEN := ""
+	if mode == "token" {
+		if enforceUUID(w, address, event) == false {
+			return
+		}
+		userBson, _ := e.db.lookupUserRecord(address)
+		if userBson == nil {
+			// if token not found, exit from here
+			return
+		}
+		userTOKEN = address
+	} else {
+		// TODO: decode url in code!
+		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		if userBson != nil {
+			userTOKEN = userBson["token"].(string)
+			event.Record = userTOKEN
+		} else {
+			returnError(w, r, "internal error", 405, nil, event)
+			return
+		}
+	}
+	records, count, err := e.db.getUserSessionByToken(userTOKEN)
+	if err != nil {
+		returnError(w, r, "internal error", 405, err, event)
+		return
+	}
+	resultJSON, err := json.Marshal(records)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	fmt.Fprintf(w, `{"status":"ok","count":"%d","rows":"%"}`, count, resultJSON)
+	return
+}
+
+func (e mainEnv) getSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	session := ps.ByName("session")
+	event := audit("get session", session, "session", session)
+	defer func() { event.submit(e.db) }()
+
+	if e.enforceAuth(w, r, event) == false {
+		return
+	}
+	record, userTOKEN, err := e.db.getUserSession(session)
+	if err != nil {
+		returnError(w, r, "internal error", 405, err, event)
+		return
+	}
+	event.Record = userTOKEN
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	fmt.Fprintf(w, `{"status":"ok","session":"%s","data":"%"}`, session, record)
 	return
 }

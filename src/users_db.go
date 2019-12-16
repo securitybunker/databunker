@@ -386,7 +386,7 @@ func (dbobj dbcon) userEncrypt(userTOKEN string, data []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// encrypt meta
+	// encrypt data
 	encoded, err := encrypt(dbobj.masterKey, recordKey, data)
 	if err != nil {
 		return "", err

@@ -45,23 +45,26 @@ func (dbobj dbcon) createSessionRecord(userTOKEN string, expiration string, data
 	return tokenUUID, nil
 }
 
-func (dbobj dbcon) getUserSession(sessionUUID string) ([]byte, error) {
+func (dbobj dbcon) getUserSession(sessionUUID string) ([]byte, string, error) {
 	record, err := dbobj.getRecord(TblName.Sessions, "session", sessionUUID)
-	if record == nil || err != nil {
-		return nil, errors.New("failed to authenticate")
+	if err != nil {
+		return nil, "", err
+	}
+	if record == nil {
+		return nil, "", errors.New("not found")
 	}
 	// check expiration
 	now := int32(time.Now().Unix())
 	if now > record["endtime"].(int32) {
-		return nil, errors.New("session expired")
+		return nil, "", errors.New("session expired")
 	}
 	userTOKEN := record["token"].(string)
 	encData0 := record["data"].(string)
 	decrypted, err := dbobj.userDecrypt(userTOKEN, encData0)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
-	return decrypted, err
+	return decrypted, userTOKEN, err
 }
 
 func (dbobj dbcon) getUserSessionByToken(userTOKEN string) ([]*sessionEvent, int64, error) {
