@@ -272,6 +272,9 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 			fmt.Printf("error in http data parsing: %s\n", err)
 			return nil, err
 		}
+		if len(r.Form) == 0 {
+			return nil, nil
+		}
 		for key, value := range r.Form {
 			//fmt.Printf("data here %s => %s\n", key, value[0])
 			records[key] = value[0]
@@ -282,7 +285,7 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 			return nil, err
 		}
 		if len(body) < 3 {
-			return records, nil
+			return nil, nil
 		}
 		err = json.Unmarshal(body, &records)
 		if err != nil {
@@ -300,6 +303,9 @@ func getJSONPost(r *http.Request, default_country string) (userJSON, error) {
 	records, err := getJSONPostData(r)
 	if err != nil {
 		return result, err
+	}
+	if records == nil {
+		return result, nil
 	}
 
 	if value, ok := records["login"]; ok {
