@@ -21,7 +21,6 @@ type auditEvent struct {
 	Debug    string `json:"debug"`
 	Before   string `json:"before"`
 	After    string `json:"after"`
-	Meta     string `json:"meta"`
 }
 
 func audit(title string, record string, mode string, address string) *auditEvent {
@@ -80,9 +79,6 @@ func (event auditEvent) submit(db dbcon) {
 	}
 	if len(event.After) > 0 {
 		bdoc["after"] = event.After
-	}
-	if len(event.Meta) > 0 {
-		bdoc["meta"] = event.Meta
 	}
 	_, err := db.createRecord(TblName.Audit, &bdoc)
 	//_, err := db.audit.InsertOne(context.TODO(), &bdoc)
