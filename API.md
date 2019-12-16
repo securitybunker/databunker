@@ -165,9 +165,9 @@ This API is used to create new user app record and if the request is successful 
 
 | Resource / HTTP method       | POST (create)      | GET (read)     | PUT (update)   | DELETE (delete) |
 | ---------------------------- | ------------------ | -------------- | -------------- | --------------- |
-| /v1/session/token/{token}     | Create new session | Get sessions   | Error          | Error           |
+| /v1/session/token/{token}    | Create new session | Get sessions   | Error          | Error           |
 | /v1/session/session/:session | Error              | Get session    | Error??        | Error??         |
-| /v1/session/clientip/:ip     | Error              | Get sessions   | Error          | Error           |
+
 
 
 ## Create user session record
@@ -182,6 +182,9 @@ Our API supports generation of session tokens based on the following information
 user ip, mobile device info, user agent, etc...
 
 You can send the data as JSON POST or as regular POST parameters when working with this API.
+
+Additional parameter is **expiration** that specifies TTL for this session record.
+
 
 ## Get user session record
 ### `GET /v1/session/session/:session`
@@ -198,12 +201,6 @@ This API returns session data.
 
 This API returns an array of sessions of the same user.
 
-## Get session records by ip address.
-### `GET /v1/session/clientip/:ipaddress`
-
-### Explanation
-
-This API returns an array of user sessions by IP address. These sessions can be of different people.
 
 ---
 

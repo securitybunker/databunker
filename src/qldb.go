@@ -810,7 +810,7 @@ func initSessions(db *sql.DB) error {
 	CREATE TABLE IF NOT EXISTS sessions (
 	  token STRING,
 	  session STRING,
-	  meta STRING,
+	  data STRING,
 	  when int,
 	  endtime int
 	);
