@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/sha256"
 	"encoding/base64"
 	"errors"
 	"time"
@@ -12,18 +11,19 @@ import (
 
 type sessionEvent struct {
 	When int32
-	Meta []byte
+	Data string
 }
 
-func (dbobj dbcon) generateUserSession(userTOKEN string, clientip string, expiration string, meta []byte) (string, error) {
-	if len(expiration) == 0 {
-		return "", errors.New("failed to parse expiration")
+func (dbobj dbcon) createSessionRecord(userTOKEN string, expiration string, data []byte) (string, error) {
+	var endtime int32 = 0
+	var err error
+	if len(expiration) > 0 {
+		endtime, err = parseExpiration(expiration)
+		if err != nil {
+			return "", err
+		}
 	}
-	endtime, err := parseExpiration(expiration)
-	if err != nil {
-		return "", err
-	}
-	encodedStr, err := dbobj.userEncrypt(userTOKEN, meta)
+	encodedStr, err := dbobj.userEncrypt(userTOKEN, data)
 	if err != nil {
 		return "", err
 	}
@@ -32,15 +32,12 @@ func (dbobj dbcon) generateUserSession(userTOKEN string, clientip string, expira
 		return "", err
 	}
 	bdoc := bson.M{}
+	now := int32(time.Now().Unix())
 	bdoc["token"] = userTOKEN
 	bdoc["session"] = tokenUUID
 	bdoc["endtime"] = endtime
-	bdoc["meta"] = encodedStr
-	if len(clientip) > 0 {
-		idxString := append(dbobj.hash, []byte(clientip)...)
-		idxStringHash := sha256.Sum256(idxString)
-		bdoc["clientipidx"] = base64.StdEncoding.EncodeToString(idxStringHash[:])
-	}
+	bdoc["when"] = now
+	bdoc["data"] = encodedStr
 	_, err = dbobj.createRecord(TblName.Sessions, bdoc)
 	if err != nil {
 		return "", err
@@ -59,7 +56,7 @@ func (dbobj dbcon) getUserSession(sessionUUID string) ([]byte, error) {
 		return nil, errors.New("session expired")
 	}
 	userTOKEN := record["token"].(string)
-	encData0 := record["meta"].(string)
+	encData0 := record["data"].(string)
 	decrypted, err := dbobj.userDecrypt(userTOKEN, encData0)
 	if err != nil {
 		return nil, err
@@ -92,10 +89,10 @@ func (dbobj dbcon) getUserSessionByToken(userTOKEN string) ([]*sessionEvent, int
 
 	var results []*sessionEvent
 	for _, element := range records {
-		encData0 := element["meta"].(string)
+		encData0 := element["data"].(string)
 		encData, _ := base64.StdEncoding.DecodeString(encData0)
 		decrypted, _ := decrypt(dbobj.masterKey, recordKey, encData)
-		sEvent := sessionEvent{0, decrypted}
+		sEvent := sessionEvent{0, string(decrypted)}
 		results = append(results, &sEvent)
 	}
 

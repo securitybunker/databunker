@@ -1,13 +1,72 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
+	"reflect"
 
 	"github.com/julienschmidt/httprouter"
 )
 
 func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	token := ps.ByName("token")
-	event := audit("create new session", token, "token", token)
+	address := ps.ByName("address")
+	mode := ps.ByName("mode")
+	event := audit("create new session", address, mode, address)
 	defer func() { event.submit(e.db) }()
+
+	if e.enforceAuth(w, r, event) == false {
+		return
+	}
+	userTOKEN := ""
+	if mode == "token" {
+		if enforceUUID(w, address, event) == false {
+			return
+		}
+		userBson, _ := e.db.lookupUserRecord(address)
+		if userBson == nil {
+			// if token not found, exit from here
+			return
+		}
+		userTOKEN = address
+	} else {
+		// TODO: decode url in code!
+		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		if userBson != nil {
+			userTOKEN = userBson["token"].(string)
+			event.Record = userTOKEN
+		}
+	}
+	expiration := ""
+	records, err := getJSONPostData(r)
+	if err != nil {
+		returnError(w, r, "failed to decode request body", 405, err, event)
+		return
+	}
+	if len(records) == 0 {
+		returnError(w, r, "empty body", 405, nil, event)
+		return
+	}
+	if value, ok := records["expiration"]; ok {
+		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+			expiration = value.(string)
+		} else {
+			returnError(w, r, "failed to parse expiration field", 405, err, event)
+			return
+		}
+	}
+	jsonData, err := json.Marshal(records)
+	if err != nil {
+		returnError(w, r, "internal error", 405, err, event)
+		return
+	}
+	sessionID, err := e.db.createSessionRecord(userTOKEN, expiration, jsonData)
+	if err != nil {
+		returnError(w, r, "internal error", 405, err, event)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	fmt.Fprintf(w, `{"status":"ok","session":"%s"}`, sessionID)
+	return
 }
