@@ -1,5 +1,4 @@
 #!/bin/sh
-set -x
 
 DATABUNKER_APIKEY=$1
 if [ -z $DATABUNKER_APIKEY ]; then
@@ -61,3 +60,21 @@ echo "View all user consents: $RESULT"
 RESULT=`curl -s http://localhost:3000/v1/consents/send-sms \
    -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
 echo "View all users with send-sms consent on: $RESULT"
+
+RESULT=`curl -s http://localhost:3000/v1/session/token/$TOKEN -XPOST \
+   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json" \
+   -d '{"clientip":"1.1.1.1","x-forwarded-for":"2.2.2.2"}'`
+echo "Create session 1: $RESULT"
+
+RESULT=`curl -s http://localhost:3000/v1/session/email/test@paranoidguy.com -XPOST \
+   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json" \
+   -d '{"clientip":"1.1.1.1","x-forwarded-for":"2.2.2.2","info":"email"}'`
+echo "Create session 1: $RESULT"
+
+RESULT=`curl -s http://localhost:3000/v1/session/session/7a77ffad-2010-4e47-abbe-bcd04509f784 \
+   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
+echo "Get session: $RESULT"
+
+RESULT=`curl -s http://localhost:3000/v1/session/phone/4444 \
+   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
+echo "Get sessions: $RESULT"

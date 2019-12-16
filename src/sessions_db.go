@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"time"
 
 	uuid "github.com/hashicorp/go-uuid"
@@ -10,8 +11,8 @@ import (
 )
 
 type sessionEvent struct {
-	When int32
-	Data string
+	When int32  `json:"when"`
+	Data string `json:"data"`
 }
 
 func (dbobj dbcon) createSessionRecord(userTOKEN string, expiration string, data []byte) (string, error) {
@@ -27,14 +28,14 @@ func (dbobj dbcon) createSessionRecord(userTOKEN string, expiration string, data
 	if err != nil {
 		return "", err
 	}
-	tokenUUID, err := uuid.GenerateUUID()
+	sessionUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return "", err
 	}
 	bdoc := bson.M{}
 	now := int32(time.Now().Unix())
 	bdoc["token"] = userTOKEN
-	bdoc["session"] = tokenUUID
+	bdoc["session"] = sessionUUID
 	bdoc["endtime"] = endtime
 	bdoc["when"] = now
 	bdoc["data"] = encodedStr
@@ -42,32 +43,33 @@ func (dbobj dbcon) createSessionRecord(userTOKEN string, expiration string, data
 	if err != nil {
 		return "", err
 	}
-	return tokenUUID, nil
+	return sessionUUID, nil
 }
 
-func (dbobj dbcon) getUserSession(sessionUUID string) ([]byte, string, error) {
+func (dbobj dbcon) getUserSession(sessionUUID string) (int32, []byte, string, error) {
 	record, err := dbobj.getRecord(TblName.Sessions, "session", sessionUUID)
 	if err != nil {
-		return nil, "", err
+		return 0, nil, "", err
 	}
 	if record == nil {
-		return nil, "", errors.New("not found")
+		return 0, nil, "", errors.New("not found")
 	}
 	// check expiration
 	now := int32(time.Now().Unix())
 	if now > record["endtime"].(int32) {
-		return nil, "", errors.New("session expired")
+		return 0, nil, "", errors.New("session expired")
 	}
+	when := record["when"].(int32)
 	userTOKEN := record["token"].(string)
 	encData0 := record["data"].(string)
 	decrypted, err := dbobj.userDecrypt(userTOKEN, encData0)
 	if err != nil {
-		return nil, "", err
+		return 0, nil, "", err
 	}
-	return decrypted, userTOKEN, err
+	return when, decrypted, userTOKEN, err
 }
 
-func (dbobj dbcon) getUserSessionByToken(userTOKEN string) ([]*sessionEvent, int64, error) {
+func (dbobj dbcon) getUserSessionByToken(userTOKEN string) ([]string, int64, error) {
 
 	userBson, err := dbobj.lookupUserRecord(userTOKEN)
 	if userBson == nil || err != nil {
@@ -90,13 +92,14 @@ func (dbobj dbcon) getUserSessionByToken(userTOKEN string) ([]*sessionEvent, int
 		return nil, 0, err
 	}
 
-	var results []*sessionEvent
+	var results []string
 	for _, element := range records {
+		when := element["when"].(int32)
 		encData0 := element["data"].(string)
 		encData, _ := base64.StdEncoding.DecodeString(encData0)
 		decrypted, _ := decrypt(dbobj.masterKey, recordKey, encData)
-		sEvent := sessionEvent{0, string(decrypted)}
-		results = append(results, &sEvent)
+		sEvent := fmt.Sprintf(`{"when":%d,"data":%s}`, when, string(decrypted))
+		results = append(results, sEvent)
 	}
 
 	return results, count, err

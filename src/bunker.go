@@ -148,6 +148,9 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/userapp/token/:token", e.userappList)
 	router.GET("/v1/userapps", e.appList)
 
+	router.POST("/v1/session/:mode/:address", e.newSession)
+	router.GET("/v1/session/:mode/:address", e.getUserSessions)
+
 	router.GET("/v1/metrics", e.metrics)
 
 	router.GET("/v1/audit/list/:token", e.getAuditEvents)
