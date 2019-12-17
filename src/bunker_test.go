@@ -63,7 +63,7 @@ func TestCreateAPIUser(t *testing.T) {
 	request.Header.Set("X-Bunker-Token", rootToken)
 	//var resp http.ResponseWriter
 	rr = httptest.NewRecorder()
-	e.userNewToken(rr, request, ps2)
+	e.userNewXtoken(rr, request, ps2)
 	//fmt.Printf("after create token------------------\n%s\n\n\n", rr.Body)
 	err = json.Unmarshal(rr.Body.Bytes(), &raw)
 	if err != nil {
@@ -91,7 +91,7 @@ func TestCreateAPIUser(t *testing.T) {
 
 	p3 := httprouter.Param{"xtoken", tokenUUID}
 	ps3 := []httprouter.Param{p3}
-	e.userCheckToken(rr, request, ps3)
+	e.userCheckXtoken(rr, request, ps3)
 	fmt.Printf("get by token------------------\n%s\n\n\n", rr.Body)
 	err = json.Unmarshal(rr.Body.Bytes(), &raw)
 	if err != nil {

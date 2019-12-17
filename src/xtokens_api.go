@@ -11,9 +11,9 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-func (e mainEnv) userNewToken(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) userNewXtoken(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	userTOKEN := ps.ByName("token")
-	event := audit("create user temp access by token", userTOKEN, "token", userTOKEN)
+	event := audit("create xtoken for user token", userTOKEN, "token", userTOKEN)
 	defer func() { event.submit(e.db) }()
 
 	if enforceUUID(w, userTOKEN, event) == false {
@@ -71,9 +71,9 @@ func (e mainEnv) userNewToken(w http.ResponseWriter, r *http.Request, ps httprou
 	fmt.Fprintf(w, `{"status":"ok","xtoken":%q}`, xtokenUUID)
 }
 
-func (e mainEnv) userCheckToken(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) userCheckXtoken(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	xtoken := ps.ByName("xtoken")
-	event := audit("get record by user temp access token", xtoken, "xtoken", xtoken)
+	event := audit("get record by xtoken", xtoken, "xtoken", xtoken)
 	defer func() { event.submit(e.db) }()
 
 	if enforceUUID(w, xtoken, event) == false {

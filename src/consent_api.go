@@ -104,9 +104,9 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 		}
 	}
 	// make sure that user is logged in here, unless he wants to cancel emails
-	if e.enforceAuth(w, r, event) == false {
-		return
-	}
+	//if e.enforceAuth(w, r, event) == false {
+	//	return
+	//}
 	switch mode {
 	case "email":
 		address = normalizeEmail(address)
