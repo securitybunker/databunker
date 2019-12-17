@@ -120,7 +120,7 @@ consult with an attorney specializing in privacy.
 
 ---
 
-# Data Bunker usecases
+# Data Bunker use cases
 
 ## Personal information tokenization and storage
 
@@ -284,7 +284,7 @@ Enterprise version supports **Master key split**. The Master key is kept in RAM 
 
 Information inside Data Bunker is saved in multiple tables in encrypted format. Here is a diagram of tables.
 
-Detailed usecase for each table is covered bellow.
+Detailed use case for each table is covered bellow.
 
 
 ![picture](images/data-bunker-tables.png)
