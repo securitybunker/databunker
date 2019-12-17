@@ -293,6 +293,12 @@ Detailed usecase for each table is covered bellow.
 
 # Enterprise features (not in open source version)
 
+## Support for Mongo backend
+
+The Databunker open source works with a local database, while enterprise version works with MongoDB database.
+With MongoDB you can spin a number of database replicas using [MongoDB Atlas services](https://www.mongodb.com/cloud/atlas)
+and Databunker enterprise version will connect with this database cluster.
+
 ## Master key split
 
 Upon initial start, the **Enterprise version** generates a secret master key and 5 keys out of it.
