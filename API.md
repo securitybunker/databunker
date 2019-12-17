@@ -7,6 +7,7 @@
 
 ## User Api
 
+User API is used to store, change and retrieve user personal information out of Databunker.
 
 | Resource / HTTP method | POST (create)    | GET (read)    | PUT (update)     | DELETE (delete)  |
 | ---------------------- | ---------------- | ------------- | ---------------- | ---------------- |
@@ -22,17 +23,17 @@
 
 ### Explanation
 
-This API is used to create new user record and if the request is successful it returns new `{token}`.
+This API is used to create new user record and if the request is successful it returns new user `{token}`.
 On the database level, each records is encrypted with it's own key.
 
 
 ### POST Body Format
 
 POST Body can contain regular form data or JSON. Data Bunker extracts `{login}`, `{phone}` and `{email}` out of
-POST data or from JSON root level and builds additional hashed indexes for user object.
+POST data or from JSON root level and builds additional hashed indexes for user record.
 
 The {login}, {phone}, {email} values must be unique, otherwise you will get a duplicate user record error.
-So, you can not create two user records with the same email address.
+So, for example, you can not create two user records with the same email address.
 
 The following content type supported:
 
@@ -52,7 +53,7 @@ curl -s http://localhost:3000/v1/user -XPOST \
 {"status":"ok","token":"db80789b-0ad7-0690-035a-fd2c42531e87"}
 ```
 
-Create user record by posting key/value fiels as post parameters:
+Create user record by posting key/value fiels as POST parameters:
 
 ```
 curl -s http://localhost:3000/v1/user -XPOST \
@@ -64,7 +65,7 @@ curl -s http://localhost:3000/v1/user -XPOST \
 ```
 
 **NOTE**: Keep this user {token} privately as it is an additional user identifier.
-For work with semi-trusted environments or 3rd party companies, use **shareable identity** instead.
+For work with semi-trusted environments or 3rd party companies, use **shareable identity** that is time bounded instead.
 
 
 ---
@@ -73,11 +74,11 @@ For work with semi-trusted environments or 3rd party companies, use **shareable 
 ### `GET /v1/user/{token,login,email,phone}/{address}`
 
 ### Explanation
-This API is used to get user PII records. You can lookup user record by **token**, **email**, **phone** or **login**.
+This API is used to get user record stored in Databunker. You can lookup user record by **token**, **email**, **phone** or **login** values.
 
 ### Example:
 
-Fetch user record by **token**:
+Fetch user record by **token** value:
 
 ```
 curl --header "X-Bunker-Token: $XTOKEN" -XGET \
@@ -86,7 +87,7 @@ curl --header "X-Bunker-Token: $XTOKEN" -XGET \
 "data":{"fname":"paranoid","lname":"guy","login":"user1123"}}
 ```
 
-Fetch user recortd by **login** name:
+Fetch user record by **login** name:
 
 ```
 curl --header "X-Bunker-Token: $XTOKEN" -XGET \
@@ -126,10 +127,10 @@ curl --header "X-Bunker-Token: $XTOKEN" -d 'name=Alex' -XPUT \
 ## Delete user by record
 ### `DELETE /v1/user/{token,login,email,phone}/{address}`
 
-This command will remove all user records from the database, leaving only user token id.
+This command will remove all user records from the database, leaving only user **token** for refference.
 This API is used to fullfull the customer' **right to forget**.
 
-In **enterprise version**, user record deletion can be delayed as defined by the company policy.
+In Databunker **enterprise version**, user record deletion can be delayed as defined by the company policy.
 
 ### Example:
 
@@ -138,6 +139,8 @@ curl -header "X-Bunker-Token: $XTOKEN" -XDELETE \
   https://localhost:3000/v1/user/token/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
 {"status":"ok","result":"done"}
 ```
+
+---
 
 ## User App Api
 
@@ -164,13 +167,13 @@ This API is used to create new user app record and if the request is successful 
 ## User Session Api
 
 You can use **Session API** to store and manage user sessions. For example sessions for Web and Mobile applications.
-You can use session token generated in your application logs instead of clear text user IP, cookies, etc...
-that is considerred now PII.
+You can use **session token** generated in your application logs instead of clear text user IP, cookies, etc...
+This information is is considered now as PII.
 
-Sesion generation API is flexible and you can push any data you wish to save in session. It can be:
+Sesion generation API is flexible and you can push any data you wish to save in session record. It can be:
 user ip, mobile device info, user agent, etc...
 
-Each session record has an expiration period. When the records it is expired, it is automatically deleted.
+Each session record has an expiration period. When the record it is expired, it is automatically deleted.
 
 
 | Resource / HTTP method       | POST (create)      | GET (read)     | PUT (update)   | DELETE (delete) |
@@ -220,7 +223,7 @@ curl -s http://localhost:3000/v1/session/session/7a77ffad-2010-4e47-abbe-bcd0450
 
 
 
-## Get session records by user address.
+## Get all session records by user address.
 ### `GET /v1/session/{token,login,email,phone}/{address}`
 
 ### Explanation
@@ -333,7 +336,7 @@ curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/send-sms -XD
 ### `GET /v1/consent/{token,login,email,phone}/{address}`
 
 ### Explanation
-This API returns an array of all user consent records.
+This API returns an array of all user consent records. No pagination is supported.
 
 ### Example:
 
