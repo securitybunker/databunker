@@ -11,9 +11,9 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-func (e mainEnv) userNewXtoken(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	userTOKEN := ps.ByName("token")
-	event := audit("create xtoken for user token", userTOKEN, "token", userTOKEN)
+	event := audit("create shared record by user token", userTOKEN, "token", userTOKEN)
 	defer func() { event.submit(e.db) }()
 
 	if enforceUUID(w, userTOKEN, event) == false {
@@ -28,11 +28,23 @@ func (e mainEnv) userNewXtoken(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	fields := ""
-	expiration := ""
+	session := ""
+	partner := ""
 	appName := ""
+	expiration := ""
 	if value, ok := records["fields"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			fields = value.(string)
+		}
+	}
+	if value, ok := records["session"]; ok {
+		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+			session = value.(string)
+		}
+	}
+	if value, ok := records["partner"]; ok {
+		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+			partner = value.(string)
 		}
 	}
 	if value, ok := records["expiration"]; ok {
@@ -47,7 +59,7 @@ func (e mainEnv) userNewXtoken(w http.ResponseWriter, r *http.Request, ps httpro
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			appName = strings.ToLower(value.(string))
 			if len(appName) > 0 && isValidApp(appName) == false {
-				returnError(w, r, "failed to parse app field", 405, nil, event)
+				returnError(w, r, "unknown app name", 405, nil, event)
 			}
 		} else {
 			// type is different
@@ -55,33 +67,33 @@ func (e mainEnv) userNewXtoken(w http.ResponseWriter, r *http.Request, ps httpro
 		}
 	}
 	if len(expiration) == 0 {
-		returnError(w, r, "missing expiration field", 405, err, event)
-		return
+		// using default expiration time for record
+		expiration = "1m"
 	}
-	xtokenUUID, err := e.db.generateUserTempXToken(userTOKEN, fields, expiration, appName)
+	recordUUID, err := e.db.saveSharedRecord(userTOKEN, fields, expiration, session, appName, partner)
 	if err != nil {
 		fmt.Println(err)
 		returnError(w, r, err.Error(), 405, err, event)
 		return
 	}
-	event.Record = xtokenUUID
-	event.Msg = "Generated " + xtokenUUID
+	event.Record = userTOKEN
+	event.Msg = "Generated " + recordUUID
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
-	fmt.Fprintf(w, `{"status":"ok","xtoken":%q}`, xtokenUUID)
+	fmt.Fprintf(w, `{"status":"ok","record":%q}`, recordUUID)
 }
 
-func (e mainEnv) userCheckXtoken(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	xtoken := ps.ByName("xtoken")
-	event := audit("get record by xtoken", xtoken, "xtoken", xtoken)
+func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	record := ps.ByName("record")
+	event := audit("get record by record", record, "record", record)
 	defer func() { event.submit(e.db) }()
 
-	if enforceUUID(w, xtoken, event) == false {
+	if enforceUUID(w, record, event) == false {
 		return
 	}
-	authResult, err := e.db.checkUserAuthXToken(xtoken)
+	authResult, err := e.db.getSharedRecord(record)
 	if err != nil {
-		fmt.Printf("%d access denied for : %s\n", http.StatusForbidden, xtoken)
+		fmt.Printf("%d access denied for : %s\n", http.StatusForbidden, record)
 		w.WriteHeader(http.StatusForbidden)
 		w.Write([]byte("Access denied"))
 		return

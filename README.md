@@ -102,8 +102,6 @@ are already minimizing the personal information you store in different systems. 
 you customer data to 3rd party systems Data Bunker provides you with purposely build *shareable identity*
 that is time-bound.
 
-## Diagram - Boaz
-
 
 ## Integrity and confidentiality
 
@@ -159,7 +157,7 @@ Each audit record consists of:
 * Operation status
 * Operation description
 * Change before and after if applicable
-* User session info if available: IP address, headers, etc...
+
 
 ## GDPR compliant logging : Web and mobile app session data storage
 
@@ -237,7 +235,7 @@ give them access to thier account at Data Bunker.
 We are a big fan of the open-source movement. After a lot of thoughts and consultations,
 the main Data Bunker product will be open source.
 
-We are doing this to boost the adoption of a privacy enabled world.
+We are doing this to boost the adoption of a **privacy enabled world**.
 
 Enterprise version will be closed source.
 

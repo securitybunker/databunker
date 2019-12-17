@@ -669,16 +669,6 @@ func (dbobj dbcon) indexNewApp(appName string) {
 	return
 }
 
-/*
-BEGIN TRANSACTION;
-	CREATE TABLE Orders (CustomerID int, Date time);
-	CREATE INDEX OrdersID ON Orders (id());
-	CREATE INDEX OrdersDate ON Orders (Date);
-	CREATE TABLE Items (OrderID int, ProductID int, Qty int);
-	CREATE INDEX ItemsOrderID ON Items (OrderID);
-COMMIT;
-*/
-
 func initUsers(db *sql.DB) error {
 	tx, err := db.Begin()
 	if err != nil {
@@ -749,6 +739,36 @@ func initXTokens(db *sql.DB) error {
 		return err
 	}
 	_, err = tx.Exec(`CREATE INDEX xtokens_type ON xtokens (type);`)
+	if err != nil {
+		return err
+	}
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func initSharedRecords(db *sql.DB) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	_, err = tx.Exec(`
+	CREATE TABLE IF NOT EXISTS sharedrecords (
+	  token STRING,
+	  record STRING,
+	  partner STRING,
+	  sesion STRING,
+	  app STRING,
+	  fields STRING,
+	  endtime int
+	);
+	`)
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(`CREATE INDEX sharedrecords_record ON sharedrecords (record);`)
 	if err != nil {
 		return err
 	}

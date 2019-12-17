@@ -30,6 +30,7 @@ type listTbls struct {
 	Xtokens  Tbl
 	Consent  Tbl
 	Sessions Tbl
+	Sharedrecord Tbl
 }
 
 // Enum for public use
@@ -39,6 +40,7 @@ var TblName = &listTbls{
 	Xtokens:  2,
 	Consent:  3,
 	Sessions: 4,
+	Sharedrecord: 5,
 }
 
 type Config struct {
@@ -84,8 +86,15 @@ type tokenAuthResult struct {
 	ttype   string
 	name    string
 	token   string
+}
+
+type checkRecordResult struct {
+	ttype   string
+	name    string
+	token   string
 	fields  string
 	appName string
+	session string
 }
 
 func prometheusHandler() http.Handler {
@@ -132,8 +141,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/login/:mode/:address", e.userLogin)
 	router.GET("/v1/enter/:mode/:address/:tmp", e.userLoginEnter)
 
-	router.POST("/v1/xtoken/:token", e.userNewXtoken)
-	router.GET("/v1/xtoken/:xtoken", e.userCheckXtoken)
+	router.POST("/v1/record/:token", e.newSharedRecord)
+	router.GET("/v1/record/:record", e.getRecord)
 
 	router.GET("/v1/consent/:mode/:address", e.consentAllUserRecords)
 	router.GET("/v1/consent/:mode/:address/:brief", e.consentUserRecord)
