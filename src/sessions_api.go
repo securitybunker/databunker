@@ -113,7 +113,16 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 		}
 	}
 	e.db.deleteExpired(TblName.Sessions, "token", userTOKEN)
-	records, count, err := e.db.getUserSessionByToken(userTOKEN)
+	args := r.URL.Query()
+	var offset int32
+	var limit int32 = 10
+	if value, ok := args["offset"]; ok {
+		offset = atoi(value[0])
+	}
+	if value, ok := args["limit"]; ok {
+		limit = atoi(value[0])
+	}
+	records, count, err := e.db.getUserSessionByToken(userTOKEN, offset, limit)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
