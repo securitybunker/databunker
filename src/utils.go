@@ -222,7 +222,7 @@ func (e mainEnv) enforceAuth(w http.ResponseWriter, r *http.Request, event *audi
 			}
 		}
 		/*
-			if e.db.checkToken(token[0]) == true {
+			if e.db.checkXtoken(token[0]) == true {
 				if event != nil {
 					event.Identity = "admin"
 				}

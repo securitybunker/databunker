@@ -132,8 +132,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/login/:mode/:address", e.userLogin)
 	router.GET("/v1/enter/:mode/:address/:tmp", e.userLoginEnter)
 
-	router.POST("/v1/xtoken/:token", e.userNewToken)
-	router.GET("/v1/xtoken/:xtoken", e.userCheckToken)
+	router.POST("/v1/xtoken/:token", e.userNewXtoken)
+	router.GET("/v1/xtoken/:xtoken", e.userCheckXtoken)
 
 	router.GET("/v1/consent/:mode/:address", e.consentAllUserRecords)
 	router.GET("/v1/consent/:mode/:address/:brief", e.consentUserRecord)

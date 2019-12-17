@@ -257,32 +257,28 @@ func (e mainEnv) userLoginEnter(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	userBson, err := e.db.lookupUserRecordByIndex(mode, address, e.conf)
-	if err != nil {
+	if userBson == nil || err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
 
-	if userBson != nil {
-		userTOKEN := userBson["token"].(string)
-		event.Record = userTOKEN
-		fmt.Printf("Found user record: %s\n", userTOKEN)
-		tmpCode := userBson["tempcode"].(string)
-		if tmp == tmpCode {
-			// user ented correct key
-			// generate temp user access code
-			xtoken, err := e.db.generateUserLoginXToken(userTOKEN)
-			fmt.Printf("generate user access token: %s\n", xtoken)
-			if err != nil {
-				returnError(w, r, "internal error", 405, err, event)
-				return
-			}
-			w.Header().Set("Content-Type", "application/json; charset=utf-8")
-			w.WriteHeader(200)
-			fmt.Fprintf(w, `{"status":"ok","xtoken":"%s","token":"%s"}`, xtoken, userTOKEN)
+	userTOKEN := userBson["token"].(string)
+	event.Record = userTOKEN
+	fmt.Printf("Found user record: %s\n", userTOKEN)
+	tmpCode := userBson["tempcode"].(string)
+	if tmp == tmpCode {
+		// user ented correct key
+		// generate temp user access code
+		xtoken, err := e.db.generateUserLoginXToken(userTOKEN)
+		fmt.Printf("generate user access token: %s\n", xtoken)
+		if err != nil {
+			returnError(w, r, "internal error", 405, err, event)
 			return
 		}
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(200)
+		fmt.Fprintf(w, `{"status":"ok","xtoken":"%s","token":"%s"}`, xtoken, userTOKEN)
+		return
 	}
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(200)
-	fmt.Fprintf(w, `{"status":"ok","token":""}`)
+	returnError(w, r, "internal error", 405, nil, event)
 }

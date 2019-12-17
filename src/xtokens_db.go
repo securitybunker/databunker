@@ -116,7 +116,7 @@ func (dbobj dbcon) generateUserLoginXToken(userTOKEN string) (string, error) {
 	return tokenUUID, nil
 }
 
-func (dbobj dbcon) checkToken(tokenUUID string) bool {
+func (dbobj dbcon) checkXtoken(tokenUUID string) bool {
 	//fmt.Printf("Token0 %s\n", tokenUUID)
 	if isValidUUID(tokenUUID) == false {
 		return false
@@ -153,7 +153,7 @@ func (dbobj dbcon) checkUserAuthXToken(xtokenUUID string) (tokenAuthResult, erro
 	// tokenType = temp
 	now := int32(time.Now().Unix())
 	if now > record["endtime"].(int32) {
-		return result, errors.New("token expired")
+		return result, errors.New("xtoken expired")
 	}
 	result.token = record["token"].(string)
 	if value, ok := record["fields"]; ok {
