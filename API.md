@@ -270,7 +270,7 @@ It is unique per user, short consent id. Allowed chars are [a-z0-9\-] . Max 64 c
 | /v1/consent/login/{login}         | N/A               | Get records   | N/A               |
 | /v1/consent/email/{email}         | N/A               | Get records   | N/A               |
 | /v1/consent/phone/{phone}         | N/A               | Get records   | N/A               |
-| /v1/consent/filter/{brief}        | N/A               | Get all users | N/A               |
+| /v1/consents/{brief}              | N/A               | Get all users | N/A               |
 
 
 ## Create consent record
@@ -352,26 +352,6 @@ curl --header "X-Bunker-Token: $XTOKEN" -XGET \
    "token":"254d2abf-e927-bdcf-9cb2-f43c3cb7a8fa","mode":"phone","when":1576174683,"who":"4444"}]}
 ```
 
-### List granted
-
-```
-curl --header "X-Bunker-Token: $XTOKEN" \
-   https://bunker.company.com/consent/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
-```
-
-### List all
-
-```
-curl --header "X-Bunker-Token: $XTOKEN" \
-   https://bunker.company.com/consent/DAD2474A-E9A7-4BA7-BFC2-C4506880198E?all
-```
-
-### FINISH: Easily cancel consent for email marketing
-
-For example, for email marketing, users got distracted, when they need to login in order to unsubscribe from the newsletter.
-To simplify this operation, users will be allowed to unsubscribe only using email address without full login operation.
-
-
 ---
 
 ## Passwordless tokens API
@@ -388,39 +368,15 @@ To simplify this operation, users will be allowed to unsubscribe only using emai
 ---
 
 
-**TODO-FINISH: THESE FEATURES ARE UNDER DEVELOPMEN**
-
-## Shareable token API
+## Shareable record identity API
 
 | Resource / HTTP method | POST (create)     | GET (read)    | PUT (update)     | DELETE (delete)  |
 | ---------------------- | ----------------- | ------------- | ---------------- | ---------------- |
-| /v1/shareable/{token}  | Create new record | Error         | Error            | Error            |
-| /v1/shareable/{token}  | Error             | Get data      | Error            | Error            |
+| /v1/record/{token}     | Create new record | Error         | Error            | Error            |
+| /v1/record/{record}    | Error             | Get data      | Error            | Error            |
 
 
 ---
-
-
-
-## Temporary user access tokens
-
-Sometimes, for example, when working with 3rd party partners or semi-trusted environments, you might
-need to generate a user access token with a specific expiration time. Your partner can retrieve user
-information during this specific time only.
-Afterward, access will be blocked.
-
-The following command will generate a token to access user email and name for 7 days:
-
-```
-curl --header "X-Bunker-Token: $XTOKEN" -d 'fields=email,name' -d 'expiration=7d' -d 'partner=sms' \
-   https://bunker.company.com/gentokens/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
-```
-
-Output:
-
-```
-476E41E7-72AD-448A-BB43-7ACDB8C53735
-```
 
 
 ### 3rd party logging

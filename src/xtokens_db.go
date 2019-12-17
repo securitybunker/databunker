@@ -3,14 +3,13 @@ package main
 import (
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	uuid "github.com/hashicorp/go-uuid"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (dbobj dbcon) getRootToken() (string, error) {
+func (dbobj dbcon) getRootXtoken() (string, error) {
 	record, err := dbobj.getRecord(TblName.Xtokens, "type", "root")
 	if err != nil {
 		return "", err
@@ -22,7 +21,7 @@ func (dbobj dbcon) getRootToken() (string, error) {
 }
 
 func (dbobj dbcon) createRootToken() (string, error) {
-	rootToken, err := dbobj.getRootToken()
+	rootToken, err := dbobj.getRootXtoken()
 	if len(rootToken) > 0 {
 		return rootToken, nil
 	}
@@ -38,52 +37,6 @@ func (dbobj dbcon) createRootToken() (string, error) {
 		return rootToken, err
 	}
 	return rootToken, nil
-}
-
-func (dbobj dbcon) generateUserTempXToken(userTOKEN string, fields string, expiration string, appName string) (string, error) {
-	if isValidUUID(userTOKEN) == false {
-		return "", errors.New("bad uuid")
-	}
-	if len(expiration) == 0 {
-		return "", errors.New("failed to parse expiration")
-	}
-	if len(appName) > 0 {
-		apps, _ := dbobj.listAllApps()
-		if strings.Contains(string(apps), appName) == false {
-			return "", errors.New("app not found")
-		}
-	}
-
-	start, err := parseExpiration(expiration)
-	if err != nil {
-		return "", err
-	}
-
-	// check if user record exists
-	record, err := dbobj.lookupUserRecord(userTOKEN)
-	if record == nil || err != nil {
-		// not found
-		return "", errors.New("not found")
-	}
-
-	tokenUUID, err := uuid.GenerateUUID()
-	if err != nil {
-		return "", err
-	}
-	bdoc := bson.M{}
-	bdoc["token"] = userTOKEN
-	bdoc["xtoken"] = tokenUUID
-	bdoc["type"] = "temp"
-	bdoc["fields"] = fields
-	bdoc["endtime"] = start
-	if len(appName) > 0 {
-		bdoc["app"] = appName
-	}
-	_, err = dbobj.createRecord(TblName.Xtokens, bdoc)
-	if err != nil {
-		return "", err
-	}
-	return tokenUUID, nil
 }
 
 func (dbobj dbcon) generateUserLoginXToken(userTOKEN string) (string, error) {
@@ -156,19 +109,6 @@ func (dbobj dbcon) checkUserAuthXToken(xtokenUUID string) (tokenAuthResult, erro
 		return result, errors.New("xtoken expired")
 	}
 	result.token = record["token"].(string)
-	if value, ok := record["fields"]; ok {
-		result.fields = value.(string)
-	}
-	if tokenType == "login" {
-		result.ttype = "login"
-	} else {
-		if value, ok := record["app"]; ok {
-			result.ttype = "app"
-			result.appName = value.(string)
-		} else {
-			result.ttype = "user"
-		}
-	}
-
+	result.ttype = tokenType
 	return result, nil
 }
