@@ -175,7 +175,7 @@ for a limited time as in GDPR. For example one month.
 ![picture](images/create-user-session-flow.png)
 
 
-## Shareable user identity for 3rd parties
+## Shareable user/app/session identity for 3rd parties
 
 When sharing data with 3rd party services like web analytics, logging, intelligence, etc... sometimes we need to
 share user id, for example, customer original IP address or email address. All these pieces of information
@@ -186,10 +186,14 @@ are considred user identifiable information and must be minimized when sending t
 According to GDPR: *The personal data should be adequate, relevant and **limited to what is necessary** for the
 purposes for which they are processed.*
 
-Our system can generate you time-limited shareable identity token that you can share with 3rd parties as an identity.
-This identity, can link back to the user personal record or user app record or to specific user session.
+Our system can generate you time-limited, temporary, shareable identity token that you can share with 3rd
+parties as a record identity. This identity, can link back to the user personal record or user app record
+or to specific user session.
 
 Optionally, Data Bunker can incorporate partner name in identity so, you track this identity usage.
+
+Your partner can retrieve this information and only specific fields during this specific timeframe.
+Afterward, access will be blocked.
 
 
 ## Consent management, i.e. withdawal
@@ -212,7 +216,6 @@ In Data Bunker:
 * Removing consent for a user is as easy as granting it in the first place.
 
 
-
 ## Custom application signup and sign-in
 
 When implementing signup and sign-in in your customer-facing applications, we recommend you to
@@ -223,18 +226,6 @@ login logic into your solution with our service.
 Index by email and index by phone allow us to give your customers passwordless access to their
 personal profile at Data Bunker. We send your user a one-time login code by SMS or email to
 give them access to thier account at Data Bunker.
-
-
-## Time-limited passwordless access tokens to personal information
-
-Sometimes you want to share user, app or session private information in less trusted systems without providing
-access to system root token.
-
-Data Bunker has an API that allows you to generate temprorary access token to access specific fields in the
-user personal record or application level data or a session record for a limited time only.
-
-Your partner can retrieve this information and only specific fields during this specific timeframe.
-Afterward, access will be blocked.
 
 
 ---
@@ -310,7 +301,7 @@ It is possible to save these keys in the AWS secret store and other vault servic
 
 ## Advanced role management, ACL
 
-By default, all access to Data Bunker is done with one root token or with **Time-limited passwordless access tokens**
+By default, all access to Data Bunker is done with one root token or with **Time-limited access tokens**
 that allow to read data from specific user record only.
 
 For more granular control, Data Bunker supports the notion of custom roles. For example, you can create a role
