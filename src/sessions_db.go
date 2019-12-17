@@ -69,7 +69,7 @@ func (dbobj dbcon) getUserSession(sessionUUID string) (int32, []byte, string, er
 	return when, decrypted, userTOKEN, err
 }
 
-func (dbobj dbcon) getUserSessionByToken(userTOKEN string) ([]string, int64, error) {
+func (dbobj dbcon) getUserSessionByToken(userTOKEN string, offset int32, limit int32) ([]string, int64, error) {
 
 	userBson, err := dbobj.lookupUserRecord(userTOKEN)
 	if userBson == nil || err != nil {
@@ -87,7 +87,7 @@ func (dbobj dbcon) getUserSessionByToken(userTOKEN string) ([]string, int64, err
 		return nil, 0, err
 	}
 
-	records, err := dbobj.getList(TblName.Sessions, "token", userTOKEN, 0, 0)
+	records, err := dbobj.getList(TblName.Sessions, "token", userTOKEN, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
