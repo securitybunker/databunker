@@ -28,10 +28,11 @@ On the database level, each records is encrypted with it's own key.
 
 ### POST Body Format
 
-POST Body can contain regular form data or JSON. Data Bunker extracts `{login}`, `{phoen}` and `{email}` out of
-POST data or from JSON first level and builds additional hashed index for user object. These fields, if
-provided must be unique, otherwise you will ge an error. So, you can not create additional user object
-with duplicate email.
+POST Body can contain regular form data or JSON. Data Bunker extracts `{login}`, `{phone}` and `{email}` out of
+POST data or from JSON root level and builds additional hashed indexes for user object.
+
+The {login}, {phone}, {email} values must be unique, otherwise you will get a duplicate user record error.
+So, you can not create two user records with the same email address.
 
 The following content type supported:
 
@@ -41,7 +42,7 @@ The following content type supported:
 
 ### Example:
 
-Create used by posting JSON:
+Create user by posting data in JSON format:
 
 ```
 curl -s http://localhost:3000/v1/user -XPOST \
@@ -51,7 +52,7 @@ curl -s http://localhost:3000/v1/user -XPOST \
 {"status":"ok","token":"db80789b-0ad7-0690-035a-fd2c42531e87"}
 ```
 
-Create user by POSTing user key/value fiels as post parameters:
+Create user record by posting key/value fiels as post parameters:
 
 ```
 curl -s http://localhost:3000/v1/user -XPOST \
@@ -62,8 +63,8 @@ curl -s http://localhost:3000/v1/user -XPOST \
 {"status":"ok","token":"db80789b-0ad7-0690-035a-fd2c42531e87"}
 ```
 
-**NOTE**: Keep this user token privately as it provides user private information in your system.
-For semi-trusted environments or 3rd party companies, use **shareable identity** instead.
+**NOTE**: Keep this user {token} privately as it is an additional user identifier.
+For work with semi-trusted environments or 3rd party companies, use **shareable identity** instead.
 
 
 ---
@@ -72,11 +73,11 @@ For semi-trusted environments or 3rd party companies, use **shareable identity**
 ### `GET /v1/user/{token,login,email,phone}/{address}`
 
 ### Explanation
-This API is used to get user PII records. You can lookup user token by **token**, **email**, **phone** or **login**.
+This API is used to get user PII records. You can lookup user record by **token**, **email**, **phone** or **login**.
 
 ### Example:
 
-Fetch by user token:
+Fetch user record by **token**:
 
 ```
 curl --header "X-Bunker-Token: $XTOKEN" -XGET \
@@ -85,11 +86,11 @@ curl --header "X-Bunker-Token: $XTOKEN" -XGET \
 "data":{"fname":"paranoid","lname":"guy","login":"user1123"}}
 ```
 
-Fetch by "login" name:
+Fetch user recortd by **login** name:
 
 ```
 curl --header "X-Bunker-Token: $XTOKEN" -XGET \
-   https://localhost:3000/v1/user/login/user1
+   https://localhost:3000/v1/user/login/user1123
 {"status":"ok","token":"DAD2474A-E9A7-4BA7-BFC2-C4506880198E",
 "data":{"fname":"paranoid","lname":"guy","login":"user1123"}}
 ```
@@ -102,19 +103,13 @@ curl --header "X-Bunker-Token: $XTOKEN" -XGET \
 
 ### Explanation
 
-This API is used to update user record. You can update user by **token**, **email**, **phone** or **login**.
-This call returns update status on success or error message on error.
+This API is used to update user record. User record can be identified by **token**, **email**, **phone** or **login**.
+On success, this API call returns success status or error message on error.
 
 ### POST Body Format
 
-POST Body can contain regular form POST data or JSON. When using JSON, you can remove the record by setting it's value to null.
-For example {"key-to-delete":null}.
-
-The following content type supported:
-
-* **application/json**
-* **application/x-www-form-urlencoded**
-
+POST Body can contain regular form POST data or JSON. When using JSON, you can remove the record from user profile
+by setting it's value to null. For example {"key-to-delete":null}.
 
 ### Example:
 
@@ -123,7 +118,7 @@ The following command will change user name to "Alex". An Audit event will be ge
 ```
 curl --header "X-Bunker-Token: $XTOKEN" -d 'name=Alex' -XPUT \
    https://localhost:3000/v1/user/token/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
-{"status":"ok","token":"db80789b-0ad7-0690-035a-fd2c42531e87"}
+{"status":"ok","token":"DAD2474A-E9A7-4BA7-BFC2-C4506880198E"}
 ```
 
 ---
@@ -132,6 +127,11 @@ curl --header "X-Bunker-Token: $XTOKEN" -d 'name=Alex' -XPUT \
 ### `DELETE /v1/user/{token,login,email,phone}/{address}`
 
 This command will remove all user records from the database, leaving only user token id.
+This API is used to fullfull the customer' **right to forget**.
+
+In **enterprise version**, user record deletion can be delayed as defined by the company policy.
+
+### Example:
 
 ```
 curl -header "X-Bunker-Token: $XTOKEN" -XDELETE \
@@ -163,6 +163,16 @@ This API is used to create new user app record and if the request is successful 
 
 ## User Session Api
 
+You can use **Session API** to store and manage user sessions. For example sessions for Web and Mobile applications.
+You can use session token generated in your application logs instead of clear text user IP, cookies, etc...
+that is considerred now PII.
+
+Sesion generation API is flexible and you can push any data you wish to save in session. It can be:
+user ip, mobile device info, user agent, etc...
+
+Each session record has an expiration period. When the records it is expired, it is automatically deleted.
+
+
 | Resource / HTTP method       | POST (create)      | GET (read)     | PUT (update)   | DELETE (delete) |
 | ---------------------------- | ------------------ | -------------- | -------------- | --------------- |
 | /v1/session/phone/{phone}    | Create new session | Get sessions   | Error          | Error           |
@@ -173,20 +183,24 @@ This API is used to create new user app record and if the request is successful 
 
 
 ## Create user session record
-### `POST /v1/session/{token,email,phone}/{address}`
+### `POST /v1/session/{token,login,email,phone}/{address}`
 
 ### Explanation
 
-This API is used to create new user session and if the request is successful it returns new `{session}`.
-You can now use this session-id in your logs instead of user IP and browser user-agent info, etc...
-
-Sesion generation API is flexible and you can push any data you wish to save in session. It can be:
-user ip, mobile device info, user agent, etc...
+This API is used to create new user session and if the request is successful it returns new `{session}` token.
 
 You can send the data as JSON POST or as regular POST parameters.
 
 Additional parameter is **expiration** specifies TTL for this session record.
 
+### Example:
+
+```
+curl -s http://localhost:3000/v1/session/email/test@paranoidguy.com -XPOST \
+   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json" \
+   -d '{"expiration":"3d","clientip":"1.1.1.1","x-forwarded-for":"2.2.2.2"}'`
+{"status":"ok","session":"7a77ffad-2010-4e47-abbe-bcd04509f784"}
+```
 
 ## Get user session record
 ### `GET /v1/session/session/:session`
@@ -195,14 +209,42 @@ Additional parameter is **expiration** specifies TTL for this session record.
 
 This API returns session data.
 
+### Example:
+
+```
+curl -s http://localhost:3000/v1/session/session/7a77ffad-2010-4e47-abbe-bcd04509f784 \
+   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
+{"status":"ok","session":"7a77ffad-2010-4e47-abbe-bcd04509f784","when":1576526253,
+ "data":{"clientip":"1.1.1.1","info":"email","x-forwarded-for":"2.2.2.2"}}
+```
+
+
 
 ## Get session records by user address.
-### `GET /v1/session/{token,email,phone}/{address}`
+### `GET /v1/session/{token,login,email,phone}/{address}`
 
 ### Explanation
 
-This API returns an array of session records for the same user.
+This API returns an array of session records for the same user. This command supports paging
+arguments **offset** and **limit** (in URL request).
 
+### Example:
+
+```
+curl -s http://localhost:3000/v1/session/phone/4444 \
+   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
+{"status":"ok","count":"20","rows":[
+   {"when":1576525605,"data":{"clientip":"1.1.1.1","x-forwarded-for":"2.2.2.2"}},
+   {"when":1576525605,"data":{"clientip":"1.1.1.1","info":"email","x-forwarded-for":"2.2.2.2"}},
+   {"when":1576525660,"data":{"clientip":"1.1.1.1","x-forwarded-for":"2.2.2.2"}},
+   {"when":1576525660,"data":{"clientip":"1.1.1.1","info":"email","x-forwarded-for":"2.2.2.2"}},
+   {"when":1576526129,"data":{"clientip":"1.1.1.1","x-forwarded-for":"2.2.2.2"}},
+   {"when":1576526130,"data":{"clientip":"1.1.1.1","info":"email","x-forwarded-for":"2.2.2.2"}},
+   {"when":1576526253,"data":{"clientip":"1.1.1.1","x-forwarded-for":"2.2.2.2"}},
+   {"when":1576526253,"data":{"clientip":"1.1.1.1","info":"email","x-forwarded-for":"2.2.2.2"}},
+   {"when":1576526291,"data":{"clientip":"1.1.1.1","x-forwarded-for":"2.2.2.2"}},
+   {"when":1576526291,"data":{"clientip":"1.1.1.1","info":"email","x-forwarded-for":"2.2.2.2"}}]}
+```
 
 ---
 
