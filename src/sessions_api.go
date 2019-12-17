@@ -130,7 +130,7 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 	data := strings.Join(records, ",")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
-	fmt.Fprintf(w, `{"status":"ok","count":"%d","rows":%s}`, count, data)
+	fmt.Fprintf(w, `{"status":"ok","count":"%d","rows":[%s]}`, count, data)
 	return
 }
 
