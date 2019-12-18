@@ -91,7 +91,7 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 	if enforceUUID(w, record, event) == false {
 		return
 	}
-	authResult, err := e.db.getSharedRecord(record)
+	recordInfo, err := e.db.getSharedRecord(record)
 	if err != nil {
 		fmt.Printf("%d access denied for : %s\n", http.StatusForbidden, record)
 		w.WriteHeader(http.StatusForbidden)
@@ -99,15 +99,15 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 	var resultJSON []byte
-	if len(authResult.token) > 0 {
-		event.Record = authResult.token
-		event.App = authResult.appName
-		fmt.Printf("displaying fields: %s, user token: %s\n", authResult.fields, authResult.token)
+	if len(recordInfo.token) > 0 {
+		event.Record = recordInfo.token
+		event.App = recordInfo.appName
+		fmt.Printf("displaying fields: %s, user token: %s\n", recordInfo.fields, recordInfo.token)
 
-		if len(authResult.appName) > 0 {
-			resultJSON, err = e.db.getUserApp(authResult.token, authResult.appName)
+		if len(recordInfo.appName) > 0 {
+			resultJSON, err = e.db.getUserApp(recordInfo.token, recordInfo.appName)
 		} else {
-			resultJSON, err = e.db.getUser(authResult.token)
+			resultJSON, err = e.db.getUser(recordInfo.token)
 		}
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
@@ -118,13 +118,13 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 			return
 		}
 		fmt.Printf("Full user json: %s\n", resultJSON)
-		if len(authResult.fields) > 0 {
+		if len(recordInfo.fields) > 0 {
 			raw := make(map[string]interface{})
 			//var newJSON json
-			allFields := parseFields(authResult.fields)
+			allFields := parseFields(recordInfo.fields)
 			for _, f := range allFields {
 				if f == "token" {
-					raw["token"] = authResult.token
+					raw["token"] = recordInfo.token
 				} else {
 					value := gjson.Get(string(resultJSON), f)
 					//fmt.Printf("result %s -> %s\n", f, value)
@@ -145,17 +145,17 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	var str string
-	if len(resultJSON) == 0 {
-		str = fmt.Sprintf(`{"status":"ok","type":"%s"}`, authResult.ttype)
+
+	if len(recordInfo.appName) > 0 {
+		str = fmt.Sprintf(`{"status":"ok","app":"%s","data":%s}`,
+			recordInfo.appName, resultJSON)
+	} else if len(recordInfo.session) > 0 {
+		str = fmt.Sprintf(`{"status":"ok","session":"%s","data":%s}`,
+			recordInfo.appName, resultJSON)
 	} else {
-		if len(authResult.appName) > 0 {
-			str = fmt.Sprintf(`{"status":"ok","type":"%s","app":"%s","data":%s}`,
-				authResult.ttype, authResult.appName, resultJSON)
-		} else {
-			str = fmt.Sprintf(`{"status":"ok","type":"%s","data":%s}`,
-				authResult.ttype, resultJSON)
-		}
+		str = fmt.Sprintf(`{"status":"ok","data":%s}`, resultJSON)
 	}
+
 	fmt.Printf("result: %s\n", str)
 	w.Write([]byte(str))
 }
