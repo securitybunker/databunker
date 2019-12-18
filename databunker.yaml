@@ -3,6 +3,11 @@ generic:
   # allow to create user object without login
   create_user_without_token: true
   #notification_url: "http://localhost/"
+policy:
+  # max time to store records, untill they are deleted
+  max_audit_retention_period: "6m"
+  max_session_retention_period: "3m"
+  max_shareable_record_retention_period: "3m"
 ssl:
   # ssl configuration
   ssl_certificate: "/databunker/certs/server.crt"

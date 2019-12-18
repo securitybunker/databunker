@@ -47,6 +47,11 @@ type Config struct {
 	Generic struct {
 		Create_user_without_token bool `yaml:"create_user_without_token"`
 	}
+	Policy struct {
+		Max_audit_retention_period string `yaml:"max_audit_retention_period"`
+		Max_session_retention_period string `yaml:"max_session_retention_period"`
+		Max_shareable_record_retention_period string `yaml:"max_shareable_record_retention_period"`
+	}
 	Ssl struct {
 		Ssl_certificate string `yaml:"ssl_certificate", envconfig:"SSL_CERTIFICATE"`
 		Ssl_certificate_key string `yaml:"ssl_certificate_key", envconfig:"SSL_CERTIFICATE_KEY"`
@@ -89,7 +94,6 @@ type tokenAuthResult struct {
 }
 
 type checkRecordResult struct {
-	ttype   string
 	name    string
 	token   string
 	fields  string

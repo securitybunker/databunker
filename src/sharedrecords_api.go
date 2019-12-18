@@ -31,7 +31,7 @@ func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps http
 	session := ""
 	partner := ""
 	appName := ""
-	expiration := ""
+	expiration := e.conf.Policy.Max_shareable_record_retention_period
 	if value, ok := records["fields"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			fields = value.(string)
@@ -49,7 +49,7 @@ func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps http
 	}
 	if value, ok := records["expiration"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			expiration = value.(string)
+			expiration = setExpiration(e.conf.Policy.Max_shareable_record_retention_period, value.(string))
 		} else {
 			returnError(w, r, "failed to parse expiration field", 405, err, event)
 			return
