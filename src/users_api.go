@@ -245,10 +245,10 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 }
 
 func (e mainEnv) userLoginEnter(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	tmp := ps.ByName("tmp")
+	tmp := atoi(ps.ByName("tmp"))
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
-	event := audit("user login by "+mode, address, mode, address)
+	event := audit("user login2 by "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
 	if mode != "phone" && mode != "email" {
@@ -265,7 +265,7 @@ func (e mainEnv) userLoginEnter(w http.ResponseWriter, r *http.Request, ps httpr
 	userTOKEN := userBson["token"].(string)
 	event.Record = userTOKEN
 	fmt.Printf("Found user record: %s\n", userTOKEN)
-	tmpCode := userBson["tempcode"].(string)
+	tmpCode := userBson["tempcode"].(int32)
 	if tmp == tmpCode {
 		// user ented correct key
 		// generate temp user access code

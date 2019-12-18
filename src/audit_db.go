@@ -86,7 +86,7 @@ func (event auditEvent) submit(db dbcon) {
 		fmt.Printf("failed to marshal audit event: %s\n", err)
 		return
 	}
-	//fmt.Printf("done!!!")
+	//fmt.Println("AUDIT done!!!")
 }
 
 func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) ([]byte, int64, error) {

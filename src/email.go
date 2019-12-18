@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"net/smtp"
+	"strconv"
 	"strings"
 )
 
-func sendCodeByEmail(code string, address string, cfg Config) {
+func sendCodeByEmail(code int32, address string, cfg Config) {
 	/*
 		c, err := smtp.Dial(smtpServer)
 		if err != nil {
@@ -32,7 +33,7 @@ func sendCodeByEmail(code string, address string, cfg Config) {
 	*/
 	Dest := []string{"stremovsky@gmail.com", address}
 	Subject := "Access Code"
-	bodyMessage := "Data bunker access code is " + code
+	bodyMessage := "Data bunker access code is " + strconv.Itoa(int((code)))
 	msg := "From: " + cfg.Smtp.Sender + "\n" +
 		"To: " + strings.Join(Dest, ",") + "\n" +
 		"Subject: " + Subject + "\n" + bodyMessage

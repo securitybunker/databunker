@@ -1,5 +1,7 @@
 package main
 
+// github.com/mattn/go-sqlite3
+
 // This project is using the following golang internal database:
 // https://godoc.org/modernc.org/ql
 
@@ -19,9 +21,9 @@ import (
 	"strconv"
 	"time"
 
+	_ "github.com/mattn/go-sqlite3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"modernc.org/ql"
 )
 
 var (
@@ -57,20 +59,23 @@ func newDB(masterKey []byte, filepath *string) (dbcon, error) {
 	}
 	fmt.Printf("Databunker db file is: %s\n", dbfile)
 	// collect list of all tables
-	if _, err := os.Stat(dbfile); !os.IsNotExist(err) {
-		db2, err := ql.OpenFile(dbfile, &ql.Options{FileFormat: 2})
-		if err != nil {
-			return dbobj, err
+	/*
+		if _, err := os.Stat(dbfile); !os.IsNotExist(err) {
+			db2, err := ql.OpenFile(dbfile, &ql.Options{FileFormat: 2})
+			if err != nil {
+				return dbobj, err
+			}
+			dbinfo, err := db2.Info()
+			for _, v := range dbinfo.Tables {
+				knownApps = append(knownApps, v.Name)
+			}
+			db2.Close()
 		}
-		dbinfo, err := db2.Info()
-		for _, v := range dbinfo.Tables {
-			knownApps = append(knownApps, v.Name)
-		}
-		db2.Close()
-	}
+	*/
 
-	ql.RegisterDriver2()
-	db, err := sql.Open("ql2", dbfile)
+	//ql.RegisterDriver2()
+	//db, err := sql.Open("ql2", dbfile)
+	db, err := sql.Open("sqlite3", dbfile)
 	if err != nil {
 		log.Fatalf("Failed to open databunker.db file: %s", err)
 	}
@@ -96,6 +101,9 @@ func (dbobj dbcon) initDB() error {
 	if err = initSessions(dbobj.db); err != nil {
 		return err
 	}
+	if err = initSharedRecords(dbobj.db); err != nil {
+		return err
+	}
 	return nil
 }
 func (dbobj dbcon) closeDB() {
@@ -104,6 +112,13 @@ func (dbobj dbcon) closeDB() {
 
 func (dbobj dbcon) initUserApps() error {
 	return nil
+}
+
+func escapeName(name string) string {
+	if name == "when" {
+		name = "`when`"
+	}
+	return name
 }
 
 func decodeFieldsValues(data interface{}) (string, []interface{}) {
@@ -115,9 +130,9 @@ func decodeFieldsValues(data interface{}) (string, []interface{}) {
 		fmt.Println("decodeFieldsValues format is: primitive.M")
 		for idx, val := range data.(primitive.M) {
 			if len(fields) == 0 {
-				fields = idx
+				fields = escapeName(idx)
 			} else {
-				fields = fields + "," + idx
+				fields = fields + "," + escapeName(idx)
 			}
 			values = append(values, val)
 		}
@@ -125,9 +140,9 @@ func decodeFieldsValues(data interface{}) (string, []interface{}) {
 		fmt.Println("decodeFieldsValues format is: *primitive.M")
 		for idx, val := range *data.(*primitive.M) {
 			if len(fields) == 0 {
-				fields = idx
+				fields = escapeName(idx)
 			} else {
-				fields = fields + "," + idx
+				fields = fields + "," + escapeName(idx)
 			}
 			values = append(values, val)
 		}
@@ -135,9 +150,9 @@ func decodeFieldsValues(data interface{}) (string, []interface{}) {
 		fmt.Println("decodeFieldsValues format is: map[string]interface{}")
 		for idx, val := range data.(map[string]interface{}) {
 			if len(fields) == 0 {
-				fields = idx
+				fields = escapeName(idx)
 			} else {
-				fields = fields + "," + idx
+				fields = fields + "," + escapeName(idx)
 			}
 			values = append(values, val)
 		}
@@ -154,18 +169,18 @@ func decodeForCleanup(data interface{}) string {
 	case primitive.M:
 		for idx, _ := range data.(primitive.M) {
 			if len(fields) == 0 {
-				fields = idx + "=null"
+				fields = escapeName(idx) + "=null"
 			} else {
-				fields = fields + "," + idx + "=null"
+				fields = fields + "," + escapeName(idx) + "=null"
 			}
 		}
 		return fields
 	case map[string]interface{}:
 		for idx, _ := range data.(map[string]interface{}) {
 			if len(fields) == 0 {
-				fields = idx + "=null"
+				fields = escapeName(idx) + "=null"
 			} else {
-				fields = fields + "," + idx + "=null"
+				fields = fields + "," + escapeName(idx) + "=null"
 			}
 		}
 	default:
@@ -190,9 +205,9 @@ func decodeForUpdate(bdoc *bson.M, bdel *bson.M) (string, []interface{}) {
 		for idx, val := range *bdoc {
 			values = append(values, val)
 			if len(fields) == 0 {
-				fields = idx + "=$1"
+				fields = escapeName(idx) + "=$1"
 			} else {
-				fields = fields + "," + idx + "=$" + (strconv.Itoa(len(values)))
+				fields = fields + "," + escapeName(idx) + "=$" + (strconv.Itoa(len(values)))
 			}
 		}
 	}
@@ -200,9 +215,9 @@ func decodeForUpdate(bdoc *bson.M, bdel *bson.M) (string, []interface{}) {
 	if bdel != nil {
 		for idx, _ := range *bdel {
 			if len(fields) == 0 {
-				fields = idx + "=null"
+				fields = escapeName(idx) + "=null"
 			} else {
-				fields = fields + "," + idx + "=null"
+				fields = fields + "," + escapeName(idx) + "=null"
 			}
 		}
 	}
@@ -234,8 +249,7 @@ func (dbobj dbcon) createRecordInTable(tbl string, data interface{}) (int, error
 		}
 	}
 	q := "insert into " + tbl + " (" + fields + ") values (" + values_q + ")"
-	fmt.Printf("q: %s\n", q)
-
+	//fmt.Printf("values: %s\n", values...)
 	tx, err := dbobj.db.Begin()
 	if err != nil {
 		return 0, err
@@ -259,7 +273,7 @@ func (dbobj dbcon) createRecord(t Tbl, data interface{}) (int, error) {
 
 func (dbobj dbcon) countRecords(t Tbl, keyName string, keyValue string) (int64, error) {
 	tbl := getTable(t)
-	q := "select count(*) from " + tbl + " WHERE " + keyName + "=$1"
+	q := "select count(*) from " + tbl + " WHERE " + escapeName(keyName) + "=$1"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -282,8 +296,8 @@ func (dbobj dbcon) countRecords(t Tbl, keyName string, keyValue string) (int64, 
 
 func (dbobj dbcon) countRecords2(t Tbl, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
 	tbl := getTable(t)
-	q := "select count(*) from " + tbl + " WHERE " + keyName + "=$1" +
-		" AND " + keyName2 + "=$2"
+	q := "select count(*) from " + tbl + " WHERE " + escapeName(keyName) + "=$1" +
+		" AND " + escapeName(keyName2) + "=$2"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -305,25 +319,27 @@ func (dbobj dbcon) countRecords2(t Tbl, keyName string, keyValue string, keyName
 }
 func (dbobj dbcon) updateRecord(t Tbl, keyName string, keyValue string, bdoc *bson.M) (int64, error) {
 	table := getTable(t)
-	filter := keyName + "=\"" + keyValue + "\""
+	filter := escapeName(keyName) + "=\"" + keyValue + "\""
 	return dbobj.updateRecordInTableDo(table, filter, bdoc, nil)
 }
 
 func (dbobj dbcon) updateRecordInTable(table string, keyName string, keyValue string, bdoc *bson.M) (int64, error) {
-	filter := keyName + "=\"" + keyValue + "\""
+	filter := escapeName(keyName) + "=\"" + keyValue + "\""
 	return dbobj.updateRecordInTableDo(table, filter, bdoc, nil)
 }
 
 func (dbobj dbcon) updateRecord2(t Tbl, keyName string, keyValue string,
 	keyName2 string, keyValue2 string, bdoc *bson.M, bdel *bson.M) (int64, error) {
 	table := getTable(t)
-	filter := keyName + "=\"" + keyValue + "\" AND " + keyName2 + "=\"" + keyValue2 + "\""
+	filter := escapeName(keyName) + "=\"" + keyValue + "\" AND " +
+		escapeName(keyName2) + "=\"" + keyValue2 + "\""
 	return dbobj.updateRecordInTableDo(table, filter, bdoc, bdel)
 }
 
 func (dbobj dbcon) updateRecordInTable2(table string, keyName string,
 	keyValue string, keyName2 string, keyValue2 string, bdoc *bson.M, bdel *bson.M) (int64, error) {
-	filter := keyName + "=\"" + keyValue + "\" AND " + keyName2 + "=\"" + keyValue2 + "\""
+	filter := escapeName(keyName) + "=\"" + keyValue + "\" AND " +
+		escapeName(keyName2) + "=\"" + keyValue2 + "\""
 	return dbobj.updateRecordInTableDo(table, filter, bdoc, bdel)
 }
 
@@ -350,14 +366,14 @@ func (dbobj dbcon) updateRecordInTableDo(table string, filter string, bdoc *bson
 
 func (dbobj dbcon) getRecord(t Tbl, keyName string, keyValue string) (bson.M, error) {
 	table := getTable(t)
-	q := "select * from " + table + " WHERE " + keyName + "=$1"
+	q := "select * from " + table + " WHERE " + escapeName(keyName) + "=$1"
 	values := make([]interface{}, 0)
 	values = append(values, keyValue)
 	return dbobj.getRecordInTableDo(q, values)
 }
 
 func (dbobj dbcon) getRecordInTable(table string, keyName string, keyValue string) (bson.M, error) {
-	q := "select * from " + table + " WHERE " + keyName + "=$1"
+	q := "select * from " + table + " WHERE " + escapeName(keyName) + "=$1"
 	values := make([]interface{}, 0)
 	values = append(values, keyValue)
 	return dbobj.getRecordInTableDo(q, values)
@@ -366,7 +382,8 @@ func (dbobj dbcon) getRecordInTable(table string, keyName string, keyValue strin
 func (dbobj dbcon) getRecord2(t Tbl, keyName string, keyValue string,
 	keyName2 string, keyValue2 string) (bson.M, error) {
 	table := getTable(t)
-	q := "select * from " + table + " WHERE " + keyName + "=$1 AND " + keyName2 + "=$2"
+	q := "select * from " + table + " WHERE " + escapeName(keyName) + "=$1 AND " +
+		escapeName(keyName2) + "=$2"
 	values := make([]interface{}, 0)
 	values = append(values, keyValue)
 	values = append(values, keyValue2)
@@ -375,7 +392,8 @@ func (dbobj dbcon) getRecord2(t Tbl, keyName string, keyValue string,
 
 func (dbobj dbcon) getRecordInTable2(table string, keyName string, keyValue string,
 	keyName2 string, keyValue2 string) (bson.M, error) {
-	q := "select * from " + table + " WHERE " + keyName + "=$1 AND " + keyName2 + "=$2"
+	q := "select * from " + table + " WHERE " + escapeName(keyName) + "=$1 AND " +
+		escapeName(keyName2) + "=$2"
 	values := make([]interface{}, 0)
 	values = append(values, keyValue)
 	values = append(values, keyValue2)
@@ -383,7 +401,8 @@ func (dbobj dbcon) getRecordInTable2(table string, keyName string, keyValue stri
 }
 
 func (dbobj dbcon) getRecordInTableDo(q string, values []interface{}) (bson.M, error) {
-	fmt.Printf("q: %s\n", q)
+	fmt.Printf("query: %s\n", q)
+
 	tx, err := dbobj.db.Begin()
 	if err != nil {
 		return nil, err
@@ -437,6 +456,8 @@ func (dbobj dbcon) getRecordInTableDo(q string, values []interface{}) (bson.M, e
 			recBson[colName] = string(columns[i].([]uint8))
 		case int64:
 			recBson[colName] = int32(columns[i].(int64))
+		case int32:
+			recBson[colName] = int32(columns[i].(int32))
 		case nil:
 			//fmt.Printf("is nil, not interesting\n")
 		default:
@@ -467,7 +488,7 @@ func (dbobj dbcon) deleteRecord(t Tbl, keyName string, keyValue string) (int64, 
 }
 
 func (dbobj dbcon) deleteRecordInTable(table string, keyName string, keyValue string) (int64, error) {
-	q := "delete from " + table + " WHERE " + keyName + "=$1"
+	q := "delete from " + table + " WHERE " + escapeName(keyName) + "=$1"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -488,7 +509,7 @@ func (dbobj dbcon) deleteRecordInTable(table string, keyName string, keyValue st
 
 func (dbobj dbcon) deleteExpired(t Tbl, keyName string, keyValue string) (int64, error) {
 	table := getTable(t)
-	q := "delete from " + table + " WHERE when<$1 AND" + keyName + "=$2"
+	q := "delete from " + table + " WHERE `when`<$1 AND" + escapeName(keyName) + "=$2"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -511,7 +532,7 @@ func (dbobj dbcon) deleteExpired(t Tbl, keyName string, keyValue string) (int64,
 func (dbobj dbcon) cleanupRecord(t Tbl, keyName string, keyValue string, data interface{}) (int64, error) {
 	tbl := getTable(t)
 	cleanup := decodeForCleanup(data)
-	q := "update " + tbl + " SET " + cleanup + " WHERE " + keyName + "=$1"
+	q := "update " + tbl + " SET " + cleanup + " WHERE " + escapeName(keyName) + "=$1"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -536,7 +557,7 @@ func (dbobj dbcon) getList(t Tbl, keyName string, keyValue string, start int32, 
 		limit = 100
 	}
 
-	q := "select * from " + table + " WHERE " + keyName + "=$1"
+	q := "select * from " + table + " WHERE " + escapeName(keyName) + "=$1"
 	if start > 0 {
 		q = q + " LIMIT " + strconv.FormatInt(int64(limit), 10) +
 			" OFFSET " + strconv.FormatInt(int64(start), 10)
@@ -652,8 +673,7 @@ func (dbobj dbcon) indexNewApp(appName string) {
 	  		md5 STRING,
 	  		data STRING,
 	  		status STRING,
-	  		when int
-		);`)
+	  		` + "`when` int);")
 		if err != nil {
 			return
 		}
@@ -683,8 +703,8 @@ func initUsers(db *sql.DB) error {
 	  loginidx STRING,
 	  emailidx STRING,
 	  phoneidx STRING,
-	  tempcode STRING,
 	  tempcodeexp int,
+	  tempcode int,
 	  data string
 	);
 	`)
@@ -797,9 +817,7 @@ func initAudit(db *sql.DB) error {
 	  debug STRING,
 	  before STRING,
 	  after STRING,
-	  when int
-	);
-	`)
+	  ` + "`when` int);")
 	if err != nil {
 		return err
 	}
@@ -827,9 +845,7 @@ func initConsent(db *sql.DB) error {
 	  brief STRING,
 	  message STRING,
 	  status STRING,
-	  when int
-	);
-	`)
+	  ` + "`when` int);")
 	if err != nil {
 		return err
 	}
@@ -854,10 +870,8 @@ func initSessions(db *sql.DB) error {
 	  token STRING,
 	  session STRING,
 	  data STRING,
-	  when int,
-	  endtime int
-	);
-	`)
+	  endtime int,
+	  ` + "`when` int);")
 	if err != nil {
 		return err
 	}
