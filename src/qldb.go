@@ -75,7 +75,7 @@ func newDB(masterKey []byte, filepath *string) (dbcon, error) {
 
 	//ql.RegisterDriver2()
 	//db, err := sql.Open("ql2", dbfile)
-	db, err := sql.Open("sqlite3", dbfile)
+	db, err := sql.Open("sqlite3", "file:"+dbfile+"?_journal_mode=WAL")
 	if err != nil {
 		log.Fatalf("Failed to open databunker.db file: %s", err)
 	}
