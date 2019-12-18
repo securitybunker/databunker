@@ -363,10 +363,10 @@ func randSeq(n int) string {
 
 var numbers = []rune("0123456789")
 
-func randNum(n int) string {
+func randNum(n int) int32 {
 	b := make([]rune, n)
 	for i := range b {
 		b[i] = numbers[rand.Intn(len(numbers))]
 	}
-	return string(b)
+	return atoi(string(b))
 }

@@ -258,7 +258,11 @@ func main() {
 		fmt.Printf("Master key: %x\n\n", masterKey)
 		fmt.Println("Init databunker.db\n")
 		db, _ := newDB(masterKey, dbPtr)
-		db.initDB()
+		err = db.initDB()
+		if err != nil {
+			//log.Panic("error %s", err.Error())
+			log.Fatalf("db init error %s", err.Error())
+		}
 		rootToken, err := db.createRootToken()
 		if err != nil {
 			//log.Panic("error %s", err.Error())

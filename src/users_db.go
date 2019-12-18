@@ -68,9 +68,9 @@ func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (str
 	return userTOKEN, nil
 }
 
-func (dbobj dbcon) generateTempLoginCode(userTOKEN string) string {
+func (dbobj dbcon) generateTempLoginCode(userTOKEN string) int32 {
 	rnd := randNum(4)
-	fmt.Printf("random: %s\n", rnd)
+	fmt.Printf("random: %d\n", rnd)
 	bdoc := bson.M{}
 	bdoc["tempcode"] = rnd
 	expired := int32(time.Now().Unix()) + 60
@@ -80,11 +80,11 @@ func (dbobj dbcon) generateTempLoginCode(userTOKEN string) string {
 	return rnd
 }
 
-func (dbobj dbcon) generateDemoLoginCode(userTOKEN string) string {
-	rnd := "4444"
-	fmt.Printf("random: %s\n", rnd)
+func (dbobj dbcon) generateDemoLoginCode(userTOKEN string) int32 {
+	rnd := int32(4444)
+	fmt.Printf("random: %d\n", rnd)
 	bdoc := bson.M{}
-	bdoc["tempcode"] = "4444"
+	bdoc["tempcode"] = 4444
 	expired := int32(time.Now().Unix()) + 60
 	bdoc["tempcodeexp"] = expired
 	//fmt.Printf("op json: %s\n", update)
