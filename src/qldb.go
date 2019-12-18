@@ -81,6 +81,22 @@ func newDB(masterKey []byte, filepath *string) (dbcon, error) {
 	}
 	hash := md5.Sum(masterKey)
 	dbobj = dbcon{db, masterKey, hash[:]}
+
+	// load all table names
+	q := "select name from sqlite_master where type ='table'"
+	tx, err := dbobj.db.Begin()
+	if err != nil {
+		return dbobj, err
+	}
+	defer tx.Rollback()
+	rows, err := tx.Query(q)
+	for rows.Next() {
+		t := ""
+		rows.Scan(&t)
+		knownApps = append(knownApps, t)
+	}
+	tx.Commit()
+	fmt.Printf("tables: %s\n", knownApps)
 	return dbobj, nil
 }
 
