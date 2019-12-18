@@ -82,14 +82,10 @@ func (dbobj dbcon) getSharedRecord(recordUUID string) (checkRecordResult, error)
 		result.fields = value.(string)
 	}
 	if value, ok := record["session"]; ok {
-		result.ttype = "session"
 		result.session = value.(string)
 	}
 	if value, ok := record["app"]; ok {
-		result.ttype = "app"
 		result.appName = value.(string)
-	} else {
-		result.ttype = "user"
 	}
 
 	return result, nil
