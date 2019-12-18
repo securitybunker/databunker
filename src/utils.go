@@ -137,6 +137,25 @@ func atoi(s string) int32 {
 	return int32(n)
 }
 
+func setExpiration(max_expiration string, user_expiration string) string {
+	if len(user_expiration) == 0 {
+		return max_expiration
+	}
+	user_expiration_num, _ := parseExpiration(user_expiration)
+	max_expiration_num, _ := parseExpiration(max_expiration)
+	if max_expiration_num == 0 {
+		max_expiration = "6m"
+		max_expiration_num, _ = parseExpiration(max_expiration)
+	}
+	if user_expiration_num == 0 {
+		return max_expiration
+	}
+	if user_expiration_num > max_expiration_num {
+		return max_expiration
+	}
+	return user_expiration
+}
+
 func parseExpiration(expiration string) (int32, error) {
 	match := regexExpiration.FindStringSubmatch(expiration)
 	// expiration format: 10d, 10h, 10m, 10s
