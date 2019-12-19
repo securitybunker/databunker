@@ -30,7 +30,7 @@ type listTbls struct {
 	Xtokens  Tbl
 	Consent  Tbl
 	Sessions Tbl
-	Sharedrecord Tbl
+	Sharedrecords Tbl
 }
 
 // Enum for public use
@@ -40,7 +40,7 @@ var TblName = &listTbls{
 	Xtokens:  2,
 	Consent:  3,
 	Sessions: 4,
-	Sharedrecord: 5,
+	Sharedrecords: 5,
 }
 
 type Config struct {
@@ -145,8 +145,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/login/:mode/:address", e.userLogin)
 	router.GET("/v1/enter/:mode/:address/:tmp", e.userLoginEnter)
 
-	router.POST("/v1/record/:token", e.newSharedRecord)
-	router.GET("/v1/record/:record", e.getRecord)
+	router.POST("/v1/sharedrecord/token/:token", e.newSharedRecord)
+	router.GET("/v1/get/:record", e.getRecord)
 
 	router.GET("/v1/consent/:mode/:address", e.consentAllUserRecords)
 	router.GET("/v1/consent/:mode/:address/:brief", e.consentUserRecord)
