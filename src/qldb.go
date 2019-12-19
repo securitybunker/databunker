@@ -252,6 +252,8 @@ func getTable(t Tbl) string {
 		return "xtokens"
 	case TblName.Sessions:
 		return "sessions"
+	case TblName.Sharedrecords:
+		return "sharedrecords"
 	}
 	return "users"
 }

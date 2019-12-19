@@ -29,6 +29,17 @@ RESULT=`curl -s http://localhost:3000/v1/userapp/token/$TOKEN/shipping \
   -d '{"country":"Israel","address":"Allenby 1","postcode":"12345","status":"active"}' | jq ".status" | tr -d '"'`
 echo "User shipping record created, status $RESULT"
 
+RESULT=`curl -s http://localhost:3000/v1/sharedrecord/token/$TOKEN \
+  -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json" \
+  -d '{"app":"shipping","fields":"address"}'`
+echo "Shared record created, status $RESULT"
+REC_ID=`echo $RESULT | jq ".record" | tr -d '"'`
+echo $REC_ID
+
+RESULT=`curl -s http://localhost:3000/v1/get/$REC_ID`
+echo "Get shared record (no password/access token): $RESULT"
+exit
+
 RESULT=`curl -s http://localhost:3000/v1/userapp/token/$TOKEN \
    -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
 echo "View list of all user apps $RESULT"

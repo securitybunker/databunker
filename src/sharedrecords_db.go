@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -23,18 +24,17 @@ func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, expiration 
 		}
 	}
 
+	fmt.Printf("Expiration is : %s\n", expiration)
 	start, err := parseExpiration(expiration)
 	if err != nil {
 		return "", err
 	}
-
 	// check if user record exists
 	record, err := dbobj.lookupUserRecord(userTOKEN)
 	if record == nil || err != nil {
 		// not found
 		return "", errors.New("not found")
 	}
-
 	recordUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return "", err
@@ -55,7 +55,7 @@ func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, expiration 
 	if len(session) > 0 {
 		bdoc["session"] = session
 	}
-	_, err = dbobj.createRecord(TblName.Sharedrecord, bdoc)
+	_, err = dbobj.createRecord(TblName.Sharedrecords, bdoc)
 	if err != nil {
 		return "", err
 	}
@@ -67,7 +67,7 @@ func (dbobj dbcon) getSharedRecord(recordUUID string) (checkRecordResult, error)
 	if isValidUUID(recordUUID) == false {
 		return result, errors.New("failed to authenticate")
 	}
-	record, err := dbobj.getRecord(TblName.Sharedrecord, "record", recordUUID)
+	record, err := dbobj.getRecord(TblName.Sharedrecords, "record", recordUUID)
 	if record == nil || err != nil {
 		return result, errors.New("failed to authenticate")
 	}
