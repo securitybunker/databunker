@@ -1,5 +1,5 @@
 .git
-databunker.db
+databunker.db*
 databunker
 .*
 *.md

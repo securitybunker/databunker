@@ -1,6 +1,6 @@
 .DS_Store
 databunker
-databunker.db
+databunker.db*
 databunker.yaml
 bql.db
 .*
