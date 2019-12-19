@@ -33,12 +33,11 @@ RESULT=`curl -s http://localhost:3000/v1/sharedrecord/token/$TOKEN \
   -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json" \
   -d '{"app":"shipping","fields":"address"}'`
 echo "Shared record created, status $RESULT"
-REC_ID=`echo $RESULT | jq ".record" | tr -d '"'`
-echo $REC_ID
+RECORD=`echo $RESULT | jq ".record" | tr -d '"'`
+echo $RECORD
 
-RESULT=`curl -s http://localhost:3000/v1/get/$REC_ID`
+RESULT=`curl -s http://localhost:3000/v1/get/$RECORD`
 echo "Get shared record (no password/access token): $RESULT"
-exit
 
 RESULT=`curl -s http://localhost:3000/v1/userapp/token/$TOKEN \
    -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
@@ -77,14 +76,17 @@ RESULT=`curl -s http://localhost:3000/v1/session/token/$TOKEN -XPOST \
    -d '{"clientip":"1.1.1.1","x-forwarded-for":"2.2.2.2"}'`
 echo "Create session 1: $RESULT"
 
+SESSION=`echo $RESULT | jq ".session" | tr -d '"'`
+echo $SESSION
+
 RESULT=`curl -s http://localhost:3000/v1/session/email/test@paranoidguy.com -XPOST \
    -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json" \
    -d '{"clientip":"1.1.1.1","x-forwarded-for":"2.2.2.2","info":"email"}'`
-echo "Create session 1: $RESULT"
+echo "Create session 2: $RESULT"
 
-RESULT=`curl -s http://localhost:3000/v1/session/session/7a77ffad-2010-4e47-abbe-bcd04509f784 \
+RESULT=`curl -s http://localhost:3000/v1/session/session/$SESSION \
    -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
-echo "Get session: $RESULT"
+echo "Get session 1: $RESULT"
 
 RESULT=`curl -s http://localhost:3000/v1/session/phone/4444 \
    -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json"`
