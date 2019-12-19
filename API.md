@@ -162,6 +162,8 @@ mix is with profile data. For example shipping information.
 This API is used to create new user app record and if the request is successful it returns `{"status":"ok"}`.
 Subminiting several times for the same user and app will overwrite previous value.
 
+You can send app data as JSON POST or as regular POST parameters.
+
 ### Example:
 
 ```
@@ -211,7 +213,7 @@ You can use **Session API** to store and manage user sessions. For example sessi
 You can use **session token** generated in your application logs instead of clear text user IP, cookies, etc...
 This information is is considered now as PII.
 
-Sesion generation API is flexible and you can push any data you wish to save in session record. It can be:
+Session generation API is flexible and you can push any data you wish to save in session record. It can be:
 user ip, mobile device info, user agent, etc...
 
 Each session record has an expiration period. When the record it is expired, it is automatically deleted.
@@ -294,7 +296,7 @@ curl -s http://localhost:3000/v1/session/phone/4444 \
 ## User consent management API
 
 One of the GDPR requirements is the storage of user consent. For example, your customer must approve to receive
-email marketing information. Data bunker provides an API for user consent management. 
+email marketing information. Data bunker provides an API for user consent storage and management. 
 
 When working with consent, Data bunker is using `brief` value as a consent name.
 It is unique per user, short consent id. Allowed chars are [a-z0-9\-] . Max 64 chars.
@@ -394,48 +396,59 @@ curl --header "X-Bunker-Token: $XTOKEN" -XGET \
 
 ---
 
-## Passwordless tokens API
+## Shareable record API
 
-| Resource / HTTP method | POST (create)     | GET (read)    | PUT (update)     | DELETE (delete)  |
-| ---------------------- | ----------------- | ------------- | ---------------- | ---------------- |
-| /v1/xtoken/{token}     | Create new record | Error         | Error            | Error            |
-| /v1/xtoken/:xtoken     | Error             | Get data      | Error            | Error            |
+Sometimes you want to share part of user profile, part fo app data or a part of session details
+with a partner or to save in logs. Data Bunker provides an easy API to do it.
 
-	router.POST("/v1/xtoken/{token}", e.userNewToken)
-	router.GET("/v1/xtoken/:xtoken", e.userCheckToken)
+Each record created has an expiration time. Access to the record data is open to anyone without
+any access token or without a password.
 
-
----
-
-
-## Shareable record identity API
-
-| Resource / HTTP method | POST (create)     | GET (read)    | PUT (update)     | DELETE (delete)  |
-| ---------------------- | ----------------- | ------------- | ---------------- | ---------------- |
-| /v1/record/{token}     | Create new record | Error         | Error            | Error            |
-| /v1/record/{record}    | Error             | Get data      | Error            | Error            |
+| Resource / HTTP method         | POST (create)     | GET (read)   | PUT (update)  | DELETE (delete)  |
+| ------------------------------ | ----------------- | ------------ | ------------- | ---------------- |
+| /v1/sharedrecord/token/{token} | Create new record | Error        | Error         | Error            |
+| /v1/get/{record}               | Error             | Get data     | Error         | Error            |
 
 
----
+## Create shared record request
+### `POST /v1/sharedrecord/token/{token}`
 
+### Explanation
 
-### 3rd party logging
+This API is used to create shared record that is referencing other object in the database (user, user-app, session).
+It returns `{record}` token on success.
 
-Instead of maintaining internal logs, a lot of companies are using 3rd party logging facility like logz or coralogix or something else.
-To improve adherence to GDPR, we build a special feature - generate specific session id for such 3rd party service.
+You can user this token, for example when you need to 3rd party system as a user identity.
 
-When using these uuids in external systems, you basically **pseudonymise personal data**. In addition, in accordance with GDPR Article 5:
-**Principles relating to processing of personal data**. Personal data shall be: (c) 
-adequate, relevant and limited to what is necessary in relation to the purposes for which they are processed (‘**data minimisation**’);
+### POST Body Format
 
-Here is a command to do it:
+POST Body can contain regular form data or JSON. Expected optional values are `message`, `status`.
+
+| Parameter   | Required  | Description                                          |
+| ----------- | --------- | ---------------------------------------------------- |
+| app         | No        | Application name.                                    |
+| partner     | No        | Partner name. For example coralogix.                 |
+| expiration  | No        | Record expiration time.                              |
+| session     | No        | Session record token.                                |
+| fields      | No        | List of records to extract. Separated by commas.     |
+
+### Example:
 
 ```
-curl -d 'ip=user@example.com' \
-     -d 'user-agent=mozila' \
-     -d 'partner=coralogix' \
-     -d 'expiration=7d'\
-   https://bunker.company.com/gensession/DAD2474A-E9A7-4BA7-BFC2-C4506880198E
+curl -s http://localhost:3000/v1/sharedrecord/token/$TOKEN \
+  -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json" \
+  -d '{"app":"shipping","fields":"address"}'
+{"status":"ok","record":"db90efc7-48fe-9709-891d-a8b295881a9a"}
 ```
 
-It will generate a new token, that you can now pass to 3rd party system as a user id.
+## Get record value.
+### `GET /v1/get/{record}`
+
+Return record value.
+
+### Example:
+
+```
+curl -s http://localhost:3000/v1/get/$RECORD
+{"status":"ok","app":"shipping","data":{"address":"221B Baker Street"}}
+```
