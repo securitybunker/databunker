@@ -23,7 +23,7 @@ User API is used to store, change and retrieve user personal information out of 
 
 ### Explanation
 
-This API is used to create new user record and if the request is successful it returns new user `{token}`.
+This API is used to create new user record. If the request is successful it returns new user `{token}`.
 On the database level, each records is encrypted with it's own key.
 
 
@@ -32,7 +32,7 @@ On the database level, each records is encrypted with it's own key.
 POST Body can contain regular form data or JSON. Data Bunker extracts `{login}`, `{phone}` and `{email}` out of
 POST data or from JSON root level and builds additional hashed indexes for user record.
 
-The {login}, {phone}, {email} values must be unique, otherwise you will get a duplicate user record error.
+The `{login}`, `{phone}`, `{email}` values must be unique, otherwise you will get a duplicate user record error.
 So, for example, you can not create two user records with the same email address.
 
 The following content type supported:
@@ -64,21 +64,22 @@ curl -s http://localhost:3000/v1/user -XPOST \
 {"status":"ok","token":"db80789b-0ad7-0690-035a-fd2c42531e87"}
 ```
 
-**NOTE**: Keep this user {token} privately as it is an additional user identifier.
-For work with semi-trusted environments or 3rd party companies, use **shareable identity** that is time bounded instead.
+**NOTE**: Keep this user `{token}` privately as it is an additional user identifier.
 
+For work with semi-trusted environments or 3rd party companies, use **shareable record** instead of 
+user `{token}`. Shareable `{record}` is time bounded.
 
----
 
 ## Get user record
 ### `GET /v1/user/{token,login,email,phone}/{address}`
 
 ### Explanation
-This API is used to get user record stored in Databunker. You can lookup user record by **token**, **email**, **phone** or **login** values.
+This API is used to get user record stored in Databunker. You can lookup user record by `{token}`,
+`{email}`, `{phone}` or `{login}` values.
 
 ### Example:
 
-Fetch user record by **token** value:
+Fetch user record by `{token}` value:
 
 ```
 curl --header "X-Bunker-Token: $XTOKEN" -XGET \
@@ -87,7 +88,7 @@ curl --header "X-Bunker-Token: $XTOKEN" -XGET \
 "data":{"fname":"paranoid","lname":"guy","login":"user1123"}}
 ```
 
-Fetch user record by **login** name:
+Fetch user record by `{login}` name:
 
 ```
 curl --header "X-Bunker-Token: $XTOKEN" -XGET \
@@ -97,24 +98,24 @@ curl --header "X-Bunker-Token: $XTOKEN" -XGET \
 ```
 
 
----
-
 ## Update user record
 ### `PUT /v1/user/{token,login,email,phone}/{address}`
 
 ### Explanation
 
-This API is used to update user record. User record can be identified by **token**, **email**, **phone** or **login**.
+This API is used to update user record. User record can be identified by `{token}`, 
+`{email}`, `{phone}` or `{login}`.
 On success, this API call returns success status or error message on error.
 
 ### POST Body Format
 
-POST Body can contain regular form POST data or JSON. When using JSON, you can remove the record from user profile
-by setting it's value to null. For example {"key-to-delete":null}.
+POST Body can contain regular form POST data or JSON. When using JSON, you can remove the record from
+user profile by setting it's value to null. For example `{"key-to-delete":null}`.
 
 ### Example:
 
-The following command will change user name to "Alex". An Audit event will be generated showing previous and new value.
+The following command will change user name to "Alex". An Audit event will be generated saving
+previous and new value.
 
 ```
 curl --header "X-Bunker-Token: $XTOKEN" -d 'name=Alex' -XPUT \
@@ -122,12 +123,11 @@ curl --header "X-Bunker-Token: $XTOKEN" -d 'name=Alex' -XPUT \
 {"status":"ok","token":"DAD2474A-E9A7-4BA7-BFC2-C4506880198E"}
 ```
 
----
 
-## Delete user by record
+## Delete user record
 ### `DELETE /v1/user/{token,login,email,phone}/{address}`
 
-This command will remove all user records from the database, leaving only user **token** for refference.
+This command will remove all user records from the database, leaving only user `{token}` for refference.
 This API is used to fullfull the customer' **right to forget**.
 
 In Databunker **enterprise version**, user record deletion can be delayed as defined by the company policy.
@@ -144,7 +144,7 @@ curl -header "X-Bunker-Token: $XTOKEN" -XDELETE \
 
 ## User App Api
 
-This API is used when you want to store additional information about the user and do not want to 
+The User App API is used when you want to store additional information about the user and do not want to 
 mix is with profile data. For example shipping information.
 
 | Resource / HTTP method              | POST (create)       | GET (read)        | PUT (update)  | DELETE  |
@@ -160,7 +160,48 @@ mix is with profile data. For example shipping information.
 ### Explanation
 
 This API is used to create new user app record and if the request is successful it returns `{"status":"ok"}`.
+Subminiting several times for the same user and app will overwrite previous value.
 
+### Example:
+
+```
+curl -s http://localhost:3000/v1/userapp/token/$TOKEN/shipping \
+  -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json" \
+  -d '{"country":"UK","city":"London","address":"221B Baker Street","postcode":"12345","status":"new"}'
+{"status":"ok","token":"$TOKEN"}
+```
+
+## Update user app record
+### `PUT /v1/userapp/token/{token}/{appname}`
+
+### Explanation
+
+Update user app record with new values.
+
+### Example:
+
+```
+curl -s http://localhost:3000/v1/userapp/token/$TOKEN/shipping -XPUT \
+  -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json" \
+  -d '{"status":"delivered"}'
+{"status":"ok","token":"$TOKEN"}
+```
+
+## Get user app record
+### `GET /v1/userapp/token/{token}/{appname}`
+
+### Explanation
+
+Returns user app record JSON.
+
+### Example:
+
+```
+curl -s http://localhost:3000/v1/userapp/token/$TOKEN/shipping \
+  -H "X-Bunker-Token: $XTOKEN"
+{"status":"ok","token":"94d12078-18c5-e973-54db-f9aa92790f3f",
+  "data":{"address":"221B Baker Street","city":"London","country":"UK","postcode":"12345","status":"delivered"}}
+```
 
 ---
 
@@ -220,7 +261,6 @@ curl -s http://localhost:3000/v1/session/session/7a77ffad-2010-4e47-abbe-bcd0450
 {"status":"ok","session":"7a77ffad-2010-4e47-abbe-bcd04509f784","when":1576526253,
  "data":{"clientip":"1.1.1.1","info":"email","x-forwarded-for":"2.2.2.2"}}
 ```
-
 
 
 ## Get all session records by user address.
