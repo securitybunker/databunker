@@ -72,7 +72,8 @@ func normalizePhone(phone string, default_country string) string {
 		return "4444"
 	}
 	if len(default_country) == 0 {
-		default_country = "UK"
+		// https://github.com/ttacon/libphonenumber/blob/master/countrycodetoregionmap.go
+		default_country = "GB"
 	}
 	res, err := libphonenumber.Parse(phone, default_country)
 	if err != nil {
