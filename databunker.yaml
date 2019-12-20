@@ -17,7 +17,9 @@ sms:
   twilio_account: ""
   twilio_token: ""
   twilio_from: ""
-  default_country: "UK"
+  # Use country code when normalizing phone numbers. Use country code as defined here:
+  # https://github.com/ttacon/libphonenumber/blob/master/countrycodetoregionmap.go
+  default_country: "GB"
 server:
   host: "0.0.0.0"
   port: 3000
