@@ -34,7 +34,7 @@ func init() {
 	e := mainEnv{db, cfg}
 	db.initDB()
 	var err error
-	rootToken, err = db.createRootToken()
+	rootToken, err = db.createRootXtoken()
 	if err != nil {
 		//log.Panic("error %s", err.Error())
 		fmt.Printf("error %s", err.Error())

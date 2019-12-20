@@ -9,6 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+var rootXTOKEN string
+
 func (dbobj dbcon) getRootXtoken() (string, error) {
 	record, err := dbobj.getRecord(TblName.Xtokens, "type", "root")
 	if err != nil {
@@ -20,7 +22,7 @@ func (dbobj dbcon) getRootXtoken() (string, error) {
 	return record["xtoken"].(string), nil
 }
 
-func (dbobj dbcon) createRootToken() (string, error) {
+func (dbobj dbcon) createRootXtoken() (string, error) {
 	rootToken, err := dbobj.getRootXtoken()
 	if len(rootToken) > 0 {
 		return rootToken, nil
@@ -39,13 +41,13 @@ func (dbobj dbcon) createRootToken() (string, error) {
 	return rootToken, nil
 }
 
-func (dbobj dbcon) generateUserLoginXToken(userTOKEN string) (string, error) {
-	if isValidUUID(userTOKEN) == false {
+func (dbobj dbcon) generateUserLoginXtoken(userXTOKEN string) (string, error) {
+	if isValidUUID(userXTOKEN) == false {
 		return "", errors.New("bad token format")
 	}
 
 	// check if user record exists
-	record, err := dbobj.lookupUserRecord(userTOKEN)
+	record, err := dbobj.lookupUserRecord(userXTOKEN)
 	if record == nil || err != nil {
 		// not found
 		return "", errors.New("not found")
@@ -58,7 +60,7 @@ func (dbobj dbcon) generateUserLoginXToken(userTOKEN string) (string, error) {
 	// by default login token for 30 minutes only
 	expired := int32(time.Now().Unix()) + 10*60
 	bdoc := bson.M{}
-	bdoc["token"] = userTOKEN
+	bdoc["token"] = userXTOKEN
 	bdoc["xtoken"] = tokenUUID
 	bdoc["type"] = "login"
 	bdoc["endtime"] = expired
@@ -69,17 +71,23 @@ func (dbobj dbcon) generateUserLoginXToken(userTOKEN string) (string, error) {
 	return tokenUUID, nil
 }
 
-func (dbobj dbcon) checkXtoken(tokenUUID string) bool {
+func (dbobj dbcon) checkXtoken(xtokenUUID string) bool {
 	//fmt.Printf("Token0 %s\n", tokenUUID)
-	if isValidUUID(tokenUUID) == false {
+	if isValidUUID(xtokenUUID) == false {
 		return false
 	}
-	record, err := dbobj.getRecord(TblName.Xtokens, "xtoken", tokenUUID)
+	if len(rootXTOKEN) > 0 && rootXTOKEN == xtokenUUID {
+		fmt.Println("It is a root token")
+		return true
+	}
+
+	record, err := dbobj.getRecord(TblName.Xtokens, "xtoken", xtokenUUID)
 	if record == nil || err != nil {
 		return false
 	}
 	tokenType := record["type"].(string)
 	if tokenType == "root" {
+		rootXTOKEN = xtokenUUID
 		return true
 	}
 	return false
@@ -90,6 +98,12 @@ func (dbobj dbcon) checkUserAuthXToken(xtokenUUID string) (tokenAuthResult, erro
 	if isValidUUID(xtokenUUID) == false {
 		return result, errors.New("failed to authenticate")
 	}
+	if len(rootXTOKEN) > 0 && rootXTOKEN == xtokenUUID {
+		fmt.Println("It is a root token")
+		result.ttype = "root"
+		result.name = "root"
+		return result, nil
+	}
 	record, err := dbobj.getRecord(TblName.Xtokens, "xtoken", xtokenUUID)
 	if record == nil || err != nil {
 		return result, errors.New("failed to authenticate")
@@ -98,6 +112,7 @@ func (dbobj dbcon) checkUserAuthXToken(xtokenUUID string) (tokenAuthResult, erro
 	fmt.Printf("token type: %s\n", tokenType)
 	if tokenType == "root" {
 		// we have this admin user
+		rootXTOKEN = xtokenUUID
 		result.ttype = "root"
 		result.name = "root"
 		return result, nil
