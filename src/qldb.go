@@ -525,9 +525,30 @@ func (dbobj dbcon) deleteRecordInTable(table string, keyName string, keyValue st
 	return num, err
 }
 
+func (dbobj dbcon) deleteExpired0(t Tbl, expt int32) (int64, error) {
+	table := getTable(t)
+	now := int32(time.Now().Unix())
+	q := fmt.Sprintf("delete from %s WHERE `when`<%d", table, now-expt)
+	fmt.Printf("q: %s\n", q)
+	tx, err := dbobj.db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+	result, err := tx.Exec(q)
+	if err != nil {
+		return 0, err
+	}
+	if err = tx.Commit(); err != nil {
+		return 0, err
+	}
+	num, err := result.RowsAffected()
+	return num, err
+}
+
 func (dbobj dbcon) deleteExpired(t Tbl, keyName string, keyValue string) (int64, error) {
 	table := getTable(t)
-	q := "delete from " + table + " WHERE `when`<$1 AND" + escapeName(keyName) + "=$2"
+	q := "delete from " + table + " WHERE endtime<$1 AND" + escapeName(keyName) + "=$2"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -800,9 +821,8 @@ func initSharedRecords(db *sql.DB) error {
 	  sesion STRING,
 	  app STRING,
 	  fields STRING,
-	  endtime int
-	);
-	`)
+	  endtime int,
+	  ` + "`when` int);")
 	if err != nil {
 		return err
 	}
