@@ -39,9 +39,11 @@ func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, expiration 
 	if err != nil {
 		return "", err
 	}
+	now := int32(time.Now().Unix())
 	bdoc := bson.M{}
 	bdoc["token"] = userTOKEN
 	bdoc["record"] = recordUUID
+	bdoc["when"] = now
 	bdoc["endtime"] = start
 	if len(fields) > 0 {
 		bdoc["fields"] = fields
