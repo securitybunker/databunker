@@ -79,6 +79,10 @@ func newDB(masterKey []byte, filepath *string) (dbcon, error) {
 	if err != nil {
 		log.Fatalf("Failed to open databunker.db file: %s", err)
 	}
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("Error on opening database connection: %s", err.Error())
+	}
 	hash := md5.Sum(masterKey)
 	dbobj = dbcon{db, masterKey, hash[:]}
 
