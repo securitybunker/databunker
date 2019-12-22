@@ -326,11 +326,11 @@ This API is used to store user consent.
 
 POST Body can contain regular form data or JSON. Expected values are `message`, `status`.
 
-| Parameter   | Required  | Description                                                                 |
-| ----------- | --------- | --------------------------------------------------------------------------- |
-| status      | No        | Consent status. Default value is **accept**. Allowed values: cancel/accept. |
-| message     | No        | Optional text message describing consent.                                   |
-
+| Parameter   | Required  | Description                                                                    |
+| ----------- | --------- | ------------------------------------------------------------------------------ |
+| status      | No        | Consent status. Default value is **accept**. Allowed values: cancel/accept.    |
+| message     | No        | Optional text message describing consent.                                      |
+| expiration  | No        | Optional consent expiration date. It is an integer number in unix time format. |
 
 ### Example:
 
