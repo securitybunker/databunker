@@ -83,6 +83,10 @@ func newDB(masterKey []byte, filepath *string) (dbcon, error) {
 	if err != nil {
 		log.Fatalf("Error on opening database connection: %s", err.Error())
 	}
+	_, err = db.Exec("vacuum")
+	if err != nil {
+		log.Fatalf("Error on vacuum database command")
+	}
 	hash := md5.Sum(masterKey)
 	dbobj = dbcon{db, masterKey, hash[:]}
 
@@ -547,6 +551,8 @@ func (dbobj dbcon) deleteExpired0(t Tbl, expt int32) (int64, error) {
 		return 0, err
 	}
 	num, err := result.RowsAffected()
+	// vacuum database
+	dbobj.db.Exec("vacuum")
 	return num, err
 }
 
