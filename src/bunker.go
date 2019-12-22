@@ -152,7 +152,6 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/consent/:mode/:address/:brief", e.consentUserRecord)
 	router.GET("/v1/consents/:brief", e.consentFilterRecords)
 	router.POST("/v1/consent/:mode/:address/:brief", e.consentAccept)
-	//router.PATCH("/v1/consent/:mode/:address", e.consentCancel)
 	router.DELETE("/v1/consent/:mode/:address/:brief", e.consentCancel)
 
 	router.POST("/v1/userapp/token/:token/:appname", e.userappNew)
