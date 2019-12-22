@@ -157,6 +157,29 @@ func setExpiration(max_expiration string, user_expiration string) string {
 	return user_expiration
 }
 
+func parseExpiration0(expiration string) (int32, error) {
+	match := regexExpiration.FindStringSubmatch(expiration)
+	// expiration format: 10d, 10h, 10m, 10s
+	if len(match) != 3 {
+		e := fmt.Sprintf("failed to parse expiration value: %s", expiration)
+		return 0, errors.New(e)
+	}
+	num := match[1]
+	format := match[2]
+	start := int32(0)
+	switch format {
+	case "d":
+		start = start + (atoi(num) * 24 * 3600)
+	case "h":
+		start = start + (atoi(num) * 3600)
+	case "m":
+		start = start + (atoi(num) * 60)
+	case "s":
+		start = start + (atoi(num))
+	}
+	return start, nil
+}
+
 func parseExpiration(expiration string) (int32, error) {
 	match := regexExpiration.FindStringSubmatch(expiration)
 	// expiration format: 10d, 10h, 10m, 10s
