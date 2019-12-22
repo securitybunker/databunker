@@ -78,6 +78,7 @@ type Config struct {
 type mainEnv struct {
 	db   dbcon
 	conf Config
+	stopChan     chan struct{}
 }
 
 type userJSON struct {
@@ -231,6 +232,24 @@ func readEnv(cfg *Config) error {
 	return err
 }
 
+
+func (e mainEnv) dbCleanup() {
+	ticker := time.NewTicker(time.Duration(10)*time.Minute)
+
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				log.Printf("db cleanup timeout\n")
+			case <-e.stopChan:
+				log.Printf("db cleanup closed\n")
+				ticker.Stop()
+				return
+			}
+		}
+	}()
+}
+
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	lockMemory()
@@ -294,7 +313,8 @@ func main() {
 	}
 	db, _ := newDB(masterKey, dbPtr)
 	db.initUserApps()
-	e := mainEnv{db, cfg}
+	e := mainEnv{db, cfg, make(chan struct{}),}
+	e.dbCleanup()
 	fmt.Printf("host %s\n", cfg.Server.Host+":"+cfg.Server.Port)
 	router := e.setupRouter()
 	srv := &http.Server{ Addr: cfg.Server.Host+":"+cfg.Server.Port,	Handler:router}
@@ -306,6 +326,8 @@ func main() {
 	go func() {
 		<-stop
 		fmt.Println("Closing app...")
+		close(e.stopChan)
+		time.Sleep(1)
 		srv.Shutdown(context.TODO())
 		db.closeDB()	
         //DeleteFiles()
