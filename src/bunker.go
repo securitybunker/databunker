@@ -241,6 +241,10 @@ func (e mainEnv) dbCleanup() {
 			select {
 			case <-ticker.C:
 				log.Printf("db cleanup timeout\n")
+				exp,_ := parseExpiration0(e.conf.Policy.Max_audit_retention_period)
+				if exp > 0 {
+					e.db.deleteExpired0(TblName.Audit, exp)
+				}
 			case <-e.stopChan:
 				log.Printf("db cleanup closed\n")
 				ticker.Stop()
