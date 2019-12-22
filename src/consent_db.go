@@ -11,16 +11,17 @@ import (
 )
 
 type consentEvent struct {
-	When    int32  `json:"when,omitempty" structs:"when"`
-	Who     string `json:"who,omitempty" structs:"who"`
-	Mode    string `json:"mode,omitempty" structs:"mode"`
-	Token   string `json:"token,omitempty" structs:"token"`
-	Brief   string `json:"brief,omitempty" structs:"brief"`
-	Message string `json:"message,omitempty" structs:"message,omitempty"`
-	Status  string `json:"status,omitempty" structs:"status"`
+	When       int32  `json:"when,omitempty" structs:"when"`
+	Who        string `json:"who,omitempty" structs:"who"`
+	Mode       string `json:"mode,omitempty" structs:"mode"`
+	Token      string `json:"token,omitempty" structs:"token"`
+	Brief      string `json:"brief,omitempty" structs:"brief"`
+	Message    string `json:"message,omitempty" structs:"message,omitempty"`
+	Status     string `json:"status,omitempty" structs:"status"`
+	Expiration int32  `json:"expiration,omitempty" structs:"expiration"`
 }
 
-func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode string, brief string, message string, status string) {
+func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode string, brief string, message string, status string, expiration int32) {
 	now := int32(time.Now().Unix())
 	if len(userTOKEN) > 0 {
 		// first check if this consent exists, then update
@@ -35,18 +36,20 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode s
 			bdoc := bson.M{}
 			bdoc["when"] = now
 			bdoc["status"] = status
+			bdoc["expiration"] = expiration
 			dbobj.updateRecord2(TblName.Consent, "token", userTOKEN, "brief", brief, &bdoc, nil)
 			return
 		}
 	}
 	ev := consentEvent{
-		When:    now,
-		Who:     usercode,
-		Token:   userTOKEN,
-		Mode:    mode,
-		Brief:   brief,
-		Message: message,
-		Status:  status,
+		When:       now,
+		Who:        usercode,
+		Token:      userTOKEN,
+		Mode:       mode,
+		Brief:      brief,
+		Message:    message,
+		Status:     status,
+		Expiration: expiration,
 	}
 	// in any case - insert record
 	fmt.Printf("insert consent record\n")

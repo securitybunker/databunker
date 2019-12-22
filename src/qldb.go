@@ -883,6 +883,7 @@ func initConsent(db *sql.DB) error {
 	  brief STRING,
 	  message STRING,
 	  status STRING,
+	  expiration int,
 	  ` + "`when` int);")
 	if err != nil {
 		return err

@@ -53,6 +53,7 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 	message := ""
 	status := "accept"
+	expiration := int32(0)
 	if value, ok := records["message"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			message = value.(string)
@@ -63,13 +64,25 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 			status = value.(string)
 		}
 	}
+	if value, ok := records["expiration"]; ok {
+		switch records["expiration"].(type) {
+		case string:
+			expiration = atoi(value.(string))
+		case int:
+			expiration = value.(int32)
+		case int32:
+			expiration = value.(int32)
+		case int64:
+			expiration = value.(int32)
+		}
+	}
 	switch mode {
 	case "email":
 		address = normalizeEmail(address)
 	case "phone":
 		address = normalizePhone(address, e.conf.Sms.Default_country)
 	}
-	e.db.createConsentRecord(userTOKEN, mode, address, brief, message, status)
+	e.db.createConsentRecord(userTOKEN, mode, address, brief, message, status, expiration)
 }
 
 func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
