@@ -45,9 +45,6 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 			event.Record = userTOKEN
-			if e.enforceAuth(w, r, event) == false {
-				return
-			}
 		} else {
 			if mode == "login" {
 				returnError(w, r, "internal error", 405, nil, event)
@@ -139,9 +136,6 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 			event.Record = userTOKEN
-			if e.enforceAuth(w, r, event) == false {
-				return
-			}
 		} else {
 			if mode == "login" {
 				returnError(w, r, "internal error", 405, nil, event)

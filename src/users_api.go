@@ -66,6 +66,30 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
+	if len(parsedData.emailIdx) > 0 {
+		e.db.linkConsentRecords(userTOKEN, "email", parsedData.emailIdx)
+	}
+	if len(parsedData.phoneIdx) > 0 {
+		e.db.linkConsentRecords(userTOKEN, "phone", parsedData.phoneIdx)
+	}
+	if len(parsedData.emailIdx) > 0 && len(parsedData.phoneIdx) > 0 {
+		// delete duplicate consent records for user
+		records, _ := e.db.getList(TblName.Consent, "who", parsedData.emailIdx, 0, 0)
+		var briefCodes []string
+		for _, val := range records {
+			fmt.Printf("adding brief code: %s\n", val["brief"].(string))
+			briefCodes = append(briefCodes, val["brief"].(string))
+		}
+		records, _ = e.db.getList(TblName.Consent, "who", parsedData.phoneIdx, 0, 0)
+		for _, val := range records {
+			fmt.Printf("XXX checking brief code for duplicates: %s\n", val["brief"].(string))
+			if contains(briefCodes, val["brief"].(string)) == true {
+				e.db.deleteRecord2(TblName.Consent, "token", userTOKEN, "who", parsedData.phoneIdx)
+			} else {
+				briefCodes = append(briefCodes, val["brief"].(string))
+			}
+		}
+	}
 	event.Record = userTOKEN
 	returnUUID(w, userTOKEN)
 	return
