@@ -16,6 +16,11 @@ func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httproute
 	event := audit("create new session", address, mode, address)
 	defer func() { event.submit(e.db) }()
 
+	if validateMode(mode) == false {
+		returnError(w, r, "bad mode", 405, nil, event)
+		return
+	}
+
 	if e.enforceAuth(w, r, event) == false {
 		return
 	}
@@ -31,7 +36,6 @@ func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httproute
 		}
 		userTOKEN = address
 	} else {
-		// TODO: decode url in code!
 		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
@@ -87,9 +91,11 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 	event := audit("get all user sessions", address, mode, address)
 	defer func() { event.submit(e.db) }()
 
-	if e.enforceAuth(w, r, event) == false {
+	if validateMode(mode) == false {
+		returnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
+
 	userTOKEN := ""
 	if mode == "token" {
 		if enforceUUID(w, address, event) == false {
@@ -111,6 +117,9 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 			returnError(w, r, "internal error", 405, nil, event)
 			return
 		}
+	}
+	if e.enforceAuth(w, r, event) == false {
+		return
 	}
 	e.db.deleteExpired(TblName.Sessions, "token", userTOKEN)
 	args := r.URL.Query()
@@ -138,9 +147,6 @@ func (e mainEnv) getSession(w http.ResponseWriter, r *http.Request, session stri
 	event := audit("get session", session, "session", session)
 	defer func() { event.submit(e.db) }()
 
-	if e.enforceAuth(w, r, event) == false {
-		return
-	}
 	when, record, userTOKEN, err := e.db.getUserSession(session)
 	if err != nil {
 		fmt.Printf("error: %s\n", err)
@@ -148,6 +154,9 @@ func (e mainEnv) getSession(w http.ResponseWriter, r *http.Request, session stri
 		return
 	}
 	event.Record = userTOKEN
+	if e.enforceAuth(w, r, event) == false {
+		return
+	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","session":"%s","when":%d,"data":%s}`, session, when, record)
