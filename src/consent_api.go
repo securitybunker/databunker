@@ -15,6 +15,11 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 	event := audit("consent accept for "+brief, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
+	if validateMode(mode) == false {
+		returnError(w, r, "bad mode", 405, nil, event)
+		return
+	}
+
 	brief = normalizeBrief(brief)
 	if isValidBrief(brief) == false {
 		returnError(w, r, "bad brief format", 405, nil, event)
@@ -91,13 +96,19 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 	mode := ps.ByName("mode")
 	event := audit("consent withdraw for "+brief, address, mode, address)
 	defer func() { event.submit(e.db) }()
-	userTOKEN := ""
+
+	if validateMode(mode) == false {
+		returnError(w, r, "bad mode", 405, nil, event)
+		return
+	}
 
 	brief = normalizeBrief(brief)
 	if isValidBrief(brief) == false {
 		returnError(w, r, "bad brief format", 405, nil, event)
 		return
 	}
+
+	userTOKEN := ""
 	if mode == "token" {
 		if enforceUUID(w, address, event) == false {
 			return
@@ -137,6 +148,12 @@ func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, p
 	mode := ps.ByName("mode")
 	event := audit("consent list of records for "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
+
+	if validateMode(mode) == false {
+		returnError(w, r, "bad mode", 405, nil, event)
+		return
+	}
+
 	userTOKEN := ""
 	if mode == "token" {
 		if enforceUUID(w, address, event) == false {
@@ -181,6 +198,11 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 	mode := ps.ByName("mode")
 	event := audit("consent record for "+brief, address, mode, address)
 	defer func() { event.submit(e.db) }()
+
+	if validateMode(mode) == false {
+		returnError(w, r, "bad mode", 405, nil, event)
+		return
+	}
 
 	brief = normalizeBrief(brief)
 	if isValidBrief(brief) == false {
