@@ -106,6 +106,8 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 
 		if len(recordInfo.appName) > 0 {
 			resultJSON, err = e.db.getUserApp(recordInfo.token, recordInfo.appName)
+		} else if len(recordInfo.session) > 0 {
+			_, resultJSON, _, err = e.db.getUserSession(recordInfo.session)
 		} else {
 			resultJSON, err = e.db.getUser(recordInfo.token)
 		}
@@ -117,7 +119,7 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 			returnError(w, r, "not found", 405, err, event)
 			return
 		}
-		fmt.Printf("Full user json: %s\n", resultJSON)
+		fmt.Printf("Full json: %s\n", resultJSON)
 		if len(recordInfo.fields) > 0 {
 			raw := make(map[string]interface{})
 			//var newJSON json
