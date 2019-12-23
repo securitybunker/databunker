@@ -148,3 +148,28 @@ func (dbobj dbcon) filterConsentRecords(brief string, offset int32, limit int32)
 	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, count, nil
 }
+
+func (dbobj dbcon) expireConsentRecords() error {
+	records, err := dbobj.getExpiring(TblName.Consent, "status", "accept")
+	if err != nil {
+		return err
+	}
+	for _, rec := range records {
+		now := int32(time.Now().Unix())
+		// update date, status
+		bdoc := bson.M{}
+		bdoc["when"] = now
+		bdoc["status"] = "expired"
+		userTOKEN := rec["token"].(string)
+		brief := rec["brief"].(string)
+		fmt.Printf("This consent record is expired: %s - %s\n", userTOKEN, brief)
+		if len(userTOKEN) > 0 {
+			fmt.Printf("%s %s\n", userTOKEN, brief)
+			dbobj.updateRecord2(TblName.Consent, "token", userTOKEN, "brief", brief, &bdoc, nil)
+		} else {
+			usercode := rec["who"].(string)
+			dbobj.updateRecord2(TblName.Consent, "who", usercode, "brief", brief, &bdoc, nil)
+		}
+	}
+	return nil
+}

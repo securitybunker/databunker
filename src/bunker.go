@@ -245,6 +245,7 @@ func (e mainEnv) dbCleanup() {
 				if exp > 0 {
 					e.db.deleteExpired0(TblName.Audit, exp)
 				}
+				e.db.expireConsentRecords()
 			case <-e.stopChan:
 				log.Printf("db cleanup closed\n")
 				ticker.Stop()

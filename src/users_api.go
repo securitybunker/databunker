@@ -288,7 +288,7 @@ func (e mainEnv) userLoginEnter(w http.ResponseWriter, r *http.Request, ps httpr
 
 	userTOKEN := userBson["token"].(string)
 	event.Record = userTOKEN
-	fmt.Printf("Found user record: %s\n", userTOKEN)
+	fmt.Printf("Found user record: %s\n", userBson)
 	tmpCode := userBson["tempcode"].(int32)
 	if tmp == tmpCode {
 		// user ented correct key
