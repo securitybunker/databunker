@@ -26,11 +26,6 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	defer func() {
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		w.Write([]byte(`{"status":"ok"}`))
-	}()
 	userTOKEN := ""
 	if mode == "token" {
 		if enforceUUID(w, address, event) == false {
@@ -38,18 +33,34 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 		}
 		userBson, _ := e.db.lookupUserRecord(address)
 		if userBson == nil {
-			// if token not found, exit from here
+			returnError(w, r, "internal error", 405, nil, event)
+			return
+		}
+		if e.enforceAuth(w, r, event) == false {
 			return
 		}
 		userTOKEN = address
 	} else {
-		// TODO: decode url in code!
 		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 			event.Record = userTOKEN
+			if e.enforceAuth(w, r, event) == false {
+				return
+			}
+		} else {
+			if mode == "login" {
+				returnError(w, r, "internal error", 405, nil, event)
+				return
+			}
+			// else user not found - we allow to save consent for unlinked users!
 		}
 	}
+	defer func() {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(200)
+		w.Write([]byte(`{"status":"ok"}`))
+	}()
 
 	records, err := getJSONPostData(r)
 	if err != nil {
@@ -115,7 +126,10 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 		}
 		userBson, _ := e.db.lookupUserRecord(address)
 		if userBson == nil {
-			// if token not found, exit from here
+			returnError(w, r, "internal error", 405, nil, event)
+			return
+		}
+		if e.enforceAuth(w, r, event) == false {
 			return
 		}
 		userTOKEN = address
@@ -125,6 +139,15 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 			event.Record = userTOKEN
+			if e.enforceAuth(w, r, event) == false {
+				return
+			}
+		} else {
+			if mode == "login" {
+				returnError(w, r, "internal error", 405, nil, event)
+				return
+			}
+			// else user not found - we allow to save consent for unlinked users!
 		}
 	}
 	// make sure that user is logged in here, unless he wants to cancel emails
@@ -161,7 +184,10 @@ func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, p
 		}
 		userBson, _ := e.db.lookupUserRecord(address)
 		if userBson == nil {
-			// if token not found, exit from here
+			returnError(w, r, "internal error", 405, nil, event)
+			return
+		}
+		if e.enforceAuth(w, r, event) == false {
 			return
 		}
 		userTOKEN = address
@@ -171,6 +197,16 @@ func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, p
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 			event.Record = userTOKEN
+			if e.enforceAuth(w, r, event) == false {
+				return
+			}
+		} else {
+			if mode == "login" {
+				returnError(w, r, "internal error", 405, nil, event)
+				return
+			}
+			// else user not found - we allow to save consent for unlinked users!
+
 		}
 	}
 	// make sure that user is logged in here, unless he wants to cancel emails
@@ -216,7 +252,7 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 		}
 		userBson, _ := e.db.lookupUserRecord(address)
 		if userBson == nil {
-			// if token not found, exit from here
+			returnError(w, r, "internal error", 405, nil, event)
 			return
 		}
 		userTOKEN = address

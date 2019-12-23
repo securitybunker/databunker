@@ -21,9 +21,6 @@ func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 
-	if e.enforceAuth(w, r, event) == false {
-		return
-	}
 	userTOKEN := ""
 	if mode == "token" {
 		if enforceUUID(w, address, event) == false {
@@ -31,7 +28,7 @@ func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httproute
 		}
 		userBson, _ := e.db.lookupUserRecord(address)
 		if userBson == nil {
-			// if token not found, exit from here
+			returnError(w, r, "internal error", 405, nil, event)
 			return
 		}
 		userTOKEN = address
@@ -44,6 +41,9 @@ func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httproute
 			returnError(w, r, "internal error", 405, nil, event)
 			return
 		}
+	}
+	if e.enforceAuth(w, r, event) == false {
+		return
 	}
 	expiration := e.conf.Policy.Max_session_retention_period
 	records, err := getJSONPostData(r)
@@ -103,7 +103,7 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 		}
 		userBson, _ := e.db.lookupUserRecord(address)
 		if userBson == nil {
-			// if token not found, exit from here
+			returnError(w, r, "internal error", 405, nil, event)
 			return
 		}
 		userTOKEN = address
