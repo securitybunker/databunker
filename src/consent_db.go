@@ -14,7 +14,7 @@ type consentEvent struct {
 	When    int32  `json:"when,omitempty" structs:"when"`
 	Who     string `json:"who,omitempty" structs:"who"`
 	Mode    string `json:"mode,omitempty" structs:"mode"`
-	Token   string `json:"token,omitempty" structs:"token"`
+	Token   string `json:"token" structs:"token"`
 	Brief   string `json:"brief,omitempty" structs:"brief"`
 	Message string `json:"message,omitempty" structs:"message,omitempty"`
 	Status  string `json:"status,omitempty" structs:"status"`
@@ -40,6 +40,22 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode s
 			dbobj.updateRecord2(TblName.Consent, "token", userTOKEN, "brief", brief, &bdoc, nil)
 			return
 		}
+	} else {
+		raw, err := dbobj.getRecord2(TblName.Consent, "who", usercode, "brief", brief)
+		if err != nil {
+			fmt.Printf("error to find:%s", err)
+			return
+		}
+		if raw != nil {
+			fmt.Println("update rec")
+			// update date, status
+			bdoc := bson.M{}
+			bdoc["when"] = now
+			bdoc["status"] = status
+			bdoc["endtime"] = endtime
+			dbobj.updateRecord2(TblName.Consent, "who", usercode, "brief", brief, &bdoc, nil)
+			return
+		}
 	}
 	ev := consentEvent{
 		When:    now,
@@ -61,12 +77,19 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode s
 	}
 }
 
+// link consent record to userToken
+func (dbobj dbcon) linkConsentRecords(userTOKEN string, mode string, usercode string) error {
+	bdoc := bson.M{}
+	bdoc["token"] = userTOKEN
+	_, err := dbobj.updateRecord2(TblName.Consent, "token", "", "who", usercode, &bdoc, nil)
+	return err
+}
+
 func (dbobj dbcon) cancelConsentRecord(userTOKEN string, brief string, mode string, usercode string) error {
 	// brief can not be too long, may be hash it ?
 	if len(brief) > 64 {
 		return errors.New("Brief value is too long")
 	}
-	fmt.Printf("%s %s\n", userTOKEN, brief)
 	now := int32(time.Now().Unix())
 	// update date, status
 	bdoc := bson.M{}
@@ -74,7 +97,12 @@ func (dbobj dbcon) cancelConsentRecord(userTOKEN string, brief string, mode stri
 	bdoc["mode"] = mode
 	bdoc["who"] = usercode
 	bdoc["status"] = "cancel"
-	dbobj.updateRecord2(TblName.Consent, "token", userTOKEN, "brief", brief, &bdoc, nil)
+	if len(userTOKEN) > 0 {
+		fmt.Printf("%s %s\n", userTOKEN, brief)
+		dbobj.updateRecord2(TblName.Consent, "token", userTOKEN, "brief", brief, &bdoc, nil)
+	} else {
+		dbobj.updateRecord2(TblName.Consent, "who", usercode, "brief", brief, &bdoc, nil)
+	}
 	return nil
 }
 

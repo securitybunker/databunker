@@ -533,6 +533,60 @@ func (dbobj dbcon) deleteRecordInTable(table string, keyName string, keyValue st
 	return num, err
 }
 
+func (dbobj dbcon) deleteRecord2(t Tbl, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
+	tbl := getTable(t)
+	return dbobj.deleteRecordInTable2(tbl, keyName, keyValue, keyName2, keyValue2)
+}
+
+func (dbobj dbcon) deleteRecordInTable2(table string, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
+	q := "delete from " + table + " WHERE " + escapeName(keyName) + "=$1 AND " +
+		escapeName(keyName2) + "=$2"
+	fmt.Printf("q: %s\n", q)
+
+	tx, err := dbobj.db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+	result, err := tx.Exec(q, keyValue, keyValue2)
+	if err != nil {
+		return 0, err
+	}
+	if err = tx.Commit(); err != nil {
+		return 0, err
+	}
+	num, err := result.RowsAffected()
+	return num, err
+}
+
+func (dbobj dbcon) deleteDuplicate2(t Tbl, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
+	tbl := getTable(t)
+	return dbobj.deleteDuplicateInTable2(tbl, keyName, keyValue, keyName2, keyValue2)
+}
+
+func (dbobj dbcon) deleteDuplicateInTable2(table string, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
+	q := "delete from " + table + " where " + escapeName(keyName) + "=$1 AND " +
+		escapeName(keyName2) + "=$2 AND rowid not in " +
+		"(select min(rowid) from " + table + " where " + escapeName(keyName) + "=$3 AND " +
+		escapeName(keyName2) + "=$4)"
+	fmt.Printf("q: %s\n", q)
+
+	tx, err := dbobj.db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+	result, err := tx.Exec(q, keyValue, keyValue2, keyValue, keyValue2)
+	if err != nil {
+		return 0, err
+	}
+	if err = tx.Commit(); err != nil {
+		return 0, err
+	}
+	num, err := result.RowsAffected()
+	return num, err
+}
+
 func (dbobj dbcon) deleteExpired0(t Tbl, expt int32) (int64, error) {
 	table := getTable(t)
 	now := int32(time.Now().Unix())

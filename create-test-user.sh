@@ -6,6 +6,22 @@ if [ -z $XTOKEN ]; then
   exit
 fi
 
+RESULT=`curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/xxx-test-xxx -XPOST \
+   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
+echo "Create anonymous consent by email 1: $RESULT"
+
+RESULT=`curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/xxx-test-xxx -XPOST \
+   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
+echo "Create anonymous consent by email 2: $RESULT"
+
+RESULT=`curl -s http://localhost:3000/v1/consent/phone/4444/xxx-test-xxx -XPOST \
+   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
+echo "Create anonymous consent by phone 1: $RESULT"
+
+RESULT=`curl -s http://localhost:3000/v1/consent/phone/4444/xxx-test-xxx -XPOST \
+   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
+echo "Create anonymous consent by phone 2: $RESULT"
+
 echo "Creating user."
 RESULT=`curl -s http://localhost:3000/v1/user \
   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json" \
