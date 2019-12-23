@@ -654,6 +654,13 @@ func (dbobj dbcon) cleanupRecord(t Tbl, keyName string, keyValue string, data in
 	return num, err
 }
 
+func (dbobj dbcon) getExpiring(t Tbl, keyName string, keyValue string) ([]bson.M, error) {
+	table := getTable(t)
+	now := int32(time.Now().Unix())
+	q := fmt.Sprintf("select * from %s WHERE endtime>0 AND endtime<%d AND %s=$1", table, now, escapeName(keyName))
+	return dbobj.getListDo(q, keyValue)
+}
+
 func (dbobj dbcon) getList(t Tbl, keyName string, keyValue string, start int32, limit int32) ([]bson.M, error) {
 	table := getTable(t)
 	if limit > 100 {
@@ -668,6 +675,10 @@ func (dbobj dbcon) getList(t Tbl, keyName string, keyValue string, start int32, 
 		q = q + " LIMIT " + strconv.FormatInt(int64(limit), 10)
 	}
 	fmt.Printf("q: %s\n", q)
+	return dbobj.getListDo(q, keyValue)
+}
+
+func (dbobj dbcon) getListDo(q string, keyValue string) ([]bson.M, error) {
 	tx, err := dbobj.db.Begin()
 	if err != nil {
 		return nil, err
