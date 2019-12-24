@@ -31,7 +31,6 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode s
 			return
 		}
 		if raw != nil {
-			fmt.Println("update rec")
 			// update date, status
 			bdoc := bson.M{}
 			bdoc["when"] = now
