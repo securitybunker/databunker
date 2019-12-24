@@ -18,7 +18,7 @@ type consentEvent struct {
 	Brief   string `json:"brief,omitempty" structs:"brief"`
 	Message string `json:"message,omitempty" structs:"message,omitempty"`
 	Status  string `json:"status,omitempty" structs:"status"`
-	Endtime int32  `json:"endtime,omitempty" structs:"endtime"`
+	Endtime int32  `json:"endtime" structs:"endtime"`
 }
 
 func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode string, brief string, message string, status string, endtime int32) {
@@ -92,6 +92,7 @@ func (dbobj dbcon) cancelConsentRecord(userTOKEN string, brief string, mode stri
 	bdoc["when"] = now
 	bdoc["mode"] = mode
 	bdoc["who"] = usercode
+	bdoc["endtime"] = 0
 	bdoc["status"] = "cancel"
 	if len(userTOKEN) > 0 {
 		fmt.Printf("%s %s\n", userTOKEN, brief)
