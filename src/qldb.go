@@ -912,6 +912,7 @@ func initAudit(db *sql.DB) error {
 	defer tx.Rollback()
 	_, err = tx.Exec(`
 	CREATE TABLE IF NOT EXISTS audit (
+	  atoken STRING,
 	  identity STRING,
 	  record STRING,
 	  who STRING,
@@ -924,6 +925,10 @@ func initAudit(db *sql.DB) error {
 	  before STRING,
 	  after STRING,
 	  ` + "`when` int);")
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(`CREATE INDEX audit_atoken ON audit (atoken);`)
 	if err != nil {
 		return err
 	}
