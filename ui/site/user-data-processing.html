@@ -152,7 +152,7 @@
             var cancel = "<a href=\"javascript:confirmWithdrawal('" + row.brief + "');\">cancel</a>";
             var accept = "<a href=\"javascript:acceptConsent('" + row.brief + "');\">accept</a>";
             var op = cancel;
-            if (row.status == 'cancel') {
+            if (row.status != 'accept') {
                 op = accept;
             }
             var status = '<div class="p-2 bd-highlight">Current status: ' + row.status + '</br><center>' + op + '</center></div>'
