@@ -80,7 +80,7 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 	if value, ok := records["expiration"]; ok {
 		switch records["expiration"].(type) {
 		case string:
-			expiration = atoi(value.(string))
+			expiration, _ = parseExpiration(value.(string))
 		case int:
 			expiration = value.(int32)
 		case int32:

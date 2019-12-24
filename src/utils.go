@@ -24,7 +24,7 @@ var (
 	regexUUID       = regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$")
 	regexBrief      = regexp.MustCompile("^[a-z0-9\\-]{1,64}$")
 	regexAppName    = regexp.MustCompile("^[a-z][a-z0-9]{1,20}$")
-	regexExpiration = regexp.MustCompile("^([0-9]+)([mhds])$")
+	regexExpiration = regexp.MustCompile("^([0-9]+)([mhds])?$")
 )
 
 // Consideration why collection of meta data patch was postpone:
@@ -183,12 +183,20 @@ func parseExpiration0(expiration string) (int32, error) {
 func parseExpiration(expiration string) (int32, error) {
 	match := regexExpiration.FindStringSubmatch(expiration)
 	// expiration format: 10d, 10h, 10m, 10s
+	if len(match) == 2 {
+		fmt.Println("expiration only number")
+		return atoi(match[1]), nil
+	}
 	if len(match) != 3 {
 		e := fmt.Sprintf("failed to parse expiration value: %s", expiration)
 		return 0, errors.New(e)
 	}
 	num := match[1]
 	format := match[2]
+	if len(format) == 0 {
+		fmt.Println("expiration only number2")
+		return atoi(num), nil
+	}
 	start := int32(time.Now().Unix())
 	switch format {
 	case "d":
