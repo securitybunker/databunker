@@ -584,7 +584,7 @@ func (dbobj dbcon) deleteDuplicateInTable2(table string, keyName string, keyValu
 func (dbobj dbcon) deleteExpired0(t Tbl, expt int32) (int64, error) {
 	table := getTable(t)
 	now := int32(time.Now().Unix())
-	q := fmt.Sprintf("delete from %s WHERE `when`<%d", table, now-expt)
+	q := fmt.Sprintf("delete from %s WHERE `when`>0 AND `when`<%d", table, now-expt)
 	fmt.Printf("q: %s\n", q)
 	tx, err := dbobj.db.Begin()
 	if err != nil {
@@ -606,7 +606,7 @@ func (dbobj dbcon) deleteExpired0(t Tbl, expt int32) (int64, error) {
 
 func (dbobj dbcon) deleteExpired(t Tbl, keyName string, keyValue string) (int64, error) {
 	table := getTable(t)
-	q := "delete from " + table + " WHERE endtime<$1 AND " + escapeName(keyName) + "=$2"
+	q := "delete from " + table + " WHERE endtime>0 AND endtime<$1 AND " + escapeName(keyName) + "=$2"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
