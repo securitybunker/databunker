@@ -288,8 +288,10 @@ func (e mainEnv) userLoginEnter(w http.ResponseWriter, r *http.Request, ps httpr
 
 	userTOKEN := userBson["token"].(string)
 	event.Record = userTOKEN
-	fmt.Printf("Found user record: %s\n", userBson)
-	tmpCode := userBson["tempcode"].(int32)
+	tmpCode := int32(0)
+	if _, ok := userBson["tempcode"]; ok {
+		tmpCode = userBson["tempcode"].(int32)
+	}
 	if tmp == tmpCode {
 		// user ented correct key
 		// generate temp user access code
