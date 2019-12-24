@@ -7,15 +7,15 @@ if [ -z $XTOKEN ]; then
 fi
 
 RESULT=`curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/xxx-test-xxx -XPOST \
-   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
+   -H "X-Bunker-Token: $XTOKEN"`
 echo "Create anonymous consent by email 1: $RESULT"
 
 RESULT=`curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/xxx-test-xxx -XPOST \
-   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
+   -H "X-Bunker-Token: $XTOKEN"`
 echo "Create anonymous consent by email 2: $RESULT"
 
 RESULT=`curl -s http://localhost:3000/v1/consent/phone/4444/xxx-test-xxx -XPOST \
-   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
+   -H "X-Bunker-Token: $XTOKEN"`
 echo "Create anonymous consent by phone 1: $RESULT"
 
 RESULT=`curl -s http://localhost:3000/v1/consent/phone/4444/xxx-test-xxx -XPOST \
@@ -74,27 +74,27 @@ RESULT=`curl -s http://localhost:3000/v1/userapps \
 echo "View list of all apps $RESULT"
 
 RESULT=`curl -s http://localhost:3000/v1/consent/token/$TOKEN/send-sms -XPOST \
-   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
+   -H "X-Bunker-Token: $XTOKEN" -d "expiration=30s"`
 echo "Enable consent send-sms for user by token: $RESULT"
 
 RESULT=`curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/send-sms2 -XPOST \
-   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
+   -H "X-Bunker-Token: $XTOKEN"`
 echo "Enable consent send-sms for user by email: $RESULT"
 
 RESULT=`curl -s http://localhost:3000/v1/consent/phone/4444/send-sms2 -XDELETE \
-   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
+   -H "X-Bunker-Token: $XTOKEN"`
 echo "Withdraw consent send-sms for user by phone: $RESULT"
 
 RESULT=`curl -s http://localhost:3000/v1/consent/token/$TOKEN/send-sms \
-   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
+   -H "X-Bunker-Token: $XTOKEN"`
 echo "View this specific consent only: $RESULT"
 
 RESULT=`curl -s http://localhost:3000/v1/consent/token/$TOKEN \
-   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
+   -H "X-Bunker-Token: $XTOKEN"`
 echo "View all user consents: $RESULT"
 
 RESULT=`curl -s http://localhost:3000/v1/consents/send-sms \
-   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
+   -H "X-Bunker-Token: $XTOKEN"`
 echo "View all users with send-sms consent on: $RESULT"
 
 RESULT=`curl -s http://localhost:3000/v1/session/token/$TOKEN -XPOST \
