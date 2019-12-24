@@ -172,11 +172,9 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 		data, err := box.Find("index.html")
 		if err != nil {
 			//log.Panic("error %s", err.Error())
-			fmt.Printf("404 %s, error: %s\n", r.URL.Path, err.Error())
+			log.Printf("error: %s\n", err.Error())
 			w.WriteHeader(404)
 		} else {
-			//fmt.Printf("return static file: %s\n", data)
-			fmt.Printf("200 %s\n", r.URL.Path)
 			w.WriteHeader(200)
 			w.Write([]byte(data))
 		}
@@ -184,7 +182,6 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/site/*filepath", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		data, err := box.Find(r.URL.Path)
 		if err != nil {
-			fmt.Printf("404 GET %s\n", r.URL.Path)
 			w.WriteHeader(404)
 		} else {
 			//w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -193,8 +190,6 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 			} else if strings.HasSuffix(r.URL.Path, ".js") {
 				w.Header().Set("Content-Type", "text/javascript")
 			}
-			// text/plain
-			fmt.Printf("200 %s\n", r.URL.Path)
 			w.WriteHeader(200)
 			w.Write([]byte(data))
 		}
@@ -203,7 +198,6 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("url not found"))
-		fmt.Printf("404 %s %s\n", r.Method, r.URL.Path)
 	})
 	return router
 }
@@ -253,6 +247,39 @@ func (e mainEnv) dbCleanup() {
 			}
 		}
 	}()
+}
+
+type CustomResponseWriter struct {
+	w  http.ResponseWriter
+	Code int
+}
+
+func NewCustomResponseWriter(ww http.ResponseWriter) *CustomResponseWriter {
+	return &CustomResponseWriter{
+		w: ww,
+		Code: 0,
+	}
+}
+
+func (w *CustomResponseWriter) Header() http.Header {
+	return w.w.Header()
+}
+
+func (w *CustomResponseWriter) Write(b []byte) (int, error) {
+	return w.w.Write(b)
+}
+
+func (w *CustomResponseWriter) WriteHeader(statusCode int) {
+	w.Code = statusCode
+	w.w.WriteHeader(statusCode)
+}
+
+func logRequest(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w2 := NewCustomResponseWriter(w)
+		handler.ServeHTTP(w2, r)
+		log.Printf("%d %s %s\n", w2.Code, r.Method, r.URL)
+	})
 }
 
 func main() {
@@ -322,7 +349,7 @@ func main() {
 	e.dbCleanup()
 	fmt.Printf("host %s\n", cfg.Server.Host+":"+cfg.Server.Port)
 	router := e.setupRouter()
-	srv := &http.Server{ Addr: cfg.Server.Host+":"+cfg.Server.Port,	Handler:router}
+	srv := &http.Server{ Addr: cfg.Server.Host+":"+cfg.Server.Port,	Handler: logRequest(router)}
 	
 	stop := make(chan os.Signal, 2)
     signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
@@ -340,13 +367,13 @@ func main() {
 	}()
 	
 	if _, err := os.Stat(cfg.Ssl.Ssl_certificate); !os.IsNotExist(err) {
-		fmt.Printf("Loading ssl\n")
+		log.Printf("Loading ssl\n")
 		err := srv.ListenAndServeTLS( cfg.Ssl.Ssl_certificate, cfg.Ssl.Ssl_certificate_key)
 		if err != nil {
 			log.Printf("ListenAndServeSSL: %s\n", err)
 		}
 	} else {
-		fmt.Println("Loading server")
+		log.Println("Loading server")
 		err := srv.ListenAndServe()
 		if err != nil {
 			log.Printf("ListenAndServe(): %s\n", err)

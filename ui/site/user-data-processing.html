@@ -146,20 +146,20 @@
             if (!row.message) {
                 msg = row.brief;
             }
-            var start = '<div class="d-flex flex-row bd-highlight mb-4">';
-            var d = '<div class="p-2 bd-highlight">When: ' + dateFormat(row.when) + '</div>';
+            var start = '<div class="d-flex flex-row bd-highlight mb-3">';
+            var d = '<div class="p-1 bd-highlight">When: ' + dateFormat(row.when) + '</div>';
             if (row.endtime > 0) {
-                d = '<div class="p-2 bd-highlight">When: ' + dateFormat(row.when) + '<br/>' + 
+                d = '<div class="p-1 bd-highlight">When: ' + dateFormat(row.when) + '<br/>' + 
                     'Expired: ' + dateFormat(row.endtime) + '</div>';
             }
-            var identity = '<div class="p-2 flex-fill bd-highlight"><strong>'+ msg +'</strong><br/><small>Identity: ' + row.who + ' (' + row.mode + ')</small></div>'
+            var identity = '<div class="p-1 flex-fill bd-highlight"><strong>'+ msg +'</strong><br/><small>Identity: ' + row.who + ' (' + row.mode + ')</small></div>'
             var cancel = "<a href=\"javascript:confirmWithdrawal('" + row.brief + "');\">cancel</a>";
             var accept = "<a href=\"javascript:acceptConsent('" + row.brief + "');\">accept</a>";
             var op = cancel;
             if (row.status != 'accept') {
                 op = accept;
             }
-            var status = '<div class="p-2 bd-highlight">Current status: ' + row.status + '</br><center>' + op + '</center></div>'
+            var status = '<div class="p-1 bd-highlight">Current status: ' + row.status + '</br><center>' + op + '</center></div>'
             return start + d + identity + status + '</div>';
         }
     </script>
