@@ -99,7 +99,7 @@ func (dbobj dbcon) checkUserAuthXToken(xtokenUUID string) (tokenAuthResult, erro
 		return result, errors.New("failed to authenticate")
 	}
 	if len(rootXTOKEN) > 0 && rootXTOKEN == xtokenUUID {
-		fmt.Println("It is a root token")
+		//fmt.Println("It is a root token")
 		result.ttype = "root"
 		result.name = "root"
 		return result, nil
