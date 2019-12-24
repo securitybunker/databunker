@@ -131,7 +131,7 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 	if value, ok := args["limit"]; ok {
 		limit = atoi(value[0])
 	}
-	records, count, err := e.db.getUserSessionByToken(userTOKEN, offset, limit)
+	records, count, err := e.db.getUserSessionsByToken(userTOKEN, offset, limit)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
