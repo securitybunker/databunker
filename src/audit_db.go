@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	uuid "github.com/hashicorp/go-uuid"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -21,6 +22,7 @@ type auditEvent struct {
 	Debug    string `json:"debug"`
 	Before   string `json:"before"`
 	After    string `json:"after"`
+	Atoken   string `json:"atoken"`
 }
 
 func audit(title string, record string, mode string, address string) *auditEvent {
@@ -48,6 +50,8 @@ func (event auditEvent) submit(db dbcon) {
 			return
 		}*/
 	bdoc := bson.M{}
+	atoken, _ := uuid.GenerateUUID()
+	bdoc["atoken"] = atoken
 	bdoc["when"] = event.When
 	if len(event.Who) > 0 {
 		bdoc["who"] = event.Who
