@@ -68,12 +68,9 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode s
 		Endtime: endtime,
 	}
 	// in any case - insert record
-	fmt.Printf("insert consent record\n")
-	num, err := dbobj.createRecord(TblName.Consent, structs.Map(ev))
+	_, err := dbobj.createRecord(TblName.Consent, structs.Map(ev))
 	if err != nil {
 		fmt.Printf("error to insert record: %s\n", err)
-	} else {
-		fmt.Printf("num records created: %d\n", num)
 	}
 }
 

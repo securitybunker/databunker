@@ -151,7 +151,7 @@ func decodeFieldsValues(data interface{}) (string, []interface{}) {
 
 	switch t := data.(type) {
 	case primitive.M:
-		fmt.Println("decodeFieldsValues format is: primitive.M")
+		//fmt.Println("decodeFieldsValues format is: primitive.M")
 		for idx, val := range data.(primitive.M) {
 			if len(fields) == 0 {
 				fields = escapeName(idx)
@@ -161,7 +161,7 @@ func decodeFieldsValues(data interface{}) (string, []interface{}) {
 			values = append(values, val)
 		}
 	case *primitive.M:
-		fmt.Println("decodeFieldsValues format is: *primitive.M")
+		//fmt.Println("decodeFieldsValues format is: *primitive.M")
 		for idx, val := range *data.(*primitive.M) {
 			if len(fields) == 0 {
 				fields = escapeName(idx)
@@ -171,7 +171,7 @@ func decodeFieldsValues(data interface{}) (string, []interface{}) {
 			values = append(values, val)
 		}
 	case map[string]interface{}:
-		fmt.Println("decodeFieldsValues format is: map[string]interface{}")
+		//fmt.Println("decodeFieldsValues format is: map[string]interface{}")
 		for idx, val := range data.(map[string]interface{}) {
 			if len(fields) == 0 {
 				fields = escapeName(idx)
@@ -449,13 +449,11 @@ func (dbobj dbcon) getRecordInTableDo(q string, values []interface{}) (bson.M, e
 	}
 	//fmt.Printf("names: %s\n", columnNames)
 	if err := rows.Err(); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	//pointers := make([]interface{}, len(columnNames))
 	recBson := bson.M{}
 	rows.Next()
-	//for rows.Next() {
-	//fmt.Println("parsing result line")
 	columnPointers := make([]interface{}, len(columnNames))
 	//for i, _ := range columnNames {
 	//		columnPointers[i] = new(interface{})
@@ -464,7 +462,6 @@ func (dbobj dbcon) getRecordInTableDo(q string, values []interface{}) (bson.M, e
 	for i, _ := range columns {
 		columnPointers[i] = &columns[i]
 	}
-
 	err = rows.Scan(columnPointers...)
 	if err == sql.ErrNoRows {
 		fmt.Println("nothing found")
@@ -490,7 +487,6 @@ func (dbobj dbcon) getRecordInTableDo(q string, values []interface{}) (bson.M, e
 			fmt.Printf("field: %s - %s, unknown: %s - %T\n", colName, columns[i], t, t)
 		}
 	}
-	//}
 	err = rows.Close()
 	if err == sql.ErrNoRows {
 		fmt.Println("nothing found2")
@@ -502,9 +498,7 @@ func (dbobj dbcon) getRecordInTableDo(q string, values []interface{}) (bson.M, e
 		fmt.Println("no result!!!")
 		return nil, nil
 	}
-	if err = tx.Commit(); err != nil {
-		return recBson, err
-	}
+	tx.Commit()
 	return recBson, nil
 }
 
@@ -752,9 +746,7 @@ func (dbobj dbcon) getListDo(q string, keyValue string) ([]bson.M, error) {
 		fmt.Println("no result!!!")
 		return nil, nil
 	}
-	if err = tx.Commit(); err != nil {
-		return results, err
-	}
+	tx.Commit()
 	return results, nil
 }
 
