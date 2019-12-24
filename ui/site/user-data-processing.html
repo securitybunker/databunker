@@ -147,8 +147,12 @@
                 msg = row.brief;
             }
             var start = '<div class="d-flex flex-row bd-highlight mb-4">';
-            var d = '<div class="p-2 bd-highlight">When: ' + dateFormat(row.when) + '</div>'
-            var identity = '<div class="p-2 flex-fill bd-highlight">Identity: ' + row.who + ' (' + row.mode + ')<br/>' + msg + '</div>'
+            var d = '<div class="p-2 bd-highlight">When: ' + dateFormat(row.when) + '</div>';
+            if (row.endtime > 0) {
+                d = '<div class="p-2 bd-highlight">When: ' + dateFormat(row.when) + '<br/>' + 
+                    'Expired: ' + dateFormat(row.endtime) + '</div>';
+            }
+            var identity = '<div class="p-2 flex-fill bd-highlight"><strong>'+ msg +'</strong><br/><small>Identity: ' + row.who + ' (' + row.mode + ')</small></div>'
             var cancel = "<a href=\"javascript:confirmWithdrawal('" + row.brief + "');\">cancel</a>";
             var accept = "<a href=\"javascript:acceptConsent('" + row.brief + "');\">accept</a>";
             var op = cancel;
