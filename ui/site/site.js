@@ -9,8 +9,12 @@ function bunker_logout()
 function dateFormat(value, row, index) {
     //return moment(value).format('DD/MM/YYYY');
     var d = new Date(parseInt(value) * 1000);
-    let f_date = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() +
-      " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds()
+    let f_date = d.getFullYear() + "-" + 
+      ("0"+(d.getMonth()+1)).slice(-2) + "-" + 
+      ("0" + d.getDate()).slice(-2) +
+      " " + ("0" + d.getHours()).slice(-2) + ":" + 
+      ("0" + d.getMinutes()).slice(-2) + ":" + 
+      ("0" + d.getSeconds()).slice(-2);
     //return d.toUTCString();
     return f_date;
 }
