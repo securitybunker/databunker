@@ -296,7 +296,7 @@ func (e mainEnv) userLoginEnter(w http.ResponseWriter, r *http.Request, ps httpr
 		// user ented correct key
 		// generate temp user access code
 		xtoken, err := e.db.generateUserLoginXtoken(userTOKEN)
-		fmt.Printf("generate user access token: %s\n", xtoken)
+		//fmt.Printf("generate user access token: %s\n", xtoken)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
