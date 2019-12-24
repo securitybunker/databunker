@@ -606,7 +606,7 @@ func (dbobj dbcon) deleteExpired0(t Tbl, expt int32) (int64, error) {
 
 func (dbobj dbcon) deleteExpired(t Tbl, keyName string, keyValue string) (int64, error) {
 	table := getTable(t)
-	q := "delete from " + table + " WHERE endtime<$1 AND" + escapeName(keyName) + "=$2"
+	q := "delete from " + table + " WHERE endtime<$1 AND " + escapeName(keyName) + "=$2"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -652,6 +652,7 @@ func (dbobj dbcon) getExpiring(t Tbl, keyName string, keyValue string) ([]bson.M
 	table := getTable(t)
 	now := int32(time.Now().Unix())
 	q := fmt.Sprintf("select * from %s WHERE endtime>0 AND endtime<%d AND %s=$1", table, now, escapeName(keyName))
+	fmt.Printf("q: %s\n", q)
 	return dbobj.getListDo(q, keyValue)
 }
 
