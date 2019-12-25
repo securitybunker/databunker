@@ -188,6 +188,17 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 			// else user not found - we allow to save consent for unlinked users!
 		}
 	}
+	records, err := getJSONPostData(r)
+	if err != nil {
+		//returnError(w, r, "internal error", 405, err, event)
+		return
+	}
+	lastmodifiedby := ""
+	if value, ok := records["lastmodifiedby"]; ok {
+		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+			lastmodifiedby = value.(string)
+		}
+	}
 	// make sure that user is logged in here, unless he wants to cancel emails
 	//if e.enforceAuth(w, r, event) == false {
 	//	return
@@ -198,7 +209,7 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 	case "phone":
 		address = normalizePhone(address, e.conf.Sms.Default_country)
 	}
-	e.db.cancelConsentRecord(userTOKEN, brief, mode, address)
+	e.db.cancelConsentRecord(userTOKEN, brief, mode, address, lastmodifiedby)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"status":"ok"}`))

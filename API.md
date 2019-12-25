@@ -331,8 +331,8 @@ POST Body can contain regular form data or JSON. Here is a table with list of ex
 | status (no)           | Consent status. Default value is **accept**. Allowed values: cancel/accept.    |
 | message (no)          | Text message describing consent. If empty **brief** is displayed.              |
 | freetext (no)         | Free text, used for internal usage.                                            |
-| starttime (no)        | Date & time to automatically enable this consent. It is in UNIX time format.   |
-| expiration (no)       | Consent expiration date. It is in UNIX time format or kind of 10d or 1m, etc...|
+| starttime (no)        | Date & time to automatically enable this consent. Expected value is in UNIX time format or kind of 10d or 1m, etc...|
+| expiration (no)       | Consent expiration date. Expected value is in UNIX time format or kind of 10d or 1m, etc...|
 | lawfulbasis (no)      | Default is **consent**. It can be: **contract-agreement**, **legal-obligations**, etc...|
 | consentmethod (no)    | Default is **api**. It can be: **phone-consent**, **contract**, **app-consent**, **web-consent**, **email-consent**, etc...|
 | referencecode (no)    | This can be used as an id of your internal document, contract, etc...          |
