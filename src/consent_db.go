@@ -11,22 +11,26 @@ import (
 )
 
 type consentEvent struct {
-	Endtime       int32  `json:"endtime" structs:"endtime"`
-	When          int32  `json:"when,omitempty" structs:"when"`
-	Who           string `json:"who,omitempty" structs:"who"`
-	Mode          string `json:"mode,omitempty" structs:"mode"`
-	Token         string `json:"token" structs:"token"`
-	Brief         string `json:"brief,omitempty" structs:"brief"`
-	Message       string `json:"message,omitempty" structs:"message,omitempty"`
-	Status        string `json:"status,omitempty" structs:"status"`
-	Lawfulbasis   string `json:"lawfulbasis,omitempty" structs:"lawfulbasis"`
-	Consentmethod string `json:"consentmethod,omitempty" structs:"consentmethod"`
-	Referencecode string `json:"referencecode,omitempty" structs:"referencecode"`
+	Creationtime   int32  `json:"creationtime" structs:"creationtime"`
+	Starttime      int32  `json:"starttime" structs:"starttime"`
+	Endtime        int32  `json:"endtime" structs:"endtime"`
+	When           int32  `json:"when,omitempty" structs:"when"`
+	Who            string `json:"who,omitempty" structs:"who"`
+	Mode           string `json:"mode,omitempty" structs:"mode"`
+	Token          string `json:"token" structs:"token"`
+	Brief          string `json:"brief,omitempty" structs:"brief"`
+	Status         string `json:"status,omitempty" structs:"status"`
+	Message        string `json:"message,omitempty" structs:"message,omitempty"`
+	Freetext       string `json:"freetext,omitempty" structs:"freetext,omitempty"`
+	Lawfulbasis    string `json:"lawfulbasis,omitempty" structs:"lawfulbasis"`
+	Consentmethod  string `json:"consentmethod,omitempty" structs:"consentmethod"`
+	Referencecode  string `json:"referencecode,omitempty" structs:"referencecode,omitempty"`
+	Lastmodifiedby string `json:"lastmodifiedby,omitempty" structs:"lastmodifiedby,omitempty"`
 }
 
 func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode string,
 	brief string, message string, status string, lawfulbasis string, consentmethod string,
-	referencecode string, endtime int32) {
+	referencecode string, freetext string, lastmodifiedby string, starttime int32, endtime int32) {
 	now := int32(time.Now().Unix())
 	bdoc := bson.M{}
 	bdoc["when"] = now
@@ -42,6 +46,10 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode s
 	if len(referencecode) > 0 {
 		bdoc["referencecode"] = referencecode
 	}
+	if len(freetext) > 0 {
+		bdoc["freetext"] = freetext
+	}
+	bdoc["lastmodifiedby"] = lastmodifiedby
 	if len(userTOKEN) > 0 {
 		// first check if this consent exists, then update
 		raw, err := dbobj.getRecord2(TblName.Consent, "token", userTOKEN, "brief", brief)
@@ -71,17 +79,20 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode s
 		lawfulbasis = "consent"
 	}
 	ev := consentEvent{
-		Endtime:       endtime,
-		When:          now,
-		Who:           usercode,
-		Token:         userTOKEN,
-		Mode:          mode,
-		Brief:         brief,
-		Message:       message,
-		Status:        status,
-		Lawfulbasis:   lawfulbasis,
-		Consentmethod: consentmethod,
-		Referencecode: referencecode,
+		Creationtime:   now,
+		Endtime:        endtime,
+		When:           now,
+		Who:            usercode,
+		Token:          userTOKEN,
+		Mode:           mode,
+		Brief:          brief,
+		Message:        message,
+		Status:         status,
+		Freetext:       freetext,
+		Lawfulbasis:    lawfulbasis,
+		Consentmethod:  consentmethod,
+		Referencecode:  referencecode,
+		Lastmodifiedby: lastmodifiedby,
 	}
 	// in any case - insert record
 	_, err := dbobj.createRecord(TblName.Consent, structs.Map(ev))

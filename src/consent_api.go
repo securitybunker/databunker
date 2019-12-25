@@ -64,15 +64,23 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 		//returnError(w, r, "internal error", 405, err, event)
 		return
 	}
+	status := "accept"
 	message := ""
+	freetext := ""
 	lawfulbasis := ""
 	consentmethod := ""
 	referencecode := ""
-	status := "accept"
+	lastmodifiedby := ""
+	starttime := int32(0)
 	expiration := int32(0)
 	if value, ok := records["message"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			message = value.(string)
+		}
+	}
+	if value, ok := records["freetext"]; ok {
+		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+			freetext = value.(string)
 		}
 	}
 	if value, ok := records["lawfulbasis"]; ok {
@@ -88,6 +96,11 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 	if value, ok := records["referencecode"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			referencecode = value.(string)
+		}
+	}
+	if value, ok := records["lastmodifiedby"]; ok {
+		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+			lastmodifiedby = value.(string)
 		}
 	}
 	if value, ok := records["status"]; ok {
@@ -107,13 +120,26 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 			expiration = value.(int32)
 		}
 	}
+	if value, ok := records["starttime"]; ok {
+		switch records["starttime"].(type) {
+		case string:
+			starttime, _ = parseExpiration(value.(string))
+		case int:
+			starttime = value.(int32)
+		case int32:
+			starttime = value.(int32)
+		case int64:
+			starttime = value.(int32)
+		}
+	}
 	switch mode {
 	case "email":
 		address = normalizeEmail(address)
 	case "phone":
 		address = normalizePhone(address, e.conf.Sms.Default_country)
 	}
-	e.db.createConsentRecord(userTOKEN, mode, address, brief, message, status, lawfulbasis, consentmethod, referencecode, expiration)
+	e.db.createConsentRecord(userTOKEN, mode, address, brief, message, status, lawfulbasis, consentmethod,
+		referencecode, freetext, lastmodifiedby, starttime, expiration)
 }
 
 func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
