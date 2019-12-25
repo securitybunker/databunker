@@ -416,3 +416,33 @@ func (dbobj dbcon) userDecrypt(userTOKEN, src string) ([]byte, error) {
 	decrypted, err := decrypt(dbobj.masterKey, recordKey, encData)
 	return decrypted, err
 }
+
+func (dbobj dbcon) userDecrypt2(userTOKEN, src string, src2 string) ([]byte, []byte, error) {
+	userBson, err := dbobj.lookupUserRecord(userTOKEN)
+	if err != nil {
+		// not found
+		return nil, nil, errors.New("not found")
+	}
+	if userBson == nil {
+		return nil, nil, errors.New("not found")
+	}
+	userKey := userBson["key"].(string)
+	recordKey, err := base64.StdEncoding.DecodeString(userKey)
+	if err != nil {
+		return nil, nil, err
+	}
+	encData, err := base64.StdEncoding.DecodeString(src)
+	if err != nil {
+		return nil, nil, err
+	}
+	decrypted, err := decrypt(dbobj.masterKey, recordKey, encData)
+	if len(src2) == 0 {
+		return decrypted, nil, err
+	}
+	encData2, err := base64.StdEncoding.DecodeString(src2)
+	if err != nil {
+		return decrypted, nil, err
+	}
+	decrypted2, err := decrypt(dbobj.masterKey, recordKey, encData2)
+	return decrypted, decrypted2, err
+}

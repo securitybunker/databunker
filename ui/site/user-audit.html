@@ -24,11 +24,72 @@
   <script src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
   <script src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/languages/json.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/styles/a11y-dark.min.css">
+
   <script>
+    var xtoken = window.localStorage.getItem('xtoken');
+    var token = window.localStorage.getItem('token');
+    function displayDrillDownLink(atoken, row, index) {
+      return '<a href=\'javascript:displayAudit(\"' + atoken + '\");\'>*</a>';
+    }
+    function displayAudit(atoken) {
+      var xhr0 = new XMLHttpRequest();
+      // first save consent
+      xhr0.open('GET', '/v1/audit/get/' + atoken, false);
+      xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+      xhr0.setRequestHeader('Content-type', 'application/json');
+      xhr0.onload = function () {
+        if (xhr0.status === 200) {
+          console.log(xhr0.responseText);
+          //$('#drilldown').html(xhr0.responseText)
+          //$('#drilldown').append("HELLO");
+          var data = JSON.parse(xhr0.responseText);
+          if (data.status == "ok") {
+            var d = JSON.stringify(data.event, null, 4);
+            setTimeout(function () {
+              $('#drilldown').append('<code class="json">' + d + '</code>');
+              document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightBlock(block);
+              });
+            }, 300);
+          }
+        }
+      }
+      xhr0.send();
+
+      var heading = "Audit drill down";
+      var text = "Display audit event: " + atoken;
+      var cancelButtonTxt = "Close popup";
+      var confirmModal =
+        $('<div class="modal fade" role="dialog"><div class="modal-dialog" role="document"><div class="modal-content">' +
+          '<div class="modal-header">' +
+          '<h5 class="modal-title">' + heading + '</h5>' +
+          '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+          '<span aria-hidden="true">&times;</span></button>' +
+          '</div>' +
+          '<div class="modal-body">' +
+          '<p>' + text + '</p>' +
+          '<pre id="drilldown"></pre>' +
+          '</div>' +
+          '<div class="modal-footer">' +
+          '<a href="#" class="btn" data-dismiss="modal">' +
+          cancelButtonTxt +
+          '</a>' +
+          '</div>' +
+          '</div></div></div>');
+
+      confirmModal.find('#okButton').click(function (event) {
+        //callback();
+        //cancelConsent(brief);
+        confirmModal.modal('hide');
+      });
+
+      confirmModal.modal('show');
+    }
+
     $(function () {
-      var xtoken = window.localStorage.getItem('xtoken');
-      var token = window.localStorage.getItem('token');
-      var ttype = window.localStorage.getItem('type');
       //$('#msg').text("Loading data")
       //token = "faa006da-475e-45c6-a4a1-6586dce8b8d2";
       $('#table').bootstrapTable({
@@ -93,6 +154,7 @@
               <th scope="col" data-field="title">Title</th>
               <th scope="col" data-field="status">Status</th>
               <th scope="col" data-field="msg">Msg</th>
+              <th scope="col" data-field="atoken" data-formatter="displayDrillDownLink">More</th>
             </tr>
           </thead>
         </table>
