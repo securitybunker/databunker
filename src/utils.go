@@ -168,12 +168,12 @@ func parseExpiration0(expiration string) (int32, error) {
 	format := match[2]
 	start := int32(0)
 	switch format {
-	case "d":
+	case "d": // day
 		start = start + (atoi(num) * 24 * 3600)
-	case "h":
+	case "h": // hour
 		start = start + (atoi(num) * 3600)
-	case "m":
-		start = start + (atoi(num) * 60)
+	case "m": // month
+		start = start + (atoi(num) * 24 * 31 * 3600)
 	case "s":
 		start = start + (atoi(num))
 	}
@@ -199,12 +199,12 @@ func parseExpiration(expiration string) (int32, error) {
 	}
 	start := int32(time.Now().Unix())
 	switch format {
-	case "d":
+	case "d": // day
 		start = start + (atoi(num) * 24 * 3600)
-	case "h":
+	case "h": // hour
 		start = start + (atoi(num) * 3600)
-	case "m":
-		start = start + (atoi(num) * 60)
+	case "m": // month
+		start = start + (atoi(num) * 24 * 31 * 3600)
 	case "s":
 		start = start + (atoi(num))
 	}
