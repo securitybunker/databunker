@@ -326,11 +326,17 @@ This API is used to store user consent.
 
 POST Body can contain regular form data or JSON. Here is a table with list of expected parameters.
 
-| Parameter   | Required  | Description                                                                    |
-| ----------- | --------- | ------------------------------------------------------------------------------ |
-| status      | No        | Consent status. Default value is **accept**. Allowed values: cancel/accept.    |
-| message     | No        | Optional text message describing consent.                                      |
-| expiration  | No        | Optional consent expiration date. It is an integer number in UNIX time format. |
+| Parameter (required)  | Description                                                                    |
+| --------------------- | ------------------------------------------------------------------------------ |
+| status (no)           | Consent status. Default value is **accept**. Allowed values: cancel/accept.    |
+| freetext (no)         | Free text, used to internal usage.                                             |
+| message (no)          | Text message describing consent. If empty **brief** is displayed.              |
+| expiration (no)       | Consent expiration date. It is be in UNIX time formar for like 10d or 1m.      |
+| lawfulbasis (no)      | Default is **consent**. It can be: **contract-agreement**, **legal-obligations**, etc...|
+| consentmethod (no)    | Default is **api**. It can be: **phone-consent**, **contract**, **app-consent**, etc...|
+| referencecode (no)    | This can be used as an id of your internal document, contract, etc.            |
+| lastmodifiedby (no)   | Name of the person that last modified this consnet or **customer**.            |
+| lastmodifieddate (no) | Date of the last modification.                                                 |
 
 When consent is expired, the status value is changed to **expired**.
 
