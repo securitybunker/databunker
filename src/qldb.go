@@ -956,9 +956,13 @@ func initConsent(db *sql.DB) error {
 	  brief STRING,
 	  status STRING,
 	  message STRING,
+	  freetext STRING,
 	  lawfulbasis STRING,
 	  consentmethod STRING,
 	  referencecode STRING,
+	  lastmodifiedby STRING,
+	  creationtime int,
+	  starttime int,
 	  endtime int,
 	  ` + "`when` int);")
 	if err != nil {

@@ -329,14 +329,14 @@ POST Body can contain regular form data or JSON. Here is a table with list of ex
 | Parameter (required)  | Description                                                                    |
 | --------------------- | ------------------------------------------------------------------------------ |
 | status (no)           | Consent status. Default value is **accept**. Allowed values: cancel/accept.    |
-| freetext (no)         | Free text, used to internal usage.                                             |
 | message (no)          | Text message describing consent. If empty **brief** is displayed.              |
-| expiration (no)       | Consent expiration date. It is be in UNIX time formar for like 10d or 1m.      |
+| freetext (no)         | Free text, used for internal usage.                                            |
+| starttime (no)        | Date & time to automatically enable this consent. It is in UNIX time format.   |
+| expiration (no)       | Consent expiration date. It is in UNIX time format or kind of 10d or 1m, etc...|
 | lawfulbasis (no)      | Default is **consent**. It can be: **contract-agreement**, **legal-obligations**, etc...|
-| consentmethod (no)    | Default is **api**. It can be: **phone-consent**, **contract**, **app-consent**, etc...|
-| referencecode (no)    | This can be used as an id of your internal document, contract, etc.            |
-| lastmodifiedby (no)   | Name of the person that last modified this consnet or **customer**.            |
-| lastmodifieddate (no) | Date of the last modification.                                                 |
+| consentmethod (no)    | Default is **api**. It can be: **phone-consent**, **contract**, **app-consent**, **web-consent**, **email-consent**, etc...|
+| referencecode (no)    | This can be used as an id of your internal document, contract, etc...          |
+| lastmodifiedby (no)   | Name of the person that last modified this record or **customer**.             |
 
 When consent is expired, the status value is changed to **expired**.
 
