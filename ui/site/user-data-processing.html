@@ -152,7 +152,13 @@
                 d = '<div class="p-1 bd-highlight">When: ' + dateFormat(row.when) + '<br/>' + 
                     'Expired: ' + dateFormat(row.endtime) + '</div>';
             }
-            var identity = '<div class="p-1 flex-fill bd-highlight"><strong>'+ msg +'</strong><br/><small>Identity: ' + row.who + ' (' + row.mode + ')</small></div>'
+            var info = '<div class="p-1 flex-fill bd-highlight"><strong>'+ msg +'</strong><br/>';
+            info = info + '<small>Identity: ' + row.who + ' (' + row.mode + ')</small><br/>';
+            info = info + '<small>Lawful basis: ' + row.lawfulbasis + ' (' + row.consentmethod+ ')</small><br/>';
+            if (row.referencecode) {
+                info = info + '<small>Reference method: ' + row.referencecode + '</small><br/>';
+            }
+            info = info + '</div>'
             var cancel = "<a href=\"javascript:confirmWithdrawal('" + row.brief + "');\">cancel</a>";
             var accept = "<a href=\"javascript:acceptConsent('" + row.brief + "');\">accept</a>";
             var op = cancel;
@@ -160,7 +166,7 @@
                 op = accept;
             }
             var status = '<div class="p-1 bd-highlight">Current status: ' + row.status + '</br><center>' + op + '</center></div>'
-            return start + d + identity + status + '</div>';
+            return start + d + info + status + '</div>';
         }
     </script>
 </body>
