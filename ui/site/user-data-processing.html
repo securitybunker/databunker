@@ -146,9 +146,9 @@
             if (!row.message) {
                 msg = row.brief;
             }
-            var start = '<div class="d-flex flex-row bd-highlight mb-3">';
+            var start = '<div class="row mb-3">';
             var now = Math.floor(Date.now() / 1000);
-            var d = '<div class="p-1 bd-highlight">Created: ' + dateFormat(row.creationtime) + '<br/>';
+            var d = '<div class="col-3">Created: ' + dateFormat(row.creationtime) + '<br/>';
             if (row.when != row.creationtime) {
                 d = d+ 'Last updated: ' + dateFormat(row.when) + '<br/>';
             }
@@ -161,7 +161,7 @@
                 d = d + 'Expired at: ' + dateFormat(row.endtime) + '</br/>';
             }
             d = d+ '</div>';
-            var info = '<div class="p-1 flex-fill bd-highlight"><strong>'+ msg +'</strong><br/>';
+            var info = '<div class="col-7"><strong>'+ msg +'</strong><br/>';
             info = info + '<small>Identity: ' + row.who + ' (' + row.mode + ')</small><br/>';
             info = info + '<small>Lawful basis: ' + row.lawfulbasis + ' (' + row.consentmethod+ ')</small><br/>';
             if (row.referencecode) {
@@ -177,7 +177,7 @@
             if (row.status != 'accept') {
                 op = accept;
             }
-            var status = '<div class="p-1 bd-highlight">Current status: ' + row.status + '</br><center>' + op + '</center></div>'
+            var status = '<div class="col-2">Current status: ' + row.status + '</br><center>' + op + '</center></div>'
             return start + d + info + status + '</div>';
         }
     </script>
