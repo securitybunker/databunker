@@ -90,7 +90,7 @@
                     '<div class="modal-header">' +
                     '<h5 class="modal-title">' + heading + '</h5>' +
                     '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
-                        '<span aria-hidden="true">&times;</span></button>' +
+                    '<span aria-hidden="true">&times;</span></button>' +
                     '</div>' +
                     '<div class="modal-body">' +
                     '<p>' + question + '</p>' +
@@ -150,7 +150,7 @@
             var now = Math.floor(Date.now() / 1000);
             var d = '<div class="col-3">Created: ' + dateFormat(row.creationtime) + '<br/>';
             if (row.when != row.creationtime) {
-                d = d+ 'Last updated: ' + dateFormat(row.when) + '<br/>';
+                d = d + 'Last updated: ' + dateFormat(row.when) + '<br/>';
             }
             if (row.starttime > now) {
                 d = d + 'Will start at: ' + dateFormat(row.starttime) + '</br/>';
@@ -160,10 +160,10 @@
             } else if (row.endtime > 0) {
                 d = d + 'Expired at: ' + dateFormat(row.endtime) + '</br/>';
             }
-            d = d+ '</div>';
-            var info = '<div class="col-7"><strong>'+ msg +'</strong><br/>';
+            d = d + '</div>';
+            var info = '<div class="col-7"><strong>' + msg + '</strong><br/>';
             info = info + '<small>Identity: ' + row.who + ' (' + row.mode + ')</small><br/>';
-            info = info + '<small>Lawful basis: ' + row.lawfulbasis + ' (' + row.consentmethod+ ')</small><br/>';
+            info = info + '<small>Lawful basis: ' + row.lawfulbasis + ' (' + row.consentmethod + ')</small><br/>';
             if (row.referencecode) {
                 info = info + '<small>Reference method: ' + row.referencecode + '</small><br/>';
             }
