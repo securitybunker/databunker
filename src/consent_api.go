@@ -65,11 +65,29 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	message := ""
+	lawfulbasis := ""
+	consentmethod := ""
+	referencecode := ""
 	status := "accept"
 	expiration := int32(0)
 	if value, ok := records["message"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			message = value.(string)
+		}
+	}
+	if value, ok := records["lawfulbasis"]; ok {
+		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+			lawfulbasis = value.(string)
+		}
+	}
+	if value, ok := records["consentmethod"]; ok {
+		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+			consentmethod = value.(string)
+		}
+	}
+	if value, ok := records["referencecode"]; ok {
+		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+			referencecode = value.(string)
 		}
 	}
 	if value, ok := records["status"]; ok {
@@ -95,7 +113,7 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 	case "phone":
 		address = normalizePhone(address, e.conf.Sms.Default_country)
 	}
-	e.db.createConsentRecord(userTOKEN, mode, address, brief, message, status, expiration)
+	e.db.createConsentRecord(userTOKEN, mode, address, brief, message, status, lawfulbasis, consentmethod, referencecode, expiration)
 }
 
 func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
