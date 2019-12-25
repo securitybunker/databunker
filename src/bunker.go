@@ -167,7 +167,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/metrics", e.metrics)
 
 	router.GET("/v1/audit/list/:token", e.getAuditEvents)
-
+	router.GET("/v1/audit/get/:atoken", e.getAuditEvent)
+	
 	router.GET("/", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		data, err := box.Find("index.html")
 		if err != nil {

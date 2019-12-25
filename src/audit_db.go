@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	uuid "github.com/hashicorp/go-uuid"
@@ -103,4 +104,56 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 	resultJSON, err := json.Marshal(records)
 	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, count, nil
+}
+
+func (dbobj dbcon) getAuditEvent(atoken string) (string, []byte, error) {
+	//var results []*auditEvent
+	record, err := dbobj.getRecord(TblName.Audit, "atoken", atoken)
+	if err != nil {
+		return "", nil, err
+	}
+	fmt.Printf("audit record: %s\n", record)
+	before := ""
+	after := ""
+	debug := ""
+	if value, ok := record["before"]; ok {
+		before = value.(string)
+	}
+	if value, ok := record["after"]; ok {
+		after = value.(string)
+	}
+	if value, ok := record["debug"]; ok {
+		debug = value.(string)
+	}
+	//recBson := bson.M{}
+	userTOKEN := ""
+	if value, ok := record["record"]; ok {
+		userTOKEN = value.(string)
+		if len(userTOKEN) > 0 {
+			if len(before) > 0 {
+				before2, after2, _ := dbobj.userDecrypt2(userTOKEN, before, after)
+				log.Printf("before: %s", before2)
+				log.Printf("after: %s", after2)
+				record["before"] = before2
+				record["after"] = after2
+				if len(debug) == 0 {
+					result := fmt.Sprintf(`{"before":%s,"after":%s}`, before2, after2)
+					return userTOKEN, []byte(result), nil
+				}
+				result := fmt.Sprintf(`{"before":%s,"after":%s,"debug":%s}`, before2, after2, debug)
+				return userTOKEN, []byte(result), nil
+			} else if len(after) > 0 {
+				after2, _ := dbobj.userDecrypt(userTOKEN, after)
+				log.Printf("after: %s", after2)
+				record["after"] = after2
+				result := fmt.Sprintf(`{"after":%s,"debug":%s}`, after2, debug)
+				return userTOKEN, []byte(result), nil
+			}
+		}
+	}
+	if len(debug) > 0 {
+		result := fmt.Sprintf(`{"debug":%s}`, debug)
+		return userTOKEN, []byte(result), nil
+	}
+	return userTOKEN, nil, nil
 }
