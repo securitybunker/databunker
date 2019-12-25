@@ -17,7 +17,7 @@ This command will init Databunker service, init database and start container.
 
 This command will print **DATABUNKER_MASTERKEY** and **DATABUNKER_ROOTTOKEN**.
 
-The database will be init in the /tmp/data parent directory.
+The database will be init in the ~/data directory.
 
 **DATABUNKER_MASTERKEY** is used to encrypt database records.
 
@@ -37,7 +37,7 @@ docker kill dbunker
 You can run it again, after it was initalized. Use the following command:
 
 ```
-docker run -p 3000:3000 -v /tmp/data:/databunker/data \
+docker run -p 3000:3000 -v ~/data:/databunker/data \
   -e "DATABUNKER_MASTERKEY=**DATABUNKER_MASTERKEY**" \
   --rm --name dbunker paranoidguy/databunker
 ```
