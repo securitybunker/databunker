@@ -147,16 +147,28 @@
                 msg = row.brief;
             }
             var start = '<div class="d-flex flex-row bd-highlight mb-3">';
-            var d = '<div class="p-1 bd-highlight">When: ' + dateFormat(row.when) + '</div>';
-            if (row.endtime > 0) {
-                d = '<div class="p-1 bd-highlight">When: ' + dateFormat(row.when) + '<br/>' + 
-                    'Expired: ' + dateFormat(row.endtime) + '</div>';
+            var now = Math.floor(Date.now() / 1000);
+            var d = '<div class="p-1 bd-highlight">Created: ' + dateFormat(row.creationtime) + '<br/>';
+            if (row.when != row.creationtime) {
+                d = d+ 'Last updated: ' + dateFormat(row.when) + '<br/>';
             }
+            if (row.starttime > now) {
+                d = d + 'Will start at: ' + dateFormat(row.starttime) + '</br/>';
+            }
+            if (row.endtime > now) {
+                d = d + 'Will expire at: ' + dateFormat(row.endtime) + '</br/>';
+            } else if (row.endtime > 0) {
+                d = d + 'Expired at: ' + dateFormat(row.endtime) + '</br/>';
+            }
+            d = d+ '</div>';
             var info = '<div class="p-1 flex-fill bd-highlight"><strong>'+ msg +'</strong><br/>';
             info = info + '<small>Identity: ' + row.who + ' (' + row.mode + ')</small><br/>';
             info = info + '<small>Lawful basis: ' + row.lawfulbasis + ' (' + row.consentmethod+ ')</small><br/>';
             if (row.referencecode) {
                 info = info + '<small>Reference method: ' + row.referencecode + '</small><br/>';
+            }
+            if (row.freetext) {
+                info = info + '<small>Additional info: ' + row.freetext + '</small><br/>';
             }
             info = info + '</div>'
             var cancel = "<a href=\"javascript:confirmWithdrawal('" + row.brief + "');\">cancel</a>";
