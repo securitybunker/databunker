@@ -269,8 +269,8 @@ Open source version is using local sqlite3 database that does not supports repli
 ## Can my DBA tune database performance characteristics?
 
 Almost all Data Bunker requests are using database level indexes when performing API calls.
-If we are missing something let us know. Open source version is using sqlite3 database.
-It is considered very reliable and used everywhere.
+We would love your DBA to check product database schema for improvements. If we are missing something let us know.
+We are using sqlite3 in open source version and MongoDB in enterprive version.
 
 ## Why Open Source?
 
