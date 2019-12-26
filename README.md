@@ -261,6 +261,12 @@ We have a special API call for that. You can run the following command to dump d
 curl -s http://localhost:3000/v1/sys/backup -H "X-Bunker-Token: $TOKEN" -o backup.sql
 ```
 
+## What about replication?
+
+Replication is supported in **Data Bunker Enterprise version** using the backend **MongoDB database**.
+Open source version is using local sqlite3 database that does not supports replication.
+
+
 ## Why Open Source?
 
 We are a big fan of the open-source movement. After a lot of thoughts and consultations,
