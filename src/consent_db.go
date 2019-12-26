@@ -30,7 +30,7 @@ type consentEvent struct {
 
 func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode string,
 	brief string, message string, status string, lawfulbasis string, consentmethod string,
-	referencecode string, freetext string, lastmodifiedby string, starttime int32, endtime int32) {
+	referencecode string, freetext string, lastmodifiedby string, starttime int32, endtime int32) (bool, error) {
 	now := int32(time.Now().Unix())
 	bdoc := bson.M{}
 	bdoc["when"] = now
@@ -55,21 +55,29 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode s
 		raw, err := dbobj.getRecord2(TblName.Consent, "token", userTOKEN, "brief", brief)
 		if err != nil {
 			fmt.Printf("error to find:%s", err)
-			return
+			return false, err
 		}
 		if raw != nil {
 			dbobj.updateRecord2(TblName.Consent, "token", userTOKEN, "brief", brief, &bdoc, nil)
-			return
+			if status != raw["status"].(string) {
+				// status changed
+				return true, nil
+			}
+			return false, nil
 		}
 	} else {
 		raw, err := dbobj.getRecord2(TblName.Consent, "who", usercode, "brief", brief)
 		if err != nil {
 			fmt.Printf("error to find:%s", err)
-			return
+			return false, err
 		}
 		if raw != nil {
 			dbobj.updateRecord2(TblName.Consent, "who", usercode, "brief", brief, &bdoc, nil)
-			return
+			if status != raw["status"].(string) {
+				// status changed
+				return true, nil
+			}
+			return false, err
 		}
 	}
 	if len(consentmethod) == 0 {
@@ -98,7 +106,9 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode s
 	_, err := dbobj.createRecord(TblName.Consent, structs.Map(ev))
 	if err != nil {
 		fmt.Printf("error to insert record: %s\n", err)
+		return false, err
 	}
+	return true, err
 }
 
 // link consent record to userToken
@@ -175,7 +185,7 @@ func (dbobj dbcon) filterConsentRecords(brief string, offset int32, limit int32)
 	return resultJSON, count, nil
 }
 
-func (dbobj dbcon) expireConsentRecords() error {
+func (dbobj dbcon) expireConsentRecords(notifyUrl string) error {
 	records, err := dbobj.getExpiring(TblName.Consent, "status", "accept")
 	if err != nil {
 		return err
@@ -192,10 +202,17 @@ func (dbobj dbcon) expireConsentRecords() error {
 		if len(userTOKEN) > 0 {
 			fmt.Printf("%s %s\n", userTOKEN, brief)
 			dbobj.updateRecord2(TblName.Consent, "token", userTOKEN, "brief", brief, &bdoc, nil)
+			if len(notifyUrl) > 0 {
+				go notifyConsent(notifyUrl, brief, "expired", "token", userTOKEN)
+			}
 		} else {
 			usercode := rec["who"].(string)
 			dbobj.updateRecord2(TblName.Consent, "who", usercode, "brief", brief, &bdoc, nil)
+			if len(notifyUrl) > 0 {
+				go notifyConsent(notifyUrl, brief, "expired", rec["mode"].(string), usercode)
+			}
 		}
+
 	}
 	return nil
 }

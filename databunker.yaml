@@ -2,7 +2,12 @@
 generic:
   # allow to create user object without login
   create_user_without_token: true
-  #notification_url: "http://localhost/"
+notification:
+  # this should be an iternal url that receives user consent change requests
+  # user details are send as POST data
+  consent_notification_url: "https://httpbin.org/post"
+  profile_notification_url: "https://httpbin.org/post"
+  forgetme_notification_url: "https://httpbin.org/post"
 policy:
   # max time to store records, untill they are deleted
   max_audit_retention_period: "6m"
