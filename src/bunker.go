@@ -133,11 +133,19 @@ func (e mainEnv) index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<html><head><title>title</title></head></html>")
 }
 
+func (e mainEnv) backupDB(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	w.WriteHeader(200)
+	e.db.backupDB(w)
+}
+
 func (e mainEnv) setupRouter() *httprouter.Router {
 
 	box := packr.NewBox("../ui")
 
 	router := httprouter.New()
+
+	router.GET("/v1/sys/backup", e.backupDB)
+
 	router.POST("/v1/user", e.userNew)
 	router.GET("/v1/user/:mode/:address", e.userGet)
 	router.DELETE("/v1/user/:mode/:address", e.userDelete)
