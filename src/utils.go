@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -50,6 +52,12 @@ func getMeta(r *http.Request) string {
 	return meta
 }
 */
+
+func hashString(hash []byte, src string) string {
+	stringToHash := append(hash, []byte(src)...)
+	hashed := sha256.Sum256(stringToHash)
+	return base64.StdEncoding.EncodeToString(hashed[:])
+}
 
 func normalizeBrief(brief string) string {
 	return strings.ToLower(brief)

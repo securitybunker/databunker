@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/md5"
-	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -41,19 +40,13 @@ func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (str
 	// I use original md5(master_key) as a kind of salt here,
 	// so no additional configuration field is needed here.
 	if len(parsedData.loginIdx) > 0 {
-		idxString := append(dbobj.hash, []byte(parsedData.loginIdx)...)
-		idxStringHash := sha256.Sum256(idxString)
-		bdoc["loginidx"] = base64.StdEncoding.EncodeToString(idxStringHash[:])
+		bdoc["loginidx"] = hashString(dbobj.hash, parsedData.loginIdx)
 	}
 	if len(parsedData.emailIdx) > 0 {
-		idxString := append(dbobj.hash, []byte(parsedData.emailIdx)...)
-		idxStringHash := sha256.Sum256(idxString)
-		bdoc["emailidx"] = base64.StdEncoding.EncodeToString(idxStringHash[:])
+		bdoc["emailidx"] = hashString(dbobj.hash, parsedData.emailIdx)
 	}
 	if len(parsedData.phoneIdx) > 0 {
-		idxString := append(dbobj.hash, []byte(parsedData.phoneIdx)...)
-		idxStringHash := sha256.Sum256(idxString)
-		bdoc["phoneidx"] = base64.StdEncoding.EncodeToString(idxStringHash[:])
+		bdoc["phoneidx"] = hashString(dbobj.hash, parsedData.phoneIdx)
 	}
 	if event != nil {
 		event.After = encodedStr
@@ -103,9 +96,7 @@ func (dbobj dbcon) validateIndexChange(indexName string, idxOldValue string, raw
 	//fmt.Println(raw[indexName])
 	if newIdxValue, ok2 := raw[indexName]; ok2 {
 		if reflect.TypeOf(newIdxValue) == reflect.TypeOf("string") {
-			idxString := append(dbobj.hash, []byte(newIdxValue.(string))...)
-			idxStringHash := sha256.Sum256(idxString)
-			idxStringHashHex := base64.StdEncoding.EncodeToString(idxStringHash[:])
+			idxStringHashHex := hashString(dbobj.hash, newIdxValue.(string))
 			if idxStringHashHex != idxOldValue {
 				// old index value renamed
 				// check if this value is uniqueue
@@ -209,9 +200,7 @@ func (dbobj dbcon) updateUserRecordDo(parsedData userJSON, userTOKEN string, eve
 		}
 		if loginCode == 1 {
 			//fmt.Printf("adding index3? %s\n", raw[idx])
-			idxString := append(dbobj.hash, []byte(raw[idx].(string))...)
-			idxStringHash := sha256.Sum256(idxString)
-			bdoc[idx+"idx"] = base64.StdEncoding.EncodeToString(idxStringHash[:])
+			bdoc[idx+"idx"] = hashString(dbobj.hash, raw[idx].(string))
 		}
 	}
 
@@ -259,9 +248,7 @@ func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string, 
 	if len(indexValue) == 0 {
 		return nil, nil
 	}
-	idxString := append(dbobj.hash, []byte(indexValue)...)
-	idxStringHash := sha256.Sum256(idxString)
-	idxStringHashHex := base64.StdEncoding.EncodeToString(idxStringHash[:])
+	idxStringHashHex := hashString(dbobj.hash, indexValue)
 	return dbobj.getRecord(TblName.Users, indexName+"idx", idxStringHashHex)
 }
 
