@@ -2,7 +2,7 @@
 
 **Data Bunker is an information tokenization and storage service build to comply with GDPR and CCPA privacy requirements.**
 
-Project demo is available at: [https://demo.paranoidguy.com/](https://demo.paranoidguy.com/) .
+Project demo is available at: [https://demo.paranoidguy.com/](https://demo.paranoidguy.com/)
 
 We live in a world where our privacy of information is nonexistent, the EU has been working to remediate this fallacy with GDPR, and the US follows with a first sparrow called CCPA.
 
@@ -32,7 +32,7 @@ Other documents: [API LIST](API.md), [INSTALLATION](INSTALLATION.md)
 
 Project demo is available at: [https://demo.paranoidguy.com/](https://demo.paranoidguy.com/) .
 
-**Natural person** or **data subject** demo account:
+You can see management for **Natural person** (**data subject**) account access:
 
 ```
 Phone: 4444
