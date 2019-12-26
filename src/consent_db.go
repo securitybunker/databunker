@@ -157,7 +157,7 @@ func (dbobj dbcon) viewConsentRecord(userTOKEN string, brief string) ([]byte, er
 
 func (dbobj dbcon) filterConsentRecords(brief string, offset int32, limit int32) ([]byte, int64, error) {
 	//var results []*auditEvent
-	count, err := dbobj.countRecords2(TblName.Consent, "brief", brief, "status", "accept")
+	count, err := dbobj.countRecords(TblName.Consent, "brief", brief)
 	if err != nil {
 		return nil, 0, err
 	}
