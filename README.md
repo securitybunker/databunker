@@ -247,6 +247,12 @@ give them access to thier account at Data Bunker.
 
 # Questions
 
+## How do I search for all orders from a guy named John?
+
+Data bunker supports user record lookup by **login name** or **email address** or **phone number** or **token value**.
+So, if you have one of these values, you can do the user record lookup (using Data Bunker API) and get user token.
+After that you can find user' orders from the **orders table**.
+
 ## Why Open Source?
 
 We are a big fan of the open-source movement. After a lot of thoughts and consultations,
