@@ -134,6 +134,9 @@ func (e mainEnv) index(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e mainEnv) backupDB(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	if e.enforceAuth(w, r, nil) == false {
+		return
+	}
 	w.WriteHeader(200)
 	e.db.backupDB(w)
 }
