@@ -138,8 +138,17 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 	case "phone":
 		address = normalizePhone(address, e.conf.Sms.Default_country)
 	}
-	e.db.createConsentRecord(userTOKEN, mode, address, brief, message, status, lawfulbasis, consentmethod,
+	newStatus, _ := e.db.createConsentRecord(userTOKEN, mode, address, brief, message, status, lawfulbasis, consentmethod,
 		referencecode, freetext, lastmodifiedby, starttime, expiration)
+	notifyUrl := e.conf.Notification.Consent_notification_url
+	if newStatus == true && len(notifyUrl) > 0 {
+		// change notificate on new record or if status change
+		if len(userTOKEN) > 0 {
+			go notifyConsent(notifyUrl, brief, status, "token", userTOKEN)
+		} else {
+			go notifyConsent(notifyUrl, brief, status, mode, address)
+		}
+	}
 }
 
 func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -213,6 +222,14 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"status":"ok"}`))
+	notifyUrl := e.conf.Notification.Consent_notification_url
+	if len(notifyUrl) > 0 {
+		if len(userTOKEN) > 0 {
+			go notifyConsent(notifyUrl, brief, "cancel", "token", userTOKEN)
+		} else {
+			go notifyConsent(notifyUrl, brief, "cancel", mode, address)
+		}
+	}
 }
 
 func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

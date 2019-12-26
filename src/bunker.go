@@ -47,6 +47,11 @@ type Config struct {
 	Generic struct {
 		Create_user_without_token bool `yaml:"create_user_without_token"`
 	}
+	Notification struct {
+		Consent_notification_url string `yaml:"consent_notification_url"`
+		Profile_notification_url string `yaml:"profile_notification_url"`
+		Forgetme_notification_url string `yaml:"forgetme_notification_url"`
+	}
 	Policy struct {
 		Max_audit_retention_period string `yaml:"max_audit_retention_period"`
 		Max_session_retention_period string `yaml:"max_session_retention_period"`
@@ -251,7 +256,8 @@ func (e mainEnv) dbCleanup() {
 				if exp > 0 {
 					e.db.deleteExpired0(TblName.Audit, exp)
 				}
-				e.db.expireConsentRecords()
+				notifyUrl := e.conf.Notification.Consent_notification_url
+				e.db.expireConsentRecords(notifyUrl)
 			case <-e.stopChan:
 				log.Printf("db cleanup closed\n")
 				ticker.Stop()
