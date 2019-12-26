@@ -17,11 +17,13 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/schollz/sqlite3dump"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -130,8 +132,17 @@ func (dbobj dbcon) initDB() error {
 	}
 	return nil
 }
+
 func (dbobj dbcon) closeDB() {
 	dbobj.db.Close()
+}
+
+func (dbobj dbcon) backupDB(w http.ResponseWriter) {
+	err := sqlite3dump.DumpDB(dbobj.db, w)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Printf("error in backup: %s", err)
+	}
 }
 
 func (dbobj dbcon) initUserApps() error {

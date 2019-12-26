@@ -253,6 +253,14 @@ Data bunker supports user record lookup by **login name** or **email address** o
 So, if you have one of these values, you can do the user record lookup (using Data Bunker API) and get user token.
 After that you can find user' orders from the **orders table**.
 
+## How to backup Data Bunker database?
+
+We have a special API call for that. You can run the following command to dump database in SQL format:
+
+```
+curl -s http://localhost:3000/v1/sys/backup -H "X-Bunker-Token: $TOKEN" -o backup.sql
+```
+
 ## Why Open Source?
 
 We are a big fan of the open-source movement. After a lot of thoughts and consultations,
