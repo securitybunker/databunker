@@ -1,6 +1,6 @@
 # Paranoid Guy Data Bunker
 
-Other documents: [API LIST](API.md), [INSTALLATION](INSTALLATION.md)
+Project demo is available at: [https://demo.paranoidguy.com/](https://demo.paranoidguy.com/) .
 
 **Data Bunker is an information tokenization and storage service build to comply with GDPR and CCPA privacy requirements.**
 
@@ -26,6 +26,21 @@ need to consult with an attorney specializing in privacy.
 #### Diagram of Solution with Paranoid Guy Data Bunker
 ![picture](images/new-style-solution.png)
 
+Other documents: [API LIST](API.md), [INSTALLATION](INSTALLATION.md)
+
+## Demo
+
+Project demo is available at: [https://demo.paranoidguy.com/](https://demo.paranoidguy.com/) .
+
+**Natural person** or **data subject** demo account:
+
+Phone: 4444
+
+Code: 4444
+
+Email: test@paranoidguy.com
+
+Code: 4444
 
 ---
 
@@ -260,14 +275,14 @@ Following is a partial list.
 # Technology stack?
 
 We use golang/go to build the whole project. Open source version comes with internal
-database and Web UI as one executable file to make the project easy to deploy.
+database (**sqlite3**) and Web UI as one executable file to make the project easy to deploy.
 
 ## Encryption in motion and encryption in storage
 
 All access to Data Bunker API is done using HTTPS SSL certificate. All records that have user personal information
 are encrypted or securely hashed in the databases. All user records are encrypted with a 32 byte key comprizing of
-System Master key (24 bytes, stored in memory, not on disk) and user record key (8 bytes, stored on disk).
-Enterprise version supports **Master key split**. The Master key is kept in RAM and is never stored to disk.
+**System Master key** (24 bytes, stored in memory, not on disk) and **user record key** (8 bytes, stored on disk).
+The **System Master key** is kept in RAM and is never stored to disk. Enterprise version supports **Master key split**. 
 
 ## Data Bunker internal tables
 
@@ -280,7 +295,7 @@ Detailed use case for each table is covered bellow.
 
 ---
 
-# Enterprise features (not in open source version)
+# Enterprise features (not an open source version)
 
 ## Support for Mongo backend
 
