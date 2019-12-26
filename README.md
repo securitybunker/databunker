@@ -30,7 +30,7 @@ Other documents: [API LIST](API.md), [INSTALLATION](INSTALLATION.md)
 
 ## Demo
 
-Project demo is available at: [https://demo.paranoidguy.com/](https://demo.paranoidguy.com/) .
+Project demo is available at: [https://demo.paranoidguy.com/](https://demo.paranoidguy.com/)
 
 You can see management for **Natural person** (**data subject**) account access:
 
@@ -70,6 +70,9 @@ consents and a callback operation will be fired when a user action takes place.
 ![Consent management](images/ui-consent-management.png)
 ![Consent withdrawal](images/ui-consent-withdrawal.png)
 
+**NOTE**: Data bunker can call your backend script on consent withdrawal. You need to handle these requests and remove
+user records from 3rd party processing companies. For example from web recording services, from email gateways, etc...
+
 ## Privacy by design
 
 This product, from the architecture level and up was built to comply with strict privacy laws. Deploying this project will make your architecture 
@@ -77,7 +80,7 @@ This product, from the architecture level and up was built to comply with strict
 
 ## Transparency and Accountability principle
 
-Any system or user that connects to Data Bunker must provide an access token to do any operation or the operation will be aborted. A user can login into his profile with a random code we sned by email or SMS.
+Any system or user that connects to Data Bunker must provide an access token to do any operation or the operation will be aborted. A user can login into his profile with a random code we send by email or SMS.
 
 All operations with personal records are **saved in the audit log**.
 
@@ -95,6 +98,8 @@ wiped out of the Data Bunker database, giving you the possibility to leave all i
 **NOTE**: You just need to make sure that you do not have any user identifiable information in your other databases,
 logs, files. 
 
+**NOTE2**: Data bunker can call your backend script on user removal. You need to handle these requests and remove
+user records from 3rd party processing companies. For example from web recording services, from email gateways, etc...
 
 ## Right to rectification/ Data Accuracy
 
