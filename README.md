@@ -266,6 +266,11 @@ curl -s http://localhost:3000/v1/sys/backup -H "X-Bunker-Token: $TOKEN" -o backu
 Replication is supported in **Data Bunker Enterprise version** using the backend **MongoDB database**.
 Open source version is using local sqlite3 database that does not supports replication.
 
+## Can my DBA tune database performance characteristics?
+
+Almost all Data Bunker requests are using database level indexes when performing API calls.
+If we are missing something let us know. Open source version is using sqlite3 database.
+It is considered very reliable and used everywhere.
 
 ## Why Open Source?
 
