@@ -174,15 +174,17 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		userTOKEN = userBson["token"].(string)
 		event.Record = userTOKEN
 	}
-	err = e.db.updateUserRecord(parsedData, userTOKEN, event, e.conf)
+	newJSON, err := e.db.updateUserRecord(parsedData, userTOKEN, event, e.conf)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	returnUUID(w, userTOKEN)
-	return
+	notifyUrl := e.conf.Notification.Profile_notification_url
+	notifyForgetMe(notifyUrl, newJSON, "token", userTOKEN)
 }
 
+// user forgetme request comes here
 func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
@@ -196,22 +198,25 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
-	if mode == "token" && enforceUUID(w, address, event) == false {
+	var err error
+	var resultJSON []byte
+	userTOKEN := address
+	if mode == "token" {
+		if enforceUUID(w, address, event) == false {
+			return
+		}
+		resultJSON, err = e.db.getUser(address)
+	} else {
+		resultJSON, userTOKEN, err = e.db.getUserIndex(address, mode, e.conf)
+		event.Record = userTOKEN
+	}
+	if err != nil {
+		returnError(w, r, "internal error", 405, nil, event)
 		return
 	}
-	userTOKEN := address
-	if mode != "token" {
-		userBson, err := e.db.lookupUserRecordByIndex(mode, address, e.conf)
-		if err != nil {
-			returnError(w, r, "internal error", 405, err, event)
-			return
-		}
-		if userBson == nil {
-			returnError(w, r, "internal error", 405, nil, event)
-			return
-		}
-		userTOKEN = userBson["token"].(string)
-		event.Record = userTOKEN
+	if resultJSON == nil {
+		returnError(w, r, "record not found", 405, nil, event)
+		return
 	}
 	fmt.Printf("deleting user %s", userTOKEN)
 	result, err := e.db.deleteUserRecord(userTOKEN)
@@ -227,6 +232,8 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","result":"done"}`)
+	notifyUrl := e.conf.Notification.Forgetme_notification_url
+	notifyForgetMe(notifyUrl, resultJSON, "token", userTOKEN)
 }
 
 func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

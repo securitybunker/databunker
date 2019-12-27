@@ -144,9 +144,9 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 	if newStatus == true && len(notifyUrl) > 0 {
 		// change notificate on new record or if status change
 		if len(userTOKEN) > 0 {
-			go notifyConsent(notifyUrl, brief, status, "token", userTOKEN)
+			notifyConsentChange(notifyUrl, brief, status, "token", userTOKEN)
 		} else {
-			go notifyConsent(notifyUrl, brief, status, mode, address)
+			notifyConsentChange(notifyUrl, brief, status, mode, address)
 		}
 	}
 }
@@ -223,13 +223,12 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 	w.WriteHeader(200)
 	w.Write([]byte(`{"status":"ok"}`))
 	notifyUrl := e.conf.Notification.Consent_notification_url
-	if len(notifyUrl) > 0 {
-		if len(userTOKEN) > 0 {
-			go notifyConsent(notifyUrl, brief, "cancel", "token", userTOKEN)
-		} else {
-			go notifyConsent(notifyUrl, brief, "cancel", mode, address)
-		}
+	if len(userTOKEN) > 0 {
+		notifyConsentChange(notifyUrl, brief, "cancel", "token", userTOKEN)
+	} else {
+		notifyConsentChange(notifyUrl, brief, "cancel", mode, address)
 	}
+
 }
 
 func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
