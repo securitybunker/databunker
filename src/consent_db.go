@@ -202,15 +202,11 @@ func (dbobj dbcon) expireConsentRecords(notifyUrl string) error {
 		if len(userTOKEN) > 0 {
 			fmt.Printf("%s %s\n", userTOKEN, brief)
 			dbobj.updateRecord2(TblName.Consent, "token", userTOKEN, "brief", brief, &bdoc, nil)
-			if len(notifyUrl) > 0 {
-				go notifyConsent(notifyUrl, brief, "expired", "token", userTOKEN)
-			}
+			notifyConsentChange(notifyUrl, brief, "expired", "token", userTOKEN)
 		} else {
 			usercode := rec["who"].(string)
 			dbobj.updateRecord2(TblName.Consent, "who", usercode, "brief", brief, &bdoc, nil)
-			if len(notifyUrl) > 0 {
-				go notifyConsent(notifyUrl, brief, "expired", rec["mode"].(string), usercode)
-			}
+			notifyConsentChange(notifyUrl, brief, "expired", rec["mode"].(string), usercode)
 		}
 
 	}

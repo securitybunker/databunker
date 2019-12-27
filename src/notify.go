@@ -1,21 +1,48 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
 )
 
-func notifyConsent(notifyUrl string, brief string, status string, mode string, address string) {
-	formData := url.Values{
-		"action":  {"consentchange"},
-		"brief":   {brief},
-		"status":  {status},
-		"mode":    {mode},
-		"address": {address},
+func notifyProfileChange(notifyUrl string, profile []byte, mode string, address string) {
+	if len(notifyUrl) == 0 {
+		return
 	}
-	resp, err := http.PostForm(notifyUrl, formData)
+	requestBody := fmt.Sprintf(`{"action":"%s","address":"%s","mode":"%s","profile":%s}`,
+		"profilechange", address, mode, profile)
+	go notify(notifyUrl, []byte(requestBody))
+}
+
+func notifyForgetMe(notifyUrl string, profile []byte, mode string, address string) {
+	if len(notifyUrl) == 0 {
+		return
+	}
+	requestBody := fmt.Sprintf(`{"action":"%s","address":"%s","mode":"%s","profile":%s}`,
+		"forgetme", address, mode, profile)
+	go notify(notifyUrl, []byte(requestBody))
+}
+
+func notifyConsentChange(notifyUrl string, brief string, status string, mode string, address string) {
+	if len(notifyUrl) == 0 {
+		return
+	}
+	requestBody, _ := json.Marshal(map[string]string{
+		"action":  "consentchange",
+		"brief":   brief,
+		"status":  status,
+		"mode":    mode,
+		"address": address,
+	})
+	go notify(notifyUrl, requestBody)
+}
+
+func notify(notifyUrl string, requestBody []byte) {
+	resp, err := http.Post(notifyUrl, "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
 		log.Printf("error in notify: %s", err)
 		return
@@ -26,5 +53,5 @@ func notifyConsent(notifyUrl string, brief string, status string, mode string, a
 		log.Printf("error in body read: %s", err)
 		return
 	}
-	log.Printf("Consent notification result: %s", string(body))
+	log.Printf("Notification result: %s", string(body))
 }
