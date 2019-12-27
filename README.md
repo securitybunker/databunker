@@ -277,6 +277,14 @@ Almost all Data Bunker requests are using database level indexes when performing
 We would love your DBA to check product database schema for improvements. If we are missing something let us know.
 We are using sqlite3 in open source version and MongoDB in enterprive version.
 
+## What is the difference between tokenization solution XXX and Data Bunker?
+
+Most of commercial tokenization solutions are used to tokenize one specific record, for example user name or 
+user email, etc... These distinct records are not linked to one user record. In our solution, we tokenize the 
+whole user record with all the details, that gives us many additional capabilities. So, in our system, the
+**end customer** (**Natural person** or **data subject**) can "login" into his profile, change record or
+manage his consents, or ask for **forget me**. In addition we provide many APIs to help with GDPR requirements.
+
 ## Why Open Source?
 
 We are a big fan of the open-source movement. After a lot of thoughts and consultations,
