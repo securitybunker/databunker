@@ -2,7 +2,7 @@
 
 **Data Bunker is an information tokenization and storage service build to comply with GDPR and CCPA privacy requirements.**
 
-Project demo is available at: [https://demo.paranoidguy.com/](https://demo.paranoidguy.com/) . Please add a **star** if you like our project.
+Project **demo** is available at: [https://demo.paranoidguy.com/](https://demo.paranoidguy.com/) . Please add a **star** if you like our project.
 
 We live in a world where our privacy of information is nonexistent, the EU has been working to remediate this fallacy with GDPR, and the US follows with a first sparrow called CCPA.
 
@@ -93,18 +93,19 @@ Your customer can log in to his account at Data Bunker and view the audit trail.
 When your customer asks for his **right to be forgotten** legal right, his private records will be
 wiped out of the Data Bunker database, giving you the possibility to leave all internal databases unchanged.
 
+Upon user removal request, Data bunker can call your backend script with the user details. You need to handle these
+requests and remove user records from 3rd party processing companies. For example from web recording services,
+from email gateways, etc...
+
 ![Forget me](images/ui-forget-me.png)
 
 **NOTE**: You just need to make sure that you do not have any user identifiable information in your other databases,
-logs, files. 
-
-**NOTE2**: Data bunker can call your backend script on user removal. You need to handle these requests and remove
-user records from 3rd party processing companies. For example from web recording services, from email gateways, etc...
+logs, files.
 
 ## Right to rectification/ Data Accuracy
 
-Your customer/user can log in to his personal account at Data Bunker and change his records. Data Bunker will
-fire a callback operation when a user action takes place.
+Your customer/user can log in to his personal account at Data Bunker and change his records, for example change Name.
+Data Bunker can fire a callback operation with a user details, when a user action takes place.
 
 ![Change profile](images/ui-profile-edit-and-save.png)
 
@@ -269,7 +270,9 @@ curl -s http://localhost:3000/v1/sys/backup -H "X-Bunker-Token: $TOKEN" -o backu
 ## What about replication?
 
 Replication is supported in **Data Bunker Enterprise version** using the backend **MongoDB database**.
-Open source version is using local sqlite3 database that does not supports replication.
+Open source version is using local sqlite3 database that does not supports replication. You can easily backup it
+using API call and restore. We decided to use sqlite3 as as it provides zero effort from user to start using
+our product.
 
 ## Can my DBA tune database performance characteristics?
 
