@@ -278,7 +278,8 @@ our product.
 
 Almost all Data Bunker requests are using database level indexes when performing API calls.
 We would love your DBA to check product database schema for improvements. If we are missing something let us know.
-We are using sqlite3 in open source version and MongoDB in enterprive version.
+We are using sqlite3 in open source version and MongoDB in enterprive version. You can easily backup sqlite3
+database and view it's structure.
 
 ## What is the difference between tokenization solution XXX and Data Bunker?
 
