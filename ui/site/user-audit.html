@@ -32,8 +32,14 @@
     var xtoken = window.localStorage.getItem('xtoken');
     var token = window.localStorage.getItem('token');
     function displayDrillDownLink(atoken, row, index) {
-      return '<a href=\'javascript:displayAudit(\"' + atoken + '\");\'>*</a>';
+      if (row.more) {
+        console.log(row);
+        return '<a href=\'javascript:displayAudit(\"' + atoken + '\");\'>*</a>';
+      }
+      return '';
     }
+    var confirmModal;
+
     function displayAudit(atoken) {
       var xhr0 = new XMLHttpRequest();
       // first save consent
@@ -49,7 +55,7 @@
           if (data.status == "ok") {
             var d = JSON.stringify(data.event, null, 4);
             setTimeout(function () {
-              $('#drilldown').append('<code class="json">' + d + '</code>');
+              $('#drilldown').html('<code class="json">' + d + '</code>');
               document.querySelectorAll('pre code').forEach((block) => {
                 hljs.highlightBlock(block);
               });
@@ -62,7 +68,12 @@
       var heading = "Audit drill down";
       var text = "Display audit event: " + atoken;
       var cancelButtonTxt = "Close popup";
-      var confirmModal =
+      if (confirmModal) {
+        $('#audit-event-text').text(text)
+        confirmModal.modal('show');
+        return;
+      }
+      confirmModal =
         $('<div class="modal fade" role="dialog"><div class="modal-dialog" role="document"><div class="modal-content">' +
           '<div class="modal-header">' +
           '<h5 class="modal-title">' + heading + '</h5>' +
@@ -70,7 +81,7 @@
           '<span aria-hidden="true">&times;</span></button>' +
           '</div>' +
           '<div class="modal-body">' +
-          '<p>' + text + '</p>' +
+          '<p id="audit-event-text">' + text + '</p>' +
           '<pre id="drilldown"></pre>' +
           '</div>' +
           '<div class="modal-footer">' +
