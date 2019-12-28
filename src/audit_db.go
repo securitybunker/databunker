@@ -100,7 +100,25 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 	if err != nil {
 		return nil, 0, err
 	}
+	var results []bson.M
 	records, err := dbobj.getList(TblName.Audit, "record", userTOKEN, offset, limit)
+	for _, element := range records {
+		element["more"] = false
+		if _, ok := element["before"]; ok {
+			element["more"] = true
+			element["before"] = ""
+		}
+		if _, ok := element["after"]; ok {
+			element["more"] = true
+			element["after"] = ""
+		}
+		if _, ok := element["debug"]; ok {
+			element["more"] = true
+			element["debug"] = ""
+		}
+		results = append(results, element)
+	}
+
 	resultJSON, err := json.Marshal(records)
 	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, count, nil
@@ -140,19 +158,19 @@ func (dbobj dbcon) getAuditEvent(atoken string) (string, []byte, error) {
 					result := fmt.Sprintf(`{"before":%s,"after":%s}`, before2, after2)
 					return userTOKEN, []byte(result), nil
 				}
-				result := fmt.Sprintf(`{"before":%s,"after":%s,"debug":%s}`, before2, after2, debug)
+				result := fmt.Sprintf(`{"before":%s,"after":%s,"debug":"%s"}`, before2, after2, debug)
 				return userTOKEN, []byte(result), nil
 			} else if len(after) > 0 {
 				after2, _ := dbobj.userDecrypt(userTOKEN, after)
 				log.Printf("after: %s", after2)
 				record["after"] = after2
-				result := fmt.Sprintf(`{"after":%s,"debug":%s}`, after2, debug)
+				result := fmt.Sprintf(`{"after":%s,"debug":"%s"}`, after2, debug)
 				return userTOKEN, []byte(result), nil
 			}
 		}
 	}
 	if len(debug) > 0 {
-		result := fmt.Sprintf(`{"debug":%s}`, debug)
+		result := fmt.Sprintf(`{"debug":"%s"}`, debug)
 		return userTOKEN, []byte(result), nil
 	}
 	return userTOKEN, nil, nil
