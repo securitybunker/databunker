@@ -17,6 +17,8 @@ This command will init Databunker service, init database and start container.
 
 This command will print **DATABUNKER_MASTERKEY** and **DATABUNKER_ROOTTOKEN**.
 
+You can run: ```docker logs dbunker``` to view these codes.
+
 The database will be init in the ~/data directory.
 
 **DATABUNKER_MASTERKEY** is used to encrypt database records.
@@ -38,6 +40,32 @@ You can run it again, after it was initalized. Use the following command:
 
 ```
 docker run -p 3000:3000 -v ~/data:/databunker/data \
+  -e "DATABUNKER_MASTERKEY=**DATABUNKER_MASTERKEY**" \
+  --rm --name dbunker paranoidguy/databunker
+```
+
+# Custom configuration
+
+Databunker has a configuration file that you can alter to enable custom email gateway, notification urls,
+twilio account (sms gateway), etc...
+
+There are number of ways you can change configuration file it in container, for example by creating your own Docker file.
+Another option is to create this file outside of container in conf/ directory and mount this directory in container.
+
+### You can do it as following:
+
+1. Download default configuration file and place it in ~/conf/ directory.
+```
+mkdir ~/conf
+curl https://raw.githubusercontent.com/paranoidguy/databunker/master/create-test-user.sh -o ~/conf/databunker.yaml
+```
+
+2. After that you can alter the configuration file with your editor: **~/conf/databunker.yaml**
+
+3. Run container and mount ~/conf/ directory:
+
+```
+docker run -p 3000:3000 -v ~/data:/databunker/data -v ~/conf:/databunker/conf \
   -e "DATABUNKER_MASTERKEY=**DATABUNKER_MASTERKEY**" \
   --rm --name dbunker paranoidguy/databunker
 ```
