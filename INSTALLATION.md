@@ -49,7 +49,7 @@ docker run -p 3000:3000 -v ~/data:/databunker/data \
 Databunker has a configuration file that you can alter to enable custom email gateway, notification urls,
 twilio account (sms gateway), etc...
 
-There are number of ways you can change configuration file it in container, for example by creating your own Docker file.
+There are number of ways you can change configuration file in container, for example by creating your own Docker file.
 Another option is to create this file outside of container in conf/ directory and mount this directory in container.
 
 ### You can do it as following:
@@ -57,7 +57,8 @@ Another option is to create this file outside of container in conf/ directory an
 1. Download default configuration file and place it in ~/conf/ directory.
 ```
 mkdir ~/conf
-curl https://raw.githubusercontent.com/paranoidguy/databunker/master/create-test-user.sh -o ~/conf/databunker.yaml
+curl https://raw.githubusercontent.com/paranoidguy/databunker/master/create-test-user.sh \ 
+  -o ~/conf/databunker.yaml
 ```
 
 2. After that you can alter the configuration file with your editor: **~/conf/databunker.yaml**
