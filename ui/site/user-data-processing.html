@@ -48,7 +48,7 @@
             </div>
             <div class="bigblock">
                 <h4>Data processing requests</h4>
-                <p id="msg">List of all user consents. You can allow and cancel your consent request here.</p>
+                <p id="msg">List of all user consents. You can give or withdraw consent any time here.</p>
                 <div id="data"></div>
             </div>
         </div>
@@ -161,7 +161,7 @@
                 d = d + 'Expired at: ' + dateFormat(row.endtime) + '</br/>';
             }
             d = d + '</div>';
-            var info = '<div class="col-7"><strong>' + msg + '</strong><br/>';
+            var info = '<div class="col-7"><strong>Consent: ' + msg + '</strong><br/>';
             info = info + '<small>Identity: ' + row.who + ' (' + row.mode + ')</small><br/>';
             info = info + '<small>Lawful basis: ' + row.lawfulbasis + ' (' + row.consentmethod + ')</small><br/>';
             if (row.referencecode) {

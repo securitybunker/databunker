@@ -111,3 +111,10 @@ h4 {
     padding-top: 120px!important;
     padding-bottom: 120px!important;
 }
+.shortstring {
+    display: block;
+    text-overflow: ellipsis; 
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 130px;
+}
