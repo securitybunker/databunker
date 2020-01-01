@@ -174,14 +174,15 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		userTOKEN = userBson["token"].(string)
 		event.Record = userTOKEN
 	}
-	newJSON, err := e.db.updateUserRecord(parsedData, userTOKEN, event, e.conf)
+	oldJSON, newJSON, err := e.db.updateUserRecord(parsedData, userTOKEN, event, e.conf)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	returnUUID(w, userTOKEN)
 	notifyUrl := e.conf.Notification.Profile_notification_url
-	notifyForgetMe(notifyUrl, newJSON, "token", userTOKEN)
+
+	notifyProfileChange(notifyUrl, oldJSON, newJSON, "token", userTOKEN)
 }
 
 // user forgetme request comes here
