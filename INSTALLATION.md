@@ -57,7 +57,7 @@ Another option is to create this file outside of container in conf/ directory an
 1. Download default configuration file and place it in ~/conf/ directory.
 ```
 mkdir ~/conf
-curl https://raw.githubusercontent.com/paranoidguy/databunker/master/create-test-user.sh \ 
+curl https://raw.githubusercontent.com/paranoidguy/databunker/master/databunker.yaml \ 
   -o ~/conf/databunker.yaml
 ```
 
