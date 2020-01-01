@@ -92,6 +92,8 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	}
 	event.Record = userTOKEN
 	returnUUID(w, userTOKEN)
+	notifyUrl := e.conf.Notification.Profile_notification_url
+	notifyProfileNew(notifyUrl, parsedData.jsonData, "token", userTOKEN)
 	return
 }
 
@@ -181,7 +183,6 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	returnUUID(w, userTOKEN)
 	notifyUrl := e.conf.Notification.Profile_notification_url
-
 	notifyProfileChange(notifyUrl, oldJSON, newJSON, "token", userTOKEN)
 }
 
