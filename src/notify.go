@@ -9,6 +9,15 @@ import (
 	"net/http"
 )
 
+func notifyProfileNew(notifyUrl string, profile []byte, mode string, address string) {
+	if len(notifyUrl) == 0 {
+		return
+	}
+	requestBody := fmt.Sprintf(`{"action":"%s","address":"%s","mode":"%s","profile":%s}`,
+		"profilenew", address, mode, profile)
+	go notify(notifyUrl, []byte(requestBody))
+}
+
 func notifyProfileChange(notifyUrl string, old []byte, profile []byte, mode string, address string) {
 	if len(notifyUrl) == 0 {
 		return
