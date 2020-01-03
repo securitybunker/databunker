@@ -1,6 +1,6 @@
 # Paranoid Guy Data Bunker
 
-**Data Bunker is an information tokenization and storage service build to comply with GDPR and CCPA privacy requirements.**
+**Data Bunker is a personally identifiable information (PII) storage service build to comply with GDPR and CCPA privacy requirements.**
 
 Project **demo** is available at: [https://demo.paranoidguy.com/](https://demo.paranoidguy.com/) . Please add a **star** if you like our project. Also join project **slack** [channel](https://join.slack.com/t/paranoidguy/shared_invite/enQtODc2OTE1NjYyODM1LTI0MmM2ZmYwZDI0MzExMjJmOGQyMTY4Y2UzOTQ0ZDIwOTZjMmRkZDZkY2I3MzE1OWE3ZWVmNTY4MjIwMzNhZTQ) to get updates.
 
@@ -155,15 +155,15 @@ you can query the Data Bunker service to receive personal information, saving au
 
 When creating application, I suppose you do not want to mix your customer data with data from other applications.
 In addition to personal information record, Data Bunker provides you a way to store your app user information in a
-specific type of record for that. So, you can retreave only your app' user personal information. For example you
-can store user shipping information is additional app table.
+specific type of record for that. So, you can retrieve only your app' user personal information. For example you
+can store user shipping information in an additional app table.
 
 ![picture](images/create-user-app-record.png)
 
 ## Audit of all operations with personal records
 
 Data Bunker saves audit events on all API operation. For example, new personal record added or changed; personal information
-record retreaved, etc...
+record retrieved, etc...
 
 By providing Audit of events, in relation to personal data, provides response to GDRP Article 15 requirement:
 *Right of access by the data subject*.
@@ -190,7 +190,7 @@ simply store this information in logs. This information, according to GDPR is co
 information and must be secured and controlled.
 
 So, you can not save user ip or browser information in logs now. Insead, Data Bunker will generate you a special token to
-save in logs. Data Bunker provides you an API to retreave this info out of Data Bunker without additional password
+save in logs. Data Bunker provides you an API to retrieve this info out of Data Bunker without additional password
 for a limited time as in GDPR. For example one month.
 
 ![picture](images/create-user-session-flow.png)
