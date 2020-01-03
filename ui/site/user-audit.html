@@ -144,27 +144,27 @@
             <div class="navbar-nav">
               <a class="nav-item nav-link" href="user-profile.html">Profile <span class="sr-only">(current)</span></a>
               <a class="nav-item nav-link" href="user-apps.html">Data</a>
-              <a class="nav-item nav-link" href="user-data-processing.html">My consents</a>
-              <a class="nav-item nav-link active" href="user-audit.html">Audit</a>
+              <a class="nav-item nav-link" href="user-data-processing.html">My Consents</a>
+              <a class="nav-item nav-link active" href="user-audit.html">History</a>
               <a class="nav-item nav-link" href="javascript:bunker_logout();">Logout</a>
             </div>
           </div>
         </nav>
       </div>
       <div class="bigblock">
-        <h4>Audit table</h4>
-        <p id="msg">List of audit events</p>
+        <h4>Profile activity access history</h4>
+        <p id="msg">All activities perforned on my profile and data are listed below.</p>
         <table id="table" class="table">
           <thead>
             <tr>
-              <th scope="col" data-field="when" data-formatter="dateFormat">when</th>
-              <th scope="col" data-field="identity" data-formatter="shortString">Identity</th>
-              <th scope="col" data-field="who" data-formatter="shortString">Target</th>
+              <th scope="col" data-field="when" data-formatter="dateFormat">Time</th>
+              <th scope="col" data-field="identity" data-formatter="shortString">Who Accessed</th>
+              <th scope="col" data-field="who" data-formatter="shortString">Target Object</th>
               <th scope="col" data-field="mode">Mode</th>
-              <th scope="col" data-field="app">App</th>
-              <th scope="col" data-field="title">Title</th>
+              <th scope="col" data-field="app">Add. Data</th>
+              <th scope="col" data-field="title">Activity</th>
               <th scope="col" data-field="status">Status</th>
-              <th scope="col" data-field="msg">Msg</th>
+              <th scope="col" data-field="msg">Message</th>
               <th scope="col" data-field="atoken" data-formatter="displayDrillDownLink">More</th>
             </tr>
           </thead>
