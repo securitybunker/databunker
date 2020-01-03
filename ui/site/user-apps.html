@@ -42,16 +42,16 @@
                         <div class="navbar-nav">
                             <a class="nav-item nav-link" href="user-profile.html">Profile</a>
                             <a class="nav-item nav-link active" href="user-apps.html">Data</a>
-                            <a class="nav-item nav-link" href="user-data-processing.html">My consents</a>
-                            <a class="nav-item nav-link" href="user-audit.html">Audit</a>
+                            <a class="nav-item nav-link" href="user-data-processing.html">My Consents</a>
+                            <a class="nav-item nav-link" href="user-audit.html">History</a>
                             <a class="nav-item nav-link" href="javascript:bunker_logout();">Logout</a>
                         </div>
                     </div>
                 </nav>
             </div>
             <div class="bigblock">
-                <h4>User apps data</h4>
-                <p id="msg">text</p>
+                <h4>My additional data</h4>
+                <p id="msg"></p>
                 <pre id="data"></pre>
             </div>
         </div>
@@ -68,7 +68,8 @@
                     var data = JSON.parse(xhr0.responseText);
                     if (data.status == "ok") {
                         var d = JSON.stringify(data.data, null, 4);
-                        $('#data').append('<h4>Table: '+app+'</h4><code class="json">' + d + '</code>');
+                        const displayApp = app.charAt(0).toUpperCase() + app.substring(1);
+                        $('#data').append('<h4>'+displayApp+'</h4><code class="json">' + d + '</code>');
                         document.querySelectorAll('pre code').forEach((block) => {
                             hljs.highlightBlock(block);
                         });
@@ -90,7 +91,7 @@
         xhr.setRequestHeader('Content-type', 'application/json');
         xhr.onload = function () {
             if (xhr.status === 200) {
-                $('#msg').text("Data loaded.");
+                //$('#msg').text("Data loaded.");
                 var data = JSON.parse(xhr.responseText);
                 if (data.apps) {
                     var index;
