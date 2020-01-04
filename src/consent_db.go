@@ -119,7 +119,7 @@ func (dbobj dbcon) linkConsentRecords(userTOKEN string, mode string, usercode st
 	return err
 }
 
-func (dbobj dbcon) cancelConsentRecord(userTOKEN string, brief string, mode string, usercode string, lastmodifiedby string) error {
+func (dbobj dbcon) withdrawConsentRecord(userTOKEN string, brief string, mode string, usercode string, lastmodifiedby string) error {
 	// brief can not be too long, may be hash it ?
 	if len(brief) > 64 {
 		return errors.New("Brief value is too long")
@@ -131,7 +131,7 @@ func (dbobj dbcon) cancelConsentRecord(userTOKEN string, brief string, mode stri
 	bdoc["mode"] = mode
 	bdoc["who"] = usercode
 	bdoc["endtime"] = 0
-	bdoc["status"] = "cancel"
+	bdoc["status"] = "no"
 	bdoc["lastmodifiedby"] = lastmodifiedby
 	if len(userTOKEN) > 0 {
 		fmt.Printf("%s %s\n", userTOKEN, brief)
@@ -186,7 +186,7 @@ func (dbobj dbcon) filterConsentRecords(brief string, offset int32, limit int32)
 }
 
 func (dbobj dbcon) expireConsentRecords(notifyUrl string) error {
-	records, err := dbobj.getExpiring(TblName.Consent, "status", "accept")
+	records, err := dbobj.getExpiring(TblName.Consent, "status", "yes")
 	if err != nil {
 		return err
 	}

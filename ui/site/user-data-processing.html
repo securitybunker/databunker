@@ -171,10 +171,10 @@
                 info = info + '<small>Additional info: ' + row.freetext + '</small><br/>';
             }
             info = info + '</div>'
-            var cancel = "<a href=\"javascript:confirmWithdrawal('" + row.brief + "');\">Withdraw</a>";
+            var withdraw = "<a href=\"javascript:confirmWithdrawal('" + row.brief + "');\">Withdraw</a>";
             var accept = "<a href=\"javascript:acceptConsent('" + row.brief + "');\">Give</a>";
-            var op = cancel;
-            if (row.status != 'accept') {
+            var op = withdraw;
+            if (row.status != 'yes') {
                 op = accept;
             }
             var status = '<div class="col-3"><center>Consent Given: ' + row.status + '</br>' + op + '</center></div>'
