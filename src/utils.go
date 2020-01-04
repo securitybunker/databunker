@@ -23,10 +23,11 @@ import (
 )
 
 var (
-	regexUUID       = regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$")
-	regexBrief      = regexp.MustCompile("^[a-z0-9\\-]{1,64}$")
-	regexAppName    = regexp.MustCompile("^[a-z][a-z0-9]{1,20}$")
-	regexExpiration = regexp.MustCompile("^([0-9]+)([mhds])?$")
+	regexUUID          = regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$")
+	regexBrief         = regexp.MustCompile("^[a-z0-9\\-]{1,64}$")
+	regexAppName       = regexp.MustCompile("^[a-z][a-z0-9]{1,20}$")
+	regexExpiration    = regexp.MustCompile("^([0-9]+)([mhds])?$")
+	consentYesStatuses = []string{"yes", "accept", "given", "true", "agree"}
 )
 
 // Consideration why collection of meta data patch was postpone:
@@ -57,6 +58,14 @@ func hashString(hash []byte, src string) string {
 	stringToHash := append(hash, []byte(src)...)
 	hashed := sha256.Sum256(stringToHash)
 	return base64.StdEncoding.EncodeToString(hashed[:])
+}
+
+func normalizeConsentStatus(status string) string {
+	status = strings.ToLower(status)
+	if contains(consentYesStatuses, status) {
+		return "yes"
+	}
+	return "no"
 }
 
 func normalizeBrief(brief string) string {

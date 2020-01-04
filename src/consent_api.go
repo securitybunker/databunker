@@ -64,7 +64,7 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 		//returnError(w, r, "internal error", 405, err, event)
 		return
 	}
-	status := "accept"
+	status := "yes"
 	message := ""
 	freetext := ""
 	lawfulbasis := ""
@@ -105,7 +105,7 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 	if value, ok := records["status"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			status = value.(string)
+			status = normalizeConsentStatus(value.(string))
 		}
 	}
 	if value, ok := records["expiration"]; ok {
@@ -151,7 +151,7 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 }
 
-func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
@@ -218,15 +218,15 @@ func (e mainEnv) consentCancel(w http.ResponseWriter, r *http.Request, ps httpro
 	case "phone":
 		address = normalizePhone(address, e.conf.Sms.Default_country)
 	}
-	e.db.cancelConsentRecord(userTOKEN, brief, mode, address, lastmodifiedby)
+	e.db.withdrawConsentRecord(userTOKEN, brief, mode, address, lastmodifiedby)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"status":"ok"}`))
 	notifyUrl := e.conf.Notification.Consent_notification_url
 	if len(userTOKEN) > 0 {
-		notifyConsentChange(notifyUrl, brief, "cancel", "token", userTOKEN)
+		notifyConsentChange(notifyUrl, brief, "no", "token", userTOKEN)
 	} else {
-		notifyConsentChange(notifyUrl, brief, "cancel", mode, address)
+		notifyConsentChange(notifyUrl, brief, "no", mode, address)
 	}
 
 }

@@ -118,3 +118,6 @@ h4 {
     overflow: hidden;
     max-width: 130px;
 }
+.bigblock .jsoneditor {
+    border: none;
+}

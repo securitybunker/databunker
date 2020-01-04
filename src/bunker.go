@@ -169,7 +169,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/consent/:mode/:address/:brief", e.consentUserRecord)
 	router.GET("/v1/consents/:brief", e.consentFilterRecords)
 	router.POST("/v1/consent/:mode/:address/:brief", e.consentAccept)
-	router.DELETE("/v1/consent/:mode/:address/:brief", e.consentCancel)
+	router.DELETE("/v1/consent/:mode/:address/:brief", e.consentWithdraw)
 
 	router.POST("/v1/userapp/token/:token/:appname", e.userappNew)
 	router.GET("/v1/userapp/token/:token/:appname", e.userappGet)
@@ -197,7 +197,11 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 		}
 	})
 	router.GET("/site/*filepath", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		data, err := box.Find(r.URL.Path)
+		fname := r.URL.Path
+		if fname == "/site/" {
+			fname = "/site/index.html"
+		}
+		data, err := box.Find(fname)
 		if err != nil {
 			w.WriteHeader(404)
 		} else {
