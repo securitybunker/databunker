@@ -57,11 +57,11 @@
                         <h4>My profile data</h4>
                     </div>
                     <div class="col-3 col-md3 ">
-                            <button onclick="return forgetme();" class="btn btn-warning">Forget me</button>
+                        <button onclick="return forgetme();" class="btn btn-warning">Forget me</button>
                     </div>
                 </div>
                 <p id="msg">Click on a field to edit, when finished click Save.</p>
-                <div id="jsoneditor" style="width: 400px; height: 400px;"></div>
+                <div id="jsoneditor" style="width: 100%; height: 400px;"></div>
                 <pre id="data"></pre>
 
                 <div class="form-group">
@@ -98,7 +98,7 @@
                     '<div class="modal-header">' +
                     '<h5 class="modal-title">' + heading + '</h5>' +
                     '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
-                        '<span aria-hidden="true">&times;</span></button>' +
+                    '<span aria-hidden="true">&times;</span></button>' +
                     '</div>' +
                     '<div class="modal-body">' +
                     '<p>' + question + '</p>' +
@@ -171,7 +171,12 @@
                     //$('#msg').text("Access xtoken value: " + xtoken + " user: " + token)
                     // create the editor
                     const container = document.getElementById("jsoneditor")
-                    const options = { "mode": "form" }
+                    const options = {
+                        "mode": "form",
+                        "statusBar": false,
+                        "mainMenuBar": false,
+                        "navigationBar": false,
+                    }
                     editor = new JSONEditor(container, options)
                     // remove password field from displaying to user
                     for (var key in data.data) {
