@@ -10,7 +10,7 @@
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
         integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -21,9 +21,15 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 
+    <!--
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/languages/json.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/styles/a11y-dark.min.css">
+-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/7.0.4/jsoneditor.min.css" rel="stylesheet"
+        type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/7.0.4/jsoneditor.min.js"></script>
+
     <script src="site.js"></script>
 </head>
 
@@ -50,13 +56,17 @@
                 </nav>
             </div>
             <div class="bigblock">
-                <h4>My additional data</h4>
+                <h4>My additional app data</h4>
                 <p id="msg"></p>
-                <pre id="data"></pre>
+                <div id="data"></div>
             </div>
         </div>
     </div>
     <script>
+        var xtoken = window.localStorage.getItem('xtoken');
+        var token = window.localStorage.getItem('token');
+        var ttype = window.localStorage.getItem('type');
+        var editors = new Object();
         function fetchApp(token, xtoken, app) {
             var xhr0 = new XMLHttpRequest();
             // first save consent
@@ -67,23 +77,55 @@
                 if (xhr0.status === 200) {
                     var data = JSON.parse(xhr0.responseText);
                     if (data.status == "ok") {
-                        var d = JSON.stringify(data.data, null, 4);
+                        //var d = JSON.stringify(data.data, null, 4);
                         const displayApp = app.charAt(0).toUpperCase() + app.substring(1);
-                        $('#data').append('<h4>'+displayApp+'</h4><code class="json">' + d + '</code>');
-                        document.querySelectorAll('pre code').forEach((block) => {
-                            hljs.highlightBlock(block);
-                        });
+                        //$('#data').append('<h4>'+displayApp+'</h4><code class="json">' + d + '</code>');
+                        //document.querySelectorAll('pre code').forEach((block) => {
+                        //    hljs.highlightBlock(block);
+                        //});
+                        $('#data').append('<div class="row"><div class="col-9"><h5>App Data: ' + displayApp + '</h5></div>' +
+                            '<div class="col-3 col-md3 "><button onclick="return saveApp(\'' + app + '\');" class="btn btn-secondary">Save</button></div></div>' +
+                            '<div id="jsoneditor-' + app + '" style="width: 100%; min-height: 200px;"></div>');
+                        const container = document.getElementById("jsoneditor-" + app)
+                        const options = {
+                            "mode": "form",
+                            "statusBar": false,
+                            "mainMenuBar": false,
+                            "navigationBar": false,
+                        }
+                        const editor = new JSONEditor(container, options);
+                        editor.set(data.data);
+                        editors["app"] = editor;
                     }
-                //} else if (xhr0.status > 400 && xhr0.status < 500) {
-                //    document.location = "/";
+                } else if (xhr0.status > 400 && xhr0.status < 500) {
+                    document.location = "/";
                 }
             }
             xhr0.send();
 
         }
-        var xtoken = window.localStorage.getItem('xtoken');
-        var token = window.localStorage.getItem('token');
-        var ttype = window.localStorage.getItem('type');
+        function saveApp(app) {
+            //console.log("app clicked", app);
+            const updatedJson = editors["app"].get();
+            //console.log(updatedJson);
+            var params = JSON.stringify(updatedJson);
+            //alert(d);
+            var xhr0 = new XMLHttpRequest();
+            // first save consent
+            xhr0.open('PUT', "/v1/userapp/token/" + token+"/"+app);
+            xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+            xhr0.setRequestHeader('Content-type', 'application/json');
+            xhr0.onload = function () {
+                //if (xhr0.status === 200) {
+                //    //
+                //} else 
+                if (xhr0.status > 400 && xhr0.status < 500) {
+                    document.location = "/";
+                }
+            }
+            xhr0.send(params);
+            return false;
+        }
 
         var xhr = new XMLHttpRequest();
         xhr.open('GET', '/v1/userapp/token/' + token);
@@ -92,13 +134,14 @@
         xhr.onload = function () {
             if (xhr.status === 200) {
                 //$('#msg').text("Data loaded.");
+                //console.log("apps", xhr.responseText);
                 var data = JSON.parse(xhr.responseText);
                 if (data.apps) {
                     var index;
                     for (index = 0; index < data.apps.length; ++index) {
                         var app = data.apps[index];
-                        console.log("app", app)
-                        fetchApp(token, xtoken, app);
+                        //console.log("app", app)
+                        fetchApp(token, xtoken, app.trim());
                     }
                 }
             } else if (xhr.status > 400 && xhr.status < 500) {
