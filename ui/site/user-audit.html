@@ -31,6 +31,32 @@
   <script>
     var xtoken = window.localStorage.getItem('xtoken');
     var token = window.localStorage.getItem('token');
+    function displayTargetObject(target, row, index) {
+      if (row.mode) {
+        return '(' + row.mode + ') ' + target;
+      }
+      return target;
+    }
+    function displayActivity(title, row, index) {
+      var app = '';
+      if (row.app) {
+        app = '(' + row.app + ') ';
+      }
+      result = '';
+      if (row.status && row.status == "ok") {
+        result = '<i class="fas fa-check"></i>&nbsp;' + app + title;
+      } else {
+        result = '<i class="fas fa-times"></i>&nbsp;' + app + title;
+      }
+      if (row.msg) {
+        if (row.status && row.status == "ok") {
+          result = result + '<br/><i class="fas fa-check"></i>&nbsp;' + row.msg;
+        } else {
+          result = result + '<br/><i class="fas fa-times"></i>&nbsp;' + row.msg;
+        }
+      }
+      return result;
+    }
     function displayDrillDownLink(atoken, row, index) {
       if (row.more) {
         console.log(row);
@@ -157,15 +183,11 @@
         <table id="table" class="table">
           <thead>
             <tr>
-              <th scope="col" data-field="when" data-formatter="dateFormat">Time</th>
-              <th scope="col" data-field="identity" data-formatter="shortString">Who Accessed</th>
-              <th scope="col" data-field="who" data-formatter="shortString">Target Object</th>
-              <th scope="col" data-field="mode">Mode</th>
-              <th scope="col" data-field="app">Add. Data</th>
-              <th scope="col" data-field="title">Activity</th>
-              <th scope="col" data-field="status">Status</th>
-              <th scope="col" data-field="msg">Message</th>
-              <th scope="col" data-field="atoken" data-formatter="displayDrillDownLink">More</th>
+              <th scope="col-1" data-field="when" data-formatter="dateFormat">Time</th>
+              <th scope="col-1" data-field="identity" data-formatter="shortString">Who Accessed</th>
+              <th scope="col-2" data-field="who" data-formatter="displayTargetObject">User Record Identifier</th>
+              <th scope="col-4" data-field="title" data-formatter="displayActivity">Activity</th>
+              <th scope="col-1" data-field="atoken" data-formatter="displayDrillDownLink">More</th>
             </tr>
           </thead>
         </table>
