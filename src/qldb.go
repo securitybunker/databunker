@@ -788,7 +788,8 @@ func (dbobj dbcon) indexNewApp(appName string) {
 		defer tx.Rollback()
 		_, err = tx.Exec("CREATE TABLE IF NOT EXISTS " + appName + ` (
 	  		token STRING,
-	  		md5 STRING,
+			md5 STRING,
+			rofields STRING,
 	  		data STRING,
 	  		status STRING,
 	  		` + "`when` int);")
@@ -821,9 +822,10 @@ func initUsers(db *sql.DB) error {
 	  loginidx STRING,
 	  emailidx STRING,
 	  phoneidx STRING,
+	  rofields STRING,
 	  tempcodeexp int,
 	  tempcode int,
-	  data string
+	  data STRING
 	);
 	`)
 	if err != nil {
