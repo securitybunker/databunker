@@ -1,12 +1,12 @@
 # Paranoid Guy Data Bunker
 
-**Data Bunker is a personally identifiable information (PII) storage service build to comply with GDPR and CCPA privacy requirements.**
+**Data Bunker is a personally identifiable information (PII) storage service built to comply with GDPR and CCPA privacy requirements.**
 
 [![Slack](https://img.shields.io/badge/slack-join%20chat%20%E2%86%92-e01563.svg)](https://join.slack.com/t/paranoidguy/shared_invite/enQtODc2OTE1NjYyODM1LTI0MmM2ZmYwZDI0MzExMjJmOGQyMTY4Y2UzOTQ0ZDIwOTZjMmRkZDZkY2I3MzE1OWE3ZWVmNTY4MjIwMzNhZTQ)
 
 Project **demo** is available at: [https://demo.paranoidguy.com/](https://demo.paranoidguy.com/) . Please add a **star** if you like our project.
 
-We live in a world where our privacy of information is nonexistent, the EU has been working to remediate this fallacy with GDPR, and the US follows with a first sparrow called CCPA.
+We live in a world where our privacy of information is nonexistent, the EU has been working to remediate this fallacy with GDPR, and the US (California) follows with a first sparrow called CCPA.
 
 Data Bunker Project is intended to ease the acceptance of GDPR and CCPA regulations while giving organizations an easy to implement API's, platform and secure Database. This will give all of us, the real data owners, control of our data, and allow us to know who is using our data, what is he doing with it and have the freedom to decide if we agree to that or not.
 
@@ -17,9 +17,6 @@ By deploying this project and moving all personal information to one place, you 
 GDPR statement: *Personal data should be processed in a manner that ensures appropriate security and 
 confidentiality of the  personal data, including for preventing unauthorized access to or use of personal
 data and the equipment used for the processing.*
-
-**NOTE**: Implementing this project does not make you fully compliant with GDPR requirements and you still
-need to consult with an attorney specializing in privacy.
 
 #### Diagram of old-style solution.
 
@@ -48,11 +45,14 @@ Code: 4444
 
 ---
 
-# This project resolves most of the GDPR requirements for you including:
+# This project resolves most** of the GDPR requirements for you including:
+
+**NOTE**: Implementing this project does not make you fully compliant with GDPR requirements and you still
+need to consult with an attorney specializing in privacy.
 
 ## Right of access
 
-Data Bunker knows to extract your **customer email** and **customer phone** out of user personal records giving 
+Data Bunker will to extract **customer email** and **customer phone** out of the customers' personal records granting
 **passwordless** access for the customer into their Data bunker' personal account.
 This is done by generating a random access key that Data Bunker sends to your customer by email or by SMS.
 Your customer login and can view all information collected and saved by Data Bunker in connection to his profile.
@@ -65,20 +65,19 @@ Your customer login and can view all information collected and saved by Data Bun
 
 ## Right to restrict processing / Right to object / Consent withdrawal
 
-Data Bunker manages all user consents. User can **cancel specific consent** in his personal account at Data 
-Bunker, for example, to block sending him emails. Your backend can work with Data Bunker using our API to add, or cancel
+Data Bunker manages all the user consents. User can **cancel specific consent** in his personal account at Data 
+Bunker, for example, to restrict or block email. Your backend can work with Data Bunker using our API to add, or cancel
 consents and a callback operation will be fired when a user action takes place.
 
 ![Consent management](images/ui-consent-management.png)
 ![Consent withdrawal](images/ui-consent-withdrawal.png)
 
 **NOTE**: Data bunker can call your backend script on consent withdrawal. You need to handle these requests and remove
-user records from 3rd party processing companies. For example from web recording services, from email gateways, etc...
+user records from 3rd party processing companies. For example: web recording services, email gateways and etc...
 
 ## Privacy by design
 
-This product, from the architecture level and up was built to comply with strict privacy laws. Deploying this project will make your architecture 
-**privacy by design** compliant.
+This product, from the architecture level and up was built to comply with strict privacy laws. Deploying this project will make your architecture **privacy by design** compliant.
 
 ## Transparency and Accountability principle
 
