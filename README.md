@@ -1,6 +1,6 @@
 # Paranoid Guy Data Bunker
 
-**Data Bunker is a personally identifiable information (PII) storage service built to comply with GDPR and CCPA privacy requirements.**
+**Data Bunker is a Personally Identifiable Information (PII) Data Storage Service built to Comply with GDPR and CCPA Privacy Requirements.**
 
 [![Slack](https://img.shields.io/badge/slack-join%20chat%20%E2%86%92-e01563.svg)](https://join.slack.com/t/paranoidguy/shared_invite/enQtODc2OTE1NjYyODM1LTI0MmM2ZmYwZDI0MzExMjJmOGQyMTY4Y2UzOTQ0ZDIwOTZjMmRkZDZkY2I3MzE1OWE3ZWVmNTY4MjIwMzNhZTQ)
 
@@ -10,8 +10,8 @@ We live in a world where our privacy of information is nonexistent, the EU has b
 
 Data Bunker Project is intended to ease the acceptance of GDPR and CCPA regulations while giving organizations an easy to implement API's, platform and secure Database. This will give all of us, the real data owners, control of our data, and allow us to know who is using our data, what is he doing with it and have the freedom to decide if we agree to that or not.
 
-This project, when deployed correctly, replaces all user personal records (PII) scattered in the organization's different
-internal databases and log files with a single user token generated and managed by the Data Bunker service.
+This project, when deployed correctly, replaces all the customer's personal records (PII) scattered in the organization's different
+internal databases and log files with a single, randomly generated token managed by the Data Bunker service.
 
 By deploying this project and moving all personal information to one place, you will comply with the following
 GDPR statement: *Personal data should be processed in a manner that ensures appropriate security and 
@@ -50,6 +50,8 @@ Code: 4444
 **NOTE**: Implementing this project does not make you fully compliant with GDPR requirements and you still
 need to consult with an attorney specializing in privacy.
 
+**NOTE**: When we use the term "Customer" we mean the data of the end-user that his information is being stored, shared and deleted.
+
 ## Right of access
 
 Data Bunker will to extract **customer email** and **customer phone** out of the customers' personal records granting
@@ -65,80 +67,72 @@ Your customer login and can view all information collected and saved by Data Bun
 
 ## Right to restrict processing / Right to object / Consent withdrawal
 
-Data Bunker manages all the user consents. User can **cancel specific consent** in his personal account at Data 
-Bunker, for example, to restrict or block email. Your backend can work with Data Bunker using our API to add, or cancel
-consents and a callback operation will be fired when a user action takes place.
+Data Bunker manages all the customer's consents. A customer can **Withdraw/restrict/object to a specific consent** in his personal account at Data Bunker, for example, to restrict or block email. Your backend can work with Data Bunker using our API to add, or cancel
+consents and a callback operation will be fired when a customer's action takes place.
 
 ![Consent management](images/ui-consent-management.png)
 ![Consent withdrawal](images/ui-consent-withdrawal.png)
 
-**NOTE**: Data bunker can call your backend script on consent withdrawal. You need to handle these requests and remove
-user records from 3rd party processing companies. For example: web recording services, email gateways and etc...
+**NOTE**: Data bunker can call your backend script on a consent withdrawal (callback). You will have to handle these requests and remove
+the customer records from other 3rd party processing companies. For example: web recording services, email gateways and etc...
 
 ## Privacy by design
 
-This product, from the architecture level and up was built to comply with strict privacy laws. Deploying this project will make your architecture **privacy by design** compliant.
+This product, from the architecture level and down was built to comply with strict privacy laws such as GDPR and CCPA. Deploying this project can make your architecture **privacy by design** compliant.
 
 ## Transparency and Accountability principle
 
-Any system or user that connects to Data Bunker must provide an access token to do any operation or the operation will be aborted. A user can login into his profile with a random code we send by email or SMS.
+Any system or customer connecting to Data Bunker must provide an **access token** to authorize any operation, otherwise the operation will be aborted. An end customer can login to his profile with a random authorization code sent by email or SMS.
 
 All operations with personal records are **saved in the audit log**.
 
-Your customer can log in to his account at Data Bunker and view the audit trail.
+Any customer can log in to his account at Data Bunker and view the **full audit of activities** performed on his profile.
 
 ![Forget me](images/ui-audit-log.png)
 
 ## Right to be forgotten / Right to erasure
 
-When your customer asks for his **right to be forgotten** legal right, his private records will be
-wiped out of the Data Bunker database, giving you the possibility to leave all internal databases unchanged.
+When your customer requests to exercise his **right to be forgotten**, his private records will be wiped out of the Data Bunker database, giving you the possibility to leave all internal databases intact while not impacting any of your other systems.
 
-Upon user removal request, Data bunker can call your backend script with the user details. You need to handle these
-requests and remove user records from 3rd party processing companies. For example from web recording services,
-from email gateways, etc...
+Upon customer removal request, Data bunker can call your backend script (callback) with the customer details. You will have to handle these requests and remove other customer records from 3rd party processing companies. For example from web recording services, email gateways and etc...
 
 ![Forget me](images/ui-forget-me.png)
 
-**NOTE**: You just need to make sure that you do not have any user identifiable information in your other databases,
-logs, files.
+**NOTE**: You will need to make sure that you do not have any customer identifiable information (PII) in your other databases,
+logs, files and etc.
 
 ## Right to rectification/ Data Accuracy
 
-Your customer/user can log in to his personal account at Data Bunker and change his records, for example change Name.
-Data Bunker can fire a callback operation with a user details, when a user action takes place.
+Your customer can log in to his personal account at Data Bunker and change his records, for example **change his Name**.
+Data Bunker can fire a callback operation with a customer details, when a customer action takes place.
 
 ![Change profile](images/ui-profile-edit-and-save.png)
 
 
 ## Right to data portability
 
-Your customer/user can log in to his personal account at Data Bunker and view and extract all his records stored at
-Data Bunker.
+Your customer can log in to his personal account at Data Bunker and view and **extract all his records stored at Data Bunker.**
 
-**NOTE**: You need to provide your customers with a way to extract data from other internal databases.
+**NOTE**: You will need to provide your customers with a way to extract data from other internal databases.
 
 
 ## Data minimization and GDPR Scope reduction
 
-Basically, when you clean up your databases from personal records and use Data Bunker token instead, you
-are already minimizing the personal information you store in different systems. In addition, when sending
-you customer data to 3rd party systems Data Bunker provides you with purposely build *shareable identity*
-that is time-bound.
+When you clean up your databases from personal records (PII) and use the Data Bunker token instead, you are minimizing the scope of personal information stored in other systems. In addition, whensharing your customers' data with 3rd parties, Data Bunker provides you with the purposefully built, time-bound **"shareable identity"**.
 
 
 ## Integrity and confidentiality
 
-All personal data is encrypted. An audit log is written for all operations with personal records.
-All-access to Data Bunker API is done using an HTTPS SSL certificate. Enterprise version supports Shamir's Secret Sharing
+**All personal data is encrypted**. An audit log is written for all operations with personal records.
+All-access to Data Bunker API is done using an **HTTPS SSL certificate**. Enterprise version supports Shamir's Secret Sharing
 algorithm to split the master key to a number of keys. A number of keys (that can be saved in different hands in the
 organization) are required to bring up the system.
 
 
 ## NOTE
 
-Implementing this project does not make you fully compliant with GDPR requirements and you still need to
-consult with an attorney specializing in privacy.
+**Implementing this project does not make you fully compliant with GDPR requirements and you still need to
+consult with an attorney specializing in privacy.**
 
 ---
 
@@ -146,8 +140,8 @@ consult with an attorney specializing in privacy.
 
 ## Personal information tokenization and storage
 
-User information, or PII, received in HTML POST key/value format of or JSON format is serialized, encrypted
-with a 32 byte key and saved in database. You will get a user token to use in internal databases. Afterwords,
+Customer information, or PII, received in HTML POST key/value format of or JSON format is serialized, encrypted
+with a 32 byte key and saved in database. You will get a customer token to use in internal databases. Afterwords,
 you can query the Data Bunker service to receive personal information, saving audit trail.
 
 ![picture](images/create-user-token-flow.png)
@@ -155,9 +149,9 @@ you can query the Data Bunker service to receive personal information, saving au
 ## Application data separation
 
 When creating application, I suppose you do not want to mix your customer data with data from other applications.
-In addition to personal information record, Data Bunker provides you a way to store your app user information in a
-specific type of record for that. So, you can retrieve only your app' user personal information. For example you
-can store user shipping information in an additional app table.
+In addition to personal information record, Data Bunker provides you a way to store your app customer information in a
+specific type of record for that. So, you can retrieve only your app' customer personal information. For example you
+can store customer shipping information in an additional app table.
 
 ![picture](images/create-user-app-record.png)
 
@@ -172,7 +166,7 @@ By providing Audit of events, in relation to personal data, provides response to
 Special features:
 
 * Personal information in audit event is encrypted.
-* User can view his own records only.
+* Customer can view only his own records.
 
 Each audit record consists of:
 
@@ -186,22 +180,22 @@ Each audit record consists of:
 ## GDPR compliant logging : Web and mobile app session data storage
 
 Web or mobile application session data is very similar. They contain customer IP address, browser information,
-web server headers, logged-in user info, etc... Many systems, including popular webservers, like Nginx, Apache
+web server headers, logged-in customer info, etc... Many systems, including popular webservers, like Nginx, Apache
 simply store this information in logs. This information, according to GDPR is considered personal identifiable
 information and must be secured and controlled.
 
-So, you can not save user ip or browser information in logs now. Insead, Data Bunker will generate you a special token to
+So, you can not save customer ip or browser information in logs now. Insead, Data Bunker will generate you a special token to
 save in logs. Data Bunker provides you an API to retrieve this info out of Data Bunker without additional password
 for a limited time as in GDPR. For example one month.
 
 ![picture](images/create-user-session-flow.png)
 
 
-## Shareable user/app/session identity for 3rd parties
+## Shareable customer/app/session identity for 3rd parties
 
 When sharing data with 3rd party services like web analytics, logging, intelligence, etc... sometimes we need to
-share user id, for example, customer original IP address or email address. All these pieces of information
-are considred user identifiable information and must be minimized when sending to 3rd paty systems.
+share customer id, for example, customer original IP address or email address. All these pieces of information
+are considred customer identifiable information and must be minimized when sending to 3rd paty systems.
 
 ***Do not share your customer user name, IP, emails, etc... because they look nice in reports!***
 
@@ -209,8 +203,8 @@ According to GDPR: *The personal data should be adequate, relevant and **limited
 purposes for which they are processed.*
 
 Our system can generate you time-limited, temporary, shareable identity token that you can share with 3rd
-parties as a record identity. This identity, can link back to the user personal record or user app record
-or to specific user session.
+parties as a record identity. This identity, can link back to the customer personal record or customer app record
+or to specific customer session.
 
 Optionally, Data Bunker can incorporate partner name in identity so, you track this identity usage.
 
@@ -222,7 +216,7 @@ Afterward, access will be blocked.
 
 According to GDPR, if you want to send your customer SMS using 3rd party gateway,
 you must show to your customer a detailed notification message that you will send
-his phone number to a specific SMS gateway company and the user needs to confirm this operation.
+his phone number to a specific SMS gateway company and the customer needs to confirm this operation.
 
 You need to store these confirmations and Data Bunker can do it for you.
 
@@ -234,8 +228,8 @@ Consent must be freely given, specific, informed and unambiguous. From GDPR, Art
 In Data Bunker:
 
 * Your customers can log in to his Data Bunker account and view all consents he gave.
-* Users can also discharge consents and we will send you a notification message.
-* Removing consent for a user is as easy as granting it in the first place.
+* Customer can also discharge consents and we will send you a notification message.
+* Removing consent for a customer is as easy as granting it in the first place.
 
 
 ## Custom application signup and sign-in
@@ -246,7 +240,7 @@ by login name, index by email address and index by phone number. So you can easi
 login logic into your solution with our service.
 
 Index by email and index by phone allow us to give your customers passwordless access to their
-personal profile at Data Bunker. We send your user a one-time login code by SMS or email to
+personal profile at Data Bunker. We send your customer a one-time login code by SMS or email to
 give them access to thier account at Data Bunker.
 
 
@@ -256,9 +250,9 @@ give them access to thier account at Data Bunker.
 
 ## How do I search for all orders from a guy named John?
 
-Data bunker supports user record lookup by **login name** or **email address** or **phone number** or **token value**.
-So, if you have one of these values, you can do the user record lookup (using Data Bunker API) and get user token.
-After that you can find user' orders from the **orders table**.
+Data bunker supports customer record lookup by **login name** or **email address** or **phone number** or **token value**.
+So, if you have one of these values, you can do the customer record lookup (using Data Bunker API) and get customer token.
+After that you can find customer' orders from the **orders table**.
 
 ## How to backup Data Bunker database?
 
@@ -272,7 +266,7 @@ curl -s http://localhost:3000/v1/sys/backup -H "X-Bunker-Token: $TOKEN" -o backu
 
 Replication is supported in **Data Bunker Enterprise version** using the backend **MongoDB database**.
 Open source version is using local sqlite3 database that does not supports replication. You can easily backup it
-using API call and restore. We decided to use sqlite3 as as it provides zero effort from user to start using
+using API call and restore. We decided to use sqlite3 as as it provides zero effort from customer to start using
 our product.
 
 ## Can my DBA tune database performance characteristics?
@@ -284,9 +278,9 @@ database and view it's structure.
 
 ## What is the difference between tokenization solution XXX and Data Bunker?
 
-Most of commercial tokenization solutions are used to tokenize one specific record, for example user name or 
-user email, etc... These distinct records are not linked to one user record. In our solution, we tokenize the 
-whole user record with all the details, that gives us many additional capabilities. So, in our system, the
+Most of commercial tokenization solutions are used to tokenize one specific record, for example customer name or 
+customer email, etc... These distinct records are not linked to one customer record. In our solution, we tokenize the 
+whole customer record with all the details, that gives us many additional capabilities. So, in our system, the
 **end customer** (**Natural person** or **data subject**) can "login" into his profile, change record or
 manage his consents, or ask for **forget me**. In addition we provide many APIs to help with GDPR requirements.
 
@@ -324,9 +318,9 @@ database (**sqlite3**) and Web UI as one executable file to make the project eas
 
 ## Encryption in motion and encryption in storage
 
-All access to Data Bunker API is done using HTTPS SSL certificate. All records that have user personal information
-are encrypted or securely hashed in the databases. All user records are encrypted with a 32 byte key comprizing of
-**System Master key** (24 bytes, stored in memory, not on disk) and **user record key** (8 bytes, stored on disk).
+All access to Data Bunker API is done using HTTPS SSL certificate. All records that have customer personal information
+are encrypted or securely hashed in the databases. All customer records are encrypted with a 32 byte key comprizing of
+**System Master key** (24 bytes, stored in memory, not on disk) and **customer record key** (8 bytes, stored on disk).
 The **System Master key** is kept in RAM and is never stored to disk. Enterprise version supports **Master key split**. 
 
 ## Data Bunker internal tables
@@ -360,10 +354,10 @@ It is possible to save these keys in the AWS secret store and other vault servic
 ## Advanced role management, ACL
 
 By default, all access to Data Bunker is done with one root token or with **Time-limited access tokens**
-that allow to read data from specific user record only.
+that allow to read data from specific customer record only.
 
 For more granular control, Data Bunker supports the notion of custom roles. For example, you can create a role
-to view all records or another role to add and change any user records; view sessions, view all audit events, etc...
+to view all records or another role to add and change any customer records; view sessions, view all audit events, etc...
 
 After you define a role, the system allow you to generate access token for this role (you will need to have root token
 for all these operations).
