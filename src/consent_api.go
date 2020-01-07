@@ -136,17 +136,17 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 	case "email":
 		address = normalizeEmail(address)
 	case "phone":
-		address = normalizePhone(address, e.conf.Sms.Default_country)
+		address = normalizePhone(address, e.conf.Sms.DefaultCountry)
 	}
 	newStatus, _ := e.db.createConsentRecord(userTOKEN, mode, address, brief, message, status, lawfulbasis, consentmethod,
 		referencecode, freetext, lastmodifiedby, starttime, expiration)
-	notifyUrl := e.conf.Notification.ConsentNotificationURL
-	if newStatus == true && len(notifyUrl) > 0 {
+	notifyURL := e.conf.Notification.ConsentNotificationURL
+	if newStatus == true && len(notifyURL) > 0 {
 		// change notificate on new record or if status change
 		if len(userTOKEN) > 0 {
-			notifyConsentChange(notifyUrl, brief, status, "token", userTOKEN)
+			notifyConsentChange(notifyURL, brief, status, "token", userTOKEN)
 		} else {
-			notifyConsentChange(notifyUrl, brief, status, mode, address)
+			notifyConsentChange(notifyURL, brief, status, mode, address)
 		}
 	}
 }
@@ -216,17 +216,17 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 	case "email":
 		address = normalizeEmail(address)
 	case "phone":
-		address = normalizePhone(address, e.conf.Sms.Default_country)
+		address = normalizePhone(address, e.conf.Sms.DefaultCountry)
 	}
 	e.db.withdrawConsentRecord(userTOKEN, brief, mode, address, lastmodifiedby)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"status":"ok"}`))
-	notifyUrl := e.conf.Notification.ConsentNotificationURL
+	notifyURL := e.conf.Notification.ConsentNotificationURL
 	if len(userTOKEN) > 0 {
-		notifyConsentChange(notifyUrl, brief, "no", "token", userTOKEN)
+		notifyConsentChange(notifyURL, brief, "no", "token", userTOKEN)
 	} else {
-		notifyConsentChange(notifyUrl, brief, "no", mode, address)
+		notifyConsentChange(notifyURL, brief, "no", mode, address)
 	}
 
 }

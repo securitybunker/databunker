@@ -34,13 +34,13 @@ func sendCodeByEmail(code int32, address string, cfg Config) {
 	Dest := []string{"stremovsky@gmail.com", address}
 	Subject := "Access Code"
 	bodyMessage := "Data bunker access code is " + strconv.Itoa(int((code)))
-	msg := "From: " + cfg.Smtp.Sender + "\n" +
+	msg := "From: " + cfg.SMTP.Sender + "\n" +
 		"To: " + strings.Join(Dest, ",") + "\n" +
 		"Subject: " + Subject + "\n" + bodyMessage
 
-	err := smtp.SendMail(cfg.Smtp.Server+":"+cfg.Smtp.Port,
-		smtp.PlainAuth("", cfg.Smtp.User, cfg.Smtp.Pass, cfg.Smtp.Server),
-		cfg.Smtp.User, Dest, []byte(msg))
+	err := smtp.SendMail(cfg.SMTP.Server+":"+cfg.SMTP.Port,
+		smtp.PlainAuth("", cfg.SMTP.User, cfg.SMTP.Pass, cfg.SMTP.Server),
+		cfg.SMTP.User, Dest, []byte(msg))
 
 	if err != nil {
 		fmt.Printf("smtp error: %s", err)

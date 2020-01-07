@@ -45,7 +45,7 @@ func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httproute
 	if e.enforceAuth(w, r, event) == false {
 		return
 	}
-	expiration := e.conf.Policy.Max_session_retention_period
+	expiration := e.conf.Policy.MaxSessionRetentionPeriod
 	records, err := getJSONPostData(r)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
@@ -57,7 +57,7 @@ func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	if value, ok := records["expiration"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			expiration = setExpiration(e.conf.Policy.Max_session_retention_period, value.(string))
+			expiration = setExpiration(e.conf.Policy.MaxSessionRetentionPeriod, value.(string))
 		} else {
 			returnError(w, r, "failed to parse expiration field", 405, err, event)
 			return
