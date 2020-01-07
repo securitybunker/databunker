@@ -9,35 +9,35 @@ import (
 	"net/http"
 )
 
-func notifyProfileNew(notifyUrl string, profile []byte, mode string, address string) {
-	if len(notifyUrl) == 0 {
+func notifyProfileNew(notifyURL string, profile []byte, mode string, address string) {
+	if len(notifyURL) == 0 {
 		return
 	}
 	requestBody := fmt.Sprintf(`{"action":"%s","address":"%s","mode":"%s","profile":%s}`,
 		"profilenew", address, mode, profile)
-	go notify(notifyUrl, []byte(requestBody))
+	go notify(notifyURL, []byte(requestBody))
 }
 
-func notifyProfileChange(notifyUrl string, old []byte, profile []byte, mode string, address string) {
-	if len(notifyUrl) == 0 {
+func notifyProfileChange(notifyURL string, old []byte, profile []byte, mode string, address string) {
+	if len(notifyURL) == 0 {
 		return
 	}
 	requestBody := fmt.Sprintf(`{"action":"%s","address":"%s","mode":"%s","old":%s,"profile":%s}`,
 		"profilechange", address, mode, old, profile)
-	go notify(notifyUrl, []byte(requestBody))
+	go notify(notifyURL, []byte(requestBody))
 }
 
-func notifyForgetMe(notifyUrl string, profile []byte, mode string, address string) {
-	if len(notifyUrl) == 0 {
+func notifyForgetMe(notifyURL string, profile []byte, mode string, address string) {
+	if len(notifyURL) == 0 {
 		return
 	}
 	requestBody := fmt.Sprintf(`{"action":"%s","address":"%s","mode":"%s","profile":%s}`,
 		"forgetme", address, mode, profile)
-	go notify(notifyUrl, []byte(requestBody))
+	go notify(notifyURL, []byte(requestBody))
 }
 
-func notifyConsentChange(notifyUrl string, brief string, status string, mode string, address string) {
-	if len(notifyUrl) == 0 {
+func notifyConsentChange(notifyURL string, brief string, status string, mode string, address string) {
+	if len(notifyURL) == 0 {
 		return
 	}
 	requestBody, _ := json.Marshal(map[string]string{
@@ -47,11 +47,11 @@ func notifyConsentChange(notifyUrl string, brief string, status string, mode str
 		"mode":    mode,
 		"address": address,
 	})
-	go notify(notifyUrl, requestBody)
+	go notify(notifyURL, requestBody)
 }
 
-func notify(notifyUrl string, requestBody []byte) {
-	resp, err := http.Post(notifyUrl, "application/json", bytes.NewBuffer(requestBody))
+func notify(notifyURL string, requestBody []byte) {
+	resp, err := http.Post(notifyURL, "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
 		log.Printf("error in notify: %s", err)
 		return

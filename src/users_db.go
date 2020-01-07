@@ -253,7 +253,7 @@ func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string, 
 	if indexName == "email" {
 		indexValue = normalizeEmail(indexValue)
 	} else if indexName == "phone" {
-		indexValue = normalizePhone(indexValue, conf.Sms.Default_country)
+		indexValue = normalizePhone(indexValue, conf.Sms.DefaultCountry)
 	}
 	if len(indexValue) == 0 {
 		return nil, nil

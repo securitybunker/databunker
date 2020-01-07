@@ -56,25 +56,25 @@ type Config struct {
 		ForgetmeNotificationURL string `yaml:"forgetme_notification_url"`
 	}
 	Policy struct {
-		Max_audit_retention_period            string `yaml:"max_audit_retention_period"`
-		Max_session_retention_period          string `yaml:"max_session_retention_period"`
-		Max_shareable_record_retention_period string `yaml:"max_shareable_record_retention_period"`
+		MaxAuditRetentionPeriod           string `yaml:"max_audit_retention_period"`
+		MaxSessionRetentionPeriod         string `yaml:"max_session_retention_period"`
+		MaxShareableRecordRetentionPeriod string `yaml:"max_shareable_record_retention_period"`
 	}
 	Ssl struct {
-		Ssl_certificate     string `yaml:"ssl_certificate", envconfig:"SSL_CERTIFICATE"`
-		Ssl_certificate_key string `yaml:"ssl_certificate_key", envconfig:"SSL_CERTIFICATE_KEY"`
+		SslCertificate    string `yaml:"ssl_certificate", envconfig:"SSL_CERTIFICATE"`
+		SslCertificateKey string `yaml:"ssl_certificate_key", envconfig:"SSL_CERTIFICATE_KEY"`
 	}
 	Sms struct {
-		Default_country string `yaml:"default_country"`
-		Twilio_account  string `yaml:"twilio_account"`
-		Twilio_token    string `yaml:"twilio_token"`
-		Twilio_from     string `yaml:"twilio_from"`
+		DefaultCountry string `yaml:"default_country"`
+		TwilioAccount  string `yaml:"twilio_account"`
+		TwilioToken    string `yaml:"twilio_token"`
+		TwilioFrom     string `yaml:"twilio_from"`
 	}
 	Server struct {
 		Port string `yaml:"port", envconfig:"BUNKER_PORT"`
 		Host string `yaml:"host", envconfig:"BUNKER_HOST"`
 	} `yaml:"server"`
-	Smtp struct {
+	SMTP struct {
 		Server string `yaml:"server", envconfig:"SMTP_SERVER"`
 		Port   string `yaml:"port", envconfig:"SMTP_PORT"`
 		User   string `yaml:"user", envconfig:"SMTP_USER"`
@@ -260,12 +260,12 @@ func (e mainEnv) dbCleanup() {
 			select {
 			case <-ticker.C:
 				log.Printf("db cleanup timeout\n")
-				exp, _ := parseExpiration0(e.conf.Policy.Max_audit_retention_period)
+				exp, _ := parseExpiration0(e.conf.Policy.MaxAuditRetentionPeriod)
 				if exp > 0 {
 					e.db.deleteExpired0(TblName.Audit, exp)
 				}
-				notifyUrl := e.conf.Notification.ConsentNotificationURL
-				e.db.expireConsentRecords(notifyUrl)
+				notifyURL := e.conf.Notification.ConsentNotificationURL
+				e.db.expireConsentRecords(notifyURL)
 			case <-e.stopChan:
 				log.Printf("db cleanup closed\n")
 				ticker.Stop()
@@ -392,9 +392,9 @@ func main() {
 		//os.Exit(0)
 	}()
 
-	if _, err := os.Stat(cfg.Ssl.Ssl_certificate); !os.IsNotExist(err) {
+	if _, err := os.Stat(cfg.Ssl.SslCertificate); !os.IsNotExist(err) {
 		log.Printf("Loading ssl\n")
-		err := srv.ListenAndServeTLS(cfg.Ssl.Ssl_certificate, cfg.Ssl.Ssl_certificate_key)
+		err := srv.ListenAndServeTLS(cfg.Ssl.SslCertificate, cfg.Ssl.SslCertificateKey)
 		if err != nil {
 			log.Printf("ListenAndServeSSL: %s\n", err)
 		}

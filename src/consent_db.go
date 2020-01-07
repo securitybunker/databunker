@@ -185,7 +185,7 @@ func (dbobj dbcon) filterConsentRecords(brief string, offset int32, limit int32)
 	return resultJSON, count, nil
 }
 
-func (dbobj dbcon) expireConsentRecords(notifyUrl string) error {
+func (dbobj dbcon) expireConsentRecords(notifyURL string) error {
 	records, err := dbobj.getExpiring(TblName.Consent, "status", "yes")
 	if err != nil {
 		return err
@@ -202,11 +202,11 @@ func (dbobj dbcon) expireConsentRecords(notifyUrl string) error {
 		if len(userTOKEN) > 0 {
 			fmt.Printf("%s %s\n", userTOKEN, brief)
 			dbobj.updateRecord2(TblName.Consent, "token", userTOKEN, "brief", brief, &bdoc, nil)
-			notifyConsentChange(notifyUrl, brief, "expired", "token", userTOKEN)
+			notifyConsentChange(notifyURL, brief, "expired", "token", userTOKEN)
 		} else {
 			usercode := rec["who"].(string)
 			dbobj.updateRecord2(TblName.Consent, "who", usercode, "brief", brief, &bdoc, nil)
-			notifyConsentChange(notifyUrl, brief, "expired", rec["mode"].(string), usercode)
+			notifyConsentChange(notifyURL, brief, "expired", rec["mode"].(string), usercode)
 		}
 
 	}

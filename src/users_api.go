@@ -18,7 +18,7 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 			return
 		}
 	}
-	parsedData, err := getJSONPost(r, e.conf.Sms.Default_country)
+	parsedData, err := getJSONPost(r, e.conf.Sms.DefaultCountry)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
@@ -92,8 +92,8 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	}
 	event.Record = userTOKEN
 	returnUUID(w, userTOKEN)
-	notifyUrl := e.conf.Notification.ProfileNotificationURL
-	notifyProfileNew(notifyUrl, parsedData.jsonData, "token", userTOKEN)
+	notifyURL := e.conf.Notification.ProfileNotificationURL
+	notifyProfileNew(notifyURL, parsedData.jsonData, "token", userTOKEN)
 	return
 }
 
@@ -153,7 +153,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	if mode == "token" && enforceUUID(w, address, event) == false {
 		return
 	}
-	parsedData, err := getJSONPost(r, e.conf.Sms.Default_country)
+	parsedData, err := getJSONPost(r, e.conf.Sms.DefaultCountry)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
@@ -182,8 +182,8 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 	returnUUID(w, userTOKEN)
-	notifyUrl := e.conf.Notification.ProfileNotificationURL
-	notifyProfileChange(notifyUrl, oldJSON, newJSON, "token", userTOKEN)
+	notifyURL := e.conf.Notification.ProfileNotificationURL
+	notifyProfileChange(notifyURL, oldJSON, newJSON, "token", userTOKEN)
 }
 
 // user forgetme request comes here
@@ -234,8 +234,8 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","result":"done"}`)
-	notifyUrl := e.conf.Notification.ForgetmeNotificationURL
-	notifyForgetMe(notifyUrl, resultJSON, "token", userTOKEN)
+	notifyURL := e.conf.Notification.ForgetmeNotificationURL
+	notifyForgetMe(notifyURL, resultJSON, "token", userTOKEN)
 }
 
 func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
