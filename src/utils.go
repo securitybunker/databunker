@@ -325,6 +325,10 @@ func enforceUUID(w http.ResponseWriter, uuidCode string, event *auditEvent) bool
 
 func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 	cType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	if err != nil {
+		fmt.Printf("error to parse content-type: %s\n", err)
+		return nil, err
+	}
 	cType = strings.ToLower(cType)
 	records := make(map[string]interface{})
 	//body, _ := ioutil.ReadAll(r.Body)

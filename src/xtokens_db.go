@@ -24,6 +24,9 @@ func (dbobj dbcon) getRootXtoken() (string, error) {
 
 func (dbobj dbcon) createRootXtoken() (string, error) {
 	rootToken, err := dbobj.getRootXtoken()
+	if err != nil {
+		return "", err
+	}
 	if len(rootToken) > 0 {
 		return rootToken, nil
 	}

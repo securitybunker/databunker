@@ -80,7 +80,13 @@ func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appNa
 	sig := record["md5"].(string)
 	encData0 := record["data"].(string)
 	encData, err := base64.StdEncoding.DecodeString(encData0)
+	if err != nil {
+		return userTOKEN, err
+	}
 	decrypted, err := decrypt(dbobj.masterKey, recordKey, encData)
+	if err != nil {
+		return userTOKEN, err
+	}
 
 	// merge
 	fmt.Printf("old json: %s\n", decrypted)
@@ -125,6 +131,9 @@ func (dbobj dbcon) listUserApps(userTOKEN string) ([]byte, error) {
 		return nil, err
 	}
 	allCollections, err := dbobj.getAllTables()
+	if err != nil {
+		return nil, err
+	}
 	var result []string
 	for _, colName := range allCollections {
 		if strings.HasPrefix(colName, "app_") {
