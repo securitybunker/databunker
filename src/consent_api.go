@@ -140,7 +140,7 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 	newStatus, _ := e.db.createConsentRecord(userTOKEN, mode, address, brief, message, status, lawfulbasis, consentmethod,
 		referencecode, freetext, lastmodifiedby, starttime, expiration)
-	notifyUrl := e.conf.Notification.Consent_notification_url
+	notifyUrl := e.conf.Notification.ConsentNotificationURL
 	if newStatus == true && len(notifyUrl) > 0 {
 		// change notificate on new record or if status change
 		if len(userTOKEN) > 0 {
@@ -222,7 +222,7 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"status":"ok"}`))
-	notifyUrl := e.conf.Notification.Consent_notification_url
+	notifyUrl := e.conf.Notification.ConsentNotificationURL
 	if len(userTOKEN) > 0 {
 		notifyConsentChange(notifyUrl, brief, "no", "token", userTOKEN)
 	} else {
