@@ -35,7 +35,7 @@ var (
 // 2. GDPR stands for data minimalization.
 // 3. Do not store what you actually do not NEED.
 /*
-var interestingHeaders = []string{"x-forwarded", "x-forwarded-for", "x-comming-from", "via",
+var interestingHeaders = []string{"x-forwarded", "x-forwarded-for", "x-coming-from", "via",
 	"forwarded-for", "forwarded", "client-ip", "user-agent", "cookie", "referer"}
 
 func getMeta(r *http.Request) string {

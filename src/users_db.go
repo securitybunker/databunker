@@ -36,7 +36,7 @@ func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (str
 	md5Hash := md5.Sum([]byte(encodedStr))
 	bdoc["md5"] = base64.StdEncoding.EncodeToString(md5Hash[:])
 	bdoc["token"] = userTOKEN
-	// the index search field is hashed here, to be not-reversable
+	// the index search field is hashed here, to be not-reversible
 	// I use original md5(master_key) as a kind of salt here,
 	// so no additional configuration field is needed here.
 	if len(parsedData.loginIdx) > 0 {
