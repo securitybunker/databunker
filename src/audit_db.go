@@ -102,6 +102,9 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 	}
 	var results []bson.M
 	records, err := dbobj.getList(TblName.Audit, "record", userTOKEN, offset, limit)
+	if err != nil {
+		return nil, 0, err
+	}
 	for _, element := range records {
 		element["more"] = false
 		if _, ok := element["before"]; ok {
@@ -119,7 +122,7 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 		results = append(results, element)
 	}
 
-	resultJSON, err := json.Marshal(records)
+	resultJSON, _ := json.Marshal(records)
 	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, count, nil
 }

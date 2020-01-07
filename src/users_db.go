@@ -28,6 +28,9 @@ func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (str
 	}
 	//err = bson.UnmarshalExtJSON(jsonData, false, &bdoc)
 	encoded, err := encrypt(dbobj.masterKey, recordKey, parsedData.jsonData)
+	if err != nil {
+		return "", err
+	}
 	encodedStr := base64.StdEncoding.EncodeToString(encoded)
 	fmt.Printf("data %s %s\n", parsedData.jsonData, encodedStr)
 	bdoc["key"] = base64.StdEncoding.EncodeToString(recordKey)
@@ -157,17 +160,24 @@ func (dbobj dbcon) updateUserRecordDo(parsedData userJSON, userTOKEN string, eve
 	encData0 := oldUserBson["data"].(string)
 	encData, err := base64.StdEncoding.DecodeString(encData0)
 	decrypted, err := decrypt(dbobj.masterKey, recordKey, encData)
-
+	if err != nil {
+		return nil, nil, err
+	}
 	// merge
 	fmt.Printf("old json: %s\n", decrypted)
 	jsonDataPatch := parsedData.jsonData
 	fmt.Printf("json patch: %s\n", jsonDataPatch)
 	newJSON, err := jsonpatch.MergePatch(decrypted, jsonDataPatch)
+	if err != nil {
+		return nil, nil, err
+	}
 	fmt.Printf("result: %s\n", newJSON)
 
 	var raw map[string]interface{}
 	err = json.Unmarshal(newJSON, &raw)
-
+	if err != nil {
+		return nil, nil, err
+	}
 	bdel := bson.M{}
 	sig := oldUserBson["md5"].(string)
 	// create new user record
@@ -204,7 +214,7 @@ func (dbobj dbcon) updateUserRecordDo(parsedData userJSON, userTOKEN string, eve
 		}
 	}
 
-	encoded, err := encrypt(dbobj.masterKey, recordKey, newJSON)
+	encoded, _ := encrypt(dbobj.masterKey, recordKey, newJSON)
 	encodedStr := base64.StdEncoding.EncodeToString(encoded)
 	bdoc["key"] = userKey
 	bdoc["data"] = encodedStr
