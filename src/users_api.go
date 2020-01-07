@@ -11,7 +11,7 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	event := audit("create user record", "", "", "")
 	defer func() { event.submit(e.db) }()
 
-	if e.conf.Generic.Create_user_without_token == false {
+	if e.conf.Generic.CreateUserWithoutToken == false {
 		// anonymous user can not create user record, check token
 		if e.enforceAuth(w, r, event) == false {
 			fmt.Println("failed to create user, access denied, try to change Create_user_without_token")
@@ -92,7 +92,7 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	}
 	event.Record = userTOKEN
 	returnUUID(w, userTOKEN)
-	notifyUrl := e.conf.Notification.Profile_notification_url
+	notifyUrl := e.conf.Notification.ProfileNotificationURL
 	notifyProfileNew(notifyUrl, parsedData.jsonData, "token", userTOKEN)
 	return
 }
@@ -182,7 +182,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 	returnUUID(w, userTOKEN)
-	notifyUrl := e.conf.Notification.Profile_notification_url
+	notifyUrl := e.conf.Notification.ProfileNotificationURL
 	notifyProfileChange(notifyUrl, oldJSON, newJSON, "token", userTOKEN)
 }
 
@@ -234,7 +234,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","result":"done"}`)
-	notifyUrl := e.conf.Notification.Forgetme_notification_url
+	notifyUrl := e.conf.Notification.ForgetmeNotificationURL
 	notifyForgetMe(notifyUrl, resultJSON, "token", userTOKEN)
 }
 

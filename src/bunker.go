@@ -22,43 +22,46 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+// Tbl is used to store table id
 type Tbl = int
 
+// listTbls used to store list of tables
 type listTbls struct {
-	Users    Tbl
-	Audit    Tbl
-	Xtokens  Tbl
-	Consent  Tbl
-	Sessions Tbl
+	Users         Tbl
+	Audit         Tbl
+	Xtokens       Tbl
+	Consent       Tbl
+	Sessions      Tbl
 	Sharedrecords Tbl
 }
 
-// Enum for public use
+// TblName is enum of tables
 var TblName = &listTbls{
-	Users:    0,
-	Audit:    1,
-	Xtokens:  2,
-	Consent:  3,
-	Sessions: 4,
+	Users:         0,
+	Audit:         1,
+	Xtokens:       2,
+	Consent:       3,
+	Sessions:      4,
 	Sharedrecords: 5,
 }
 
+// Config is used to store application configuration
 type Config struct {
 	Generic struct {
-		Create_user_without_token bool `yaml:"create_user_without_token"`
+		CreateUserWithoutToken bool `yaml:"create_user_without_token"`
 	}
 	Notification struct {
-		Consent_notification_url string `yaml:"consent_notification_url"`
-		Profile_notification_url string `yaml:"profile_notification_url"`
-		Forgetme_notification_url string `yaml:"forgetme_notification_url"`
+		ConsentNotificationURL  string `yaml:"consent_notification_url"`
+		ProfileNotificationURL  string `yaml:"profile_notification_url"`
+		ForgetmeNotificationURL string `yaml:"forgetme_notification_url"`
 	}
 	Policy struct {
-		Max_audit_retention_period string `yaml:"max_audit_retention_period"`
-		Max_session_retention_period string `yaml:"max_session_retention_period"`
+		Max_audit_retention_period            string `yaml:"max_audit_retention_period"`
+		Max_session_retention_period          string `yaml:"max_session_retention_period"`
 		Max_shareable_record_retention_period string `yaml:"max_shareable_record_retention_period"`
 	}
 	Ssl struct {
-		Ssl_certificate string `yaml:"ssl_certificate", envconfig:"SSL_CERTIFICATE"`
+		Ssl_certificate     string `yaml:"ssl_certificate", envconfig:"SSL_CERTIFICATE"`
 		Ssl_certificate_key string `yaml:"ssl_certificate_key", envconfig:"SSL_CERTIFICATE_KEY"`
 	}
 	Sms struct {
@@ -80,12 +83,14 @@ type Config struct {
 	} `yaml:"smtp"`
 }
 
+// mainEnv struct stores global structures
 type mainEnv struct {
-	db   dbcon
-	conf Config
-	stopChan     chan struct{}
+	db       dbcon
+	conf     Config
+	stopChan chan struct{}
 }
 
+// userJSON used to parse user POST
 type userJSON struct {
 	jsonData []byte
 	loginIdx string
@@ -94,9 +99,9 @@ type userJSON struct {
 }
 
 type tokenAuthResult struct {
-	ttype   string
-	name    string
-	token   string
+	ttype string
+	name  string
+	token string
 }
 
 type checkRecordResult struct {
@@ -184,7 +189,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 
 	router.GET("/v1/audit/list/:token", e.getAuditEvents)
 	router.GET("/v1/audit/get/:atoken", e.getAuditEvent)
-	
+
 	router.GET("/", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		data, err := box.Find("index.html")
 		if err != nil {
@@ -247,20 +252,19 @@ func readEnv(cfg *Config) error {
 	return err
 }
 
-
 func (e mainEnv) dbCleanup() {
-	ticker := time.NewTicker(time.Duration(10)*time.Minute)
+	ticker := time.NewTicker(time.Duration(10) * time.Minute)
 
 	go func() {
 		for {
 			select {
 			case <-ticker.C:
 				log.Printf("db cleanup timeout\n")
-				exp,_ := parseExpiration0(e.conf.Policy.Max_audit_retention_period)
+				exp, _ := parseExpiration0(e.conf.Policy.Max_audit_retention_period)
 				if exp > 0 {
 					e.db.deleteExpired0(TblName.Audit, exp)
 				}
-				notifyUrl := e.conf.Notification.Consent_notification_url
+				notifyUrl := e.conf.Notification.ConsentNotificationURL
 				e.db.expireConsentRecords(notifyUrl)
 			case <-e.stopChan:
 				log.Printf("db cleanup closed\n")
@@ -272,13 +276,13 @@ func (e mainEnv) dbCleanup() {
 }
 
 type CustomResponseWriter struct {
-	w  http.ResponseWriter
+	w    http.ResponseWriter
 	Code int
 }
 
 func NewCustomResponseWriter(ww http.ResponseWriter) *CustomResponseWriter {
 	return &CustomResponseWriter{
-		w: ww,
+		w:    ww,
 		Code: 0,
 	}
 }
@@ -367,14 +371,14 @@ func main() {
 	}
 	db, _ := newDB(masterKey, dbPtr)
 	db.initUserApps()
-	e := mainEnv{db, cfg, make(chan struct{}),}
+	e := mainEnv{db, cfg, make(chan struct{})}
 	e.dbCleanup()
 	fmt.Printf("host %s\n", cfg.Server.Host+":"+cfg.Server.Port)
 	router := e.setupRouter()
-	srv := &http.Server{ Addr: cfg.Server.Host+":"+cfg.Server.Port,	Handler: logRequest(router)}
-	
+	srv := &http.Server{Addr: cfg.Server.Host + ":" + cfg.Server.Port, Handler: logRequest(router)}
+
 	stop := make(chan os.Signal, 2)
-    signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
 	// Waiting for SIGINT (pkill -2)
 	go func() {
@@ -383,14 +387,14 @@ func main() {
 		close(e.stopChan)
 		time.Sleep(1)
 		srv.Shutdown(context.TODO())
-		db.closeDB()	
-        //DeleteFiles()
-        //os.Exit(0)
+		db.closeDB()
+		//DeleteFiles()
+		//os.Exit(0)
 	}()
-	
+
 	if _, err := os.Stat(cfg.Ssl.Ssl_certificate); !os.IsNotExist(err) {
 		log.Printf("Loading ssl\n")
-		err := srv.ListenAndServeTLS( cfg.Ssl.Ssl_certificate, cfg.Ssl.Ssl_certificate_key)
+		err := srv.ListenAndServeTLS(cfg.Ssl.Ssl_certificate, cfg.Ssl.Ssl_certificate_key)
 		if err != nil {
 			log.Printf("ListenAndServeSSL: %s\n", err)
 		}
