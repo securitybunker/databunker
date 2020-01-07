@@ -202,7 +202,7 @@ func decodeForCleanup(data interface{}) string {
 
 	switch t := data.(type) {
 	case primitive.M:
-		for idx, _ := range data.(primitive.M) {
+		for idx := range data.(primitive.M) {
 			if len(fields) == 0 {
 				fields = escapeName(idx) + "=null"
 			} else {
@@ -211,7 +211,7 @@ func decodeForCleanup(data interface{}) string {
 		}
 		return fields
 	case map[string]interface{}:
-		for idx, _ := range data.(map[string]interface{}) {
+		for idx := range data.(map[string]interface{}) {
 			if len(fields) == 0 {
 				fields = escapeName(idx) + "=null"
 			} else {
@@ -248,7 +248,7 @@ func decodeForUpdate(bdoc *bson.M, bdel *bson.M) (string, []interface{}) {
 	}
 
 	if bdel != nil {
-		for idx, _ := range *bdel {
+		for idx := range *bdel {
 			if len(fields) == 0 {
 				fields = escapeName(idx) + "=null"
 			} else {
@@ -279,13 +279,13 @@ func getTable(t Tbl) string {
 
 func (dbobj dbcon) createRecordInTable(tbl string, data interface{}) (int, error) {
 	fields, values := decodeFieldsValues(data)
-	values_q := "$1"
-	for idx, _ := range values {
+	valuesInQ := "$1"
+	for idx := range values {
 		if idx > 0 {
-			values_q = values_q + ",$" + (strconv.Itoa(idx + 1))
+			valuesInQ = valuesInQ + ",$" + (strconv.Itoa(idx + 1))
 		}
 	}
-	q := "insert into " + tbl + " (" + fields + ") values (" + values_q + ")"
+	q := "insert into " + tbl + " (" + fields + ") values (" + valuesInQ + ")"
 	//fmt.Printf("values: %s\n", values...)
 	tx, err := dbobj.db.Begin()
 	if err != nil {
@@ -470,8 +470,8 @@ func (dbobj dbcon) getRecordInTableDo(q string, values []interface{}) (bson.M, e
 	//		columnPointers[i] = new(interface{})
 	//}
 	columns := make([]interface{}, len(columnNames))
-	for i, _ := range columns {
-		columnPointers[i] = &columns[i]
+	for idx := range columns {
+		columnPointers[idx] = &columns[idx]
 	}
 	err = rows.Scan(columnPointers...)
 	if err == sql.ErrNoRows {
@@ -718,8 +718,8 @@ func (dbobj dbcon) getListDo(q string, keyValue string) ([]bson.M, error) {
 		//		columnPointers[i] = new(interface{})
 		//}
 		columns := make([]interface{}, len(columnNames))
-		for i, _ := range columns {
-			columnPointers[i] = &columns[i]
+		for idx := range columns {
+			columnPointers[idx] = &columns[idx]
 		}
 
 		err = rows.Scan(columnPointers...)

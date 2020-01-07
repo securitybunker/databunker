@@ -275,11 +275,13 @@ func (e mainEnv) dbCleanup() {
 	}()
 }
 
+// CustomResponseWriter is a custom wrapper for ResponseWriter
 type CustomResponseWriter struct {
 	w    http.ResponseWriter
 	Code int
 }
 
+// NewCustomResponseWriter function returns CustomResponseWriter object
 func NewCustomResponseWriter(ww http.ResponseWriter) *CustomResponseWriter {
 	return &CustomResponseWriter{
 		w:    ww,
@@ -287,6 +289,7 @@ func NewCustomResponseWriter(ww http.ResponseWriter) *CustomResponseWriter {
 	}
 }
 
+// Header returns HTTP Header object
 func (w *CustomResponseWriter) Header() http.Header {
 	return w.w.Header()
 }
@@ -295,6 +298,7 @@ func (w *CustomResponseWriter) Write(b []byte) (int, error) {
 	return w.w.Write(b)
 }
 
+// WriteHeader function() writes header back to original ResponseWriter
 func (w *CustomResponseWriter) WriteHeader(statusCode int) {
 	w.Code = statusCode
 	w.w.WriteHeader(statusCode)

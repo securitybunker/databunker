@@ -47,6 +47,9 @@ func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, appName st
 	}
 	//fmt.Println("creating new app")
 	record, err := dbobj.getRecordInTable("app_"+appName, "token", userTOKEN)
+	if err != nil {
+		return userTOKEN, err
+	}
 	if record != nil {
 		fmt.Println("update user app")
 		_, err = dbobj.updateRecordInTable("app_"+appName, "token", userTOKEN, &bdoc)
@@ -92,9 +95,15 @@ func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appNa
 	fmt.Printf("old json: %s\n", decrypted)
 	fmt.Printf("json patch: %s\n", jsonDataPatch)
 	newJSON, err := jsonpatch.MergePatch(decrypted, jsonDataPatch)
+	if err != nil {
+		return userTOKEN, err
+	}
 	fmt.Printf("result: %s\n", newJSON)
 	bdoc := bson.M{}
 	encoded, err := encrypt(dbobj.masterKey, recordKey, newJSON)
+	if err != nil {
+		return userTOKEN, err
+	}
 	encodedStr := base64.StdEncoding.EncodeToString(encoded)
 	bdoc["data"] = encodedStr
 	//it is ok to use md5 here, it is only for data sanity

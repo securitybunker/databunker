@@ -16,7 +16,7 @@ type sessionEvent struct {
 }
 
 func (dbobj dbcon) createSessionRecord(userTOKEN string, expiration string, data []byte) (string, error) {
-	var endtime int32 = 0
+	var endtime int32
 	var err error
 	if len(expiration) > 0 {
 		endtime, err = parseExpiration(expiration)

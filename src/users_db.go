@@ -110,11 +110,10 @@ func (dbobj dbcon) validateIndexChange(indexName string, idxOldValue string, raw
 				}
 				//fmt.Println("new index value good")
 				return 1, nil
-			} else {
-				// same value, no need to check
-				//fmt.Println("same index value")
-				return 0, nil
 			}
+			// same value, no need to check
+			//fmt.Println("same index value")
+			return 0, nil
 		} else if reflect.TypeOf(newIdxValue) == reflect.TypeOf(nil) {
 			//fmt.Println("old index removed!!!")
 			return -1, nil
@@ -159,6 +158,9 @@ func (dbobj dbcon) updateUserRecordDo(parsedData userJSON, userTOKEN string, eve
 	}
 	encData0 := oldUserBson["data"].(string)
 	encData, err := base64.StdEncoding.DecodeString(encData0)
+	if err != nil {
+		return nil, nil, err
+	}
 	decrypted, err := decrypt(dbobj.masterKey, recordKey, encData)
 	if err != nil {
 		return nil, nil, err
@@ -201,7 +203,7 @@ func (dbobj dbcon) updateUserRecordDo(parsedData userJSON, userTOKEN string, eve
 				otherUserBson, _ := dbobj.lookupUserRecordByIndex(idx, newIdxValue.(string), conf)
 				if otherUserBson != nil {
 					// already exist user with same index value
-					return nil, nil, errors.New(fmt.Sprintf("duplicate %s index", idx))
+					return nil, nil, fmt.Errorf("duplicate %s index", idx)
 				}
 				//fmt.Printf("adding index2? %s\n", raw[idx])
 				// create login index
