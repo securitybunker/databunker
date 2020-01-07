@@ -108,7 +108,7 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode s
 		fmt.Printf("error to insert record: %s\n", err)
 		return false, err
 	}
-	return true, err
+	return true, nil
 }
 
 // link consent record to userToken
@@ -151,6 +151,9 @@ func (dbobj dbcon) listConsentRecords(userTOKEN string) ([]byte, int, error) {
 	}
 	count := len(records)
 	resultJSON, err := json.Marshal(records)
+	if err != nil {
+		return nil, 0, err
+	}
 	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, count, nil
 }
@@ -161,6 +164,9 @@ func (dbobj dbcon) viewConsentRecord(userTOKEN string, brief string) ([]byte, er
 		return nil, err
 	}
 	resultJSON, err := json.Marshal(record)
+	if err != nil {
+		return nil, err
+	}
 	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, nil
 }
@@ -181,6 +187,9 @@ func (dbobj dbcon) filterConsentRecords(brief string, offset int32, limit int32)
 		result = append(result, rec["token"].(string))
 	}
 	resultJSON, err := json.Marshal(result)
+	if err != nil {
+		return nil, 0, err
+	}
 	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, count, nil
 }

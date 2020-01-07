@@ -122,7 +122,10 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 		results = append(results, element)
 	}
 
-	resultJSON, _ := json.Marshal(records)
+	resultJSON, err := json.Marshal(records)
+	if err != nil {
+		return nil, 0, err
+	}
 	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, count, nil
 }

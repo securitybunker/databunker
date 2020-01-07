@@ -82,17 +82,17 @@ func normalizeEmail(email0 string) string {
 	return email
 }
 
-func normalizePhone(phone string, default_country string) string {
+func normalizePhone(phone string, defaultCountry string) string {
 	// 4444 is a phone number for testing, no need to normilize it
 	phone = strings.TrimSpace(phone)
 	if phone == "4444" {
 		return "4444"
 	}
-	if len(default_country) == 0 {
+	if len(defaultCountry) == 0 {
 		// https://github.com/ttacon/libphonenumber/blob/master/countrycodetoregionmap.go
-		default_country = "GB"
+		defaultCountry = "GB"
 	}
-	res, err := libphonenumber.Parse(phone, default_country)
+	res, err := libphonenumber.Parse(phone, defaultCountry)
 	if err != nil {
 		fmt.Printf("failed to parse phone number: %s", phone)
 		return ""
@@ -155,23 +155,23 @@ func atoi(s string) int32 {
 	return int32(n)
 }
 
-func setExpiration(max_expiration string, user_expiration string) string {
-	if len(user_expiration) == 0 {
-		return max_expiration
+func setExpiration(maxExpiration string, userExpiration string) string {
+	if len(userExpiration) == 0 {
+		return maxExpiration
 	}
-	user_expiration_num, _ := parseExpiration(user_expiration)
-	max_expiration_num, _ := parseExpiration(max_expiration)
-	if max_expiration_num == 0 {
-		max_expiration = "6m"
-		max_expiration_num, _ = parseExpiration(max_expiration)
+	userExpirationNum, _ := parseExpiration(userExpiration)
+	maxExpirationNum, _ := parseExpiration(maxExpiration)
+	if maxExpirationNum == 0 {
+		maxExpiration = "6m"
+		maxExpirationNum, _ = parseExpiration(maxExpiration)
 	}
-	if user_expiration_num == 0 {
-		return max_expiration
+	if userExpirationNum == 0 {
+		return maxExpiration
 	}
-	if user_expiration_num > max_expiration_num {
-		return max_expiration
+	if userExpirationNum > maxExpirationNum {
+		return maxExpiration
 	}
-	return user_expiration
+	return userExpiration
 }
 
 func parseExpiration0(expiration string) (int32, error) {
@@ -370,7 +370,7 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 	return records, nil
 }
 
-func getJSONPost(r *http.Request, default_country string) (userJSON, error) {
+func getJSONPost(r *http.Request, defaultCountry string) (userJSON, error) {
 	var result userJSON
 	records, err := getJSONPostData(r)
 	if err != nil {
@@ -395,7 +395,7 @@ func getJSONPost(r *http.Request, default_country string) (userJSON, error) {
 	if value, ok := records["phone"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			result.phoneIdx = value.(string)
-			result.phoneIdx = normalizePhone(result.phoneIdx, default_country)
+			result.phoneIdx = normalizePhone(result.phoneIdx, defaultCountry)
 		}
 	}
 
