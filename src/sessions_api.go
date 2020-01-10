@@ -42,7 +42,7 @@ func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 	}
-	if e.enforceAuth(w, r, event) == false {
+	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
 	expiration := e.conf.Policy.MaxSessionRetentionPeriod
@@ -118,7 +118,7 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 			return
 		}
 	}
-	if e.enforceAuth(w, r, event) == false {
+	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
 	e.db.deleteExpired(TblName.Sessions, "token", userTOKEN)
@@ -154,7 +154,7 @@ func (e mainEnv) getSession(w http.ResponseWriter, r *http.Request, session stri
 		return
 	}
 	event.Record = userTOKEN
-	if e.enforceAuth(w, r, event) == false {
+	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

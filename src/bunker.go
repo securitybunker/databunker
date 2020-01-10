@@ -32,6 +32,7 @@ type listTbls struct {
 	Xtokens       Tbl
 	Consent       Tbl
 	Sessions      Tbl
+	Requests      Tbl
 	Sharedrecords Tbl
 }
 
@@ -42,7 +43,8 @@ var TblName = &listTbls{
 	Xtokens:       2,
 	Consent:       3,
 	Sessions:      4,
-	Sharedrecords: 5,
+	Requests:      5,
+	Sharedrecords: 6,
 }
 
 // Config is used to store application configuration
@@ -144,7 +146,7 @@ func (e mainEnv) index(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e mainEnv) backupDB(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	if e.enforceAuth(w, r, nil) == false {
+	if e.enforceAuth(w, r, nil) == "" {
 		return
 	}
 	w.WriteHeader(200)

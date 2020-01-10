@@ -16,7 +16,7 @@ func (e mainEnv) getAuditEvents(w http.ResponseWriter, r *http.Request, ps httpr
 	if enforceUUID(w, userTOKEN, event) == false {
 		return
 	}
-	if e.enforceAuth(w, r, event) == false {
+	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
 	var offset int32
@@ -57,7 +57,7 @@ func (e mainEnv) getAuditEvent(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	event.Record = userTOKEN
-	if e.enforceAuth(w, r, event) == false {
+	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
 	//fmt.Fprintf(w, "<html><head><title>title</title></head>")
