@@ -3,6 +3,7 @@ go build -ldflags "-w" -o databunker ./src/bunker.go ./src/qldb.go ./src/xtokens
   ./src/utils.go ./src/cryptor.go ./src/notify.go \
   ./src/audit_db.go ./src/audit_api.go \
   ./src/sms.go ./src/email.go \
+  ./src/requests_db.go \
   ./src/users_db.go ./src/users_api.go \
   ./src/userapps_db.go ./src/userapps_api.go \
   ./src/sessions_db.go ./src/sessions_api.go \

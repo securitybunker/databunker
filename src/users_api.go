@@ -13,7 +13,7 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 
 	if e.conf.Generic.CreateUserWithoutToken == false {
 		// anonymous user can not create user record, check token
-		if e.enforceAuth(w, r, event) == false {
+		if e.enforceAuth(w, r, event) == "" {
 			fmt.Println("failed to create user, access denied, try to change Create_user_without_token")
 			return
 		}
@@ -104,7 +104,7 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	mode := ps.ByName("mode")
 	event := audit("get user record by "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
-	if e.enforceAuth(w, r, event) == false {
+	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
 	if validateMode(mode) == false {
@@ -143,7 +143,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	event := audit("change user record by "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
-	if e.enforceAuth(w, r, event) == false {
+	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
 	if validateMode(mode) == false {
@@ -193,9 +193,6 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	event := audit("delete user record by "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
-	if e.enforceAuth(w, r, event) == false {
-		return
-	}
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
@@ -216,11 +213,28 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 		returnError(w, r, "internal error", 405, nil, event)
 		return
 	}
+	authResult := e.enforceAuth(w, r, event)
+	if authResult == "" {
+		return
+	}
 	if resultJSON == nil {
 		returnError(w, r, "record not found", 405, nil, event)
 		return
 	}
+	if authResult == "login" {
+		event.Title = "User forget-me request"
+		rtoken, err := e.db.saveUserRequest("forget-me", userTOKEN, mode, address, "", "")
+		if err != nil {
+			returnError(w, r, "internal error", 405, err, event)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(200)
+		fmt.Fprintf(w, `{"status":"ok","result":"request-created","rtoken":"%s"}`, rtoken)
+		return
+	}
 	fmt.Printf("deleting user %s", userTOKEN)
+
 	result, err := e.db.deleteUserRecord(userTOKEN)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)

@@ -17,7 +17,7 @@ func (e mainEnv) userappNew(w http.ResponseWriter, r *http.Request, ps httproute
 	if enforceUUID(w, userTOKEN, event) == false {
 		return
 	}
-	if e.enforceAuth(w, r, event) == false {
+	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
 	if isValidApp(appName) == false {
@@ -61,7 +61,7 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 	if enforceUUID(w, userTOKEN, event) == false {
 		return
 	}
-	if e.enforceAuth(w, r, event) == false {
+	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
 	if isValidApp(appName) == false {
@@ -100,7 +100,7 @@ func (e mainEnv) userappList(w http.ResponseWriter, r *http.Request, ps httprout
 	if enforceUUID(w, userTOKEN, event) == false {
 		return
 	}
-	if e.enforceAuth(w, r, event) == false {
+	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
 	result, err := e.db.listUserApps(userTOKEN)
@@ -122,7 +122,7 @@ func (e mainEnv) userappGet(w http.ResponseWriter, r *http.Request, ps httproute
 	if enforceUUID(w, userTOKEN, event) == false {
 		return
 	}
-	if e.enforceAuth(w, r, event) == false {
+	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
 	if isValidApp(appName) == false {
@@ -147,7 +147,7 @@ func (e mainEnv) userappGet(w http.ResponseWriter, r *http.Request, ps httproute
 
 func (e mainEnv) appList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	fmt.Printf("/APPLIST\n")
-	if e.enforceAuth(w, r, nil) == false {
+	if e.enforceAuth(w, r, nil) == "" {
 		return
 	}
 	result, err := e.db.listAllApps()

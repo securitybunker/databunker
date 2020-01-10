@@ -36,7 +36,7 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 			returnError(w, r, "internal error", 405, nil, event)
 			return
 		}
-		if e.enforceAuth(w, r, event) == false {
+		if e.enforceAuth(w, r, event) == "" {
 			return
 		}
 		userTOKEN = address
@@ -179,7 +179,7 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 			returnError(w, r, "internal error", 405, nil, event)
 			return
 		}
-		if e.enforceAuth(w, r, event) == false {
+		if e.enforceAuth(w, r, event) == "" {
 			return
 		}
 		userTOKEN = address
@@ -209,7 +209,7 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 		}
 	}
 	// make sure that user is logged in here, unless he wants to cancel emails
-	//if e.enforceAuth(w, r, event) == false {
+	//if e.enforceAuth(w, r, event) == "" {
 	//	return
 	//}
 	switch mode {
@@ -252,7 +252,7 @@ func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, p
 			returnError(w, r, "internal error", 405, nil, event)
 			return
 		}
-		if e.enforceAuth(w, r, event) == false {
+		if e.enforceAuth(w, r, event) == "" {
 			return
 		}
 		userTOKEN = address
@@ -262,7 +262,7 @@ func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, p
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 			event.Record = userTOKEN
-			if e.enforceAuth(w, r, event) == false {
+			if e.enforceAuth(w, r, event) == "" {
 				return
 			}
 		} else {
@@ -275,7 +275,7 @@ func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, p
 		}
 	}
 	// make sure that user is logged in here, unless he wants to cancel emails
-	if e.enforceAuth(w, r, event) == false {
+	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
 
@@ -331,7 +331,7 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 	}
 
 	// make sure that user is logged in here, unless he wants to cancel emails
-	if e.enforceAuth(w, r, event) == false {
+	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
 
@@ -351,7 +351,7 @@ func (e mainEnv) consentFilterRecords(w http.ResponseWriter, r *http.Request, ps
 	brief := ps.ByName("brief")
 	event := audit("consent get all for "+brief, brief, "brief", brief)
 	defer func() { event.submit(e.db) }()
-	if e.enforceAuth(w, r, event) == false {
+	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
 

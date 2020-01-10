@@ -127,6 +127,9 @@ func (dbobj dbcon) initDB() error {
 	if err = initSessions(dbobj.db); err != nil {
 		return err
 	}
+	if err = initRequests(dbobj.db); err != nil {
+		return err
+	}
 	if err = initSharedRecords(dbobj.db); err != nil {
 		return err
 	}
@@ -271,6 +274,8 @@ func getTable(t Tbl) string {
 		return "xtokens"
 	case TblName.Sessions:
 		return "sessions"
+	case TblName.Requests:
+		return "requests"
 	case TblName.Sharedrecords:
 		return "sharedrecords"
 	}
@@ -946,6 +951,41 @@ func initAudit(db *sql.DB) error {
 		return err
 	}
 	_, err = tx.Exec(`CREATE INDEX audit_record ON audit (record);`)
+	if err != nil {
+		return err
+	}
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func initRequests(db *sql.DB) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	_, err = tx.Exec(`
+	CREATE TABLE IF NOT EXISTS requests (
+	  rtoken STRING,
+	  identity STRING,
+	  token STRING,
+	  mode STRING,
+	  app STRING,
+	  action STRING,
+	  status STRING,
+	  change STRING,
+	  creationtime int,
+	  ` + "`when` int);")
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(`CREATE INDEX requests_rtoken ON requests (rtoken);`)
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(`CREATE INDEX requests_token ON requests (token);`)
 	if err != nil {
 		return err
 	}

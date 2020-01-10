@@ -19,7 +19,7 @@ func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps http
 	if enforceUUID(w, userTOKEN, event) == false {
 		return
 	}
-	if e.enforceAuth(w, r, event) == false {
+	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
 	records, err := getJSONPostData(r)

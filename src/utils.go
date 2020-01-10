@@ -267,7 +267,7 @@ func returnUUID(w http.ResponseWriter, code string) {
 	fmt.Fprintf(w, `{"status":"ok","token":%q}`, code)
 }
 
-func (e mainEnv) enforceAuth(w http.ResponseWriter, r *http.Request, event *auditEvent) bool {
+func (e mainEnv) enforceAuth(w http.ResponseWriter, r *http.Request, event *auditEvent) string {
 	/*
 		for key, value := range r.Header {
 			fmt.Printf("%s => %s\n", key, value)
@@ -282,11 +282,11 @@ func (e mainEnv) enforceAuth(w http.ResponseWriter, r *http.Request, event *audi
 			}
 			if authResult.ttype == "login" {
 				if authResult.token == event.Record {
-					return true
+					return authResult.ttype
 					// else go down in code
 				}
 			} else {
-				return true
+				return authResult.ttype
 			}
 		}
 		/*
@@ -305,7 +305,7 @@ func (e mainEnv) enforceAuth(w http.ResponseWriter, r *http.Request, event *audi
 		event.Status = "error"
 		event.Msg = "access denied"
 	}
-	return false
+	return ""
 }
 
 func enforceUUID(w http.ResponseWriter, uuidCode string, event *auditEvent) bool {
