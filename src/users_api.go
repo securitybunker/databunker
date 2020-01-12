@@ -223,7 +223,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	if authResult == "login" {
 		event.Title = "User forget-me request"
-		rtoken, err := e.db.saveUserRequest("forget-me", userTOKEN, mode, address, "", "")
+		rtoken, err := e.db.saveUserRequest("forget-me", userTOKEN, "", "")
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
