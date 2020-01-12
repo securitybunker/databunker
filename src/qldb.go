@@ -969,9 +969,7 @@ func initRequests(db *sql.DB) error {
 	_, err = tx.Exec(`
 	CREATE TABLE IF NOT EXISTS requests (
 	  rtoken STRING,
-	  identity STRING,
 	  token STRING,
-	  mode STRING,
 	  app STRING,
 	  action STRING,
 	  status STRING,
