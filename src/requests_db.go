@@ -11,8 +11,6 @@ type requestEvent struct {
 	// time for update?
 	Creationtime int32  `json:"creationtime"`
 	When         int32  `json:"when"`
-	Mode         string `json:"mode"`
-	Identity     string `json:"identity"`
 	Token        string `json:"token"`
 	App          string `json:"app,omitempty"`
 	Action       string `json:"action"`
@@ -21,16 +19,14 @@ type requestEvent struct {
 	Rtoken       string `json:"rtoken"`
 }
 
-func (dbobj dbcon) saveUserRequest(action string, token string, mode string, identity string, app string, change string) (string, error) {
+func (dbobj dbcon) saveUserRequest(action string, token string, app string, change string) (string, error) {
 	now := int32(time.Now().Unix())
 	bdoc := bson.M{}
 	rtoken, _ := uuid.GenerateUUID()
 	bdoc["when"] = now
-	bdoc["mode"] = mode
 	bdoc["token"] = token
 	bdoc["action"] = action
 	bdoc["rtoken"] = rtoken
-	bdoc["identity"] = identity
 	bdoc["creationtime"] = now
 	bdoc["status"] = "open"
 	if len(change) > 0 {
