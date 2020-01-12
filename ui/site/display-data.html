@@ -38,12 +38,12 @@
         </div>
     </div>
     <script>
-        var xtoken = window.localStorage.getItem('xtoken');
+        var record = window.localStorage.getItem('record');
         var ttype = window.localStorage.getItem('type');
-        $('#msg').val("Display: " + ttype + " " + xtoken);
-        $.get("/v1/xtoken/" + xtoken, function (data) {
+        $('#msg').val("Display: " + ttype + " " + record);
+        $.get("/v1/get/" + record, function (data) {
             if (data.status == "ok") {
-                $('#msg').text("Access xtoken value: "+xtoken)
+                $('#msg').text("Data fetched.");
                 var d = JSON.stringify(data.data, null, 4);
                 $('#data').append('<code class="json">' + d + '</code>');
                 document.querySelectorAll('pre code').forEach((block) => {

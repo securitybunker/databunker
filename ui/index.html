@@ -20,7 +20,8 @@
                 <form id="loginform">
                     <div class="form-group">
                         <select onchange="changemethod(this);" class="custom-select" required id="keymethod">
-                            <option value="token">Access Token</option>
+                            <option value="Admin">Admin Token</option>
+                            <option value="Record">Record Token</option>
                             <option value="Email">Email</option>
                             <option value="Phone">Phone</option>
                         </select>
@@ -148,22 +149,39 @@
                 confalert.style.display = "block";
                 return false;
             }
-
-
-            if (kkk == "Token" && isUUID(key) == true) {
+            console.log("check admin");
+            if (kkk == "Record" && isUUID(key) == true) {
                 var xhr = new XMLHttpRequest();
-                xhr.open('GET', "/v1/xtoken/" + key);
+                xhr.open('GET', "/v1/get/" + key);
                 xhr.onload = function () {
                     if (xhr.status === 200) {
                         var data = JSON.parse(xhr.responseText);
                         if (data && data.status && data.status == "ok") {
-                            window.localStorage.setItem('xtoken', key);
+                            window.localStorage.setItem('record', key);
                             window.localStorage.setItem('type', data.type);
                             if (data.data) {
                                 document.location = "/site/display-data.html";
                             } else {
                                 document.location = "/site/admin-events.html";
                             }
+                        }
+                    }
+                };
+                xhr.send();
+            } else if (kkk == "Admin" && isUUID(key) == true) {
+                console.log("check admin");
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', "/v1/userapps");
+                xhr.setRequestHeader("X-Bunker-Token", key)
+                xhr.setRequestHeader('Content-type', 'application/json');
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        var data = JSON.parse(xhr.responseText);
+                        if (data && data.status && data.status == "ok") {
+                            window.localStorage.setItem('xtoken', key);
+                            window.localStorage.setItem('type', data.type);
+                            console.log("data", data);
+                            document.location = "/site/admin-view-requests.html";
                         }
                     }
                 };
