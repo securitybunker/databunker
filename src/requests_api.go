@@ -142,7 +142,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		returnError(w, r, "not found", 405, err, event)
 		return
 	}
-	if action == "froget-me" {
+	if action == "forget-me" {
 		result, err := e.db.deleteUserRecord(userTOKEN)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
