@@ -93,3 +93,10 @@ func (dbobj dbcon) getRequest(rtoken string) (bson.M, error) {
 	}
 	return record, nil
 }
+
+func (dbobj dbcon) updateRequestStatus(rtoken string, status string) {
+	bdoc := bson.M{}
+	bdoc["status"] = status
+	//fmt.Printf("op json: %s\n", update)
+	dbobj.updateRecord(TblName.Requests, "rtoken", rtoken, &bdoc)
+}
