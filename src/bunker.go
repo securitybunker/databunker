@@ -172,6 +172,9 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.POST("/v1/sharedrecord/token/:token", e.newSharedRecord)
 	router.GET("/v1/get/:record", e.getRecord)
 
+	router.GET("/v1/request/:request", e.getUserRequest)
+	router.GET("/v1/requests", e.getUserRequests)
+
 	router.GET("/v1/consent/:mode/:address", e.consentAllUserRecords)
 	router.GET("/v1/consent/:mode/:address/:brief", e.consentUserRecord)
 	router.GET("/v1/consents/:brief", e.consentFilterRecords)

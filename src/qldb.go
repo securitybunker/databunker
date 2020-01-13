@@ -987,6 +987,10 @@ func initRequests(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
+	_, err = tx.Exec(`CREATE INDEX requests_status ON requests (status);`)
+	if err != nil {
+		return err
+	}
 	if err = tx.Commit(); err != nil {
 		return err
 	}
