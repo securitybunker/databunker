@@ -51,8 +51,15 @@
       return result;
     }
     function displayDrillDownLink(rtoken, row, index) {
-        console.log(row);
-        return '<a href=\'javascript:displayRequest(\"' + rtoken + '\");\'>*</a>';
+      console.log(row);
+      var links = '<a href=\'javascript:displayRequest(\"' + rtoken +
+        '\");\'>view</a>&nbsp;|&nbsp;';
+      if (row["action"] == "forget-me") {
+        links += "delete";
+      } else {
+        links += "approve";
+      }
+      return links;
     }
     var confirmModal;
 
@@ -173,7 +180,8 @@
               <th scope="col-1" data-field="when" data-formatter="dateFormat">Time</th>
               <th scope="col-2" data-field="token" data-formatter="displayTargetObject">User Record Identifier</th>
               <th scope="col-4" data-field="action" data-formatter="displayActivity">Activity</th>
-              <th scope="col-1" data-field="rtoken" data-formatter="displayDrillDownLink">More</th>
+              <th scope="col-4" data-field="status">Status</th>
+              <th scope="col-1" data-field="rtoken" data-formatter="displayDrillDownLink">Actions</th>
             </tr>
           </thead>
         </table>

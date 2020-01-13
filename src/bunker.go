@@ -173,6 +173,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/get/:record", e.getRecord)
 
 	router.GET("/v1/request/:request", e.getUserRequest)
+	router.POST("/v1/request/:request", e.approveUserRequest)
+	router.DELETE("/v1/request/:request", e.cancelUserRequest)
 	router.GET("/v1/requests", e.getUserRequests)
 
 	router.GET("/v1/consent/:mode/:address", e.consentAllUserRecords)
