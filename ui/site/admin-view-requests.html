@@ -55,13 +55,49 @@
       var links = '<a href=\'javascript:displayRequest(\"' + rtoken +
         '\");\'>view</a>&nbsp;|&nbsp;';
       if (row["action"] == "forget-me") {
-        links += "delete";
+        links += '<a href=\'javascript:approveRequest(\"' + rtoken +
+          '\");\'>delete</a>&nbsp;|&nbsp;';
       } else {
-        links += "approve";
+        links += '<a href=\'javascript:approveRequest(\"' + rtoken +
+          '\");\'>approve</a>&nbsp;|&nbsp;';
       }
+      links += '<a href=\'javascript:cancelRequest(\"' + rtoken +
+          '\");\'>cancel</a>';
       return links;
     }
-    var confirmModal;
+    var modalPopup;
+
+    function approveRequest(request) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', "/v1/request/" + request);
+      xhr.setRequestHeader("X-Bunker-Token", xtoken)
+      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          document.location.reload();
+        } else if (xhr.status > 400 && xhr.status < 500) {
+          //alert("error, try again");
+          document.location = "/";
+        }
+      }
+      xhr.send();
+    }
+
+    function cancelRequest(request) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('DELETE', "/v1/request/" + request);
+      xhr.setRequestHeader("X-Bunker-Token", xtoken)
+      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          document.location.reload();
+        } else if (xhr.status > 400 && xhr.status < 500) {
+          //alert("error, try again");
+          document.location = "/";
+        }
+      }
+      xhr.send();
+    }
 
     function displayRequest(rtoken) {
       var xhr0 = new XMLHttpRequest();
@@ -91,12 +127,12 @@
       var heading = "Request drill down";
       var text = "Display event: " + rtoken;
       var cancelButtonTxt = "Close popup";
-      if (confirmModal) {
+      if (modalPopup) {
         $('#request-event-text').text(text)
-        confirmModal.modal('show');
+        modalPopup.modal('show');
         return;
       }
-      confirmModal =
+      modalPopup =
         $('<div class="modal fade" role="dialog"><div class="modal-dialog" role="document"><div class="modal-content">' +
           '<div class="modal-header">' +
           '<h5 class="modal-title">' + heading + '</h5>' +
@@ -114,13 +150,13 @@
           '</div>' +
           '</div></div></div>');
 
-      confirmModal.find('#okButton').click(function (event) {
+      modalPopup.find('#okButton').click(function (event) {
         //callback();
         //cancelConsent(brief);
-        confirmModal.modal('hide');
+        modalPopup.modal('hide');
       });
 
-      confirmModal.modal('show');
+      modalPopup.modal('show');
     }
 
     $(function () {
