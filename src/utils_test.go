@@ -1,4 +1,4 @@
-package main
+package databunker
 
 import (
 	"net/http/httptest"
