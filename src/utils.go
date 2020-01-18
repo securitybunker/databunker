@@ -1,4 +1,4 @@
-package main
+package databunker
 
 import (
 	"crypto/sha256"

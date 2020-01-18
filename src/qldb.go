@@ -1,4 +1,4 @@
-package main
+package databunker
 
 // github.com/mattn/go-sqlite3
 
