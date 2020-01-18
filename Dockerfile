@@ -12,7 +12,8 @@ RUN go get -u github.com/tidwall/gjson
 RUN go get -u github.com/ttacon/libphonenumber
 RUN go get -u github.com/hashicorp/go-uuid
 RUN go get -u go.mongodb.org/mongo-driver/bson
-RUN go get -u modernc.org/ql/ql
+RUN go get -u github.com/mattn/go-sqlite3
+RUN go get -u github.com/schollz/sqlite3dump
 RUN go get -u github.com/evanphx/json-patch
 RUN go get -u github.com/julienschmidt/httprouter
 WORKDIR $GOPATH/src/paranoidguy/databunker/src/
