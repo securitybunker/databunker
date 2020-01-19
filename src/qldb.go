@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"  // load sqlite3 here
+	_ "github.com/mattn/go-sqlite3" // load sqlite3 here
 	"github.com/schollz/sqlite3dump"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

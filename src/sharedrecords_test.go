@@ -6,12 +6,12 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	
+
 	uuid "github.com/hashicorp/go-uuid"
 )
 
 func helpCreateSharedRecord(userTOKEN string, dataJSON string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/sharedrecord/token/"+userTOKEN
+	url := "http://localhost:3000/v1/sharedrecord/token/" + userTOKEN
 	request := httptest.NewRequest("POST", url, strings.NewReader(dataJSON))
 	rr := httptest.NewRecorder()
 	request.Header.Set("Content-Type", "application/json")
@@ -25,7 +25,7 @@ func helpCreateSharedRecord(userTOKEN string, dataJSON string) (map[string]inter
 }
 
 func helpGetSharedRecord(recordTOKEN string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/get/"+recordTOKEN
+	url := "http://localhost:3000/v1/get/" + recordTOKEN
 	request := httptest.NewRequest("GET", url, nil)
 	rr := httptest.NewRecorder()
 	request.Header.Set("X-Bunker-Token", rootToken)
@@ -36,7 +36,6 @@ func helpGetSharedRecord(recordTOKEN string) (map[string]interface{}, error) {
 	err := json.Unmarshal(rr.Body.Bytes(), &raw)
 	return raw, err
 }
-
 
 func TestCreateSharedRecord(t *testing.T) {
 	userJSON := `{"login":"abcdefg","name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1","f3":{"a":"b"}},"admin":true}`
@@ -62,7 +61,7 @@ func TestCreateSharedRecord(t *testing.T) {
 	if len(userTOKEN) == 0 {
 		t.Fatalf("Failed to parse user token")
 	}
-	
+
 	data := `{"expiration":"1d","fields":"uuid,name,pass,k1,k2.f3"}`
 	raw, err = helpCreateSharedRecord(userTOKEN, data)
 
