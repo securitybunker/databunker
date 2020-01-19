@@ -2,10 +2,15 @@ package databunker
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"log"
+	"net/http/httptest"
 	"os"
+	"strings"
+	"testing"
 
+	uuid "github.com/hashicorp/go-uuid"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -14,6 +19,21 @@ var (
 	rootToken string
 	router    *httprouter.Router
 )
+
+func helpBackupRequest(token string) ([]byte, error) {
+	url := "http://localhost:3000/v1/sys/backup"
+	request := httptest.NewRequest("GET", url, nil)
+	rr := httptest.NewRecorder()
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("X-Bunker-Token", token)
+
+	router.ServeHTTP(rr, request)
+	if rr.Code != 200 {
+		return nil, errors.New(fmt.Sprintf("wrong status: %d", rr.Code))
+	}
+	//fmt.Printf("Got: %s\n", rr.Body.Bytes())
+	return rr.Body.Bytes(), nil
+}
 
 func init() {
 	fmt.Printf("**INIT*BEFORE***\n")
@@ -43,4 +63,24 @@ func init() {
 	router = e.setupRouter()
 	//test1 := &testEnv{e, rootToken, router}
 	fmt.Printf("**INIT*DONE***\n")
+}
+
+func TestBackupOK(t *testing.T) {
+	fmt.Printf("root token: %s\n", rootToken)
+	raw, err := helpBackupRequest(rootToken)
+	if err != nil {
+		//log.Panic("error %s", err.Error())
+		log.Fatalf("failed to backup db %s", err.Error())
+	}
+	if strings.Contains(string(raw), "CREATE TABLE") == false {
+		t.Fatalf("Backup failed\n")
+	}
+}
+
+func TestBackupError(t *testing.T) {
+	token, _ := uuid.GenerateUUID()
+	_, err := helpBackupRequest(token)
+	if err == nil {
+		log.Fatalf("This test should faile")
+	}
 }
