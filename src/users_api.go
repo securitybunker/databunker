@@ -233,7 +233,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 		fmt.Fprintf(w, `{"status":"ok","result":"request-created","rtoken":"%s"}`, rtoken)
 		return
 	}
-	fmt.Printf("deleting user %s", userTOKEN)
+	fmt.Printf("deleting user %s\n", userTOKEN)
 
 	result, err := e.db.deleteUserRecord(userTOKEN)
 	if err != nil {
