@@ -63,7 +63,7 @@ func TestCreateSharedRecord(t *testing.T) {
 	}
 
 	data := `{"expiration":"1d","fields":"uuid,name,pass,k1,k2.f3"}`
-	raw, err = helpCreateSharedRecord(userTOKEN, data)
+	raw, _ = helpCreateSharedRecord(userTOKEN, data)
 
 	if status, ok := raw["status"]; ok {
 		if status == "error" {
@@ -77,7 +77,7 @@ func TestCreateSharedRecord(t *testing.T) {
 		t.Fatalf("Failed to retreave user token: %s\n", raw)
 	}
 	fmt.Printf("User record token: %s\n", recordTOKEN)
-	raw, err = helpGetSharedRecord(recordTOKEN)
+	raw, _ = helpGetSharedRecord(recordTOKEN)
 	if status, ok := raw["status"]; ok {
 		if status == "error" {
 			t.Fatalf("Failed to get shared record: %s\n", raw["message"])

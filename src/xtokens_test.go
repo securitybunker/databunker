@@ -47,13 +47,13 @@ func TestUserLogin(t *testing.T) {
 	status := raw["status"].(string)
 	if status == "error" {
 		if strings.Contains(raw["message"].(string), "duplicate") {
-			raw, err = helpGetUser("email", email)
+			raw, _ = helpGetUser("email", email)
 		} else {
 			t.Fatalf("Failed to create user: %s", raw["message"].(string))
 		}
 	}
 	userTOKEN := raw["token"].(string)
-	raw2, err := helpCreateUserLogin("email", email)
+	raw2, _ := helpCreateUserLogin("email", email)
 	status = raw2["status"].(string)
 	if status == "error" {
 		t.Fatalf("Failed to create user login: %s", raw["message"].(string))
@@ -68,16 +68,16 @@ func TestUserLogin(t *testing.T) {
 			tmpCode = userBson["tempcode"].(int32)
 		}
 	*/
-	raw3, err := helpCreateUserLoginEnter("email", email, "4444") //strconv.Itoa(int(tmpCode)))
+	raw3, _ := helpCreateUserLoginEnter("email", email, "4444") //strconv.Itoa(int(tmpCode)))
 	status = raw3["status"].(string)
 	if status == "error" {
 		t.Fatalf("Failed to create user login: %s", raw3["message"].(string))
 	}
 	xtoken := raw3["xtoken"].(string)
 	fmt.Printf("User login token: %s\n", xtoken)
-	raw4, err := helpGetUserAppList(userTOKEN)
+	raw4, _ := helpGetUserAppList(userTOKEN)
 	fmt.Printf("apps: %s\n", raw4["apps"])
 	helpCreateUserApp(userTOKEN, "qq", `{"custom":1}`)
-	raw5, err := helpGetUserAppList(userTOKEN)
+	raw5, _ := helpGetUserAppList(userTOKEN)
 	fmt.Printf("apps: %s\n", raw5["apps"])
 }
