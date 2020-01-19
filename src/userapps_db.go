@@ -51,7 +51,6 @@ func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, appName st
 		return userTOKEN, err
 	}
 	if record != nil {
-		fmt.Println("update user app")
 		_, err = dbobj.updateRecordInTable("app_"+appName, "token", userTOKEN, &bdoc)
 	} else {
 		_, err = dbobj.createRecordInTable("app_"+appName, bdoc)
