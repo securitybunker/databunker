@@ -340,10 +340,10 @@ func main() {
 		fmt.Printf("error %s", err.Error())
 	}
 	if *initPtr {
-		fmt.Println("\nDatabunker init\n")
+		fmt.Printf("\nDatabunker init\n\n")
 		masterKey, err = generateMasterKey()
 		fmt.Printf("Master key: %x\n\n", masterKey)
-		fmt.Println("Init databunker.db\n")
+		fmt.Printf("Init databunker.db\n\n")
 		db, _ := newDB(masterKey, dbPtr)
 		err = db.initDB()
 		if err != nil {
@@ -360,7 +360,7 @@ func main() {
 		os.Exit(0)
 	}
 	if dbExists(dbPtr) == false {
-		fmt.Println("\ndatabunker.db file is missing.\n")
+		fmt.Printf("\ndatabunker.db file is missing.\n\n")
 		fmt.Println(`Run "./databunker -init" for the first time to init database.`)
 		fmt.Println("")
 		os.Exit(0)
