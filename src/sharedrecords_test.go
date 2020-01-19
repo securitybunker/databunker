@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	
+	uuid "github.com/hashicorp/go-uuid"
 )
 
 func helpCreateSharedRecord(userTOKEN string, dataJSON string) (map[string]interface{}, error) {
@@ -85,3 +87,49 @@ func TestCreateSharedRecord(t *testing.T) {
 	}
 	helpDeleteUser("token", userTOKEN)
 }
+
+func TestFailCreateSharedRecord(t *testing.T) {
+	userTOKEN, _ := uuid.GenerateUUID()
+	data := `{"expiration":"1d","fields":"uuid,name,pass,k1"}`
+	raw, _ := helpCreateSharedRecord(userTOKEN, data)
+
+	if status, ok := raw["status"]; ok {
+		if status == "ok" {
+			t.Fatalf("Created shared record for non-existing user\n")
+		}
+	}
+}
+
+/*
+func Test_UserAppToken(t *testing.T) {
+	masterKey, err := hex.DecodeString("71c65924336c5e6f41129b6f0540ad03d2a8bf7e9b10db72")
+	db, _ := newDB(masterKey, nil)
+
+	var parsedData userJSON
+	parsedData.jsonData = []byte(`{"login":"start","field":"bbb"}`)
+	parsedData.loginIdx = "start"
+	userTOKEN, err := db.createUserRecord(parsedData, nil)
+	fields := "abc"
+	expiration := "7d"
+	appName := "test"
+	userXToken, err := db.generateUserTempXToken(userTOKEN, fields, expiration, appName)
+	if err != nil {
+		t.Fatalf("Failed to generate user token: %s ", err)
+	}
+	if userXToken == "" {
+		t.Fatalf("Failed to generate user token")
+	}
+	appName = "test2"
+	userXToken, err = db.generateUserTempXToken(userTOKEN, fields, expiration, appName)
+	if err == nil {
+		t.Fatalf("Using unknown app, should fail.")
+	}
+	if userXToken != "" {
+		t.Fatalf("Should fail to generate user token")
+	}
+	_, err = db.deleteUserRecord(userTOKEN)
+	if err != nil {
+		t.Fatalf("Failed to delete user: %s", err)
+	}
+}
+*/

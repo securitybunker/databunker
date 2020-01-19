@@ -284,7 +284,7 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			}
 		}
 	} else {
-		fmt.Println("user record not found, stil returning ok status")
+		fmt.Println("user record not found, still returning ok status")
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
