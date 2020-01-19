@@ -23,7 +23,7 @@ import (
 )
 
 // Tbl is used to store table id
-type Tbl = int
+type Tbl int
 
 // listTbls used to store list of tables
 type listTbls struct {
