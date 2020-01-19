@@ -26,6 +26,7 @@ func init() {
 		//log.Panic("error %s", err.Error())
 		log.Fatalf("db init error %s", err.Error())
 	}
+	db.initUserApps()
 	var cfg Config
 	e := mainEnv{db, cfg, make(chan struct{})}
 	rootToken, err = db.createRootXtoken()

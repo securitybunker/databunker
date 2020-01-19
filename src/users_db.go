@@ -261,6 +261,7 @@ func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string, 
 		return nil, nil
 	}
 	idxStringHashHex := hashString(dbobj.hash, indexValue)
+	fmt.Printf("loading by %s\n", indexName)
 	return dbobj.getRecord(TblName.Users, indexName+"idx", idxStringHashHex)
 }
 
