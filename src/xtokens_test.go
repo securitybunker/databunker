@@ -10,7 +10,7 @@ import (
 )
 
 func helpCreateUserLogin(mode string, address string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/login/"+mode+"/"+address
+	url := "http://localhost:3000/v1/login/" + mode + "/" + address
 	request := httptest.NewRequest("GET", url, nil)
 	rr := httptest.NewRecorder()
 	request.Header.Set("Content-Type", "application/json")
@@ -24,7 +24,7 @@ func helpCreateUserLogin(mode string, address string) (map[string]interface{}, e
 }
 
 func helpCreateUserLoginEnter(mode string, address string, code string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/enter/"+mode+"/"+address+"/"+code
+	url := "http://localhost:3000/v1/enter/" + mode + "/" + address + "/" + code
 	request := httptest.NewRequest("GET", url, nil)
 	rr := httptest.NewRecorder()
 	request.Header.Set("Content-Type", "application/json")
@@ -53,22 +53,22 @@ func TestUserLogin(t *testing.T) {
 		}
 	}
 	userTOKEN := raw["token"].(string)
-	raw2, err := helpCreateUserLogin("email", email) 
+	raw2, err := helpCreateUserLogin("email", email)
 	status = raw2["status"].(string)
 	if status == "error" {
 		t.Fatalf("Failed to create user login: %s", raw["message"].(string))
 	}
 	/*
-	userBson, err := e.db.lookupUserRecordByIndex("email", email, e.conf)
-	if userBson == nil || err != nil {
-		t.Fatalf("Failed to lookupUserRecordByIndex")
-	}
-	tmpCode := int32(0)
-	if _, ok := userBson["tempcode"]; ok {
-		tmpCode = userBson["tempcode"].(int32)
-	}
+		userBson, err := e.db.lookupUserRecordByIndex("email", email, e.conf)
+		if userBson == nil || err != nil {
+			t.Fatalf("Failed to lookupUserRecordByIndex")
+		}
+		tmpCode := int32(0)
+		if _, ok := userBson["tempcode"]; ok {
+			tmpCode = userBson["tempcode"].(int32)
+		}
 	*/
-	raw3, err := helpCreateUserLoginEnter("email", email, "4444") //strconv.Itoa(int(tmpCode))) 
+	raw3, err := helpCreateUserLoginEnter("email", email, "4444") //strconv.Itoa(int(tmpCode)))
 	status = raw3["status"].(string)
 	if status == "error" {
 		t.Fatalf("Failed to create user login: %s", raw3["message"].(string))
