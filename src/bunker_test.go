@@ -29,7 +29,7 @@ func helpBackupRequest(token string) ([]byte, error) {
 
 	router.ServeHTTP(rr, request)
 	if rr.Code != 200 {
-		return nil, errors.New(fmt.Sprintf("wrong status: %d", rr.Code))
+		return nil, fmt.Errorf("wrong status: %d", rr.Code)
 	}
 	//fmt.Printf("Got: %s\n", rr.Body.Bytes())
 	return rr.Body.Bytes(), nil
