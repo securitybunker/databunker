@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -291,6 +292,7 @@ func (dbobj dbcon) createRecordInTable(tbl string, data interface{}) (int, error
 		}
 	}
 	q := "insert into " + tbl + " (" + fields + ") values (" + valuesInQ + ")"
+	fmt.Printf("q: %s\n", q)
 	//fmt.Printf("values: %s\n", values...)
 	tx, err := dbobj.db.Begin()
 	if err != nil {
@@ -480,12 +482,15 @@ func (dbobj dbcon) getRecordInTableDo(q string, values []interface{}) (bson.M, e
 	}
 	err = rows.Scan(columnPointers...)
 	if err == sql.ErrNoRows {
-		fmt.Println("nothing found")
+		fmt.Println("returning empty result")
 		return nil, nil
 	}
 	if err != nil {
-		fmt.Printf("nothing found: %s\n", err)
-		return nil, nil
+		if strings.Contains(err.Error(), "Rows are closed") {
+			fmt.Println("returning empty result")
+			return nil, nil
+		}
+		return nil, err
 	}
 	for i, colName := range columnNames {
 		switch t := columns[i].(type) {
