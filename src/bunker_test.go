@@ -2,114 +2,44 @@ package databunker
 
 import (
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
-	"net/http/httptest"
-	"strings"
-	"testing"
-
+	"log"
+	"os"
+	
 	"github.com/julienschmidt/httprouter"
 )
 
-func TestCreateAPIUser(t *testing.T) {
+var (
+	e         mainEnv
+	rootToken string
+	router    *httprouter.Router
+)
+
+func init() {
+	fmt.Printf("**INIT*BEFORE***\n")
 	masterKey, _ := hex.DecodeString("71c65924336c5e6f41129b6f0540ad03d2a8bf7e9b10db72")
-	db, _ := newDB(masterKey, nil)
+	testDBFile := "/tmp/test.sqlite3"
+	os.Remove(testDBFile)
+	db, _ := newDB(masterKey, &testDBFile)
+	err := db.initDB()
+	if err != nil {
+		//log.Panic("error %s", err.Error())
+		log.Fatalf("db init error %s", err.Error())
+	}
 	var cfg Config
-	e := mainEnv{db, cfg}
-
-	rootToken, err := e.db.getRootToken()
+	e := mainEnv{db, cfg, make(chan struct{})}
+	rootToken, err = db.createRootXtoken()
 	if err != nil {
-		t.Fatalf("Failed to retreave root token: %s\n", err)
+		//log.Panic("error %s", err.Error())
+		fmt.Printf("error %s", err.Error())
 	}
-	userJSON := `{"login":"abcdefg","name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1","f3":{"a":"b"}},"admin":true}`
-
-	request := httptest.NewRequest("POST", "/user", strings.NewReader(userJSON))
-	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("X-Bunker-Token", rootToken)
-	//var resp http.ResponseWriter
-	rr := httptest.NewRecorder()
-	var ps httprouter.Params
-	e.userNew(rr, request, ps)
-
-	//fmt.Printf("After create user------------------\n%s\n\n\n", rr.Body)
-	var raw map[string]interface{}
-	err = json.Unmarshal(rr.Body.Bytes(), &raw)
+	fmt.Printf("Root token: %s\n", rootToken)
+	rootToken2, err := e.db.getRootXtoken()
 	if err != nil {
-		t.Fatalf("Failed to parse json response on user create: %s\n", err)
+		fmt.Printf("Failed to retreave root token: %s\n", err)
 	}
-	var userTOKEN string
-	if status, ok := raw["status"]; ok {
-		if status == "error" {
-			if strings.HasPrefix(raw["message"].(string), "duplicate") {
-				_, userTOKEN, _ = e.db.getUserIndex("abcdefg", "login")
-				fmt.Printf("user already exists: %s\n", userTOKEN)
-			} else {
-				t.Fatalf("Failed to create user: %s\n", raw["message"])
-				return
-			}
-		} else if status == "ok" {
-			userTOKEN = raw["token"].(string)
-		}
-	}
-	if len(userTOKEN) == 0 {
-		t.Fatalf("Failed to parse user UUID")
-	}
-	p2 := httprouter.Param{"token", userTOKEN}
-	ps2 := []httprouter.Param{p2}
-
-	pars := `{"expiration":"1d","fields":"uuid,name,pass,k1,k2.f3"}`
-	request = httptest.NewRequest("POST", "/user", strings.NewReader(pars))
-	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("X-Bunker-Token", rootToken)
-	//var resp http.ResponseWriter
-	rr = httptest.NewRecorder()
-	e.userNewXtoken(rr, request, ps2)
-	//fmt.Printf("after create token------------------\n%s\n\n\n", rr.Body)
-	err = json.Unmarshal(rr.Body.Bytes(), &raw)
-	if err != nil {
-		fmt.Printf("Failed to parse json response on user create: %s\n", err)
-	}
-	tokenUUID := ""
-	if status, ok := raw["status"]; ok {
-		if status == "error" {
-			t.Fatalf("Failed to create user token: %s\n", raw["message"])
-			return
-		} else if status == "ok" {
-			tokenUUID = raw["xtoken"].(string)
-		}
-	}
-	if len(tokenUUID) == 0 {
-		t.Fatalf("Failed to retreave user token: %s\n", rr.Body)
-	}
-	fmt.Printf("User token: %s\n", tokenUUID)
-
-	request = httptest.NewRequest("GET", "/user", nil)
-	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("X-Bunker-Token", rootToken)
-	//var resp http.ResponseWriter
-	rr = httptest.NewRecorder()
-
-	p3 := httprouter.Param{"xtoken", tokenUUID}
-	ps3 := []httprouter.Param{p3}
-	e.userCheckXtoken(rr, request, ps3)
-	fmt.Printf("get by token------------------\n%s\n\n\n", rr.Body)
-	err = json.Unmarshal(rr.Body.Bytes(), &raw)
-	if err != nil {
-		fmt.Printf("Failed to parse json response on user create: %s\n", err)
-	}
-
-	request = httptest.NewRequest("DELETE", "/user", nil)
-	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("X-Bunker-Token", rootToken)
-	//var resp http.ResponseWriter
-	rr = httptest.NewRecorder()
-	p4 := httprouter.Param{"code", userTOKEN}
-	p5 := httprouter.Param{"mode", "token"}
-	ps4 := []httprouter.Param{p4, p5}
-	e.userDelete(rr, request, ps4)
-	fmt.Printf("after userDelete------------------\n%s\n\n\n", rr.Body)
-	err = json.Unmarshal(rr.Body.Bytes(), &raw)
-	if err != nil {
-		fmt.Printf("Failed to parse json response on user create: %s\n", err)
-	}
+	fmt.Printf("Hashed root token: %s\n", rootToken2)
+	router = e.setupRouter()
+	//test1 := &testEnv{e, rootToken, router}
+	fmt.Printf("**INIT*DONE***\n")
 }
