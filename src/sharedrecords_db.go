@@ -92,4 +92,3 @@ func (dbobj dbcon) getSharedRecord(recordUUID string) (checkRecordResult, error)
 
 	return result, nil
 }
-
