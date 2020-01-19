@@ -74,9 +74,16 @@ func TestUserLogin(t *testing.T) {
 		t.Fatalf("Failed to create user login: %s", raw3["message"].(string))
 	}
 	xtoken := raw3["xtoken"].(string)
-	fmt.Printf("User login token: %s\n", xtoken)
+	fmt.Printf("User login *** xtoken: %s\n", xtoken)
+	oldRootToken := rootToken
+	rootToken = xtoken
 	raw4, _ := helpGetUserAppList(userTOKEN)
+	status = raw4["status"].(string)
+	if status == "error" {
+		t.Fatalf("Failed to get user app list with user xtoken\n")
+	}
 	fmt.Printf("apps: %s\n", raw4["apps"])
+	rootToken = oldRootToken
 	helpCreateUserApp(userTOKEN, "qq", `{"custom":1}`)
 	raw5, _ := helpGetUserAppList(userTOKEN)
 	fmt.Printf("apps: %s\n", raw5["apps"])
