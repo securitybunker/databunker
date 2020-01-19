@@ -4,7 +4,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -26,27 +28,32 @@ var (
 )
 
 func init() {
-	fmt.Printf("***********BEFORE***\n")
+	fmt.Printf("**INIT*BEFORE***\n")
 	masterKey, _ := hex.DecodeString("71c65924336c5e6f41129b6f0540ad03d2a8bf7e9b10db72")
-	testFile := "/tmp/test"
-	db, _ := newDB(masterKey, &testFile)
+	testDBFile := "/tmp/test.sqlite3"
+	os.Remove(testDBFile)
+	db, _ := newDB(masterKey, &testDBFile)
+	err := db.initDB()
+	if err != nil {
+		//log.Panic("error %s", err.Error())
+		log.Fatalf("db init error %s", err.Error())
+	}
 	var cfg Config
-	e := mainEnv{db, cfg}
-	db.initDB()
-	var err error
+	e := mainEnv{db, cfg, make(chan struct{})}
 	rootToken, err = db.createRootXtoken()
 	if err != nil {
 		//log.Panic("error %s", err.Error())
 		fmt.Printf("error %s", err.Error())
 	}
 	fmt.Printf("Root token: %s\n", rootToken)
-	rootToken, err = e.db.getRootToken()
+	rootToken2, err := e.db.getRootXtoken()
 	if err != nil {
 		fmt.Printf("Failed to retreave root token: %s\n", err)
 	}
-	fmt.Printf("Loaded root token: %s\n", rootToken)
+	fmt.Printf("Hashed root token: %s\n", rootToken2)
 	router = e.setupRouter()
 	//test1 := &testEnv{e, rootToken, router}
+	fmt.Printf("**INIT*DONE***\n")
 }
 
 func helpCreateUser(userJSON string) (map[string]interface{}, error) {
@@ -134,7 +141,7 @@ func TestPOSTCreateUser(t *testing.T) {
 	raw2, _ := helpGetUser("login", "user1")
 	//userTOKEN = raw2["token"].(string)
 	//fmt.Printf("status: %s", raw2["status"])
-	if raw2["message"].(string) != "not found" {
+	if strings.Contains(raw2["message"].(string), "not found") == false {
 		t.Fatalf("Failed to delete user, got message: %s", raw2["message"].(string))
 	}
 }

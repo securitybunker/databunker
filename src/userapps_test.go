@@ -71,7 +71,7 @@ func helpGetUserAppList(userTOKEN string) (map[string]interface{}, error) {
 }
 
 func helpGetAppList() (map[string]interface{}, error) {
-	request := httptest.NewRequest("GET", "http://localhost:3000/v1/userapp/list", nil)
+	request := httptest.NewRequest("GET", "http://localhost:3000/v1/userapps", nil)
 	rr := httptest.NewRecorder()
 	request.Header.Set("X-Bunker-Token", rootToken)
 
@@ -99,7 +99,6 @@ func TestCreateUserApp(t *testing.T) {
 	}
 	if raw2["status"] != "ok" {
 		t.Fatalf("Failed to create userapp: %s\n", raw2["message"])
-		return
 	}
 	appJSON = `{"like":"yes"}`
 	raw3, err := helpUpdateUserApp(userTOKEN, appName, appJSON)
