@@ -1,7 +1,6 @@
 package databunker
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http/httptest"
 	"strings"
@@ -9,81 +8,38 @@ import (
 )
 
 func helpCreateUser(userJSON string) (map[string]interface{}, error) {
-	request := httptest.NewRequest("POST", "http://localhost:3000/v1/user", strings.NewReader(userJSON))
-	rr := httptest.NewRecorder()
-	request.Header.Set("Content-Type", "application/json")
+	url := "http://localhost:3000/v1/user"
+	request := httptest.NewRequest("POST", url, strings.NewReader(userJSON))
 	request.Header.Set("X-Bunker-Token", rootToken)
-	fmt.Printf("**** Using root token: %s\n", rootToken)
-	router.ServeHTTP(rr, request)
-	/*
-		if status := rr.Code; status != http.StatusOK {
-			err := errors.New("Wrong status")
-			return nil, err
-		}
-	*/
-	/*
-		resp := rr.Result()
-		body, _ := ioutil.ReadAll(resp.Body)
-
-		if resp.StatusCode != 200 {
-			t.Fatalf("Status code: %d", resp.StatusCode)
-		}
-		t.Log(resp.Header.Get("Content-Type"))
-		t.Log(string(body))
-	*/
-
-	var raw map[string]interface{}
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func helpGetUser(index string, indexValue string) (map[string]interface{}, error) {
-	request := httptest.NewRequest("GET", "http://localhost:3000/v1/user/"+index+"/"+indexValue, nil)
-	rr := httptest.NewRecorder()
+	url := "http://localhost:3000/v1/user/" + index + "/" + indexValue
+	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func helpDeleteUser(index string, indexValue string) (map[string]interface{}, error) {
-	request := httptest.NewRequest("DELETE", "http://localhost:3000/v1/user/"+index+"/"+indexValue, nil)
-	rr := httptest.NewRecorder()
+	url := "http://localhost:3000/v1/user/" + index + "/" + indexValue
+	request := httptest.NewRequest("DELETE", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func helpGetUserAuditEvents(userTOKEN string) (map[string]interface{}, error) {
-	request := httptest.NewRequest("GET", "http://localhost:3000/v1/audit/list/"+userTOKEN, nil)
-	rr := httptest.NewRecorder()
+	url := "http://localhost:3000/v1/audit/list/" + userTOKEN
+	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func helpGetUserAuditEvent(atoken string) (map[string]interface{}, error) {
 	url := "http://localhost:3000/v1/audit/get/" + atoken
 	request := httptest.NewRequest("GET", url, nil)
-	rr := httptest.NewRecorder()
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func TestPOSTCreateUser(t *testing.T) {

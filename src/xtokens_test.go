@@ -23,6 +23,20 @@ func helpCreateUserLogin(mode string, address string) (map[string]interface{}, e
 	return raw, err
 }
 
+func helpGetUserRequests() (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/requests"
+	request := httptest.NewRequest("GET", url, nil)
+	rr := httptest.NewRecorder()
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("X-Bunker-Token", rootToken)
+
+	router.ServeHTTP(rr, request)
+	var raw map[string]interface{}
+	fmt.Printf("Got: %s\n", rr.Body.Bytes())
+	err := json.Unmarshal(rr.Body.Bytes(), &raw)
+	return raw, err
+}
+
 func helpCreateUserLoginEnter(mode string, address string, code string) (map[string]interface{}, error) {
 	url := "http://localhost:3000/v1/enter/" + mode + "/" + address + "/" + code
 	request := httptest.NewRequest("GET", url, nil)
@@ -37,7 +51,7 @@ func helpCreateUserLoginEnter(mode string, address string, code string) (map[str
 	return raw, err
 }
 
-func TestUserLogin(t *testing.T) {
+func TestUserLoginDelete(t *testing.T) {
 	email := "test@paranoidguy.com"
 	jsonData := `{"email":"test@paranoidguy.com","phone":"22346622","fname":"Yuli","lname":"Str","tz":"323xxxxx","password":"123456","address":"Y-d habanim 7","city":"Petah-Tiqva","btest":true,"numtest":123,"testnul":null}`
 	raw, err := helpCreateUser(jsonData)
@@ -83,6 +97,9 @@ func TestUserLogin(t *testing.T) {
 		t.Fatalf("Failed to get user app list with user xtoken\n")
 	}
 	fmt.Printf("apps: %s\n", raw4["apps"])
+	// user asks to forget-me
+	//helpDeleteUser("token", userTOKEN)
+
 	rootToken = oldRootToken
 	helpCreateUserApp(userTOKEN, "qq", `{"custom":1}`)
 	raw5, _ := helpGetUserAppList(userTOKEN)
