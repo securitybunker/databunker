@@ -2,8 +2,10 @@ package databunker
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
@@ -19,19 +21,37 @@ var (
 	router    *httprouter.Router
 )
 
-func helpBackupRequest(token string) ([]byte, error) {
-	url := "http://localhost:3000/v1/sys/backup"
-	request := httptest.NewRequest("GET", url, nil)
-	rr := httptest.NewRecorder()
+func helpServe0(request *http.Request) ([]byte, error) {
 	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("X-Bunker-Token", token)
-
+	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, request)
 	if rr.Code != 200 {
-		return nil, fmt.Errorf("wrong status: %d", rr.Code)
+		return rr.Body.Bytes(), fmt.Errorf("wrong status: %d", rr.Code)
 	}
 	//fmt.Printf("Got: %s\n", rr.Body.Bytes())
 	return rr.Body.Bytes(), nil
+}
+
+func helpServe(request *http.Request) (map[string]interface{}, error) {
+	request.Header.Set("Content-Type", "application/json")
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, request)
+	fmt.Printf("Got: %s\n", rr.Body.Bytes())
+	var raw map[string]interface{}
+	if rr.Body.Bytes()[0] == '{' {
+		json.Unmarshal(rr.Body.Bytes(), &raw)
+	}
+	if rr.Code != 200 {
+		return raw, fmt.Errorf("wrong status: %d", rr.Code)
+	}
+	return raw, nil
+}
+
+func helpBackupRequest(token string) ([]byte, error) {
+	url := "http://localhost:3000/v1/sys/backup"
+	request := httptest.NewRequest("GET", url, nil)
+	request.Header.Set("X-Bunker-Token", token)
+	return helpServe0(request)
 }
 
 func init() {
