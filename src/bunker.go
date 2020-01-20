@@ -1,4 +1,4 @@
-// Databunker - Personal Identifiable Information (PII) database.
+// Package databunker - Personal Identifiable Information (PII) database.
 // For more info check https://paranoidguy.com
 package databunker
 
@@ -284,7 +284,7 @@ type CustomResponseWriter struct {
 	Code int
 }
 
-// NewCustomResponseWriter() returns CustomResponseWriter object
+// NewCustomResponseWriter function returns CustomResponseWriter object
 func NewCustomResponseWriter(ww http.ResponseWriter) *CustomResponseWriter {
 	return &CustomResponseWriter{
 		w:    ww,
@@ -292,7 +292,7 @@ func NewCustomResponseWriter(ww http.ResponseWriter) *CustomResponseWriter {
 	}
 }
 
-// Header returns HTTP Header object
+// Header function returns HTTP Header object
 func (w *CustomResponseWriter) Header() http.Header {
 	return w.w.Header()
 }
@@ -301,7 +301,7 @@ func (w *CustomResponseWriter) Write(b []byte) (int, error) {
 	return w.w.Write(b)
 }
 
-// WriteHeader() writes header back to original ResponseWriter
+// WriteHeader function writes header back to original ResponseWriter
 func (w *CustomResponseWriter) WriteHeader(statusCode int) {
 	w.Code = statusCode
 	w.w.WriteHeader(statusCode)
@@ -315,6 +315,7 @@ func logRequest(handler http.Handler) http.Handler {
 	})
 }
 
+// main application function
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	lockMemory()
