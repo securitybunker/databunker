@@ -61,6 +61,18 @@ func helpDeleteUser(index string, indexValue string) (map[string]interface{}, er
 	return raw, err
 }
 
+func helpGetUserAuditEvents(userTOKEN string) (map[string]interface{}, error) {
+	request := httptest.NewRequest("GET", "http://localhost:3000/v1/audit/list/"+userTOKEN, nil)
+	rr := httptest.NewRecorder()
+	request.Header.Set("X-Bunker-Token", rootToken)
+
+	router.ServeHTTP(rr, request)
+	var raw map[string]interface{}
+	fmt.Printf("Got: %s\n", rr.Body.Bytes())
+	err := json.Unmarshal(rr.Body.Bytes(), &raw)
+	return raw, err
+}
+
 func TestPOSTCreateUser(t *testing.T) {
 
 	userJSON := `{"login":"user1","name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1","f3":{"a":"b"}}}`
@@ -88,12 +100,25 @@ func TestPOSTCreateUser(t *testing.T) {
 	if len(userTOKEN) == 0 {
 		t.Fatalf("Failed to parse userTOKEN")
 	}
-
+	raw2, err := helpGetUserAuditEvents(userTOKEN)
+	if raw2["status"].(string) != "ok" {
+		t.Fatalf("Failed to get audit event/s\n")
+	}
+	if raw2["total"].(float64) != 1 {
+		t.Fatalf("Wrong number of audit event/s\n")
+	}
+	records := raw2["rows"].([]interface{})
+	records0 := records[0].(map[string]interface{})
+	atoken := records0["atoken"].(string)
+	if len(atoken) == 0 {
+		t.Fatalf("Failed to extract atoken\n")
+	}
+	fmt.Printf("Audit record: %s\n", atoken)
 	helpDeleteUser("login", "user1")
-	raw2, _ := helpGetUser("login", "user1")
-	//userTOKEN = raw2["token"].(string)
-	//fmt.Printf("status: %s", raw2["status"])
-	if strings.Contains(raw2["message"].(string), "not found") == false {
+	raw3, _ := helpGetUser("login", "user1")
+	//userTOKEN = raw3["token"].(string)
+	//fmt.Printf("status: %s", raw3["status"])
+	if strings.Contains(raw3["message"].(string), "not found") == false {
 		t.Fatalf("Failed to delete user, got message: %s", raw2["message"].(string))
 	}
 }
