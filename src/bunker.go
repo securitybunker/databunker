@@ -1,3 +1,5 @@
+// Databunker - Personal Identifiable Information (PII) database.
+// For more info check https://paranoidguy.com
 package databunker
 
 import (
@@ -123,6 +125,7 @@ func prometheusHandler() http.Handler {
 	return promHandler
 }
 
+// metrics API call
 func (e mainEnv) metrics(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	fmt.Printf("/metrics\n")
 	//w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -142,9 +145,10 @@ func (e mainEnv) index(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	*/
-	fmt.Fprintf(w, "<html><head><title>title</title></head></html>")
+	fmt.Fprintf(w, "<html><head><title>index</title></head></html>")
 }
 
+// backupDB API call.
 func (e mainEnv) backupDB(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if e.enforceAuth(w, r, nil) == "" {
 		return
@@ -153,8 +157,8 @@ func (e mainEnv) backupDB(w http.ResponseWriter, r *http.Request, ps httprouter.
 	e.db.backupDB(w)
 }
 
+// setupRouter() setup HTTP Router object.
 func (e mainEnv) setupRouter() *httprouter.Router {
-
 	box := packr.NewBox("../ui")
 
 	router := httprouter.New()
@@ -235,6 +239,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	return router
 }
 
+// readFile() read configuration file.
 func readFile(cfg *Config, filepath *string) error {
 	confFile := "databunker.yaml"
 	if filepath != nil {
@@ -254,11 +259,14 @@ func readFile(cfg *Config, filepath *string) error {
 	}
 	return nil
 }
+
+// readEnv() process environment variables.
 func readEnv(cfg *Config) error {
 	err := envconfig.Process("", cfg)
 	return err
 }
 
+// dbCleanup() is used to run cron jobs.
 func (e mainEnv) dbCleanup() {
 	ticker := time.NewTicker(time.Duration(10) * time.Minute)
 
@@ -282,13 +290,13 @@ func (e mainEnv) dbCleanup() {
 	}()
 }
 
-// CustomResponseWriter is a custom wrapper for ResponseWriter
+// CustomResponseWriter struct is a custom wrapper for ResponseWriter
 type CustomResponseWriter struct {
 	w    http.ResponseWriter
 	Code int
 }
 
-// NewCustomResponseWriter function returns CustomResponseWriter object
+// NewCustomResponseWriter() returns CustomResponseWriter object
 func NewCustomResponseWriter(ww http.ResponseWriter) *CustomResponseWriter {
 	return &CustomResponseWriter{
 		w:    ww,
@@ -305,7 +313,7 @@ func (w *CustomResponseWriter) Write(b []byte) (int, error) {
 	return w.w.Write(b)
 }
 
-// WriteHeader function() writes header back to original ResponseWriter
+// WriteHeader() writes header back to original ResponseWriter
 func (w *CustomResponseWriter) WriteHeader(statusCode int) {
 	w.Code = statusCode
 	w.w.WriteHeader(statusCode)
