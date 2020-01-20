@@ -2,7 +2,6 @@ package databunker
 
 import (
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"log"
 	"net/http/httptest"
