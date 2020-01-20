@@ -136,18 +136,6 @@ func (e mainEnv) metrics(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	prometheusHandler().ServeHTTP(w, r)
 }
 
-func (e mainEnv) index(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("Index access\n")
-	/*
-		if r.Method != "GET" {
-			http.Error(w, http.StatusText(405), 405)
-			log.Panic("Method %s", r.Method)
-			return
-		}
-	*/
-	fmt.Fprintf(w, "<html><head><title>index</title></head></html>")
-}
-
 // backupDB API call.
 func (e mainEnv) backupDB(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if e.enforceAuth(w, r, nil) == "" {
