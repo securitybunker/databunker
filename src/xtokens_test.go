@@ -29,6 +29,20 @@ func helpApproveUserRequest(rtoken string) (map[string]interface{}, error) {
 	return helpServe(request)
 }
 
+func helpGetUserRequest(rtoken string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/request/" + rtoken
+	request := httptest.NewRequest("GET", url, nil)
+	request.Header.Set("X-Bunker-Token", rootToken)
+	return helpServe(request)
+}
+
+func helpCancelUserRequest(rtoken string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/request/" + rtoken
+	request := httptest.NewRequest("DELETE", url, nil)
+	request.Header.Set("X-Bunker-Token", rootToken)
+	return helpServe(request)
+}
+
 func helpCreateUserLoginEnter(mode string, address string, code string) (map[string]interface{}, error) {
 	url := "http://localhost:3000/v1/enter/" + mode + "/" + address + "/" + code
 	request := httptest.NewRequest("GET", url, nil)
@@ -107,10 +121,18 @@ func TestUserLoginDelete(t *testing.T) {
 	helpCreateUserApp(userTOKEN, "qq", `{"custom":1}`)
 	raw7, _ := helpGetUserAppList(userTOKEN)
 	fmt.Printf("apps: %s\n", raw7["apps"])
+	raw8, _ := helpGetUserRequest(rtoken0)
+	if raw8["status"].(string) != "ok" {
+		t.Fatalf("Failed to retreave user request")
+	}
 	helpApproveUserRequest(rtoken)
+	raw9, _ := helpCancelUserRequest(rtoken0)
+	if raw9["status"].(string) != "error" {
+		t.Fatalf("Cancel request should faile here")
+	}
 	// user should be deleted now
-	raw8, _ := helpGetUserAppList(userTOKEN)
-	if raw8["apps"] != nil {
+	raw10, _ := helpGetUserAppList(userTOKEN)
+	if raw10["apps"] != nil {
 		t.Fatalf("Apps shoud be nil\n")
 	}
 }

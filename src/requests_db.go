@@ -2,7 +2,6 @@ package databunker
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"time"
 
@@ -76,7 +75,7 @@ func (dbobj dbcon) getRequest(rtoken string) (bson.M, error) {
 	if err != nil {
 		return record, err
 	}
-	fmt.Printf("request record: %s\n", record)
+	//fmt.Printf("request record: %s\n", record)
 	userTOKEN := ""
 	change := ""
 	if value, ok := record["token"]; ok {

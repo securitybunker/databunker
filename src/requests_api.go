@@ -84,7 +84,7 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 		returnError(w, r, "not found", 405, err, event)
 		return
 	}
-	fmt.Printf("Full json: %s\n", resultJSON)
+	//fmt.Printf("Full json: %s\n", resultJSON)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	var str string
@@ -101,7 +101,7 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 		str = fmt.Sprintf(`%s,"change":%s`, str, change)
 	}
 	str = fmt.Sprintf(`{%s}`, str)
-	fmt.Printf("result: %s\n", str)
+	//fmt.Printf("result: %s\n", str)
 	w.Write([]byte(str))
 }
 
@@ -185,6 +185,10 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 	if value, ok := requestInfo["token"]; ok {
 		userTOKEN = value.(string)
 		event.Record = userTOKEN
+	}
+	if requestInfo["status"].(string) != "open" {
+		returnError(w, r, "wrong status", 405, err, event)
+		return
 	}
 	resultJSON, err := e.db.getUser(userTOKEN)
 	if err != nil {
