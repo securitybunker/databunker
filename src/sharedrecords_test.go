@@ -74,7 +74,7 @@ func TestCreateSharedRecord(t *testing.T) {
 		}
 	}
 	if len(recordTOKEN) == 0 {
-		t.Fatalf("Failed to retreave user token: %s\n", raw)
+		t.Fatalf("Failed to retrieve user token: %s\n", raw)
 	}
 	fmt.Printf("User record token: %s\n", recordTOKEN)
 	raw, _ = helpGetSharedRecord(recordTOKEN)
@@ -92,10 +92,16 @@ func TestFailCreateSharedRecord(t *testing.T) {
 	data := `{"expiration":"1d","fields":"uuid,name,pass,k1"}`
 	raw, _ := helpCreateSharedRecord(userTOKEN, data)
 
-	if status, ok := raw["status"]; ok {
-		if status == "ok" {
-			t.Fatalf("Created shared record for non-existing user\n")
-		}
+	if raw["status"].(string) == "ok" {
+		t.Fatalf("Created shared record for non-existing user\n")
+	}
+}
+
+func TestGetFakeSharedRecord(t *testing.T) {
+	rtoken, _ := uuid.GenerateUUID()
+	_, err := helpGetSharedRecord(rtoken)
+	if err == nil {
+		t.Fatalf("Should fail to retrieve non-existing record\n")
 	}
 }
 
