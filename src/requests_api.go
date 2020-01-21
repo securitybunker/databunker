@@ -57,6 +57,10 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 		w.Write([]byte("Access denied"))
 		return
 	}
+	if len(requestInfo) == 0 {
+		returnError(w, r, "not found", 405, err, event)
+		return
+	}
 	var resultJSON []byte
 	userTOKEN := ""
 	appName := ""
@@ -124,6 +128,10 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		w.Write([]byte("Access denied"))
 		return
 	}
+	if len(requestInfo) == 0 {
+		returnError(w, r, "not found", 405, err, event)
+		return
+	}
 	userTOKEN := ""
 	action := ""
 	if value, ok := requestInfo["action"]; ok {
@@ -179,6 +187,10 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 		fmt.Printf("%d access denied for: %s\n", http.StatusForbidden, request)
 		w.WriteHeader(http.StatusForbidden)
 		w.Write([]byte("Access denied"))
+		return
+	}
+	if len(requestInfo) == 0 {
+		returnError(w, r, "not found", 405, err, event)
 		return
 	}
 	userTOKEN := ""
