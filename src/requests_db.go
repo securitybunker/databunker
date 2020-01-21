@@ -75,6 +75,9 @@ func (dbobj dbcon) getRequest(rtoken string) (bson.M, error) {
 	if err != nil {
 		return record, err
 	}
+	if len(record) == 0 {
+		return record, err
+	}
 	//fmt.Printf("request record: %s\n", record)
 	userTOKEN := ""
 	change := ""

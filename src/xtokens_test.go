@@ -6,6 +6,8 @@ import (
 	//"strconv"
 	"strings"
 	"testing"
+
+	uuid "github.com/hashicorp/go-uuid"
 )
 
 func helpCreateUserLogin(mode string, address string) (map[string]interface{}, error) {
@@ -128,11 +130,23 @@ func TestUserLoginDelete(t *testing.T) {
 	helpApproveUserRequest(rtoken)
 	raw9, _ := helpCancelUserRequest(rtoken0)
 	if raw9["status"].(string) != "error" {
-		t.Fatalf("Cancel request should faile here")
+		t.Fatalf("Cancel request should fail here")
 	}
 	// user should be deleted now
 	raw10, _ := helpGetUserAppList(userTOKEN)
 	if raw10["apps"] != nil {
 		t.Fatalf("Apps shoud be nil\n")
+	}
+}
+
+func TestGetFakeRequest(t *testing.T) {
+	rtoken, _ := uuid.GenerateUUID()
+	raw, _ := helpGetUserRequest(rtoken)
+	if raw["status"].(string) != "error" {
+		t.Fatalf("Should failed to get fake request")
+	}
+	raw2, _ := helpCancelUserRequest(rtoken)
+	if raw2["status"].(string) != "error" {
+		t.Fatalf("Cancel request should fail here")
 	}
 }
