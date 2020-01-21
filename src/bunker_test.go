@@ -76,7 +76,7 @@ func init() {
 	fmt.Printf("Root token: %s\n", rootToken)
 	rootToken2, err := e.db.getRootXtoken()
 	if err != nil {
-		fmt.Printf("Failed to retreave root token: %s\n", err)
+		fmt.Printf("Failed to retrieve root token: %s\n", err)
 	}
 	fmt.Printf("Hashed root token: %s\n", rootToken2)
 	router = e.setupRouter()

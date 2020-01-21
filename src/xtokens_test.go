@@ -125,7 +125,7 @@ func TestUserLoginDelete(t *testing.T) {
 	fmt.Printf("apps: %s\n", raw7["apps"])
 	raw8, _ := helpGetUserRequest(rtoken0)
 	if raw8["status"].(string) != "ok" {
-		t.Fatalf("Failed to retreave user request")
+		t.Fatalf("Failed to retrieve user request")
 	}
 	helpApproveUserRequest(rtoken)
 	raw9, _ := helpCancelUserRequest(rtoken0)
