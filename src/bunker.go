@@ -172,7 +172,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/consent/:mode/:address", e.consentAllUserRecords)
 	router.GET("/v1/consent/:mode/:address/:brief", e.consentUserRecord)
 	router.GET("/v1/consents/:brief", e.consentFilterRecords)
-	router.GET("/v1/consents", e.consentTypes)
+	router.GET("/v1/consents", e.consentBriefs)
 	router.POST("/v1/consent/:mode/:address/:brief", e.consentAccept)
 	router.DELETE("/v1/consent/:mode/:address/:brief", e.consentWithdraw)
 

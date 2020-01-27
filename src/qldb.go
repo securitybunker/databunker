@@ -680,7 +680,7 @@ func (dbobj dbcon) getExpiring(t Tbl, keyName string, keyValue string) ([]bson.M
 func (dbobj dbcon) getUniqueList(t Tbl, keyName string) ([]bson.M, error) {
 	table := getTable(t)
 	keyName = escapeName(keyName)
-	q := "select distinct " + keyName +" from " + table + " ORDER BY " + keyName
+	q := "select distinct " + keyName + " from " + table + " ORDER BY " + keyName
 	fmt.Printf("q: %s\n", q)
 	return dbobj.getListDo(q, "")
 }
