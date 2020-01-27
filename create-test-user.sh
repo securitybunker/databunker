@@ -27,12 +27,12 @@ RESULT=`curl -s http://localhost:3000/v1/user \
   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json" \
   -d '{"fname":"Test","lname":"Account","email":"test@paranoidguy.com","phone":"4444"}'`
 STATUS=`echo $RESULT | jq ".status" | tr -d '"'`
-if [ "$STATUS" == "error" ]; then
+if [ "$STATUS" = "error" ]; then
   echo "Error to create user, trying to lookup by email."
   RESULT=`curl -s http://localhost:3000/v1/user/email/test@paranoidguy.com -H "X-Bunker-Token: $XTOKEN"`
   STATUS=`echo $RESULT | jq ".status" | tr -d '"'`
 fi
-if [ "$STATUS" == "error" ]; then
+if [ "$STATUS" = "error" ]; then
   echo "Failed to fetch user by email, got: $RESULT"
   exit
 fi
