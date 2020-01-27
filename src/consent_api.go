@@ -1,4 +1,4 @@
-package databunker
+package main
 
 import (
 	"fmt"
@@ -377,3 +377,22 @@ func (e mainEnv) consentFilterRecords(w http.ResponseWriter, r *http.Request, ps
 	str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, numRecords, resultJSON)
 	w.Write([]byte(str))
 }
+
+func (e mainEnv) consentTypes(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	if e.enforceAuth(w, r, nil) == "" {
+		return
+	}
+	resultJSON, numRecords, err := e.db.getConsentTypes()
+	if err != nil {
+		returnError(w, r, "internal error", 405, err, nil)
+		return
+	}
+	fmt.Printf("Total count of rows: %d\n", numRecords)
+	//fmt.Fprintf(w, "<html><head><title>title</title></head>")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	str := fmt.Sprintf(`{"status":"ok","total":%d,"briefs":%s}`, numRecords, resultJSON)
+	w.Write([]byte(str))
+}
+
