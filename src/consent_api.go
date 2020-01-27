@@ -378,11 +378,11 @@ func (e mainEnv) consentFilterRecords(w http.ResponseWriter, r *http.Request, ps
 	w.Write([]byte(str))
 }
 
-func (e mainEnv) consentTypes(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) consentBriefs(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if e.enforceAuth(w, r, nil) == "" {
 		return
 	}
-	resultJSON, numRecords, err := e.db.getConsentTypes()
+	resultJSON, numRecords, err := e.db.getConsentBriefs()
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, nil)
 		return
@@ -395,4 +395,3 @@ func (e mainEnv) consentTypes(w http.ResponseWriter, r *http.Request, ps httprou
 	str := fmt.Sprintf(`{"status":"ok","total":%d,"briefs":%s}`, numRecords, resultJSON)
 	w.Write([]byte(str))
 }
-

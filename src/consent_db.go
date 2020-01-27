@@ -194,12 +194,12 @@ func (dbobj dbcon) filterConsentRecords(brief string, offset int32, limit int32)
 	return resultJSON, count, nil
 }
 
-func (dbobj dbcon) getConsentTypes() ([]byte, int64, error) {
+func (dbobj dbcon) getConsentBriefs() ([]byte, int64, error) {
 	records, err := dbobj.getUniqueList(TblName.Consent, "brief")
 	if err != nil {
 		return nil, 0, err
 	}
-	count:= int64(len(records))
+	count := int64(len(records))
 	// we need to return only list of briefs
 	var result []string
 	for _, rec := range records {
