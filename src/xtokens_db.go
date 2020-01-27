@@ -1,4 +1,4 @@
-package databunker
+package main
 
 import (
 	"errors"

@@ -1,6 +1,6 @@
-// Package databunker - Personal Identifiable Information (PII) database.
+// Package main - Personal Identifiable Information (PII) database.
 // For more info check https://paranoidguy.com
-package databunker
+package main
 
 import (
 	"context"
@@ -172,6 +172,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/consent/:mode/:address", e.consentAllUserRecords)
 	router.GET("/v1/consent/:mode/:address/:brief", e.consentUserRecord)
 	router.GET("/v1/consents/:brief", e.consentFilterRecords)
+	router.GET("/v1/consents", e.consentTypes)
 	router.POST("/v1/consent/:mode/:address/:brief", e.consentAccept)
 	router.DELETE("/v1/consent/:mode/:address/:brief", e.consentWithdraw)
 

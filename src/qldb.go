@@ -1,4 +1,4 @@
-package databunker
+package main
 
 // github.com/mattn/go-sqlite3
 
@@ -677,6 +677,14 @@ func (dbobj dbcon) getExpiring(t Tbl, keyName string, keyValue string) ([]bson.M
 	return dbobj.getListDo(q, keyValue)
 }
 
+func (dbobj dbcon) getUniqueList(t Tbl, keyName string) ([]bson.M, error) {
+	table := getTable(t)
+	keyName = escapeName(keyName)
+	q := "select distinct " + keyName +" from " + table + " ORDER BY " + keyName
+	fmt.Printf("q: %s\n", q)
+	return dbobj.getListDo(q, "")
+}
+
 func (dbobj dbcon) getList(t Tbl, keyName string, keyValue string, start int32, limit int32) ([]bson.M, error) {
 	table := getTable(t)
 	if limit > 100 {
@@ -797,12 +805,12 @@ func (dbobj dbcon) indexNewApp(appName string) {
 		}
 		defer tx.Rollback()
 		_, err = tx.Exec("CREATE TABLE IF NOT EXISTS " + appName + ` (
-	  		token STRING,
+			token STRING,
 			md5 STRING,
 			rofields STRING,
-	  		data STRING,
-	  		status STRING,
-	  		` + "`when` int);")
+			data STRING,
+			status STRING,
+			` + "`when` int);")
 		if err != nil {
 			return
 		}

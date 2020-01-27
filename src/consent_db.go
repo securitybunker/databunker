@@ -1,4 +1,4 @@
-package databunker
+package main
 
 import (
 	"encoding/json"
@@ -185,6 +185,25 @@ func (dbobj dbcon) filterConsentRecords(brief string, offset int32, limit int32)
 	var result []string
 	for _, rec := range records {
 		result = append(result, rec["token"].(string))
+	}
+	resultJSON, err := json.Marshal(result)
+	if err != nil {
+		return nil, 0, err
+	}
+	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
+	return resultJSON, count, nil
+}
+
+func (dbobj dbcon) getConsentTypes() ([]byte, int64, error) {
+	records, err := dbobj.getUniqueList(TblName.Consent, "brief")
+	if err != nil {
+		return nil, 0, err
+	}
+	count:= int64(len(records))
+	// we need to return only list of briefs
+	var result []string
+	for _, rec := range records {
+		result = append(result, rec["brief"].(string))
 	}
 	resultJSON, err := json.Marshal(result)
 	if err != nil {
