@@ -808,7 +808,7 @@ func (dbobj dbcon) indexNewApp(appName string) {
 			token STRING,
 			md5 STRING,
 			rofields STRING,
-			data STRING,
+			data TEXT,
 			status STRING,
 			` + "`when` int);")
 		if err != nil {
@@ -843,7 +843,7 @@ func initUsers(db *sql.DB) error {
 	  rofields STRING,
 	  tempcodeexp int,
 	  tempcode int,
-	  data STRING
+	  data TEXT
 	);
 	`)
 	if err != nil {
@@ -953,8 +953,8 @@ func initAudit(db *sql.DB) error {
 	  status STRING,
 	  msg STRING,
 	  debug STRING,
-	  before STRING,
-	  after STRING,
+	  before TEXT,
+	  after TEXT,
 	  ` + "`when` int);")
 	if err != nil {
 		return err
@@ -1056,7 +1056,7 @@ func initSessions(db *sql.DB) error {
 	CREATE TABLE IF NOT EXISTS sessions (
 	  token STRING,
 	  session STRING,
-	  data STRING,
+	  data TEXT,
 	  endtime int,
 	  ` + "`when` int);")
 	if err != nil {
