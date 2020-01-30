@@ -255,7 +255,7 @@ func stringPatternMatch(pattern string, value string) bool {
 		return true
 	}
 	if strings.HasPrefix(pattern, "*") && strings.HasSuffix(pattern, "*") {
-		pattern = pattern[1:len(pattern)-1]
+		pattern = pattern[1 : len(pattern)-1]
 		if strings.Contains(value, pattern) {
 			return true
 		}
