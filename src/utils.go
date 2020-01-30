@@ -243,6 +243,38 @@ func isValidBrief(brief string) bool {
 	return regexBrief.MatchString(brief)
 }
 
+// stringPatternMatch looks for basic human patterns like "*", "*abc*", etc...
+func stringPatternMatch(pattern string, value string) bool {
+	if len(pattern) == 0 {
+		return false
+	}
+	if pattern == "*" {
+		return true
+	}
+	if pattern == value {
+		return true
+	}
+	if strings.HasPrefix(pattern, "*") && strings.HasSuffix(pattern, "*") {
+		pattern = pattern[1:len(pattern)-1]
+		if strings.Contains(value, pattern) {
+			return true
+		}
+	}
+	if strings.HasPrefix(pattern, "*") {
+		pattern = pattern[1:]
+		if strings.Contains(value, pattern) {
+			return true
+		}
+	}
+	if strings.HasSuffix(pattern, "*") {
+		pattern = pattern[:len(pattern)-1]
+		if strings.Contains(value, pattern) {
+			return true
+		}
+	}
+	return false
+}
+
 func returnError(w http.ResponseWriter, r *http.Request, message string, code int, err error, event *auditEvent) {
 	fmt.Printf("%d %s %s\n", code, r.Method, r.URL.Path)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
