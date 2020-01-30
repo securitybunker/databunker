@@ -130,10 +130,10 @@ func (dbobj dbcon) validateIndexChange(indexName string, idxOldValue string, raw
 	return -1, nil
 }
 
-func (dbobj dbcon) updateUserRecord(parsedData userJSON, userTOKEN string, event *auditEvent, conf Config) ([]byte, []byte, error) {
+func (dbobj dbcon) updateUserRecord(jsonDataPatch []byte, userTOKEN string, event *auditEvent, conf Config) ([]byte, []byte, error) {
 	var err error
 	for x := 0; x < 10; x++ {
-		oldJSON, newJSON, err := dbobj.updateUserRecordDo(parsedData, userTOKEN, event, conf)
+		oldJSON, newJSON, err := dbobj.updateUserRecordDo(jsonDataPatch, userTOKEN, event, conf)
 		if err == nil {
 			return oldJSON, newJSON, nil
 		}
@@ -142,7 +142,7 @@ func (dbobj dbcon) updateUserRecord(parsedData userJSON, userTOKEN string, event
 	return nil, nil, err
 }
 
-func (dbobj dbcon) updateUserRecordDo(parsedData userJSON, userTOKEN string, event *auditEvent, conf Config) ([]byte, []byte, error) {
+func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, event *auditEvent, conf Config) ([]byte, []byte, error) {
 	//_, err = collection.InsertOne(context.TODO(), bson.M{"name": "The Go Language2", "genre": "Coding", "authorId": "4"})
 	oldUserBson, err := dbobj.lookupUserRecord(userTOKEN)
 	if oldUserBson == nil || err != nil {
@@ -167,7 +167,6 @@ func (dbobj dbcon) updateUserRecordDo(parsedData userJSON, userTOKEN string, eve
 	}
 	// merge
 	fmt.Printf("old json: %s\n", decrypted)
-	jsonDataPatch := parsedData.jsonData
 	fmt.Printf("json patch: %s\n", jsonDataPatch)
 	newJSON, err := jsonpatch.MergePatch(decrypted, jsonDataPatch)
 	if err != nil {

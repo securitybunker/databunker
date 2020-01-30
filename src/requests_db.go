@@ -21,7 +21,7 @@ type requestEvent struct {
 	Rtoken       string `json:"rtoken"`
 }
 
-func (dbobj dbcon) saveUserRequest(action string, token string, app string, change string) (string, error) {
+func (dbobj dbcon) saveUserRequest(action string, token string, app string, change []byte) (string, error) {
 	now := int32(time.Now().Unix())
 	bdoc := bson.M{}
 	rtoken, _ := uuid.GenerateUUID()
@@ -32,7 +32,11 @@ func (dbobj dbcon) saveUserRequest(action string, token string, app string, chan
 	bdoc["creationtime"] = now
 	bdoc["status"] = "open"
 	if len(change) > 0 {
-		bdoc["change"] = change
+		encodedStr, err := dbobj.userEncrypt(token, change)
+		if err != nil {
+			return "", err
+		}
+		bdoc["change"] = encodedStr
 	}
 	if len(app) > 0 {
 		bdoc["app"] = app

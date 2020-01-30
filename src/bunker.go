@@ -49,15 +49,24 @@ var TblName = &listTbls{
 	Sharedrecords: 6,
 }
 
-// Config is used to store application configuration
+// Config is u	sed to store application configuration
 type Config struct {
 	Generic struct {
-		CreateUserWithoutToken bool `yaml:"create_user_without_token"`
+		CreateUserWithoutAccessToken bool `yaml:"create_user_without_access_token"`
+		AdminEmail                   string `yaml:"admin_email"`
+	}
+	SelfService struct {
+		ForgetMe         bool `yaml:"forget_me"`
+		UserRecordChange bool `yaml:"user_record_change"`
+		AppRecordChange  []string `yaml:"app_record_change"`
+		ConsentChange    []string `yaml:"consent_change"`
 	}
 	Notification struct {
 		ConsentNotificationURL  string `yaml:"consent_notification_url"`
 		ProfileNotificationURL  string `yaml:"profile_notification_url"`
 		ForgetmeNotificationURL string `yaml:"forgetme_notification_url"`
+		MagicSyncURL            string `yaml:"magic_sync_url"`
+		MagicSyncToken          string `yaml:"magic_sync_token"`
 	}
 	Policy struct {
 		MaxAuditRetentionPeriod           string `yaml:"max_audit_retention_period"`
