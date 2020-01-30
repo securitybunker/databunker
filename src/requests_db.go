@@ -15,13 +15,14 @@ type requestEvent struct {
 	When         int32  `json:"when"`
 	Token        string `json:"token"`
 	App          string `json:"app,omitempty"`
+	Brief        string `json:"brief,omitempty"`
 	Action       string `json:"action"`
 	Status       string `json:"status"`
 	Change       string `json:"change,omitempty"`
 	Rtoken       string `json:"rtoken"`
 }
 
-func (dbobj dbcon) saveUserRequest(action string, token string, app string, change []byte) (string, error) {
+func (dbobj dbcon) saveUserRequest(action string, token string, app string, brief string, change []byte) (string, error) {
 	now := int32(time.Now().Unix())
 	bdoc := bson.M{}
 	rtoken, _ := uuid.GenerateUUID()
@@ -40,6 +41,9 @@ func (dbobj dbcon) saveUserRequest(action string, token string, app string, chan
 	}
 	if len(app) > 0 {
 		bdoc["app"] = app
+	}
+	if len(brief) > 0 {
+		bdoc["brief"] = brief
 	}
 	_, err := dbobj.createRecord(TblName.Requests, &bdoc)
 	return rtoken, err
