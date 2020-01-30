@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 )
 
 func (e mainEnv) userappNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	userTOKEN := ps.ByName("token")
-	appName := ps.ByName("appname")
+	appName := strings.ToLower(ps.ByName("appname"))
 	event := auditApp("create user app record", userTOKEN, appName, "token", userTOKEN)
 	defer func() { event.submit(e.db) }()
 
@@ -54,14 +55,15 @@ func (e mainEnv) userappNew(w http.ResponseWriter, r *http.Request, ps httproute
 
 func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	userTOKEN := ps.ByName("token")
-	appName := ps.ByName("appname")
+	appName := strings.ToLower(ps.ByName("appname"))
 	event := auditApp("change user app record", userTOKEN, appName, "token", userTOKEN)
 	defer func() { event.submit(e.db) }()
 
 	if enforceUUID(w, userTOKEN, event) == false {
 		return
 	}
-	if e.enforceAuth(w, r, event) == "" {
+	authResult := e.enforceAuth(w, r, event)
+	if authResult == "" {
 		return
 	}
 	if isValidApp(appName) == false {
@@ -83,13 +85,36 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
-	_, err = e.db.updateAppRecord(jsonData, userTOKEN, appName, event)
+	if authResult != "login" {
+		_, err = e.db.updateAppRecord(jsonData, userTOKEN, appName, event)
+		if err != nil {
+			returnError(w, r, "internal error", 405, err, event)
+			return
+		}
+		returnUUID(w, userTOKEN)
+		return
+	}
+	if e.conf.SelfService.AppRecordChange != nil {
+		for _, name := range e.conf.SelfService.AppRecordChange {
+			if name == "*" || strings.ToLower(name) == appName {
+				_, err = e.db.updateAppRecord(jsonData, userTOKEN, appName, event)
+				if err != nil {
+					returnError(w, r, "internal error", 405, err, event)
+					return
+				}
+				returnUUID(w, userTOKEN)
+				return
+			}
+		}
+	}
+	rtoken, err := e.db.saveUserRequest("change-app-data", userTOKEN, appName, jsonData)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
-	returnUUID(w, userTOKEN)
-	return
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	fmt.Fprintf(w, `{"status":"ok","result":"request-created","rtoken":"%s"}`, rtoken)
 }
 
 func (e mainEnv) userappList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -115,7 +140,7 @@ func (e mainEnv) userappList(w http.ResponseWriter, r *http.Request, ps httprout
 
 func (e mainEnv) userappGet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	userTOKEN := ps.ByName("token")
-	appName := ps.ByName("appname")
+	appName := strings.ToLower(ps.ByName("appname"))
 	event := auditApp("get user app record", userTOKEN, appName, "token", userTOKEN)
 	defer func() { event.submit(e.db) }()
 
