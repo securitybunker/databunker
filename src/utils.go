@@ -259,16 +259,16 @@ func stringPatternMatch(pattern string, value string) bool {
 		if strings.Contains(value, pattern) {
 			return true
 		}
+		return false
 	}
 	if strings.HasPrefix(pattern, "*") {
 		pattern = pattern[1:]
-		if strings.Contains(value, pattern) {
+		if strings.HasSuffix(value, pattern) {
 			return true
 		}
-	}
-	if strings.HasSuffix(pattern, "*") {
+	} else if strings.HasSuffix(pattern, "*") {
 		pattern = pattern[:len(pattern)-1]
-		if strings.Contains(value, pattern) {
+		if strings.HasPrefix(value, pattern) {
 			return true
 		}
 	}
