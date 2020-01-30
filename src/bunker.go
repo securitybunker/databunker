@@ -52,12 +52,12 @@ var TblName = &listTbls{
 // Config is u	sed to store application configuration
 type Config struct {
 	Generic struct {
-		CreateUserWithoutAccessToken bool `yaml:"create_user_without_access_token"`
+		CreateUserWithoutAccessToken bool   `yaml:"create_user_without_access_token"`
 		AdminEmail                   string `yaml:"admin_email"`
 	}
 	SelfService struct {
-		ForgetMe         bool `yaml:"forget_me"`
-		UserRecordChange bool `yaml:"user_record_change"`
+		ForgetMe         bool     `yaml:"forget_me"`
+		UserRecordChange bool     `yaml:"user_record_change"`
 		AppRecordChange  []string `yaml:"app_record_change"`
 		ConsentChange    []string `yaml:"consent_change"`
 	}
