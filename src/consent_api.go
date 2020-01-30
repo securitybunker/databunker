@@ -217,6 +217,7 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 		for _, name := range e.conf.SelfService.ConsentChange {
 			if stringPatternMatch(strings.ToLower(name), brief) {
 				selfService = true
+				break
 			}
 		}
 		if selfService == false {
