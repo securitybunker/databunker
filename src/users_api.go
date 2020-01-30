@@ -11,10 +11,10 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	event := audit("create user record", "", "", "")
 	defer func() { event.submit(e.db) }()
 
-	if e.conf.Generic.CreateUserWithoutToken == false {
+	if e.conf.Generic.CreateUserWithoutAccessToken == false {
 		// anonymous user can not create user record, check token
 		if e.enforceAuth(w, r, event) == "" {
-			fmt.Println("failed to create user, access denied, try to change Create_user_without_token")
+			fmt.Println("failed to create user, access denied, try to change Create_user_without_access_token")
 			return
 		}
 	}
@@ -143,7 +143,8 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	event := audit("change user record by "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
-	if e.enforceAuth(w, r, event) == "" {
+	authResult := e.enforceAuth(w, r, event)
+	if authResult == "" {
 		return
 	}
 	if validateMode(mode) == false {
@@ -176,7 +177,21 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		userTOKEN = userBson["token"].(string)
 		event.Record = userTOKEN
 	}
-	oldJSON, newJSON, err := e.db.updateUserRecord(parsedData, userTOKEN, event, e.conf)
+	if authResult == "login" {
+		event.Title = "User change-me request"
+		if e.conf.SelfService.UserRecordChange == false {
+			rtoken, err := e.db.saveUserRequest("change-me", userTOKEN, "", parsedData.jsonData)
+			if err != nil {
+				returnError(w, r, "internal error", 405, err, event)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(200)
+			fmt.Fprintf(w, `{"status":"ok","result":"request-created","rtoken":"%s"}`, rtoken)
+			return
+		}
+	}
+	oldJSON, newJSON, err := e.db.updateUserRecord(parsedData.jsonData, userTOKEN, event, e.conf)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
@@ -223,15 +238,17 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	if authResult == "login" {
 		event.Title = "User forget-me request"
-		rtoken, err := e.db.saveUserRequest("forget-me", userTOKEN, "", "")
-		if err != nil {
-			returnError(w, r, "internal error", 405, err, event)
+		if e.conf.SelfService.ForgetMe == false {
+			rtoken, err := e.db.saveUserRequest("forget-me", userTOKEN, "", nil)
+			if err != nil {
+				returnError(w, r, "internal error", 405, err, event)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(200)
+			fmt.Fprintf(w, `{"status":"ok","result":"request-created","rtoken":"%s"}`, rtoken)
 			return
 		}
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		fmt.Fprintf(w, `{"status":"ok","result":"request-created","rtoken":"%s"}`, rtoken)
-		return
 	}
 	fmt.Printf("deleting user %s\n", userTOKEN)
 
