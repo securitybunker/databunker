@@ -69,7 +69,7 @@ func TestPOSTCreateUser(t *testing.T) {
 	if len(userTOKEN) == 0 {
 		t.Fatalf("Failed to parse userTOKEN")
 	}
-	raw2, err := helpGetUserAuditEvents(userTOKEN)
+	raw2, _ := helpGetUserAuditEvents(userTOKEN)
 	if raw2["status"].(string) != "ok" {
 		t.Fatalf("Failed to get audit event/s\n")
 	}
