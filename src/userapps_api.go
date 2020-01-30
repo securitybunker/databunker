@@ -96,7 +96,7 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 	if e.conf.SelfService.AppRecordChange != nil {
 		for _, name := range e.conf.SelfService.AppRecordChange {
-			if name == "*" || strings.ToLower(name) == appName {
+			if stringPatternMatch(strings.ToLower(name), appName) {
 				_, err = e.db.updateAppRecord(jsonData, userTOKEN, appName, event)
 				if err != nil {
 					returnError(w, r, "internal error", 405, err, event)
