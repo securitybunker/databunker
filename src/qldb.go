@@ -984,6 +984,7 @@ func initRequests(db *sql.DB) error {
 	  rtoken STRING,
 	  token STRING,
 	  app STRING,
+	  brief STRING,
 	  action STRING,
 	  status STRING,
 	  change STRING,
