@@ -230,6 +230,17 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 		}
 	}
 	
+	if authResult == "login" && selfService == false {
+		rtoken, err := e.db.saveUserRequest("consent-withdraw", userTOKEN, "", brief, nil)
+		if err != nil {
+			returnError(w, r, "internal error", 405, err, event)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(200)
+		fmt.Fprintf(w, `{"status":"ok","result":"request-created","rtoken":"%s"}`, rtoken)
+		return
+	}
 	switch mode {
 	case "email":
 		address = normalizeEmail(address)
