@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -170,6 +171,7 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	userTOKEN := ""
+	authResult := ""
 	if mode == "token" {
 		if enforceUUID(w, address, event) == false {
 			return
@@ -179,7 +181,8 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 			returnError(w, r, "internal error", 405, nil, event)
 			return
 		}
-		if e.enforceAuth(w, r, event) == "" {
+		authResult := e.enforceAuth(w, r, event)
+		if authResult == "" {
 			return
 		}
 		userTOKEN = address
@@ -209,9 +212,24 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 		}
 	}
 	// make sure that user is logged in here, unless he wants to cancel emails
-	//if e.enforceAuth(w, r, event) == "" {
-	//	return
-	//}
+	selfService := false
+	if e.conf.SelfService.ConsentChange != nil {
+		for _, name := range e.conf.SelfService.ConsentChange {
+			if stringPatternMatch(strings.ToLower(name), brief) {
+				selfService = true
+			}
+		}
+		if selfService == false {
+			// user can change consent only for briefs defined in self-service
+			if len(authResult) == 0 {
+				authResult := e.enforceAuth(w, r, event)
+				if authResult == "" {
+					return
+				}
+			}
+		}
+	}
+	
 	switch mode {
 	case "email":
 		address = normalizeEmail(address)
