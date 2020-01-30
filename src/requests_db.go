@@ -31,7 +31,7 @@ func (dbobj dbcon) saveUserRequest(action string, token string, app string, chan
 	bdoc["rtoken"] = rtoken
 	bdoc["creationtime"] = now
 	bdoc["status"] = "open"
-	if len(change) > 0 {
+	if change != nil {
 		encodedStr, err := dbobj.userEncrypt(token, change)
 		if err != nil {
 			return "", err
