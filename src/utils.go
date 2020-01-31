@@ -27,7 +27,7 @@ var (
 	regexBrief         = regexp.MustCompile("^[a-z0-9\\-]{1,64}$")
 	regexAppName       = regexp.MustCompile("^[a-z][a-z0-9]{1,20}$")
 	regexExpiration    = regexp.MustCompile("^([0-9]+)([mhds])?$")
-	consentYesStatuses = []string{"yes", "accept", "agree", "approve", "given", "true"}
+	consentYesStatuses = []string{"y", "yes", "accept", "agree", "approve", "given", "true", "good"}
 )
 
 // Consideration why collection of meta data patch was postpone:
