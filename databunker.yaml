@@ -2,6 +2,16 @@
 generic:
   # allow to create user object without login
   create_user_without_token: true
+selfservice:
+  # specifies if admin/DPO is required to approve user deletion
+  forget_me: false
+  # specifies if admin/DPO is required to approve user profile change
+  user_record_change: true
+  # specifies a list of app-data objects user can change without approval
+  app_record_change: ["*"]
+  # specifies what consent briefs user can withdraw without admin/DPO approval.
+  # accepting consent does not require admin/DPO approval.
+  consent_withdraw: ["*mail*", "*phone*", "*sms*", "*news*"]
 notification:
   # this should be an iternal url that receives user consent change requests
   # user details are send as POST data
