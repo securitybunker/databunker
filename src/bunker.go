@@ -59,7 +59,7 @@ type Config struct {
 		ForgetMe         bool     `yaml:"forget_me"`
 		UserRecordChange bool     `yaml:"user_record_change"`
 		AppRecordChange  []string `yaml:"app_record_change"`
-		ConsentChange    []string `yaml:"consent_change"`
+		ConsentWithdraw    []string `yaml:"consent_withdraw"`
 	}
 	Notification struct {
 		ConsentNotificationURL  string `yaml:"consent_notification_url"`

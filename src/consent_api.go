@@ -213,8 +213,8 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 	}
 	// make sure that user is logged in here, unless he wants to cancel emails
 	selfService := false
-	if e.conf.SelfService.ConsentChange != nil {
-		for _, name := range e.conf.SelfService.ConsentChange {
+	if e.conf.SelfService.ConsentWithdraw != nil {
+		for _, name := range e.conf.SelfService.ConsentWithdraw {
 			if stringPatternMatch(strings.ToLower(name), brief) {
 				selfService = true
 				break
