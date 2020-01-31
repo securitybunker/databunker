@@ -55,7 +55,7 @@ func helpBackupRequest(token string) ([]byte, error) {
 }
 
 func init() {
-	fmt.Printf("**INIT*BEFORE***\n")
+	fmt.Printf("**INIT*TEST*CODE***\n")
 	masterKey, _ := hex.DecodeString("71c65924336c5e6f41129b6f0540ad03d2a8bf7e9b10db72")
 	testDBFile := "/tmp/test.sqlite3"
 	os.Remove(testDBFile)
