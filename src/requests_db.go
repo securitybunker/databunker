@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"time"
 
 	uuid "github.com/hashicorp/go-uuid"
