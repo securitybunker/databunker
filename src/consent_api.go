@@ -181,7 +181,7 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 			returnError(w, r, "internal error", 405, nil, event)
 			return
 		}
-		authResult := e.enforceAuth(w, r, event)
+		authResult = e.enforceAuth(w, r, event)
 		if authResult == "" {
 			return
 		}
@@ -223,14 +223,13 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 		if selfService == false {
 			// user can change consent only for briefs defined in self-service
 			if len(authResult) == 0 {
-				authResult := e.enforceAuth(w, r, event)
+				authResult = e.enforceAuth(w, r, event)
 				if authResult == "" {
 					return
 				}
 			}
 		}
 	}
-	
 	if authResult == "login" && selfService == false {
 		rtoken, err := e.db.saveUserRequest("consent-withdraw", userTOKEN, "", brief, nil)
 		if err != nil {
