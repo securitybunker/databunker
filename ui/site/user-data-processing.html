@@ -107,20 +107,25 @@
 
             confirmModal.find('#okButton').click(function (event) {
                 //callback();
-                cancelConsent(brief);
+                withdrawConsent(brief);
                 confirmModal.modal('hide');
             });
 
             confirmModal.modal('show');
         }
-        function cancelConsent(brief) {
+        function withdrawConsent(brief) {
             var xhr = new XMLHttpRequest();
             xhr.open('DELETE', "/v1/consent/token/" + token + "/" + brief);
             xhr.setRequestHeader("X-Bunker-Token", xtoken)
             xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
             xhr.onload = function () {
                 if (xhr.status === 200) {
-                    document.location.reload();
+                    var data = JSON.parse(xhr.responseText);
+                    if (data.status == "ok" && data.result && data.result == "request-created") {
+                        alert("Admin request created to withdraw your consent.");
+                    } else {
+                        document.location.reload();
+                    }
                 } else if (xhr.status > 400 && xhr.status < 500) {
                     document.location = "/";
                 }
