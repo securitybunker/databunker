@@ -78,7 +78,6 @@ func (dbobj dbcon) getRequests(status string, offset int32, limit int32) ([]byte
 }
 
 func (dbobj dbcon) getRequest(rtoken string) (bson.M, error) {
-	//var results []*auditEvent
 	record, err := dbobj.getRecord(TblName.Requests, "rtoken", rtoken)
 	if err != nil {
 		return record, err
@@ -98,7 +97,7 @@ func (dbobj dbcon) getRequest(rtoken string) (bson.M, error) {
 	//recBson := bson.M{}
 	if len(change) > 0 {
 		change2, _ := dbobj.userDecrypt(userTOKEN, change)
-		log.Printf("change: %s", change2)
+		//log.Printf("change: %s", change2)
 		record["change"] = change2
 	}
 	return record, nil
