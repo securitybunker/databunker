@@ -116,10 +116,12 @@
             xhr0.setRequestHeader("X-Bunker-Token", xtoken)
             xhr0.setRequestHeader('Content-type', 'application/json');
             xhr0.onload = function () {
-                //if (xhr0.status === 200) {
-                //    //
-                //} else 
-                if (xhr0.status > 400 && xhr0.status < 500) {
+                if (xhr0.status === 200) {
+                    var data = JSON.parse(xhr0.responseText);
+                    if (data.status == "ok" && data.result && data.result == "request-created") {
+                        alert("Admin request created to change your app data record.");
+                    }
+                } else if (xhr0.status > 400 && xhr0.status < 500) {
                     document.location = "/";
                 }
             }

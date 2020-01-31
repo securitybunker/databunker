@@ -127,7 +127,12 @@
             xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
             xhr.onload = function () {
                 if (xhr.status === 200) {
-                    bunker_logout();
+                    var data = JSON.parse(xhr.responseText);
+                    if (data.status == "ok" && data.result && data.result == "request-created") {
+                        alert("Admin request created to cancell your account.");
+                    } else {
+                        bunker_logout();
+                    }
                 } else if (xhr.status > 400 && xhr.status < 500) {
                     alert("error, try again");
                     //document.location = "/";
