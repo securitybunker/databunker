@@ -22,8 +22,7 @@
     integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
     crossorigin="anonymous"></script>
   <script src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
-  <script src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
-
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/languages/json.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/styles/a11y-dark.min.css">
@@ -38,15 +37,18 @@
       return target;
     }
     function displayActivity(action, row, index) {
-      var app = '';
+      var info = '';
+      if (row.brief) {
+        info = '(' + row.brief + ') ';
+      }
       if (row.app) {
-        app = '(' + row.app + ') ';
+        info = '(' + row.app + ') ';
       }
       result = '';
       if (row.status && row.status == "ok") {
-        result = '<i class="fas fa-check"></i>&nbsp;' + app + action;
+        result = '<i class="fas fa-check"></i>&nbsp;' + info + action;
       } else {
-        result = '<i class="fas fa-times"></i>&nbsp;' + app + action;
+        result = '<i class="fas fa-times"></i>&nbsp;' + info + action;
       }
       return result;
     }
@@ -202,6 +204,7 @@
           <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
               <a class="nav-item nav-link active" href="admin-view-requests.html">User requests</a>
+			  <a class="nav-item nav-link" href="admin-magic-sync.html">Magic Sync</a>
               <a class="nav-item nav-link" href="javascript:bunker_logout();">Logout</a>
             </div>
           </div>
