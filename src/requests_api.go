@@ -174,8 +174,29 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		}
 		notifyURL := e.conf.Notification.ForgetmeNotificationURL
 		notifyForgetMe(notifyURL, resultJSON, "token", userTOKEN)
-		e.db.updateRequestStatus(request, "approve")
+	} else if action == "change-profile" {
+		oldJSON, newJSON, err := e.db.updateUserRecord(requestInfo["change"].([]uint8), userTOKEN, event, e.conf)
+		if err != nil {
+			returnError(w, r, "internal error", 405, err, event)
+			return
+		}
+		returnUUID(w, userTOKEN)
+		notifyURL := e.conf.Notification.ProfileNotificationURL
+		notifyProfileChange(notifyURL, oldJSON, newJSON, "token", userTOKEN)
+	} else if action == "change-app-data" {
+		app := requestInfo["app"].(string)
+		_, err = e.db.updateAppRecord(requestInfo["change"].([]uint8), userTOKEN, app, event)
+		if err != nil {
+			returnError(w, r, "internal error", 405, err, event)
+			return
+		}
+	} else if action == "consent-withdraw" {
+		brief := requestInfo["brief"].(string)
+		mode := "token"
+		lastmodifiedby := "admin"
+		e.db.withdrawConsentRecord(userTOKEN, brief, mode, userTOKEN, lastmodifiedby)
 	}
+	e.db.updateRequestStatus(request, "approve")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","result":"done"}`)
