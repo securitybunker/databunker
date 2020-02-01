@@ -38,14 +38,14 @@ func Test_AppNames(t *testing.T) {
 
 func Test_stringPatternMatch(t *testing.T) {
 	goodJsons := []map[string]interface{}{
-		{"pattern":"*","name": "tom", "result": true},
-		{"pattern":"aa","name": "tom", "result": false},
-		{"pattern":"","name":"aa","result": false},
-		{"pattern":"test*","name":"123testabc", "result": false},
-		{"pattern":"test*","name":"testabc", "result": true},
-		{"pattern":"*test*","name":"test1", "result": true},
-	    {"pattern":"*test","name":"123testabc", "result": false},
-	    {"pattern":"*test","name":"123test", "result": true},
+		{"pattern": "*", "name": "tom", "result": true},
+		{"pattern": "aa", "name": "tom", "result": false},
+		{"pattern": "", "name": "aa", "result": false},
+		{"pattern": "test*", "name": "123testabc", "result": false},
+		{"pattern": "test*", "name": "testabc", "result": true},
+		{"pattern": "*test*", "name": "test1", "result": true},
+		{"pattern": "*test", "name": "123testabc", "result": false},
+		{"pattern": "*test", "name": "123test", "result": true},
 	}
 	for _, value := range goodJsons {
 		if stringPatternMatch(value["pattern"].(string), value["name"].(string)) != value["result"].(bool) {
