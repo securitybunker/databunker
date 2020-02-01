@@ -58,7 +58,10 @@
         '\");\'>view</a>&nbsp;|&nbsp;';
       if (row["action"] == "forget-me") {
         links += '<a href=\'javascript:approveRequest(\"' + rtoken +
-          '\");\'>delete</a>&nbsp;|&nbsp;';
+          '\");\'>approve & delete</a>&nbsp;|&nbsp;';
+      } else if (row["action"] == "consent-withdraw") {
+        links += '<a href=\'javascript:approveRequest(\"' + rtoken +
+          '\");\'>approve & withdraw</a>&nbsp;|&nbsp;';
       } else {
         links += '<a href=\'javascript:approveRequest(\"' + rtoken +
           '\");\'>approve</a>&nbsp;|&nbsp;';
@@ -216,11 +219,11 @@
         <table id="table" class="table">
           <thead>
             <tr>
-              <th scope="col-1" data-field="when" data-formatter="dateFormat">Time</th>
+              <th scope="col-2" data-field="when" data-formatter="dateFormat">Time</th>
               <th scope="col-2" data-field="token" data-formatter="displayTargetObject">User Record Identifier</th>
               <th scope="col-4" data-field="action" data-formatter="displayActivity">Activity</th>
-              <th scope="col-4" data-field="status">Status</th>
-              <th scope="col-1" data-field="rtoken" data-formatter="displayDrillDownLink">Actions</th>
+              <th scope="col-2" data-field="status">Status</th>
+              <th scope="col-2" data-field="rtoken" data-formatter="displayDrillDownLink">Actions</th>
             </tr>
           </thead>
         </table>
