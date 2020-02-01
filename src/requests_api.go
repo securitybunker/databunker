@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"reflect"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -64,19 +65,27 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 	var resultJSON []byte
 	userTOKEN := ""
 	appName := ""
+	brief := ""
 	change := ""
 	if value, ok := requestInfo["token"]; ok {
 		userTOKEN = value.(string)
 		event.Record = userTOKEN
 	}
 	if value, ok := requestInfo["change"]; ok {
-		change = value.(string)
+		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+			change = value.(string)
+		}
 	}
 	if value, ok := requestInfo["app"]; ok {
 		appName = value.(string)
 	}
+	if value, ok := requestInfo["brief"]; ok {
+		brief = value.(string)
+	}
 	if len(appName) > 0 {
 		resultJSON, err = e.db.getUserApp(userTOKEN, appName)
+	} else if len(brief) > 0 {
+		resultJSON, err = e.db.viewConsentRecord(userTOKEN, brief)
 	} else {
 		resultJSON, err = e.db.getUser(userTOKEN)
 	}
