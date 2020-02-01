@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"reflect"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -72,8 +71,11 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 		event.Record = userTOKEN
 	}
 	if value, ok := requestInfo["change"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+		switch value.(type) {
+		case string:
 			change = value.(string)
+		case []uint8:
+			change = string(value.([]uint8))
 		}
 	}
 	if value, ok := requestInfo["app"]; ok {
