@@ -178,9 +178,9 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		event.Record = userTOKEN
 	}
 	if authResult == "login" {
-		event.Title = "User change-me request"
+		event.Title = "User change-profile request"
 		if e.conf.SelfService.UserRecordChange == false {
-			rtoken, err := e.db.saveUserRequest("change-me", userTOKEN, "", "", parsedData.jsonData)
+			rtoken, err := e.db.saveUserRequest("change-profile", userTOKEN, "", "", parsedData.jsonData)
 			if err != nil {
 				returnError(w, r, "internal error", 405, err, event)
 				return
