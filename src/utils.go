@@ -366,7 +366,7 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 	//body, _ := ioutil.ReadAll(r.Body)
 	//fmt.Printf("Body: %s\n", body)
 	if r.Method == "DELETE" {
-		// other wise data is not parsed!
+		// otherwise data is not parsed!
 		r.Method = "PATCH"
 	}
 
