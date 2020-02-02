@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Data Bunker - Magic Sync service configuration</title>
+  <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
+    integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+
+  <script>
+    var xtoken = window.localStorage.getItem('xtoken');
+    var token = window.localStorage.getItem('token');
+    var consentBriefs;
+    var configuration;
+
+    function loadConsentBriefs() {
+      if (consentBriefs) {
+        return consentBriefs;
+      }
+      var xhr0 = new XMLHttpRequest();
+      xhr0.open('GET', "/v1/consents", false);
+      xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+      xhr0.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      xhr0.onload = function () {
+        if (xhr0.status === 200) {
+          //console.log(xhr0.responseText);
+          //$('#drilldown').html(xhr0.responseText)
+          //$('#drilldown').append("HELLO");
+          var data = JSON.parse(xhr0.responseText);
+          if (data.status == "ok") {
+            consentBriefs = data.briefs;
+          }
+        } else if (xhr0.status > 400 && xhr0.status < 500) {
+          //alert("error, try again");
+          document.location = "/";
+        }
+      }
+      xhr0.send();
+    }
+    function loadConfiguration() {
+      if (configuration) {
+        return configuration;
+      }
+      var xhr0 = new XMLHttpRequest();
+      xhr0.open('GET', "/v1/sys/configuration", false);
+      xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+      xhr0.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      xhr0.onload = function () {
+        if (xhr0.status === 200) {
+          //console.log(xhr0.responseText);
+          //$('#drilldown').html(xhr0.responseText)
+          //$('#drilldown').append("HELLO");
+          var data = JSON.parse(xhr0.responseText);
+          if (data.status == "ok") {
+            configuration = data.configuration;
+          }
+        } else if (xhr0.status > 400 && xhr0.status < 500) {
+          //alert("error, try again");
+          document.location = "/";
+        }
+      }
+      xhr0.send();
+    }
+    loadConsentBriefs();
+    loadConfiguration();
+    var n = configuration["Notification"];
+    //console.log(n);
+    var datasyncURL = n["MagicSyncURL"];
+    var datasyncApikey = n["MagicSyncToken"];
+    if (datasyncURL) {
+      if (datasyncURL.endsWith("/")) {
+        datasyncURL = datasyncURL.slice(0, -1);
+      }
+      var script = document.createElement('script');
+      script.onload = function () {
+        var briefs = loadConsentBriefs();
+        $('#proCode').html(displayPlugins(datasyncApikey, datasyncURL));
+      };
+      script.src = datasyncURL+"/magic.js?apikey="+datasyncApikey;
+      document.head.appendChild(script);
+    } else {
+      $( document ).ready(function() {
+        msg = '<div class="alert alert-danger" role="alert">Magic Sync URL is not specified in configuration.</div>';
+        $('#proCode').html(msg);
+      });
+    }
+  </script>
+  <script src="site.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row col-md-12">
+      <div style="width:100%;">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <a class="navbar-brand" href="#">Admin</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+              <a class="nav-item nav-link" href="admin-view-requests.html">User requests</a>
+			  <a class="nav-item nav-link active" href="admin-data-sync.html">Magic Sync</a>
+              <a class="nav-item nav-link" href="javascript:bunker_logout();">Logout</a>
+            </div>
+          </div>
+        </nav>
+      </div>
+      <div class="bigblock">
+        <h4>Magic Sync service configuration</h4>
+        <p id="msg">Magic sync service is used to sync 3rd party services with user records change. For example name or email change.</p>
+        <div id="proCode">Loading...</div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
