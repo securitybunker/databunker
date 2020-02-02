@@ -54,6 +54,13 @@ func helpBackupRequest(token string) ([]byte, error) {
 	return helpServe0(request)
 }
 
+func helpConfigurationDump(token string) ([]byte, error) {
+	url := "http://localhost:3000/v1/sys/configuration"
+	request := httptest.NewRequest("GET", url, nil)
+	request.Header.Set("X-Bunker-Token", token)
+	return helpServe0(request)
+}
+
 func init() {
 	fmt.Printf("**INIT*TEST*CODE***\n")
 	masterKey, _ := hex.DecodeString("71c65924336c5e6f41129b6f0540ad03d2a8bf7e9b10db72")
@@ -93,6 +100,18 @@ func TestBackupOK(t *testing.T) {
 	}
 	if strings.Contains(string(raw), "CREATE TABLE") == false {
 		t.Fatalf("Backup failed\n")
+	}
+}
+
+func TestConfigurationOK(t *testing.T) {
+	fmt.Printf("root token: %s\n", rootToken)
+	raw, err := helpConfigurationDump(rootToken)
+	if err != nil {
+		//log.Panic("error %s", err.Error())
+		log.Fatalf("failed to fetch configuration: %s", err.Error())
+	}
+	if strings.Contains(string(raw), "CreateUserWithoutAccessToken") == false {
+		t.Fatalf("Configuraton dump failed\n")
 	}
 }
 
