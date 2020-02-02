@@ -5,6 +5,7 @@ package main
 import (
 	"context"
 	"encoding/hex"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -145,6 +146,18 @@ func (e mainEnv) metrics(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	prometheusHandler().ServeHTTP(w, r)
 }
 
+// configuration dump API call.
+func (e mainEnv) configurationDump(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	if e.enforceAuth(w, r, nil) == "" {
+		return
+	}
+	resultJSON, _ := json.Marshal(e.conf)
+	finalJSON := fmt.Sprintf(`{"status":"ok","configuration":%s}`, resultJSON)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	w.Write([]byte(finalJSON))
+}
+
 // backupDB API call.
 func (e mainEnv) backupDB(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if e.enforceAuth(w, r, nil) == "" {
@@ -161,6 +174,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router := httprouter.New()
 
 	router.GET("/v1/sys/backup", e.backupDB)
+	router.GET("/v1/sys/configuration", e.configurationDump)
 
 	router.POST("/v1/user", e.userNew)
 	router.GET("/v1/user/:mode/:address", e.userGet)
