@@ -97,7 +97,7 @@ func (dbobj dbcon) checkXtoken(xtokenUUID string) bool {
 }
 
 func (dbobj dbcon) checkUserAuthXToken(xtokenUUID string) (tokenAuthResult, error) {
-	var result tokenAuthResult
+	result := tokenAuthResult{}
 	if isValidUUID(xtokenUUID) == false {
 		return result, errors.New("failed to authenticate")
 	}
