@@ -311,13 +311,11 @@ func (e mainEnv) enforceAuth(w http.ResponseWriter, r *http.Request, event *audi
 		if err == nil {
 			if event != nil {
 				event.Identity = authResult.name
-			}
-			if authResult.ttype == "login" {
-				if event != nil && authResult.token == event.Record {
+				if authResult.ttype == "login" && authResult.token == event.Record {
 					return authResult.ttype
-					// else go down in code
 				}
-			} else {
+			}
+			if len(authResult.ttype) > 0 && authResult.ttype != "login"  {
 				return authResult.ttype
 			}
 		}
