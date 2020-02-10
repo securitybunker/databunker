@@ -37,15 +37,23 @@ FROM scratch
 COPY --from=builder /bin/busybox /bin/busybox
 COPY --from=builder /bin/busybox /bin/sh
 COPY --from=builder /lib/ld* /lib/
-COPY --from=builder /go/bin/databunker /databunker/bin/databunker
-COPY run.sh /databunker/bin/
+#COPY --from=builder /go/bin/dddatabunker /databunker/bin/databunker
+#COPY run.sh /databunker/bin/
 #COPY create-test-user.sh /databunker/bin/
 COPY databunker.yaml /databunker/conf/
 RUN /bin/busybox mkdir -p /databunker/data
 RUN /bin/busybox mkdir -p /databunker/certs
 #RUN /bin/busybox ln -s /bin/busybox /bin/sh
-# Run the hello binary.
-#ENTRYPOINT ["/go/bin/databunker"]
+RUN /bin/busybox ln -s /bin/busybox /bin/addgroup
+RUN /bin/busybox ln -s /bin/busybox /bin/adduser
+COPY --from=builder /etc/group /etc/
+RUN /bin/busybox touch /etc/passwd
+# Create a group and user
+RUN addgroup -S appgroup && adduser --no-create-home -S appuser -G appgroup
+# Tell docker that all future commands should run as the appuser user
+USER appuser
+COPY --from=builder /go/bin/databunker /databunker/bin/databunker
+COPY run.sh /databunker/bin/
 EXPOSE 3000
 ENTRYPOINT ["/bin/sh", "/databunker/bin/run.sh"]
 #CMD ["/bin/sh", "-x", "-c", "/go/bin/databunker -init"]
