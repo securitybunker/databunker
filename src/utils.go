@@ -315,7 +315,7 @@ func (e mainEnv) enforceAuth(w http.ResponseWriter, r *http.Request, event *audi
 					return authResult.ttype
 				}
 			}
-			if len(authResult.ttype) > 0 && authResult.ttype != "login"  {
+			if len(authResult.ttype) > 0 && authResult.ttype != "login" {
 				return authResult.ttype
 			}
 		}

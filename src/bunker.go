@@ -411,7 +411,6 @@ func main() {
 
 	stop := make(chan os.Signal, 2)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
-
 	// Waiting for SIGINT (pkill -2)
 	go func() {
 		<-stop
