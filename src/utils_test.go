@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"io/ioutil"
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -87,4 +90,26 @@ func Test_getJSONPost(t *testing.T) {
 			t.Fatalf("Failed to parse login index from json: %s ", value)
 		}
 	}
+}
+
+func Test_SMS(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(200)
+		defer req.Body.Close()
+		bodyBytes, _ := ioutil.ReadAll(req.Body)
+		fmt.Printf("body: %s\n", string(bodyBytes))
+		if string(bodyBytes) != "Body=Data+Bunker+code+1234&From=from1234&To=4444" {
+			t.Fatalf("bad request: %s", string(bodyBytes))
+		}
+	}))
+	// Close the server when test finishes
+	defer server.Close()
+	client := server.Client()
+	domain := server.URL
+	var cfg Config
+	cfg.Sms.TwilioToken = "ttoken"
+	cfg.Sms.TwilioAccount = "taccount"
+	cfg.Sms.TwilioFrom = "from1234"
+	sendCodeByPhoneDo(domain, client, 1234, "4444", cfg)
 }
