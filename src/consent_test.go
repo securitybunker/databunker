@@ -1,56 +1,60 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http/httptest"
 	"strings"
 	"testing"
-	//uuid "github.com/hashicorp/go-uuid"
+
+	uuid "github.com/hashicorp/go-uuid"
 )
 
 func helpAcceptConsent(mode string, address string, brief string, dataJSON string) (map[string]interface{}, error) {
 	url := "http://localhost:3000/v1/consent/" + mode + "/" + address + "/" + brief
 	request := httptest.NewRequest("POST", url, strings.NewReader(dataJSON))
-	rr := httptest.NewRecorder()
-	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func helpWithdrawConsent(mode string, address string, brief string) (map[string]interface{}, error) {
 	url := "http://localhost:3000/v1/consent/" + mode + "/" + address + "/" + brief
 	request := httptest.NewRequest("DELETE", url, nil)
-	rr := httptest.NewRecorder()
-	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func helpGetUserConsent(mode string, address string, brief string) (map[string]interface{}, error) {
 	url := "http://localhost:3000/v1/consent/" + mode + "/" + address + "/" + brief
 	request := httptest.NewRequest("GET", url, nil)
-	rr := httptest.NewRecorder()
 	request.Header.Set("X-Bunker-Token", rootToken)
+	return helpServe(request)
+}
 
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+func helpGetAllUserConsents(mode string, address string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/consent/" + mode + "/" + address
+	request := httptest.NewRequest("GET", url, nil)
+	request.Header.Set("X-Bunker-Token", rootToken)
+	return helpServe(request)
+}
+
+func helpGetAllUsersByBrief(brief string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/consents/" + brief
+	request := httptest.NewRequest("GET", url, nil)
+	request.Header.Set("X-Bunker-Token", rootToken)
+	return helpServe(request)
+}
+
+func helpGetAllBriefs() (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/consents"
+	request := httptest.NewRequest("GET", url, nil)
+	request.Header.Set("X-Bunker-Token", rootToken)
+	return helpServe(request)
 }
 
 func TestCreateWithdrawConsent(t *testing.T) {
+	raw, _ := helpGetAllBriefs()
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("failed to create session")
+	}
 	userJSON := `{"login":"moshe", "email":"moshe@moshe-int.com"}`
 	raw, err := helpCreateUser(userJSON)
 	if err != nil {
@@ -60,17 +64,68 @@ func TestCreateWithdrawConsent(t *testing.T) {
 		t.Fatalf("failed to create user")
 	}
 	userTOKEN := raw["token"].(string)
-	bief := "test1"
-	raw, _ = helpAcceptConsent("email", "moshe@moshe-int.com", bief, "")
+	raw, _ = helpGetAllUserConsents("email", "moshe@moshe-int.com")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("failed to create session")
 	}
-	raw, _ = helpGetUserConsent("token", userTOKEN, bief)
+	if raw["total"].(float64) != 0 {
+		t.Fatalf("wrong number of user consents")
+	}
+	brief := "test1"
+	raw, _ = helpAcceptConsent("email", "moshe@moshe-int.com", brief, "")
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("failed to create session")
+	}
+	raw, _ = helpAcceptConsent("email", "moshe@moshe-int.com", "contract-accept", "")
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("failed to create session")
+	}
+	raw, _ = helpGetUserConsent("token", userTOKEN, brief)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("failed to create session")
 	}
 	record := raw["data"].(map[string]interface{})
-	if record["brief"].(string) != bief {
-		t.Fatalf("wrong concent brief value")
+	if record["brief"].(string) != brief {
+		t.Fatalf("wrong consent brief value")
+	}
+	raw, _ = helpWithdrawConsent("email", "moshe@moshe-int.com", brief)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("failed to create session")
+	}
+	raw, _ = helpGetAllUserConsents("email", "moshe@moshe-int.com")
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("failed to create session")
+	}
+	raw, _ = helpGetAllBriefs()
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("failed to create session")
+	}
+	if raw["total"].(float64) != 2 {
+		t.Fatalf("wrong number of briefs")
+	}
+	raw, _ = helpGetAllUsersByBrief(brief)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("failed to create session")
+	}
+	if raw["total"].(float64) != 1 {
+		t.Fatalf("wrong number of briefs")
+	}
+}
+
+func TestGetUndefBrief(t *testing.T) {
+	raw, _ := helpGetAllUsersByBrief("unknown")
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("failed to create session")
+	}
+	if raw["total"].(float64) != 0 {
+		t.Fatalf("wrong number of briefs")
+	}
+}
+
+func TestGetUndefUserConsents(t *testing.T) {
+	userTOKEN, _ := uuid.GenerateUUID()
+	raw, _ := helpGetUserConsent("token", userTOKEN, "alibaba")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("should failed to get user consent")
 	}
 }
