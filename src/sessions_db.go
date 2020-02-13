@@ -95,10 +95,11 @@ func (dbobj dbcon) getUserSessionsByToken(userTOKEN string, offset int32, limit 
 	var results []string
 	for _, element := range records {
 		when := element["when"].(int32)
+		session := element["session"].(string)
 		encData0 := element["data"].(string)
 		encData, _ := base64.StdEncoding.DecodeString(encData0)
 		decrypted, _ := decrypt(dbobj.masterKey, recordKey, encData)
-		sEvent := fmt.Sprintf(`{"when":%d,"data":%s}`, when, string(decrypted))
+		sEvent := fmt.Sprintf(`{"when":%d,"session":"%s","data":%s}`, when, session, string(decrypted))
 		results = append(results, sEvent)
 	}
 

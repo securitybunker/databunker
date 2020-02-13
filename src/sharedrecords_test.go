@@ -92,7 +92,7 @@ func TestFailCreateSharedRecord(t *testing.T) {
 	data := `{"expiration":"1d","fields":"uuid,name,pass,k1"}`
 	raw, _ := helpCreateSharedRecord(userTOKEN, data)
 
-	if raw["status"].(string) == "ok" {
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Created shared record for non-existing user\n")
 	}
 }
