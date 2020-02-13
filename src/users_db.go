@@ -270,6 +270,9 @@ func (dbobj dbcon) getUser(userTOKEN string) ([]byte, error) {
 		// not found
 		return nil, err
 	}
+	if _, ok := userBson["key"]; !ok {
+		return []byte("{}"), nil
+	}
 	userKey := userBson["key"].(string)
 	recordKey, err := base64.StdEncoding.DecodeString(userKey)
 	if err != nil {
