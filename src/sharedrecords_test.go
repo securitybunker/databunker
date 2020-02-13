@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http/httptest"
 	"strings"
@@ -13,28 +12,15 @@ import (
 func helpCreateSharedRecord(userTOKEN string, dataJSON string) (map[string]interface{}, error) {
 	url := "http://localhost:3000/v1/sharedrecord/token/" + userTOKEN
 	request := httptest.NewRequest("POST", url, strings.NewReader(dataJSON))
-	rr := httptest.NewRecorder()
-	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func helpGetSharedRecord(recordTOKEN string) (map[string]interface{}, error) {
 	url := "http://localhost:3000/v1/get/" + recordTOKEN
 	request := httptest.NewRequest("GET", url, nil)
-	rr := httptest.NewRecorder()
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func TestCreateSharedRecord(t *testing.T) {
