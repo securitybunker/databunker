@@ -917,7 +917,7 @@ func initSharedRecords(db *sql.DB) error {
 	  token STRING,
 	  record STRING,
 	  partner STRING,
-	  sesion STRING,
+	  session STRING,
 	  app STRING,
 	  fields STRING,
 	  endtime int,
