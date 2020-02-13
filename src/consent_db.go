@@ -150,6 +150,9 @@ func (dbobj dbcon) listConsentRecords(userTOKEN string) ([]byte, int, error) {
 		return nil, 0, err
 	}
 	count := len(records)
+	if count == 0 {
+		return []byte("[]"), 0, err
+	}
 	resultJSON, err := json.Marshal(records)
 	if err != nil {
 		return nil, 0, err
@@ -177,6 +180,9 @@ func (dbobj dbcon) filterConsentRecords(brief string, offset int32, limit int32)
 	if err != nil {
 		return nil, 0, err
 	}
+	if count == 0 {
+		return []byte("[]"), 0, err
+	}
 	records, err := dbobj.getList(TblName.Consent, "brief", brief, offset, limit)
 	if err != nil {
 		return nil, 0, err
@@ -200,6 +206,9 @@ func (dbobj dbcon) getConsentBriefs() ([]byte, int64, error) {
 		return nil, 0, err
 	}
 	count := int64(len(records))
+	if count == 0 {
+		return []byte("[]"), 0, err
+	}
 	// we need to return only list of briefs
 	var result []string
 	for _, rec := range records {
