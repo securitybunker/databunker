@@ -113,3 +113,99 @@ func Test_SMS(t *testing.T) {
 	cfg.Sms.TwilioFrom = "from1234"
 	sendCodeByPhoneDo(domain, client, 1234, "4444", cfg)
 }
+
+func TestNotifyConsentChange(t *testing.T) {
+	q := make(chan string)
+	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(200)
+		defer req.Body.Close()
+		bodyBytes, _ := ioutil.ReadAll(req.Body)
+		fmt.Printf("body: %s\n", string(bodyBytes))
+		if string(bodyBytes) != `{"action":"consentchange","address":"user3@user3.com","brief":"brief","mode":"email","status":"no"}` {
+			q <- fmt.Sprintf("bad request in notifyConsentChange: %s", string(bodyBytes))
+		} else {
+			q <- "ok"
+		}
+	}))
+	// Close the server when test finishes
+	defer server.Close()
+	notifyConsentChange(server.URL, "brief", "no", "email", "user3@user3.com")
+	response := <-q
+	if response != "ok" {
+		t.Fatal(response)
+	}
+}
+
+func TestNotifyProfileNew(t *testing.T) {
+	q := make(chan string)
+	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(200)
+		defer req.Body.Close()
+		bodyBytes, _ := ioutil.ReadAll(req.Body)
+		fmt.Printf("body: %s\n", string(bodyBytes))
+		if string(bodyBytes) != `{"action":"profilenew","address":"user3@user3.com","mode":"email","profile":{"name":"alex"}}` {
+			q <- fmt.Sprintf("bad request in notifyConsentChange: %s", string(bodyBytes))
+		} else {
+			q <- "ok"
+		}
+	}))
+	// Close the server when test finishes
+	defer server.Close()
+	profile := []byte(`{"name":"alex"}`)
+	notifyProfileNew(server.URL, profile, "email", "user3@user3.com")
+	response := <-q
+	if response != "ok" {
+		t.Fatal(response)
+	}
+}
+
+func TestNotifyForgetMe(t *testing.T) {
+	q := make(chan string)
+	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(200)
+		defer req.Body.Close()
+		bodyBytes, _ := ioutil.ReadAll(req.Body)
+		fmt.Printf("body: %s\n", string(bodyBytes))
+		if string(bodyBytes) != `{"action":"forgetme","address":"user3@user3.com","mode":"email","profile":{"name":"alex"}}` {
+			q <- fmt.Sprintf("bad request in notifyConsentChange: %s", string(bodyBytes))
+		} else {
+			q <- "ok"
+		}
+	}))
+	// Close the server when test finishes
+	defer server.Close()
+	profile := []byte(`{"name":"alex"}`)
+	notifyForgetMe(server.URL, profile, "email", "user3@user3.com")
+	response := <-q
+	if response != "ok" {
+		t.Fatal(response)
+	}
+}
+
+func TestNotifyProfileChange(t *testing.T) {
+	q := make(chan string)
+	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(200)
+		defer req.Body.Close()
+		bodyBytes, _ := ioutil.ReadAll(req.Body)
+		fmt.Printf("body: %s\n", string(bodyBytes))
+		if string(bodyBytes) != `{"action":"profilechange","address":"user3@user3.com","mode":"email","old":{"name":"alex2"},"profile":{"name":"alex3"}}` {
+			q <- fmt.Sprintf("bad request in notifyConsentChange: %s", string(bodyBytes))
+		} else {
+			q <- "ok"
+		}
+	}))
+	// Close the server when test finishes
+	defer server.Close()
+	profile := []byte(`{"name":"alex2"}`)
+	profile2 := []byte(`{"name":"alex3"}`)
+	notifyProfileChange(server.URL, profile, profile2, "email", "user3@user3.com")
+	response := <-q
+	if response != "ok" {
+		t.Fatal(response)
+	}
+}
