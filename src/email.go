@@ -38,9 +38,9 @@ func sendCodeByEmail(code int32, address string, cfg Config) {
 		"To: " + strings.Join(Dest, ",") + "\n" +
 		"Subject: " + Subject + "\n" + bodyMessage
 
+	auth := smtp.PlainAuth("", cfg.SMTP.User, cfg.SMTP.Pass, cfg.SMTP.Server)
 	err := smtp.SendMail(cfg.SMTP.Server+":"+cfg.SMTP.Port,
-		smtp.PlainAuth("", cfg.SMTP.User, cfg.SMTP.Pass, cfg.SMTP.Server),
-		cfg.SMTP.User, Dest, []byte(msg))
+		auth, cfg.SMTP.User, Dest, []byte(msg))
 
 	if err != nil {
 		fmt.Printf("smtp error: %s", err)
