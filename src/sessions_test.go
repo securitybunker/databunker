@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http/httptest"
 	"strings"
@@ -13,54 +12,29 @@ import (
 func helpCreateSession(userTOKEN string, dataJSON string) (map[string]interface{}, error) {
 	url := "http://localhost:3000/v1/session/token/" + userTOKEN
 	request := httptest.NewRequest("POST", url, strings.NewReader(dataJSON))
-	rr := httptest.NewRecorder()
-	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func helpGetSession(recordTOKEN string) (map[string]interface{}, error) {
 	url := "http://localhost:3000/v1/session/session/" + recordTOKEN
 	request := httptest.NewRequest("GET", url, nil)
-	rr := httptest.NewRecorder()
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func helpGetUserTokenSessions(userTOKEN string) (map[string]interface{}, error) {
 	url := "http://localhost:3000/v1/session/token/" + userTOKEN
 	request := httptest.NewRequest("GET", url, nil)
-	rr := httptest.NewRecorder()
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func helpGetUserLoginSessions(login string) (map[string]interface{}, error) {
 	url := "http://localhost:3000/v1/session/login/" + login
 	request := httptest.NewRequest("GET", url, nil)
-	rr := httptest.NewRecorder()
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func TestCreateSessionRecord(t *testing.T) {
