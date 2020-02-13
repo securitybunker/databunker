@@ -153,7 +153,7 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 			recordInfo.appName, resultJSON)
 	} else if len(recordInfo.session) > 0 {
 		str = fmt.Sprintf(`{"status":"ok","session":"%s","data":%s}`,
-			recordInfo.appName, resultJSON)
+			recordInfo.session, resultJSON)
 	} else {
 		str = fmt.Sprintf(`{"status":"ok","data":%s}`, resultJSON)
 	}

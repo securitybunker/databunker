@@ -44,7 +44,6 @@ func TestCreateSharedRecord(t *testing.T) {
 		t.Fatalf("error: %s", err)
 	}
 	var userTOKEN string
-	var recordTOKEN string
 	if status, ok := raw["status"]; ok {
 		if status == "error" {
 			if strings.HasPrefix(raw["message"].(string), "duplicate") {
@@ -64,25 +63,14 @@ func TestCreateSharedRecord(t *testing.T) {
 
 	data := `{"expiration":"1d","fields":"uuid,name,pass,k1,k2.f3"}`
 	raw, _ = helpCreateSharedRecord(userTOKEN, data)
-
-	if status, ok := raw["status"]; ok {
-		if status == "error" {
-			t.Fatalf("Failed to create shared record: %s\n", raw["message"])
-			return
-		} else if status == "ok" {
-			recordTOKEN = raw["record"].(string)
-		}
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to create shared record: %s\n", raw["message"])
 	}
-	if len(recordTOKEN) == 0 {
-		t.Fatalf("Failed to retrieve user token: %s\n", raw)
-	}
+	recordTOKEN := raw["record"].(string)
 	fmt.Printf("User record token: %s\n", recordTOKEN)
 	raw, _ = helpGetSharedRecord(recordTOKEN)
-	if status, ok := raw["status"]; ok {
-		if status == "error" {
-			t.Fatalf("Failed to get shared record: %s\n", raw["message"])
-			return
-		}
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to get shared record: %s\n", raw["message"])
 	}
 	helpDeleteUser("token", userTOKEN)
 }
