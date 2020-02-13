@@ -338,29 +338,6 @@ func (dbobj dbcon) countRecords(t Tbl, keyName string, keyValue string) (int64, 
 	return int64(count), nil
 }
 
-func (dbobj dbcon) countRecords2(t Tbl, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
-	tbl := getTable(t)
-	q := "select count(*) from " + tbl + " WHERE " + escapeName(keyName) + "=$1" +
-		" AND " + escapeName(keyName2) + "=$2"
-	fmt.Printf("q: %s\n", q)
-
-	tx, err := dbobj.db.Begin()
-	if err != nil {
-		return 0, err
-	}
-	defer tx.Rollback()
-	row := tx.QueryRow(q, keyValue, keyValue2)
-	// Columns
-	var count int
-	err = row.Scan(&count)
-	if err != nil {
-		return 0, err
-	}
-	if err = tx.Commit(); err != nil {
-		return 0, err
-	}
-	return int64(count), nil
-}
 func (dbobj dbcon) updateRecord(t Tbl, keyName string, keyValue string, bdoc *bson.M) (int64, error) {
 	table := getTable(t)
 	filter := escapeName(keyName) + "=\"" + keyValue + "\""
@@ -426,16 +403,6 @@ func (dbobj dbcon) getRecordInTable(table string, keyName string, keyValue strin
 func (dbobj dbcon) getRecord2(t Tbl, keyName string, keyValue string,
 	keyName2 string, keyValue2 string) (bson.M, error) {
 	table := getTable(t)
-	q := "select * from " + table + " WHERE " + escapeName(keyName) + "=$1 AND " +
-		escapeName(keyName2) + "=$2"
-	values := make([]interface{}, 0)
-	values = append(values, keyValue)
-	values = append(values, keyValue2)
-	return dbobj.getRecordInTableDo(q, values)
-}
-
-func (dbobj dbcon) getRecordInTable2(table string, keyName string, keyValue string,
-	keyName2 string, keyValue2 string) (bson.M, error) {
 	q := "select * from " + table + " WHERE " + escapeName(keyName) + "=$1 AND " +
 		escapeName(keyName2) + "=$2"
 	values := make([]interface{}, 0)
@@ -574,11 +541,14 @@ func (dbobj dbcon) deleteRecordInTable2(table string, keyName string, keyValue s
 	return num, err
 }
 
+/*
 func (dbobj dbcon) deleteDuplicate2(t Tbl, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
 	tbl := getTable(t)
 	return dbobj.deleteDuplicateInTable2(tbl, keyName, keyValue, keyName2, keyValue2)
 }
+*/
 
+/*
 func (dbobj dbcon) deleteDuplicateInTable2(table string, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
 	q := "delete from " + table + " where " + escapeName(keyName) + "=$1 AND " +
 		escapeName(keyName2) + "=$2 AND rowid not in " +
@@ -601,6 +571,7 @@ func (dbobj dbcon) deleteDuplicateInTable2(table string, keyName string, keyValu
 	num, err := result.RowsAffected()
 	return num, err
 }
+*/
 
 func (dbobj dbcon) deleteExpired0(t Tbl, expt int32) (int64, error) {
 	table := getTable(t)
