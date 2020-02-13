@@ -47,6 +47,21 @@ func helpServe(request *http.Request) (map[string]interface{}, error) {
 	return raw, nil
 }
 
+func helpServe2(request *http.Request) (map[string]interface{}, error) {
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, request)
+	fmt.Printf("Got: %s\n", rr.Body.Bytes())
+	var raw map[string]interface{}
+	if rr.Body.Bytes()[0] == '{' {
+		json.Unmarshal(rr.Body.Bytes(), &raw)
+	}
+	if rr.Code != 200 {
+		return raw, fmt.Errorf("wrong status: %d", rr.Code)
+	}
+	return raw, nil
+}
+
 func helpBackupRequest(token string) ([]byte, error) {
 	url := "http://localhost:3000/v1/sys/backup"
 	request := httptest.NewRequest("GET", url, nil)
