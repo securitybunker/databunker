@@ -67,9 +67,8 @@ func TestUserLoginDelete(t *testing.T) {
 		}
 	}
 	userTOKEN := raw["token"].(string)
-	raw2, _ := helpCreateUserLogin("email", email)
-	status = raw2["status"].(string)
-	if status == "error" {
+	raw, _ = helpCreateUserLogin("email", email)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to create user login: %s", raw["message"].(string))
 	}
 	/*
@@ -82,27 +81,35 @@ func TestUserLoginDelete(t *testing.T) {
 			tmpCode = userBson["tempcode"].(int32)
 		}
 	*/
-	raw3, _ := helpCreateUserLoginEnter("email", email, "4444") //strconv.Itoa(int(tmpCode)))
-	if raw3["status"].(string) == "error" {
-		t.Fatalf("Failed to create user login: %s", raw3["message"].(string))
+	raw, _ = helpCreateUserLoginEnter("email", email, "4444") //strconv.Itoa(int(tmpCode)))
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to create user login: %s", raw["message"].(string))
 	}
-	xtoken := raw3["xtoken"].(string)
+	xtoken := raw["xtoken"].(string)
 	fmt.Printf("User login *** xtoken: %s\n", xtoken)
 	oldRootToken := rootToken
 	rootToken = xtoken
-	raw4, _ := helpGetUserAppList(userTOKEN)
-	if raw4["status"].(string) == "error" {
+	raw, _ = helpCreateUserApp(userTOKEN, "testapp", `{"custom":1}`)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to create app: testapp")
+	}
+	raw, _ = helpUpdateUserApp(userTOKEN, "testapp", `{"custom2":"abc"}`)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to update app: testapp")
+	}
+	raw, _ = helpGetUserAppList(userTOKEN)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get user app list with user xtoken\n")
 	}
-	fmt.Printf("apps: %s\n", raw4["apps"])
+	fmt.Printf("apps: %s\n", raw["apps"])
 	// user asks to forget-me
-	raw5, _ := helpDeleteUser("token", userTOKEN)
-	if raw5["status"].(string) != "ok" {
+	raw, _ = helpDeleteUser("token", userTOKEN)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to delete user")
 	}
-	if raw5["result"].(string) != "request-created" {
+	if raw["result"].(string) != "request-created" {
 	}
-	rtoken0 := raw5["rtoken"].(string)
+	rtoken0 := raw["rtoken"].(string)
 	rootToken = oldRootToken
 	// get user requests
 	raw6, _ := helpGetUserRequests()

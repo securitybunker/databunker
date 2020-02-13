@@ -1,85 +1,53 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http/httptest"
 	"strings"
 	"testing"
 )
 
 func helpCreateUserApp(userTOKEN string, appName string, appJSON string) (map[string]interface{}, error) {
-	request := httptest.NewRequest("POST", "http://localhost:3000/v1/userapp/token/"+userTOKEN+"/"+appName, strings.NewReader(appJSON))
-	rr := httptest.NewRecorder()
+	url := "http://localhost:3000/v1/userapp/token/" + userTOKEN + "/" + appName
+	request := httptest.NewRequest("POST", url, strings.NewReader(appJSON))
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func helpUpdateUserApp(userTOKEN string, appName string, appJSON string) (map[string]interface{}, error) {
-	request := httptest.NewRequest("PUT", "http://localhost:3000/v1/userapp/token/"+userTOKEN+"/"+appName, strings.NewReader(appJSON))
-	rr := httptest.NewRecorder()
+	url := "http://localhost:3000/v1/userapp/token/" + userTOKEN + "/" + appName
+	request := httptest.NewRequest("PUT", url, strings.NewReader(appJSON))
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func helpGetUserApp(userTOKEN string, appName string) (map[string]interface{}, error) {
-	request := httptest.NewRequest("GET", "http://localhost:3000/v1/userapp/token/"+userTOKEN+"/"+appName, nil)
-	rr := httptest.NewRecorder()
+	url := "http://localhost:3000/v1/userapp/token/" + userTOKEN + "/" + appName
+	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func helpDeleteUserApp(userTOKEN string, appName string) (map[string]interface{}, error) {
-	request := httptest.NewRequest("DELETE", "http://localhost:3000/v1/userapp/token/"+userTOKEN+"/"+appName, nil)
-	rr := httptest.NewRecorder()
+	url := "http://localhost:3000/v1/userapp/token/" + userTOKEN + "/" + appName
+	request := httptest.NewRequest("DELETE", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func helpGetUserAppList(userTOKEN string) (map[string]interface{}, error) {
-	request := httptest.NewRequest("GET", "http://localhost:3000/v1/userapp/token/"+userTOKEN, nil)
-	rr := httptest.NewRecorder()
+	url := "http://localhost:3000/v1/userapp/token/" + userTOKEN
+	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func helpGetAppList() (map[string]interface{}, error) {
-	request := httptest.NewRequest("GET", "http://localhost:3000/v1/userapps", nil)
-	rr := httptest.NewRecorder()
+	url := "http://localhost:3000/v1/userapps"
+	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
-
-	router.ServeHTTP(rr, request)
-	var raw map[string]interface{}
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
-	err := json.Unmarshal(rr.Body.Bytes(), &raw)
-	return raw, err
+	return helpServe(request)
 }
 
 func TestCreateUserApp(t *testing.T) {
