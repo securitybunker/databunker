@@ -50,6 +50,19 @@ func helpGetUserTokenSessions(userTOKEN string) (map[string]interface{}, error) 
 	return raw, err
 }
 
+func helpGetUserLoginSessions(login string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/session/login/" + login
+	request := httptest.NewRequest("GET", url, nil)
+	rr := httptest.NewRecorder()
+	request.Header.Set("X-Bunker-Token", rootToken)
+
+	router.ServeHTTP(rr, request)
+	var raw map[string]interface{}
+	fmt.Printf("Got: %s\n", rr.Body.Bytes())
+	err := json.Unmarshal(rr.Body.Bytes(), &raw)
+	return raw, err
+}
+
 func TestCreateSessionRecord(t *testing.T) {
 	userJSON := `{"login":"alex"}`
 	raw, err := helpCreateUser(userJSON)
@@ -73,6 +86,21 @@ func TestCreateSessionRecord(t *testing.T) {
 	raw, _ = helpGetUserTokenSessions(userTOKEN)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("failed to get session")
+	}
+	if raw["total"].(float64) != 1 {
+		t.Fatalf("wrong number of sessions")
+	}
+	data2 := `{"expiration":"1m","cookie":"abcdefg2"}`
+	raw, _ = helpCreateSession(userTOKEN, data2)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("failed to create session")
+	}
+	raw, _ = helpGetUserLoginSessions("alex")
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("failed to get session")
+	}
+	if raw["total"].(float64) != 2 {
+		t.Fatalf("wrong number of sessions")
 	}
 }
 
