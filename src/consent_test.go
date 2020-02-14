@@ -63,11 +63,11 @@ func TestCreateWithdrawConsent(t *testing.T) {
 		t.Fatalf("wrong number of user consents")
 	}
 	brief := "test1"
-	raw, _ = helpAcceptConsent("email", "moshe@moshe-int.com", brief, "")
+	raw, _ = helpAcceptConsent("email", "moshe@moshe-int.com", "test0", "")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("failed to accept on consent")
 	}
-	raw, _ = helpAcceptConsent("email", "moshe@moshe-int.com", "test0", "")
+	raw, _ = helpAcceptConsent("phone", "12345678", "test0", "")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("failed to accept on consent")
 	}
@@ -91,7 +91,7 @@ func TestCreateWithdrawConsent(t *testing.T) {
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("failed to get user consents")
 	}
-	if raw["total"].(float64) != 2 {
+	if raw["total"].(float64) != 1 {
 		t.Fatalf("wrong number of user consents")
 	}
 	raw, _ = helpAcceptConsent("token", userTOKEN, brief, "")
