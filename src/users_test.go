@@ -96,13 +96,27 @@ func TestCreateUpdateUser(t *testing.T) {
 	if len(records) != 1 {
 		t.Fatalf("Wrong number of audit rows/s\n")
 	}
+	raw, _ = helpGetUserAuditEvents(userTOKEN, "")
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to get audit event/s\n")
+	}
 	records = raw["rows"].([]interface{})
 	records0 := records[0].(map[string]interface{})
+	records2 := records[2].(map[string]interface{})
 	atoken := records0["atoken"].(string)
 	if len(atoken) == 0 {
 		t.Fatalf("Failed to extract atoken\n")
 	}
 	fmt.Printf("Audit record: %s\n", atoken)
+	raw, _ = helpGetUserAuditEvent(atoken)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to get specific audit event\n")
+	}
+	atoken = records2["atoken"].(string)
+	if len(atoken) == 0 {
+		t.Fatalf("Failed to extract atoken\n")
+	}
+	fmt.Printf("Audit record[2]: %s\n", atoken)
 	raw, _ = helpGetUserAuditEvent(atoken)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get specific audit event\n")
