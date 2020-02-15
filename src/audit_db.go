@@ -100,6 +100,9 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 	if err != nil {
 		return nil, 0, err
 	}
+	if count == 0 {
+		return []byte("[]"), 0, err
+	}
 	var results []bson.M
 	records, err := dbobj.getList(TblName.Audit, "record", userTOKEN, offset, limit)
 	if err != nil {
