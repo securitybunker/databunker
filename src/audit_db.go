@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -138,6 +139,9 @@ func (dbobj dbcon) getAuditEvent(atoken string) (string, []byte, error) {
 	record, err := dbobj.getRecord(TblName.Audit, "atoken", atoken)
 	if err != nil {
 		return "", nil, err
+	}
+	if len(record) == 0 {
+		return "", nil, errors.New("not found")
 	}
 	fmt.Printf("audit record: %s\n", record)
 	before := ""
