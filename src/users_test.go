@@ -115,6 +115,22 @@ func TestCreateUpdateUser(t *testing.T) {
 	}
 }
 
+func TestGetFakeAuditEvent(t *testing.T) {
+	auditTOKEN := "token123"
+	raw, _ := helpGetUserAuditEvent(auditTOKEN)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get user audit events")
+	}
+}
+
+func TestGetFakeAuditEvent2(t *testing.T) {
+	auditTOKEN, _ := uuid.GenerateUUID()
+	raw, _ := helpGetUserAuditEvent(auditTOKEN)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get user audit events")
+	}
+}
+
 func TestAuditEventsFakeUser(t *testing.T) {
 	userTOKEN := "token123"
 	raw, _ := helpGetUserAuditEvents(userTOKEN, "")
