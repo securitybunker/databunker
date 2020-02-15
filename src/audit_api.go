@@ -34,7 +34,6 @@ func (e mainEnv) getAuditEvents(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 	fmt.Printf("Total count of events: %d\n", counter)
-	//fmt.Fprintf(w, "<html><head><title>title</title></head>")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
@@ -60,7 +59,6 @@ func (e mainEnv) getAuditEvent(w http.ResponseWriter, r *http.Request, ps httpro
 	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
-	//fmt.Fprintf(w, "<html><head><title>title</title></head>")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
