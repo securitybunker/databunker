@@ -143,7 +143,7 @@ func (dbobj dbcon) getAuditEvent(atoken string) (string, []byte, error) {
 	if len(record) == 0 {
 		return "", nil, errors.New("not found")
 	}
-	fmt.Printf("audit record: %s\n", record)
+	//fmt.Printf("audit record: %s\n", record)
 	before := ""
 	after := ""
 	debug := ""

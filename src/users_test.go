@@ -101,25 +101,18 @@ func TestCreateUpdateUser(t *testing.T) {
 		t.Fatalf("Failed to get audit event/s\n")
 	}
 	records = raw["rows"].([]interface{})
-	records0 := records[0].(map[string]interface{})
-	records2 := records[2].(map[string]interface{})
-	atoken := records0["atoken"].(string)
-	if len(atoken) == 0 {
-		t.Fatalf("Failed to extract atoken\n")
-	}
-	fmt.Printf("Audit record: %s\n", atoken)
-	raw, _ = helpGetUserAuditEvent(atoken)
-	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
-		t.Fatalf("Failed to get specific audit event\n")
-	}
-	atoken = records2["atoken"].(string)
-	if len(atoken) == 0 {
-		t.Fatalf("Failed to extract atoken\n")
-	}
-	fmt.Printf("Audit record[2]: %s\n", atoken)
-	raw, _ = helpGetUserAuditEvent(atoken)
-	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
-		t.Fatalf("Failed to get specific audit event\n")
+	atoken := ""
+	for id := range records {
+		records0 := records[id].(map[string]interface{})
+		atoken = records0["atoken"].(string)
+		if len(atoken) == 0 {
+			t.Fatalf("Failed to extract atoken\n")
+		}
+		fmt.Printf("Audit record: %s\n", atoken)
+		raw, _ = helpGetUserAuditEvent(atoken)
+		if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+			t.Fatalf("Failed to get specific audit event\n")
+		}
 	}
 	oldRootToken := rootToken
 	rootToken, _ = uuid.GenerateUUID()
@@ -216,5 +209,75 @@ func TestCreateUser2(t *testing.T) {
 	d := raw["data"].(map[string]interface{})
 	if _, ok := d["email"]; !ok || d["email"].(string) != "user2@user2.com" {
 		t.Fatalf("Wrong email address")
+	}
+}
+
+func TestCreateUserEmptyBody(t *testing.T) {
+	data := "{}"
+	raw, _ := helpCreateUser(data)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to create user")
+	}
+}
+
+func TestCreateUserDupLogin(t *testing.T) {
+	data := `{"login":"dup","name":"dup"}`
+	raw, _ := helpCreateUser(data)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to create dup1 user")
+	}
+	data = `{"login":"dup","name":"dup2"}`
+	raw, _ = helpCreateUser(data)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to create user")
+	}
+}
+
+func TestCreateUserDupEmail(t *testing.T) {
+	data := `{"email":"dup@dupdup.com","name":"dup"}`
+	raw, _ := helpCreateUser(data)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to create dup1 user")
+	}
+	data = `{"email":"dup@dupdup.com","name":"dup2"}`
+	raw, _ = helpCreateUser(data)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to create user")
+	}
+}
+
+func TestCreateUserDupPhone(t *testing.T) {
+	data := `{"phone":"334455667788","name":"dup"}`
+	raw, _ := helpCreateUser(data)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to create dup1 user")
+	}
+	data = `{"phone":"334455667788","name":"dup2"}`
+	raw, _ = helpCreateUser(data)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to create user")
+	}
+}
+
+func TestCreateUserBadPOST(t *testing.T) {
+	url := "http://localhost:3000/v1/user"
+	data := "name=user6&job=developer&email=user6@user6.com"
+	request := httptest.NewRequest("POST", url, strings.NewReader(data))
+	request.Header.Set("X-Bunker-Token", rootToken)
+	raw, _ := helpServe(request)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to create user")
+	}
+}
+
+func TestCreateUserEmptyXToken2(t *testing.T) {
+	//e.conf.Generic.CreateUserWithoutAccessToken = true
+	url := "http://localhost:3000/v1/user"
+	data := "name=user8&job=developer&email=user8@user8.com"
+	request := httptest.NewRequest("POST", url, strings.NewReader(data))
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	raw, _ := helpServe2(request)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Should failed to create user")
 	}
 }
