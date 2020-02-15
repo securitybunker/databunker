@@ -85,7 +85,7 @@ func TestCreateUpdateUser(t *testing.T) {
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Lookup by login should fail now")
 	}
-	raw, _ = helpGetUserAuditEvents(userTOKEN, "?limit=1")
+	raw, _ = helpGetUserAuditEvents(userTOKEN, "?offset=1&limit=1")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get audit event/s\n")
 	}
@@ -103,13 +103,20 @@ func TestCreateUpdateUser(t *testing.T) {
 		t.Fatalf("Failed to extract atoken\n")
 	}
 	fmt.Printf("Audit record: %s\n", atoken)
-	raw3, _ := helpGetUserAuditEvent(atoken)
-	if raw3["status"].(string) != "ok" {
+	raw, _ = helpGetUserAuditEvent(atoken)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get specific audit event\n")
 	}
+	oldRootToken := rootToken
+	rootToken, _ = uuid.GenerateUUID()
+	raw, _ = helpGetUserAuditEvent(atoken)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to get specific audit event\n")
+	}
+	rootToken = oldRootToken
 	helpDeleteUser("token", userTOKEN)
-	raw4, _ := helpGetUser("token", userTOKEN)
-	d := raw4["data"].(map[string]interface{})
+	raw, _ = helpGetUser("token", userTOKEN)
+	d := raw["data"].(map[string]interface{})
 	if len(d) != 0 {
 		t.Fatalf("Failed to delete user")
 	}
