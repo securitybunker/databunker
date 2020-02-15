@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -191,7 +192,11 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 	}
-	oldJSON, newJSON, err := e.db.updateUserRecord(parsedData.jsonData, userTOKEN, event, e.conf)
+	oldJSON, newJSON, lookupErr, err := e.db.updateUserRecord(parsedData.jsonData, userTOKEN, event, e.conf)
+	if lookupErr {
+		returnError(w, r, "not found", 405, errors.New("not found"), event)
+		return
+	}
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return

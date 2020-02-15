@@ -130,54 +130,57 @@ func (dbobj dbcon) validateIndexChange(indexName string, idxOldValue string, raw
 	return -1, nil
 }
 
-func (dbobj dbcon) updateUserRecord(jsonDataPatch []byte, userTOKEN string, event *auditEvent, conf Config) ([]byte, []byte, error) {
+func (dbobj dbcon) updateUserRecord(jsonDataPatch []byte, userTOKEN string, event *auditEvent, conf Config) ([]byte, []byte, bool, error) {
 	var err error
 	for x := 0; x < 10; x++ {
-		oldJSON, newJSON, err := dbobj.updateUserRecordDo(jsonDataPatch, userTOKEN, event, conf)
+		oldJSON, newJSON, lookupErr, err := dbobj.updateUserRecordDo(jsonDataPatch, userTOKEN, event, conf)
+		if lookupErr == true {
+			return oldJSON, newJSON, lookupErr, err
+		}
 		if err == nil {
-			return oldJSON, newJSON, nil
+			return oldJSON, newJSON, lookupErr, nil
 		}
 		fmt.Printf("Trying to update user again: %s\n", userTOKEN)
 	}
-	return nil, nil, err
+	return nil, nil, false, err
 }
 
-func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, event *auditEvent, conf Config) ([]byte, []byte, error) {
+func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, event *auditEvent, conf Config) ([]byte, []byte, bool, error) {
 	//_, err = collection.InsertOne(context.TODO(), bson.M{"name": "The Go Language2", "genre": "Coding", "authorId": "4"})
 	oldUserBson, err := dbobj.lookupUserRecord(userTOKEN)
 	if oldUserBson == nil || err != nil {
 		// not found
-		return nil, nil, err
+		return nil, nil, true, errors.New("not found")
 	}
 
 	// get user key
 	userKey := oldUserBson["key"].(string)
 	recordKey, err := base64.StdEncoding.DecodeString(userKey)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, false, err
 	}
 	encData0 := oldUserBson["data"].(string)
 	encData, err := base64.StdEncoding.DecodeString(encData0)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, false, err
 	}
 	decrypted, err := decrypt(dbobj.masterKey, recordKey, encData)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, false, err
 	}
 	// merge
 	fmt.Printf("old json: %s\n", decrypted)
 	fmt.Printf("json patch: %s\n", jsonDataPatch)
 	newJSON, err := jsonpatch.MergePatch(decrypted, jsonDataPatch)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, false, err
 	}
 	fmt.Printf("result: %s\n", newJSON)
 
 	var raw map[string]interface{}
 	err = json.Unmarshal(newJSON, &raw)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, false, err
 	}
 	bdel := bson.M{}
 	sig := oldUserBson["md5"].(string)
@@ -190,7 +193,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ev
 		if idxOldValue, ok := oldUserBson[idx+"idx"]; ok {
 			loginCode, err = dbobj.validateIndexChange(idx, idxOldValue.(string), raw, conf)
 			if err != nil {
-				return nil, nil, err
+				return nil, nil, false, err
 			}
 			if loginCode == -1 {
 				bdel[idx+"idx"] = ""
@@ -202,7 +205,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ev
 				otherUserBson, _ := dbobj.lookupUserRecordByIndex(idx, newIdxValue.(string), conf)
 				if otherUserBson != nil {
 					// already exist user with same index value
-					return nil, nil, fmt.Errorf("duplicate %s index", idx)
+					return nil, nil, true, fmt.Errorf("duplicate %s index", idx)
 				}
 				//fmt.Printf("adding index2? %s\n", raw[idx])
 				// create login index
@@ -231,7 +234,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ev
 	//fmt.Printf("op json: %s\n", update)
 	result, err := dbobj.updateRecord2(TblName.Users, "token", userTOKEN, "md5", sig, &bdoc, &bdel)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, false, err
 	}
 	if event != nil {
 		event.Before = encData0
@@ -243,7 +246,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ev
 			event.Msg = "failed to update"
 		}
 	}
-	return decrypted, newJSON, nil
+	return decrypted, newJSON, false, nil
 }
 
 func (dbobj dbcon) lookupUserRecord(userTOKEN string) (bson.M, error) {

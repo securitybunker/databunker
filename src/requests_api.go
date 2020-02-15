@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -175,7 +176,11 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		notifyURL := e.conf.Notification.ForgetmeNotificationURL
 		notifyForgetMe(notifyURL, resultJSON, "token", userTOKEN)
 	} else if action == "change-profile" {
-		oldJSON, newJSON, err := e.db.updateUserRecord(requestInfo["change"].([]uint8), userTOKEN, event, e.conf)
+		oldJSON, newJSON, lookupErr, err := e.db.updateUserRecord(requestInfo["change"].([]uint8), userTOKEN, event, e.conf)
+		if lookupErr {
+			returnError(w, r, "internal error", 405, errors.New("not found"), event)
+			return
+		}
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return

@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	uuid "github.com/hashicorp/go-uuid"
 )
 
 func helpCreateUser(userJSON string) (map[string]interface{}, error) {
@@ -43,8 +45,8 @@ func helpDeleteUser(index string, indexValue string) (map[string]interface{}, er
 	return helpServe(request)
 }
 
-func helpGetUserAuditEvents(userTOKEN string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/audit/list/" + userTOKEN
+func helpGetUserAuditEvents(userTOKEN string, args string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/audit/list/" + userTOKEN + args
 	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
@@ -58,9 +60,7 @@ func helpGetUserAuditEvent(atoken string) (map[string]interface{}, error) {
 }
 
 func TestCreateUpdateUser(t *testing.T) {
-
 	userJSON := `{"login":"user1","name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1","f3":{"a":"b"}}}`
-
 	raw, err := helpCreateUser(userJSON)
 	if err != nil {
 		t.Fatalf("error: %s", err)
@@ -85,14 +85,18 @@ func TestCreateUpdateUser(t *testing.T) {
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Lookup by login should fail now")
 	}
-	raw2, _ := helpGetUserAuditEvents(userTOKEN)
-	if raw2["status"].(string) != "ok" {
+	raw, _ = helpGetUserAuditEvents(userTOKEN, "?limit=1")
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get audit event/s\n")
 	}
-	if raw2["total"].(float64) != 3 {
+	records := raw["rows"].([]interface{})
+	if raw["total"].(float64) != 3 {
 		t.Fatalf("Wrong number of audit event/s\n")
 	}
-	records := raw2["rows"].([]interface{})
+	if len(records) != 1 {
+		t.Fatalf("Wrong number of audit rows/s\n")
+	}
+	records = raw["rows"].([]interface{})
 	records0 := records[0].(map[string]interface{})
 	atoken := records0["atoken"].(string)
 	if len(atoken) == 0 {
@@ -111,11 +115,54 @@ func TestCreateUpdateUser(t *testing.T) {
 	}
 }
 
+func TestAuditEventsFakeUser(t *testing.T) {
+	userTOKEN := "token123"
+	raw, _ := helpGetUserAuditEvents(userTOKEN, "")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get user audit events")
+	}
+}
+
+func TestAuditEventsFakeUser2(t *testing.T) {
+	userTOKEN, _ := uuid.GenerateUUID()
+	raw, _ := helpGetUserAuditEvents(userTOKEN, "")
+	//if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+	//	t.Fatalf("Should fail to get user audit events")
+	//}
+	if raw["total"].(float64) != 0 {
+		t.Fatalf("Should return empty list of audit events")
+	}
+}
+
 func TestGetFakeUserToken(t *testing.T) {
 	userTOKEN := "token123"
 	raw, _ := helpGetUser("token", userTOKEN)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to get user record")
+	}
+}
+
+func TestGetFakeUserToken2(t *testing.T) {
+	userTOKEN, _ := uuid.GenerateUUID()
+	raw, _ := helpGetUser("token", userTOKEN)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get user record")
+	}
+}
+
+func TestUpdateFakeUser(t *testing.T) {
+	userTOKEN := "token123"
+	raw, _ := helpChangeUser("token", userTOKEN, `{"login":null}`)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to update user")
+	}
+}
+
+func TestUpdateFakeUser2(t *testing.T) {
+	userTOKEN, _ := uuid.GenerateUUID()
+	raw, _ := helpChangeUser("token", userTOKEN, `{"login":null}`)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to update user")
 	}
 }
 
