@@ -102,7 +102,7 @@ func TestCreateUpdateUser(t *testing.T) {
 		t.Fatalf("Failed to get audit event/s\n")
 	}
 	records := raw["rows"].([]interface{})
-	if raw["total"].(float64) != 3 {
+	if raw["total"].(float64) != 4 {
 		t.Fatalf("Wrong number of audit event/s\n")
 	}
 	if len(records) != 1 {
@@ -128,6 +128,10 @@ func TestCreateUpdateUser(t *testing.T) {
 	}
 	oldRootToken := rootToken
 	rootToken, _ = uuid.GenerateUUID()
+	raw, _ = helpGetUser("token", userTOKEN)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Lookup by login should fail now")
+	}
 	raw, _ = helpGetUserAuditEvent(atoken)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to get specific audit event\n")
@@ -221,6 +225,14 @@ func TestGetFakeUserToken2(t *testing.T) {
 	}
 }
 
+func TestGetFakeUserBadMode(t *testing.T) {
+	userTOKEN, _ := uuid.GenerateUUID()
+	raw, _ := helpGetUser("fake", userTOKEN)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get user record")
+	}
+}
+
 func TestUpdateFakeUser(t *testing.T) {
 	userTOKEN := "token123"
 	raw, _ := helpChangeUser("token", userTOKEN, `{"login":null}`)
@@ -240,6 +252,13 @@ func TestUpdateFakeUser2(t *testing.T) {
 func TestUpdateFakeUserFakeMode(t *testing.T) {
 	userTOKEN, _ := uuid.GenerateUUID()
 	raw, _ := helpChangeUser("fake", userTOKEN, `{"login":null}`)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to update user")
+	}
+}
+
+func TestUpdateFakeUserFakeEmail(t *testing.T) {
+	raw, _ := helpChangeUser("email", "fake1234@fake1234.com", `{"login":null}`)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to update user")
 	}
