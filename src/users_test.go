@@ -132,6 +132,10 @@ func TestCreateUpdateUser(t *testing.T) {
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Lookup by login should fail now")
 	}
+	raw, _ = helpGetUserAuditEvents(userTOKEN, "")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should faile to get audit event/s\n")
+	}
 	raw, _ = helpGetUserAuditEvent(atoken)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to get specific audit event\n")
@@ -200,7 +204,7 @@ func TestAuditEventsFakeUser(t *testing.T) {
 
 func TestAuditEventsFakeUser2(t *testing.T) {
 	userTOKEN, _ := uuid.GenerateUUID()
-	raw, _ := helpGetUserAuditEvents(userTOKEN, "")
+	raw, _ := helpGetUserAuditEvents(userTOKEN, "?offset=1&limit=1")
 	//if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 	//	t.Fatalf("Should fail to get user audit events")
 	//}
