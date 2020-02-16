@@ -89,6 +89,10 @@ func TestUserLoginDelete(t *testing.T) {
 	fmt.Printf("User login *** xtoken: %s\n", xtoken)
 	oldRootToken := rootToken
 	rootToken = xtoken
+	raw, _ = helpChangeUser("token", userTOKEN, `{"login":null}`)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to update user")
+	}
 	raw, _ = helpCreateUserApp(userTOKEN, "testapp", `{"custom":1}`)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to create app: testapp")
@@ -113,11 +117,11 @@ func TestUserLoginDelete(t *testing.T) {
 	rootToken = oldRootToken
 	// get user requests
 	raw6, _ := helpGetUserRequests()
-	if raw6["total"].(float64) != 1 {
-		t.Fatalf("Wrong number of audit event/s\n")
+	if raw6["total"].(float64) != 2 {
+		t.Fatalf("Wrong number of user requests for admin to approve/reject/s\n")
 	}
 	records := raw6["rows"].([]interface{})
-	records0 := records[0].(map[string]interface{})
+	records0 := records[1].(map[string]interface{})
 	rtoken := records0["rtoken"].(string)
 	if len(rtoken) == 0 {
 		t.Fatalf("Failed to extract request token\n")
