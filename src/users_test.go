@@ -81,6 +81,18 @@ func TestCreateUpdateUser(t *testing.T) {
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to update user")
 	}
+	raw, _ = helpChangeUser("phone", "775566998822", `{"login":"parpar1"}`)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to update user")
+	}
+	raw, _ = helpChangeUser("phone", "775566998822", `{}`)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to update user")
+	}
+	raw, _ = helpChangeUser("phone", "775566998822", `a=b`)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to update user")
+	}
 	raw, _ = helpGetUser("login", "user1")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Lookup by login should fail now")
