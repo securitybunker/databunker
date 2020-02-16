@@ -4,12 +4,13 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	uuid "github.com/hashicorp/go-uuid"
 )
 
 func helpCreateUserApp(userTOKEN string, appName string, appJSON string) (map[string]interface{}, error) {
 	url := "http://localhost:3000/v1/userapp/token/" + userTOKEN + "/" + appName
 	request := httptest.NewRequest("POST", url, strings.NewReader(appJSON))
-	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
 }
@@ -17,7 +18,6 @@ func helpCreateUserApp(userTOKEN string, appName string, appJSON string) (map[st
 func helpUpdateUserApp(userTOKEN string, appName string, appJSON string) (map[string]interface{}, error) {
 	url := "http://localhost:3000/v1/userapp/token/" + userTOKEN + "/" + appName
 	request := httptest.NewRequest("PUT", url, strings.NewReader(appJSON))
-	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
 }
@@ -51,9 +51,7 @@ func helpGetAppList() (map[string]interface{}, error) {
 }
 
 func TestCreateUserApp(t *testing.T) {
-
-	userJSON := `{"name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1","f3":{"a":"b"}}}`
-
+	userJSON := `{"name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1"}}`
 	raw, err := helpCreateUser(userJSON)
 	if err != nil {
 		t.Fatalf("Failed to create user: %s", err)
@@ -100,5 +98,45 @@ func TestCreateUserApp(t *testing.T) {
 	if raw6["status"] != "ok" {
 		t.Fatalf("Failed to get userapp: %s\n", raw6["message"])
 		return
+	}
+}
+
+func TestCreateUserAppFakeToken(t *testing.T) {
+	userTOKEN := "token123"
+	appJSON := `{"shipping":"done"}`
+	appName := "shipping"
+	raw, _ := helpCreateUserApp(userTOKEN, appName, appJSON)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to create user app")
+	}
+}
+
+func TestCreateUserAppBadAppName(t *testing.T) {
+	userTOKEN, _ := uuid.GenerateUUID()
+	appJSON := `{"shipping":"done"}`
+	appName := "ship$ping"
+	raw, _ := helpCreateUserApp(userTOKEN, appName, appJSON)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to create user app")
+	}
+}
+
+func TestCreateUserAppBadData(t *testing.T) {
+	userTOKEN, _ := uuid.GenerateUUID()
+	appJSON := `a=b`
+	appName := "shipping"
+	raw, _ := helpCreateUserApp(userTOKEN, appName, appJSON)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to create user app")
+	}
+}
+
+func TestCreateUserAppEmptyData(t *testing.T) {
+	userTOKEN, _ := uuid.GenerateUUID()
+	appJSON := ``
+	appName := "shipping"
+	raw, _ := helpCreateUserApp(userTOKEN, appName, appJSON)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to create user app")
 	}
 }
