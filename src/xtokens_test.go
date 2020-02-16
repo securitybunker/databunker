@@ -149,11 +149,11 @@ func TestGetFakeRequest(t *testing.T) {
 	rtoken, _ := uuid.GenerateUUID()
 	raw, _ := helpGetUserRequest(rtoken)
 	if raw["status"].(string) != "error" {
-		t.Fatalf("Should failed to get fake request")
+		t.Fatalf("Should fail to get fake request")
 	}
 	raw2, _ := helpCancelUserRequest(rtoken)
 	if raw2["status"].(string) != "error" {
-		t.Fatalf("Cancel request should fail here")
+		t.Fatalf("Shoud faile to cancel request")
 	}
 }
 
@@ -161,7 +161,7 @@ func TestBadLogin(t *testing.T) {
 	userJSON := `{"login":"user10","email":"user10@user10.com","phone":"8855667788"}`
 	raw, err := helpCreateUser(userJSON)
 	if err != nil {
-		t.Fatalf("error: %s", err)
+		t.Fatalf("Error in user creation: %s", err)
 	}
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to create user")

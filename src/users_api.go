@@ -86,8 +86,6 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 			//fmt.Printf("XXX checking brief code for duplicates: %s\n", val["brief"].(string))
 			if contains(briefCodes, val["brief"].(string)) == true {
 				e.db.deleteRecord2(TblName.Consent, "token", userTOKEN, "who", parsedData.phoneIdx)
-			} else {
-				briefCodes = append(briefCodes, val["brief"].(string))
 			}
 		}
 	}
@@ -105,25 +103,28 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	mode := ps.ByName("mode")
 	event := audit("get user record by "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
-	if e.enforceAuth(w, r, event) == "" {
-		return
-	}
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
-	userTOKEN := address
+	userTOKEN := ""
+	authResult := ""
 	if mode == "token" {
 		if enforceUUID(w, address, event) == false {
 			return
 		}
 		resultJSON, err = e.db.getUser(address)
+		userTOKEN = address
 	} else {
 		resultJSON, userTOKEN, err = e.db.getUserIndex(address, mode, e.conf)
 		event.Record = userTOKEN
 	}
 	if err != nil {
 		returnError(w, r, "internal error", 405, nil, event)
+		return
+	}
+	authResult = e.enforceAuth(w, r, event)
+	if authResult == "" {
 		return
 	}
 	if resultJSON == nil {
@@ -144,17 +145,11 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	event := audit("change user record by "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
-	authResult := e.enforceAuth(w, r, event)
-	if authResult == "" {
-		return
-	}
 	if validateMode(mode) == false {
 		returnError(w, r, "bad index", 405, nil, event)
 		return
 	}
-	if mode == "token" && enforceUUID(w, address, event) == false {
-		return
-	}
+
 	parsedData, err := getJSONPost(r, e.conf.Sms.DefaultCountry)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
@@ -164,8 +159,14 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		returnError(w, r, "empty body", 405, nil, event)
 		return
 	}
-	userTOKEN := address
-	if mode != "token" {
+
+	userTOKEN := ""
+	if mode == "token" {
+		if enforceUUID(w, address, event) == false {
+			return
+		}
+		userTOKEN = address
+	} else {
 		userBson, err := e.db.lookupUserRecordByIndex(mode, address, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
@@ -177,6 +178,10 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		}
 		userTOKEN = userBson["token"].(string)
 		event.Record = userTOKEN
+	}
+	authResult := e.enforceAuth(w, r, event)
+	if authResult == "" {
+		return
 	}
 	if authResult == "login" {
 		event.Title = "User change-profile request"
@@ -241,6 +246,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 		returnError(w, r, "record not found", 405, nil, event)
 		return
 	}
+
 	if authResult == "login" {
 		event.Title = "User forget-me request"
 		if e.conf.SelfService.ForgetMe == false {
@@ -256,15 +262,10 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 		}
 	}
 	//fmt.Printf("deleting user %s\n", userTOKEN)
-	result, err := e.db.deleteUserRecord(userTOKEN)
+	_, err = e.db.deleteUserRecord(userTOKEN)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
-	}
-	if result == false {
-		// user deleted
-		event.Status = "failed"
-		event.Msg = "failed to delete"
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
