@@ -118,7 +118,11 @@ func TestCreateUpdateUser(t *testing.T) {
 	rootToken, _ = uuid.GenerateUUID()
 	raw, _ = helpGetUserAuditEvent(atoken)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to get specific audit event\n")
+		t.Fatalf("Should fail to get specific audit event\n")
+	}
+	raw, _ = helpDeleteUser("phone", "775566998822")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to delete user\n")
 	}
 	rootToken = oldRootToken
 	helpDeleteUser("phone", "775566998822")
@@ -209,7 +213,7 @@ func TestUpdateFakeUser(t *testing.T) {
 	userTOKEN := "token123"
 	raw, _ := helpChangeUser("token", userTOKEN, `{"login":null}`)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to update user")
+		t.Fatalf("Should fail to update user")
 	}
 }
 
@@ -217,7 +221,7 @@ func TestUpdateFakeUser2(t *testing.T) {
 	userTOKEN, _ := uuid.GenerateUUID()
 	raw, _ := helpChangeUser("token", userTOKEN, `{"login":null}`)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to update user")
+		t.Fatalf("Should fail to update user")
 	}
 }
 
@@ -225,7 +229,7 @@ func TestUpdateFakeUserFakeMode(t *testing.T) {
 	userTOKEN, _ := uuid.GenerateUUID()
 	raw, _ := helpChangeUser("fake", userTOKEN, `{"login":null}`)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to update user")
+		t.Fatalf("Should fail to update user")
 	}
 }
 
@@ -249,7 +253,7 @@ func TestCreateUserEmptyBody(t *testing.T) {
 	data := "{}"
 	raw, _ := helpCreateUser(data)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to create user")
+		t.Fatalf("Should fail to create user")
 	}
 }
 
@@ -262,7 +266,7 @@ func TestCreateUserDupLogin(t *testing.T) {
 	data = `{"login":"dup","name":"dup2"}`
 	raw, _ = helpCreateUser(data)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to create user")
+		t.Fatalf("Should fail to create user")
 	}
 }
 
@@ -275,7 +279,7 @@ func TestCreateUserDupEmail(t *testing.T) {
 	data = `{"email":"dup@dupdup.com","name":"dup2"}`
 	raw, _ = helpCreateUser(data)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to create user")
+		t.Fatalf("Should fail to create user")
 	}
 }
 
@@ -288,7 +292,7 @@ func TestCreateUserDupPhone(t *testing.T) {
 	data = `{"phone":"334455667788","name":"dup2"}`
 	raw, _ = helpCreateUser(data)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to create user")
+		t.Fatalf("Should fail to create user")
 	}
 }
 
@@ -299,7 +303,7 @@ func TestCreateUserBadPOST(t *testing.T) {
 	request.Header.Set("X-Bunker-Token", rootToken)
 	raw, _ := helpServe(request)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to create user")
+		t.Fatalf("Should fail to create user")
 	}
 }
 
@@ -311,6 +315,6 @@ func TestCreateUserEmptyXToken2(t *testing.T) {
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	raw, _ := helpServe2(request)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
-		t.Fatalf("Should failed to create user")
+		t.Fatalf("Should fail to create user")
 	}
 }
