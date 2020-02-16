@@ -99,11 +99,18 @@ func (dbobj dbcon) validateIndexChange(indexName string, idxOldValue string, raw
 	//fmt.Println(raw[indexName])
 	if newIdxValue, ok2 := raw[indexName]; ok2 {
 		if reflect.TypeOf(newIdxValue) == reflect.TypeOf("string") {
-			idxStringHashHex := hashString(dbobj.hash, newIdxValue.(string))
+			newIdxFinalValue := newIdxValue.(string)
+			if indexName == "email" {
+				newIdxFinalValue = normalizeEmail(newIdxFinalValue)
+			} else if indexName == "phone" {
+				newIdxFinalValue = normalizePhone(newIdxFinalValue, conf.Sms.DefaultCountry)
+			}
+			idxStringHashHex := hashString(dbobj.hash, newIdxFinalValue)
 			if idxStringHashHex != idxOldValue {
+				fmt.Println("index value changed!")
 				// old index value renamed
 				// check if this value is uniqueue
-				otherUserBson, _ := dbobj.lookupUserRecordByIndex(indexName, newIdxValue.(string), conf)
+				otherUserBson, _ := dbobj.lookupUserRecordByIndex(indexName, newIdxFinalValue, conf)
 				if otherUserBson != nil {
 					// already exist user with same index value
 					return 0, errors.New("duplicate index")
@@ -263,7 +270,7 @@ func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string, 
 		return nil, nil
 	}
 	idxStringHashHex := hashString(dbobj.hash, indexValue)
-	fmt.Printf("loading by %s\n", indexName)
+	fmt.Printf("loading by %s, value: %s\n", indexName, indexValue)
 	return dbobj.getRecord(TblName.Users, indexName+"idx", idxStringHashHex)
 }
 

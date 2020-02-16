@@ -158,7 +158,7 @@ func TestGetFakeRequest(t *testing.T) {
 }
 
 func TestBadLogin(t *testing.T) {
-	userJSON := `{"login":"user10","email":"user10@user10.com"}`
+	userJSON := `{"login":"user10","email":"user10@user10.com","phone":"8855667788"}`
 	raw, err := helpCreateUser(userJSON)
 	if err != nil {
 		t.Fatalf("error: %s", err)
@@ -172,6 +172,10 @@ func TestBadLogin(t *testing.T) {
 		t.Fatalf("Should fail to login user")
 	}
 	raw, _ = helpUserLogin("email", "user10@user10.com")
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Fail to login user")
+	}
+	raw, _ = helpUserLogin("phone", "8855667788")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Fail to login user")
 	}

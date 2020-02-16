@@ -60,7 +60,7 @@ func helpGetUserAuditEvent(atoken string) (map[string]interface{}, error) {
 }
 
 func TestCreateUpdateUser(t *testing.T) {
-	userJSON := `{"login":"user1","name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1","f3":{"a":"b"}}}`
+	userJSON := `{"login":"user1","name":"tom","phone":"775566998822","k1":[1,10,20],"k2":{"f1":"t1","f3":{"a":"b"}}}`
 	raw, err := helpCreateUser(userJSON)
 	if err != nil {
 		t.Fatalf("error: %s", err)
@@ -121,6 +121,7 @@ func TestCreateUpdateUser(t *testing.T) {
 		t.Fatalf("Should failed to get specific audit event\n")
 	}
 	rootToken = oldRootToken
+	helpDeleteUser("phone", "775566998822")
 	helpDeleteUser("token", userTOKEN)
 	raw, _ = helpGetUser("token", userTOKEN)
 	d := raw["data"].(map[string]interface{})
@@ -142,6 +143,30 @@ func TestGetFakeAuditEvent2(t *testing.T) {
 	raw, _ := helpGetUserAuditEvent(auditTOKEN)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to get user audit events")
+	}
+}
+
+func TestDeleteFakeUser(t *testing.T) {
+	userTOKEN := "token123"
+	raw, _ := helpDeleteUser("token", userTOKEN)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to delete fake user")
+	}
+}
+
+func TestDeleteFakeUser2(t *testing.T) {
+	userTOKEN, _ := uuid.GenerateUUID()
+	raw, _ := helpDeleteUser("token", userTOKEN)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to delete fake user")
+	}
+}
+
+func TestDeleteFakeUserBadMode(t *testing.T) {
+	userTOKEN := "token123"
+	raw, _ := helpDeleteUser("fake", userTOKEN)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to delete fake user")
 	}
 }
 
