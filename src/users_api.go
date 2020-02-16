@@ -78,12 +78,12 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		records, _ := e.db.getList(TblName.Consent, "who", parsedData.emailIdx, 0, 0)
 		var briefCodes []string
 		for _, val := range records {
-			fmt.Printf("adding brief code: %s\n", val["brief"].(string))
+			//fmt.Printf("adding brief code: %s\n", val["brief"].(string))
 			briefCodes = append(briefCodes, val["brief"].(string))
 		}
 		records, _ = e.db.getList(TblName.Consent, "who", parsedData.phoneIdx, 0, 0)
 		for _, val := range records {
-			fmt.Printf("XXX checking brief code for duplicates: %s\n", val["brief"].(string))
+			//fmt.Printf("XXX checking brief code for duplicates: %s\n", val["brief"].(string))
 			if contains(briefCodes, val["brief"].(string)) == true {
 				e.db.deleteRecord2(TblName.Consent, "token", userTOKEN, "who", parsedData.phoneIdx)
 			} else {
@@ -131,7 +131,7 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		return
 	}
 	finalJSON := fmt.Sprintf(`{"status":"ok","token":"%s","data":%s}`, userTOKEN, resultJSON)
-	fmt.Printf("record: %s\n", finalJSON)
+	//fmt.Printf("record: %s\n", finalJSON)
 	//fmt.Fprintf(w, "<html><head><title>title</title></head>")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
@@ -255,8 +255,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 	}
-	fmt.Printf("deleting user %s\n", userTOKEN)
-
+	//fmt.Printf("deleting user %s\n", userTOKEN)
 	result, err := e.db.deleteUserRecord(userTOKEN)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
