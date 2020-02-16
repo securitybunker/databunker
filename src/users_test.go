@@ -221,6 +221,14 @@ func TestUpdateFakeUser2(t *testing.T) {
 	}
 }
 
+func TestUpdateFakeUserFakeMode(t *testing.T) {
+	userTOKEN, _ := uuid.GenerateUUID()
+	raw, _ := helpChangeUser("fake", userTOKEN, `{"login":null}`)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to update user")
+	}
+}
+
 func TestCreateUser2(t *testing.T) {
 	data := "name=user2&job=developer&email=user2@user2.com"
 	raw, _ := helpCreateUser2(data)
