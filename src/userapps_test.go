@@ -122,7 +122,7 @@ func TestCreateUserUpdateAppBadData(t *testing.T) {
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should failed to update userapp")
 	}
-	raw, _ = helpUpdateUserApp(userTOKEN, "app$123", `{"a":"b"}`)
+	raw, _ = helpUpdateUserApp(userTOKEN, "app!123", `{"a":"b"}`)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should failed to update userapp")
 	}
@@ -142,7 +142,7 @@ func TestCreateUserUpdateAppBadData(t *testing.T) {
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to get app detailes for user")
 	}
-	raw, _ = helpGetUserApp(userTOKEN, "app$name")
+	raw, _ = helpGetUserApp(userTOKEN, "app!name")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to get app detailes for user")
 	}
@@ -161,7 +161,7 @@ func TestCreateUserAppFakeToken(t *testing.T) {
 func TestCreateUserAppBadAppName(t *testing.T) {
 	userTOKEN, _ := uuid.GenerateUUID()
 	appJSON := `{"shipping":"done"}`
-	appName := "ship$ping"
+	appName := "ship!ping"
 	raw, _ := helpCreateUserApp(userTOKEN, appName, appJSON)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to create user app")
@@ -195,8 +195,8 @@ func TestGetAppListFakeUser(t *testing.T) {
 	}
 }
 
-func TestGetFakeApp() {
-	raw, _ = helpGetUserApp("fakeuser", "fakeapp")
+func TestGetFakeApp(t *testing.T) {
+	raw, _ := helpGetUserApp("fakeuser", "fakeapp")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to get app detailes for user")
 	}
