@@ -101,6 +101,14 @@ func TestUserLoginDelete(t *testing.T) {
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to update app: testapp")
 	}
+	raw, _ = helpCreateUserApp(userTOKEN, "testapp2", `{"custom":1}`)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to create app: testapp")
+	}
+	raw, _ = helpUpdateUserApp(userTOKEN, "testapp2", `{"custom2":"abc"}`)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to update app: testapp")
+	}
 	raw, _ = helpGetUserAppList(userTOKEN)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get user app list with user xtoken\n")
@@ -117,11 +125,11 @@ func TestUserLoginDelete(t *testing.T) {
 	rootToken = oldRootToken
 	// get user requests
 	raw6, _ := helpGetUserRequests()
-	if raw6["total"].(float64) != 2 {
+	if raw6["total"].(float64) != 3 {
 		t.Fatalf("Wrong number of user requests for admin to approve/reject/s\n")
 	}
 	records := raw6["rows"].([]interface{})
-	records0 := records[1].(map[string]interface{})
+	records0 := records[2].(map[string]interface{})
 	rtoken := records0["rtoken"].(string)
 	if len(rtoken) == 0 {
 		t.Fatalf("Failed to extract request token\n")
