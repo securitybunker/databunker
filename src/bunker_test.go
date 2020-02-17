@@ -129,7 +129,7 @@ func TestConfigurationOK(t *testing.T) {
 		log.Fatalf("failed to fetch configuration: %s", err.Error())
 	}
 	if strings.Contains(string(raw), "CreateUserWithoutAccessToken") == false {
-		t.Fatalf("Configuraton dump failed\n")
+		t.Fatalf("Configuration dump failed\n")
 	}
 }
 
