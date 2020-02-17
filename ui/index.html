@@ -15,7 +15,7 @@
     <div class="container col-md-6 pY-120">
         <div class="row col-12 col-md-12 ">
             <div class="bigblock">
-                <h4>Login form</h4>
+                <h4>Find my data</h4>
                 <p>Select login method and enter login details:</p>
                 <form id="loginform">
                     <div class="form-group">
@@ -23,7 +23,7 @@
                             <option value="Admin">Admin Token</option>
                             <option value="Record">Record Token</option>
                             <option value="Email">Email</option>
-                            <option value="Phone">Phone</option>
+                            <option selected value="Phone">Phone</option>
                         </select>
                     </div>
                     <div class="form-group" id="email-conf-form" style="display:none;">
@@ -94,6 +94,13 @@
             badformat.style.display = "none";
         }
         function changemethod(obj) {
+            var value = obj.value;
+            if (!value) {
+                return false;
+            }
+            changemethoddo(value);
+        }
+        function changemethoddo(value) {
             var element = document.getElementById('loginvalue');
             var smsform = document.getElementById('sms-conf-form');
             var emailform = document.getElementById('email-conf-form');
@@ -104,10 +111,6 @@
 
             if (!element || !smsform || !emailform ||
                 !smschk || !emailchk || !confalert || !badformat) {
-                return false;
-            }
-            var value = obj.value;
-            if (!value) {
                 return false;
             }
             badformat.style.display = "none";
@@ -127,7 +130,6 @@
                 emailform.style.display = "none";
             }
         }
-
         function submitbtn() {
             var element = document.getElementById('loginvalue')
             var smschk = document.getElementById('smschk');
@@ -230,5 +232,8 @@
             }
             return false;
         }
+		(function() {
+			changemethoddo('Phone');
+		})();
     </script>
 </body>
