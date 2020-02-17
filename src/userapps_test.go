@@ -130,6 +130,10 @@ func TestCreateUserUpdateAppBadData(t *testing.T) {
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should failed to update userapp")
 	}
+	raw, _ = helpUpdateUserApp("faketoken", appName, `{"a":"b"}`)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to update userapp")
+	}
 	raw, _ = helpUpdateUserApp(userTOKEN, appName, `{"a":"b"}`)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to update userapp")
