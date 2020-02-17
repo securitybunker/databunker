@@ -144,7 +144,7 @@ func TestCreateWithdrawConsent(t *testing.T) {
 func TestGetFakeBrief(t *testing.T) {
 	raw, _ := helpGetAllUsersByBrief("unknown")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
-		t.Fatalf("Failed to create session")
+		t.Fatalf("Should fal to get all users with this brif")
 	}
 	if raw["total"].(float64) != 0 {
 		t.Fatalf("Wrong number of briefs")

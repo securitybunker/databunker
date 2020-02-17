@@ -52,47 +52,29 @@ func helpGetAppList() (map[string]interface{}, error) {
 
 func TestCreateUserApp(t *testing.T) {
 	userJSON := `{"name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1"}}`
-	raw, err := helpCreateUser(userJSON)
-	if err != nil {
-		t.Fatalf("Failed to create user: %s", err)
-	}
+	raw, _ := helpCreateUser(userJSON)
 	userTOKEN := raw["token"].(string)
 	appJSON := `{"shipping":"done"}`
 	appName := "testapp"
-	raw, err = helpCreateUserApp(userTOKEN, appName, appJSON)
-	if err != nil {
-		t.Fatalf("error: %s", err)
-	}
+	raw, _ = helpCreateUserApp(userTOKEN, appName, appJSON)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to create userapp")
 	}
 	appJSON = `{"like":"yes"}`
-	raw, err = helpUpdateUserApp(userTOKEN, appName, appJSON)
-	if err != nil {
-		t.Fatalf("error: %s", err)
-	}
+	raw, _ = helpUpdateUserApp(userTOKEN, appName, appJSON)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to update userapp")
 	}
-	raw, err = helpGetUserApp(userTOKEN, appName)
-	if err != nil {
-		t.Fatalf("error: %s", err)
-	}
+	raw, _ = helpGetUserApp(userTOKEN, appName)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get userapp")
 		return
 	}
-	raw, err = helpGetUserAppList(userTOKEN)
-	if err != nil {
-		t.Fatalf("error: %s", err)
-	}
+	raw, _ = helpGetUserAppList(userTOKEN)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get userapp")
 	}
-	raw, err = helpGetAppList()
-	if err != nil {
-		t.Fatalf("error: %s", err)
-	}
+	raw, _ = helpGetAppList()
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get userapp list")
 	}
@@ -100,17 +82,11 @@ func TestCreateUserApp(t *testing.T) {
 
 func TestCreateUserUpdateAppBadData(t *testing.T) {
 	userJSON := `{"name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1"}}`
-	raw, err := helpCreateUser(userJSON)
-	if err != nil {
-		t.Fatalf("Failed to create user: %s", err)
-	}
+	raw, _ := helpCreateUser(userJSON)
 	userTOKEN := raw["token"].(string)
 	appJSON := `{"shipping2":"done"}`
 	appName := "shipping"
-	raw, err = helpCreateUserApp(userTOKEN, appName, appJSON)
-	if err != nil {
-		t.Fatalf("error: %s", err)
-	}
+	raw, _ = helpCreateUserApp(userTOKEN, appName, appJSON)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to create userapp")
 	}
@@ -200,4 +176,41 @@ func TestGetFakeApp(t *testing.T) {
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to get app detailes for user")
 	}
+}
+
+func TestUserAppAnonymouse(t *testing.T) {
+	userJSON := `{"name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1"}}`
+	raw, _ := helpCreateUser(userJSON)
+	userTOKEN := raw["token"].(string)
+	appJSON := `{"shipping2":"done"}`
+	appName := "shipping"
+	raw, _ = helpCreateUserApp(userTOKEN, appName, appJSON)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to create userapp")
+	}
+
+	oldRootToken := rootToken
+	rootToken, _ = uuid.GenerateUUID()
+	raw, _ = helpCreateUserApp(userTOKEN, appName, appJSON)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to create userapp")
+	}
+	appJSON = `{"like":"yes"}`
+	raw, _ = helpUpdateUserApp(userTOKEN, appName, appJSON)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to update userapp")
+	}
+	raw, _ = helpGetUserApp(userTOKEN, appName)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get userapp")
+	}
+	raw, _ = helpGetUserAppList(userTOKEN)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get userapp")
+	}
+	raw, _ = helpGetAppList()
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get userapp list")
+	}
+	rootToken = oldRootToken
 }
