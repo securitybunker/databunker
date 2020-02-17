@@ -61,10 +61,7 @@ func helpGetUserAuditEvent(atoken string) (map[string]interface{}, error) {
 
 func TestCreateUpdateUser(t *testing.T) {
 	userJSON := `{"login":"user1","name":"tom","phone":"775566998822","k1":[1,10,20],"k2":{"f1":"t1","f3":{"a":"b"}}}`
-	raw, err := helpCreateUser(userJSON)
-	if err != nil {
-		t.Fatalf("error: %s", err)
-	}
+	raw, _ := helpCreateUser(userJSON)
 	var userTOKEN string
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to create user")
