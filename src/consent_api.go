@@ -113,24 +113,16 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 		switch records["expiration"].(type) {
 		case string:
 			expiration, _ = parseExpiration(value.(string))
-		case int:
-			expiration = value.(int32)
-		case int32:
-			expiration = value.(int32)
-		case int64:
-			expiration = value.(int32)
+		case float64:
+			expiration = int32(value.(float64))
 		}
 	}
 	if value, ok := records["starttime"]; ok {
 		switch records["starttime"].(type) {
 		case string:
 			starttime, _ = parseExpiration(value.(string))
-		case int:
-			starttime = value.(int32)
-		case int32:
-			starttime = value.(int32)
-		case int64:
-			starttime = value.(int32)
+		case float64:
+			starttime = int32(value.(float64))
 		}
 	}
 	switch mode {
