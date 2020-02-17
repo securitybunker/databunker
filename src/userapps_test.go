@@ -138,6 +138,14 @@ func TestCreateUserUpdateAppBadData(t *testing.T) {
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to update userapp")
 	}
+	raw, _ = helpGetUserApp(userTOKEN, "fakeapp")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get app detailes for user")
+	}
+	raw, _ = helpGetUserApp(userTOKEN, "app$name")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get app detailes for user")
+	}
 }
 
 func TestCreateUserAppFakeToken(t *testing.T) {
@@ -177,5 +185,19 @@ func TestCreateUserAppEmptyData(t *testing.T) {
 	raw, _ := helpCreateUserApp(userTOKEN, appName, appJSON)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to create user app")
+	}
+}
+
+func TestGetAppListFakeUser(t *testing.T) {
+	raw, _ := helpGetUserAppList("faketoken")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get user app list")
+	}
+}
+
+func TestGetFakeApp() {
+	raw, _ = helpGetUserApp("fakeuser", "fakeapp")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get app detailes for user")
 	}
 }
