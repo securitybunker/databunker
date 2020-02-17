@@ -90,7 +90,7 @@ func init() {
 	db.initUserApps()
 	var cfg Config
 	cfg.Sms.TwilioToken = "ttoken"
-	cfg.SelfService.AppRecordChange = []string{"*"}
+	cfg.SelfService.AppRecordChange = []string{"testapp"}
 	cfg.Generic.CreateUserWithoutAccessToken = true
 	e := mainEnv{db, cfg, make(chan struct{})}
 	rootToken, err = db.createRootXtoken()

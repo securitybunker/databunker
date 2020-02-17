@@ -58,7 +58,7 @@ func TestCreateUserApp(t *testing.T) {
 	}
 	userTOKEN := raw["token"].(string)
 	appJSON := `{"shipping":"done"}`
-	appName := "shipping"
+	appName := "testapp"
 	raw, err = helpCreateUserApp(userTOKEN, appName, appJSON)
 	if err != nil {
 		t.Fatalf("error: %s", err)
@@ -123,6 +123,10 @@ func TestCreateUserUpdateAppBadData(t *testing.T) {
 		t.Fatalf("Should failed to update userapp")
 	}
 	raw, _ = helpUpdateUserApp(userTOKEN, "app$123", `{"a":"b"}`)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to update userapp")
+	}
+	raw, _ = helpUpdateUserApp(userTOKEN, appName, `{"a":"b"}`)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should failed to update userapp")
 	}
