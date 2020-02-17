@@ -85,6 +85,16 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
+	// make sure userapp exists
+	resultJSON, err := e.db.getUserApp(userTOKEN, appName)
+	if err != nil {
+		returnError(w, r, "internal error", 405, err, event)
+		return
+	}
+	if resultJSON == nil {
+		returnError(w, r, "not found", 405, nil, event)
+		return
+	}
 	if authResult != "login" {
 		_, err = e.db.updateAppRecord(jsonData, userTOKEN, appName, event)
 		if err != nil {
