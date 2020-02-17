@@ -63,7 +63,7 @@ func TestCreateWithdrawConsent(t *testing.T) {
 		t.Fatalf("Wrong number of user consents")
 	}
 	brief := "test1"
-	raw, _ = helpAcceptConsent("email", "moshe@moshe-int.com", "test0", "")
+	raw, _ = helpAcceptConsent("email", "moshe@moshe-int.com", "test0", `{"expiration":"10m","starttime":0}`)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to accept on consent")
 	}
