@@ -59,45 +59,72 @@ func TestCreateUserApp(t *testing.T) {
 	userTOKEN := raw["token"].(string)
 	appJSON := `{"shipping":"done"}`
 	appName := "shipping"
-	raw2, err := helpCreateUserApp(userTOKEN, appName, appJSON)
+	raw, err = helpCreateUserApp(userTOKEN, appName, appJSON)
 	if err != nil {
 		t.Fatalf("error: %s", err)
 	}
-	if raw2["status"] != "ok" {
-		t.Fatalf("Failed to create userapp: %s\n", raw2["message"])
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to create userapp")
 	}
 	appJSON = `{"like":"yes"}`
-	raw3, err := helpUpdateUserApp(userTOKEN, appName, appJSON)
+	raw, err = helpUpdateUserApp(userTOKEN, appName, appJSON)
 	if err != nil {
 		t.Fatalf("error: %s", err)
 	}
-	if raw3["status"] != "ok" {
-		t.Fatalf("Failed to update userapp: %s\n", raw3["message"])
-		return
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to update userapp")
 	}
-	raw4, err := helpGetUserApp(userTOKEN, appName)
+	raw, err = helpGetUserApp(userTOKEN, appName)
 	if err != nil {
 		t.Fatalf("error: %s", err)
 	}
-	if raw4["status"] != "ok" {
-		t.Fatalf("Failed to get userapp: %s\n", raw4["message"])
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to get userapp")
 		return
 	}
-	raw5, err := helpGetUserAppList(userTOKEN)
+	raw, err = helpGetUserAppList(userTOKEN)
 	if err != nil {
 		t.Fatalf("error: %s", err)
 	}
-	if raw5["status"] != "ok" {
-		t.Fatalf("Failed to get userapp: %s\n", raw5["message"])
-		return
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to get userapp")
 	}
-	raw6, err := helpGetAppList()
+	raw, err = helpGetAppList()
 	if err != nil {
 		t.Fatalf("error: %s", err)
 	}
-	if raw6["status"] != "ok" {
-		t.Fatalf("Failed to get userapp: %s\n", raw6["message"])
-		return
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to get userapp list")
+	}
+}
+
+func TestCreateUserUpdateAppBadData(t *testing.T) {
+	userJSON := `{"name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1"}}`
+	raw, err := helpCreateUser(userJSON)
+	if err != nil {
+		t.Fatalf("Failed to create user: %s", err)
+	}
+	userTOKEN := raw["token"].(string)
+	appJSON := `{"shipping2":"done"}`
+	appName := "shipping"
+	raw, err = helpCreateUserApp(userTOKEN, appName, appJSON)
+	if err != nil {
+		t.Fatalf("error: %s", err)
+	}
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to create userapp")
+	}
+	raw, _ = helpUpdateUserApp(userTOKEN, appName, "a:b")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to update userapp")
+	}
+	raw, _ = helpUpdateUserApp(userTOKEN, appName, "{}")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to update userapp")
+	}
+	raw, _ = helpUpdateUserApp(userTOKEN, "app$123", `{"a":"b"}`)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to update userapp")
 	}
 }
 
