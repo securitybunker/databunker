@@ -76,7 +76,7 @@ func helpMetricsRequest(token string) ([]byte, error) {
 	return helpServe0(request)
 }
 
-func helpLoginPageRequest(token string) ([]byte, error) {
+func helpLoginPageRequest() ([]byte, error) {
 	url := "http://localhost:3000/"
 	request := httptest.NewRequest("GET", url, nil)
 	return helpServe0(request)
@@ -86,6 +86,18 @@ func helpConfigurationDump(token string) ([]byte, error) {
 	url := "http://localhost:3000/v1/sys/configuration"
 	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", token)
+	return helpServe0(request)
+}
+
+func helpLoginProfilePageRequest() ([]byte, error) {
+	url := "http://localhost:3000/site/user-profile.html"
+	request := httptest.NewRequest("GET", url, nil)
+	return helpServe0(request)
+}
+
+func helpNotFoundPageRequest() ([]byte, error) {
+	url := "http://localhost:3000/not-fund-page.html"
+	request := httptest.NewRequest("GET", url, nil)
 	return helpServe0(request)
 }
 
@@ -147,13 +159,35 @@ func TestMetrics(t *testing.T) {
 }
 
 func TestLoginPage(t *testing.T) {
-	raw, err := helpLoginPageRequest(rootToken)
+	raw, err := helpLoginPageRequest()
 	if err != nil {
 		//log.Panic("error %s", err.Error())
 		log.Fatalf("failed to get login page %s", err.Error())
 	}
 	if strings.Contains(string(raw), "login") == false {
 		t.Fatalf("login page failed\n")
+	}
+}
+
+func TestLoginProfilePage(t *testing.T) {
+	raw, err := helpLoginProfilePageRequest()
+	if err != nil {
+		//log.Panic("error %s", err.Error())
+		log.Fatalf("failed to get login profile page %s", err.Error())
+	}
+	if strings.Contains(string(raw), "profile") == false {
+		t.Fatalf("login profile page failed\n")
+	}
+}
+
+func TestNotFoundPage(t *testing.T) {
+	raw, err := helpNotFoundPageRequest()
+	if err != nil {
+		//log.Panic("error %s", err.Error())
+		//log.Fatalf("failed to get not found page %s", err.Error())
+	}
+	if strings.Contains(string(raw), "not found") == false {
+		t.Fatalf("not found page failed\n")
 	}
 }
 
