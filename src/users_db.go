@@ -416,6 +416,10 @@ func (dbobj dbcon) userDecrypt(userTOKEN, src string) ([]byte, error) {
 	if userBson == nil {
 		return nil, errors.New("not found")
 	}
+	if _, ok := userBson["key"]; !ok {
+		// user might be deleted already
+		return nil, errors.New("not found")
+	}
 	userKey := userBson["key"].(string)
 	recordKey, err := base64.StdEncoding.DecodeString(userKey)
 	if err != nil {

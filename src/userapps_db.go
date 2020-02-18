@@ -155,6 +155,9 @@ func (dbobj dbcon) listUserApps(userTOKEN string) ([]byte, error) {
 		}
 	}
 	fmt.Printf("returning: %s\n", result)
+	if len(result) == 0 {
+		return []byte("[]"), nil
+	}
 	resultJSON, err := json.Marshal(result)
 	return resultJSON, err
 }

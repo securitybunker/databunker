@@ -53,9 +53,7 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 	requestInfo, err := e.db.getRequest(request)
 	if err != nil {
-		fmt.Printf("%d access denied for: %s\n", http.StatusForbidden, request)
-		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte("Access denied"))
+		returnError(w, r, "internal error", 405, err, nil)
 		return
 	}
 	if len(requestInfo) == 0 {

@@ -124,6 +124,30 @@ func TestCreateUserUpdateAppBadData(t *testing.T) {
 	}
 }
 
+func TestCreateUserAppResetData(t *testing.T) {
+	userJSON := `{"name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1"}}`
+	raw, _ := helpCreateUser(userJSON)
+	userTOKEN := raw["token"].(string)
+	appJSON := `{"shipping":"done"}`
+	appName := "shipping"
+	raw, _ = helpCreateUserApp(userTOKEN, appName, appJSON)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to create userapp")
+	}
+	raw, _ = helpUpdateUserApp(userTOKEN, appName, `{"shipping":true}`)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to update userapp")
+	}
+	raw, _ = helpUpdateUserApp(userTOKEN, appName, `{"shipping":null}`)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to update userapp")
+	}
+	raw, _ = helpGetUserApp(userTOKEN, appName)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to get app detailes for user")
+	}
+}
+
 func TestCreateUserAppFakeToken(t *testing.T) {
 	userTOKEN := "token123"
 	appJSON := `{"shipping":"done"}`
