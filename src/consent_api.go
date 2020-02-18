@@ -54,17 +54,19 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 			// else user not found - we allow to save consent for unlinked users!
 		}
 	}
+
+	records, err := getJSONPostData(r)
+	if err != nil {
+		returnError(w, r, "failed to decode request body", 405, err, event)
+		return
+	}
+
 	defer func() {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		w.Write([]byte(`{"status":"ok"}`))
 	}()
 
-	records, err := getJSONPostData(r)
-	if err != nil {
-		//returnError(w, r, "internal error", 405, err, event)
-		return
-	}
 	status := "yes"
 	message := ""
 	freetext := ""
@@ -194,7 +196,7 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 	}
 	records, err := getJSONPostData(r)
 	if err != nil {
-		//returnError(w, r, "internal error", 405, err, event)
+		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	lastmodifiedby := ""
