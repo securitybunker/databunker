@@ -113,9 +113,10 @@ func init() {
 		log.Fatalf("db init error %s", err.Error())
 	}
 	db.initUserApps()
-	var cfg Config
+	var cfg2 Config
 	cfile := "../databunker.yaml"
-	readFile(&cfg, &cfile)
+	readFile(&cfg2, &cfile)
+	var cfg Config
 	cfg.Sms.TwilioToken = "ttoken"
 	cfg.SelfService.AppRecordChange = []string{"testapp", "super"}
 	cfg.SelfService.ConsentWithdraw = []string{"*email*"}
