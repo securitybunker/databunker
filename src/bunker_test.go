@@ -114,6 +114,8 @@ func init() {
 	}
 	db.initUserApps()
 	var cfg Config
+	cfile := "../databunker.yaml"
+	readFile(&cfg, &cfile)
 	cfg.Sms.TwilioToken = "ttoken"
 	cfg.SelfService.AppRecordChange = []string{"testapp", "super"}
 	cfg.SelfService.ConsentWithdraw = []string{"*email*"}
@@ -132,6 +134,7 @@ func init() {
 	fmt.Printf("Hashed root token: %s\n", rootToken2)
 	router = e.setupRouter()
 	//test1 := &testEnv{e, rootToken, router}
+	e.dbCleanupDo()
 	fmt.Printf("**INIT*DONE***\n")
 }
 
