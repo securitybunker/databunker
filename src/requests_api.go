@@ -133,9 +133,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 	}
 	requestInfo, err := e.db.getRequest(request)
 	if err != nil {
-		fmt.Printf("%d access denied for: %s\n", http.StatusForbidden, request)
-		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte("Access denied"))
+		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	if len(requestInfo) == 0 {
@@ -219,9 +217,7 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 	}
 	requestInfo, err := e.db.getRequest(request)
 	if err != nil {
-		fmt.Printf("%d access denied for: %s\n", http.StatusForbidden, request)
-		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte("Access denied"))
+		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	if len(requestInfo) == 0 {
