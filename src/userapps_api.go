@@ -164,7 +164,6 @@ func (e mainEnv) userappGet(w http.ResponseWriter, r *http.Request, ps httproute
 		returnError(w, r, "bad appname", 405, nil, event)
 		return
 	}
-
 	resultJSON, err := e.db.getUserApp(userTOKEN, appName)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)

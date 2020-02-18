@@ -123,38 +123,44 @@ func TestUserLoginDelete(t *testing.T) {
 		t.Fatalf("Wrong status. It should be: request-created")
 	}
 	rtoken0 := raw["rtoken"].(string)
+	raw, _ = helpGetUserAppList(userTOKEN)
+	fmt.Printf("apps: %s\n", raw["apps"])
+
 	rootToken = oldRootToken
 	// get user requests
-	raw6, _ := helpGetUserRequests()
-	if raw6["total"].(float64) != 3 {
+	raw, _ = helpGetUserRequests()
+	if raw["total"].(float64) != 3 {
 		t.Fatalf("Wrong number of user requests for admin to approve/reject/s\n")
 	}
-	records := raw6["rows"].([]interface{})
-	records0 := records[2].(map[string]interface{})
-	rtoken := records0["rtoken"].(string)
-	if len(rtoken) == 0 {
-		t.Fatalf("Failed to extract request token\n")
+	records := raw["rows"].([]interface{})
+	for id := range records {
+		records0 := records[id].(map[string]interface{})
+		action := records0["action"].(string)
+		rtoken := records0["rtoken"].(string)
+		if len(rtoken) == 0 {
+			t.Fatalf("Failed to extract request token\n")
+		}
+		if action == "forget-me" {
+			if rtoken != rtoken0 {
+				t.Fatalf("Rtoken0 is wrong\n")
+			}
+			fmt.Printf("** User request record: %s\n", rtoken)
+		}
+		raw8, _ := helpGetUserRequest(rtoken)
+		if raw8["status"].(string) != "ok" {
+			t.Fatalf("Failed to retrieve user request")
+		}
+		helpApproveUserRequest(rtoken)
+		raw9, _ := helpCancelUserRequest(rtoken)
+		if raw9["status"].(string) != "error" {
+			t.Fatalf("Cancel request should fail here")
+		}
 	}
-	if rtoken != rtoken0 {
-		t.Fatalf("Rtoken0 is wrong\n")
-	}
-	fmt.Printf("** User request record: %s\n", rtoken)
-	helpCreateUserApp(userTOKEN, "qq", `{"custom":1}`)
-	raw7, _ := helpGetUserAppList(userTOKEN)
-	fmt.Printf("apps: %s\n", raw7["apps"])
-	raw8, _ := helpGetUserRequest(rtoken0)
-	if raw8["status"].(string) != "ok" {
-		t.Fatalf("Failed to retrieve user request")
-	}
-	helpApproveUserRequest(rtoken)
-	raw9, _ := helpCancelUserRequest(rtoken0)
-	if raw9["status"].(string) != "error" {
-		t.Fatalf("Cancel request should fail here")
-	}
+
 	// user should be deleted now
 	raw10, _ := helpGetUserAppList(userTOKEN)
-	if raw10["apps"] != nil {
-		t.Fatalf("Apps shoud be nil\n")
+	if len(raw10["apps"].([]interface{})) != 0 {
+		t.Fatalf("Apps list shoud be empty\n")
 	}
 }
 

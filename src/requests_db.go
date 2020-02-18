@@ -63,7 +63,7 @@ func (dbobj dbcon) getRequests(status string, offset int32, limit int32) ([]byte
 		element["more"] = false
 		if _, ok := element["change"]; ok {
 			element["more"] = true
-			element["change"] = ""
+			delete(element, "change")
 		}
 		results = append(results, element)
 	}
