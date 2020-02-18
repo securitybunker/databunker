@@ -231,7 +231,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 		}
 		data, err := box.Find(fname)
 		if err != nil {
-			w.WriteHeader(404)
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("url not found"))
 		} else {
 			//w.Header().Set("Access-Control-Allow-Origin", "*")
 			if strings.HasSuffix(r.URL.Path, ".css") {
@@ -279,6 +280,16 @@ func readEnv(cfg *Config) error {
 }
 
 // dbCleanup() is used to run cron jobs.
+func (e mainEnv) dbCleanupDo() {
+	log.Printf("db cleanup timeout\n")
+	exp, _ := parseExpiration0(e.conf.Policy.MaxAuditRetentionPeriod)
+	if exp > 0 {
+		e.db.deleteExpired0(TblName.Audit, exp)
+	}
+	notifyURL := e.conf.Notification.ConsentNotificationURL
+	e.db.expireConsentRecords(notifyURL)
+}
+
 func (e mainEnv) dbCleanup() {
 	ticker := time.NewTicker(time.Duration(10) * time.Minute)
 
@@ -286,13 +297,7 @@ func (e mainEnv) dbCleanup() {
 		for {
 			select {
 			case <-ticker.C:
-				log.Printf("db cleanup timeout\n")
-				exp, _ := parseExpiration0(e.conf.Policy.MaxAuditRetentionPeriod)
-				if exp > 0 {
-					e.db.deleteExpired0(TblName.Audit, exp)
-				}
-				notifyURL := e.conf.Notification.ConsentNotificationURL
-				e.db.expireConsentRecords(notifyURL)
+				e.dbCleanupDo()
 			case <-e.stopChan:
 				log.Printf("db cleanup closed\n")
 				ticker.Stop()
