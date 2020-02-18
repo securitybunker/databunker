@@ -120,6 +120,7 @@ func TestUserLoginDelete(t *testing.T) {
 		t.Fatalf("Failed to delete user")
 	}
 	if raw["result"].(string) != "request-created" {
+		t.Fatalf("Wrong status. It should be: request-created")
 	}
 	rtoken0 := raw["rtoken"].(string)
 	rootToken = oldRootToken
