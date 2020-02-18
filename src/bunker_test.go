@@ -69,6 +69,19 @@ func helpBackupRequest(token string) ([]byte, error) {
 	return helpServe0(request)
 }
 
+func helpMetricsRequest(token string) ([]byte, error) {
+	url := "http://localhost:3000/v1/metrics"
+	request := httptest.NewRequest("GET", url, nil)
+	request.Header.Set("X-Bunker-Token", token)
+	return helpServe0(request)
+}
+
+func helpLoginPageRequest(token string) ([]byte, error) {
+	url := "http://localhost:3000/"
+	request := httptest.NewRequest("GET", url, nil)
+	return helpServe0(request)
+}
+
 func helpConfigurationDump(token string) ([]byte, error) {
 	url := "http://localhost:3000/v1/sys/configuration"
 	request := httptest.NewRequest("GET", url, nil)
@@ -119,6 +132,28 @@ func TestBackupOK(t *testing.T) {
 	}
 	if strings.Contains(string(raw), "CREATE TABLE") == false {
 		t.Fatalf("Backup failed\n")
+	}
+}
+
+func TestMetrics(t *testing.T) {
+	raw, err := helpMetricsRequest(rootToken)
+	if err != nil {
+		//log.Panic("error %s", err.Error())
+		log.Fatalf("failed to get metrics %s", err.Error())
+	}
+	if strings.Contains(string(raw), "go_memstats") == false {
+		t.Fatalf("metrics failed\n")
+	}
+}
+
+func TestLoginPage(t *testing.T) {
+	raw, err := helpLoginPageRequest(rootToken)
+	if err != nil {
+		//log.Panic("error %s", err.Error())
+		log.Fatalf("failed to get login page %s", err.Error())
+	}
+	if strings.Contains(string(raw), "login") == false {
+		t.Fatalf("login page failed\n")
 	}
 }
 

@@ -74,6 +74,7 @@ func (dbobj dbcon) generateUserLoginXtoken(userTOKEN string) (string, error) {
 	return tokenUUID, nil
 }
 
+/*
 func (dbobj dbcon) checkXtoken(xtokenUUID string) bool {
 	//fmt.Printf("Token0 %s\n", tokenUUID)
 	if isValidUUID(xtokenUUID) == false {
@@ -95,6 +96,7 @@ func (dbobj dbcon) checkXtoken(xtokenUUID string) bool {
 	}
 	return false
 }
+*/
 
 func (dbobj dbcon) checkUserAuthXToken(xtokenUUID string) (tokenAuthResult, error) {
 	result := tokenAuthResult{}
