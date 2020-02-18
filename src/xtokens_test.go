@@ -89,6 +89,16 @@ func TestUserLoginDelete(t *testing.T) {
 	fmt.Printf("User login *** xtoken: %s\n", xtoken)
 	oldRootToken := rootToken
 	rootToken = xtoken
+	raw, _ = helpAcceptConsent("token", userTOKEN, "contract", "")
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to accept on consent")
+	}
+	raw, _ = helpWithdrawConsent("token", userTOKEN, "contract")
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to accept on consent")
+	}
+	helpAcceptConsent("token", userTOKEN, "contract2", "")
+	helpWithdrawConsent("token", userTOKEN, "contract2")
 	raw, _ = helpChangeUser("token", userTOKEN, `{"login":null}`)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to update user")
@@ -129,7 +139,7 @@ func TestUserLoginDelete(t *testing.T) {
 	rootToken = oldRootToken
 	// get user requests
 	raw, _ = helpGetUserRequests()
-	if raw["total"].(float64) != 3 {
+	if raw["total"].(float64) != 5 {
 		t.Fatalf("Wrong number of user requests for admin to approve/reject/s\n")
 	}
 	records := raw["rows"].([]interface{})
@@ -150,10 +160,19 @@ func TestUserLoginDelete(t *testing.T) {
 		if raw8["status"].(string) != "ok" {
 			t.Fatalf("Failed to retrieve user request")
 		}
-		helpApproveUserRequest(rtoken)
-		raw9, _ := helpCancelUserRequest(rtoken)
-		if raw9["status"].(string) != "error" {
-			t.Fatalf("Cancel request should fail here")
+		if action == "consent-withdraw" {
+			brief := records0["brief"].(string)
+			if brief == "contract" {
+				helpApproveUserRequest(rtoken)
+			} else {
+				helpCancelUserRequest(rtoken)
+			}
+		} else {
+			helpApproveUserRequest(rtoken)
+			raw9, _ := helpCancelUserRequest(rtoken)
+			if raw9["status"].(string) != "error" {
+				t.Fatalf("Cancel request should fail here")
+			}
 		}
 	}
 
@@ -161,18 +180,6 @@ func TestUserLoginDelete(t *testing.T) {
 	raw10, _ := helpGetUserAppList(userTOKEN)
 	if len(raw10["apps"].([]interface{})) != 0 {
 		t.Fatalf("Apps list shoud be empty\n")
-	}
-}
-
-func TestGetFakeRequest(t *testing.T) {
-	rtoken, _ := uuid.GenerateUUID()
-	raw, _ := helpGetUserRequest(rtoken)
-	if raw["status"].(string) != "error" {
-		t.Fatalf("Should fail to get fake request")
-	}
-	raw2, _ := helpCancelUserRequest(rtoken)
-	if raw2["status"].(string) != "error" {
-		t.Fatalf("Shoud faile to cancel request")
 	}
 }
 
@@ -219,5 +226,37 @@ func TestFakeLoginEnter(t *testing.T) {
 	raw, _ := helpUserLoginEnter("email", "user-fake-11@userfake11.com", "abc1234")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to login enter")
+	}
+}
+
+func TestGetFakeRequest(t *testing.T) {
+	rtoken, _ := uuid.GenerateUUID()
+	raw, _ := helpGetUserRequest(rtoken)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get fake request")
+	}
+	raw, _ = helpApproveUserRequest(rtoken)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to approve fake request")
+	}
+	raw, _ = helpCancelUserRequest(rtoken)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Shoud faile to cancel request")
+	}
+}
+
+func TestGetFakeRequestToken(t *testing.T) {
+	rtoken := "faketoken"
+	raw, _ := helpGetUserRequest(rtoken)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get fake request")
+	}
+	raw, _ = helpApproveUserRequest(rtoken)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to approve fake request")
+	}
+	raw, _ = helpCancelUserRequest(rtoken)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Shoud faile to cancel request")
 	}
 }
