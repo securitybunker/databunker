@@ -86,13 +86,7 @@ func (event auditEvent) submit(db dbcon) {
 	if len(event.After) > 0 {
 		bdoc["after"] = event.After
 	}
-	_, err := db.createRecord(TblName.Audit, &bdoc)
-	//_, err := db.audit.InsertOne(context.TODO(), &bdoc)
-	if err != nil {
-		fmt.Printf("failed to marshal audit event: %s\n", err)
-		return
-	}
-	//fmt.Println("AUDIT done!!!")
+	db.createRecord(TblName.Audit, &bdoc)
 }
 
 func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) ([]byte, int64, error) {

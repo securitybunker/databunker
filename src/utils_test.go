@@ -92,8 +92,8 @@ func Test_getJSONPost(t *testing.T) {
 	}
 }
 
-func Test_SMS(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+func TestSMS(t *testing.T) {
+	server := httptest.NewServer(logRequest(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(200)
 		defer req.Body.Close()
@@ -102,7 +102,7 @@ func Test_SMS(t *testing.T) {
 		if string(bodyBytes) != "Body=Data+Bunker+code+1234&From=from1234&To=4444" {
 			t.Fatalf("bad request: %s", string(bodyBytes))
 		}
-	}))
+	})))
 	// Close the server when test finishes
 	defer server.Close()
 	client := server.Client()

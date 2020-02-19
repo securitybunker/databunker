@@ -344,6 +344,26 @@ func logRequest(handler http.Handler) http.Handler {
 	})
 }
 
+func setupDB(dbPtr *string) (dbcon, string, error) {
+	fmt.Printf("\nDatabunker init\n\n")
+	masterKey, err := generateMasterKey()
+	fmt.Printf("Master key: %x\n\n", masterKey)
+	fmt.Printf("Init databunker.db\n\n")
+	db, _ := newDB(masterKey, dbPtr)
+	err = db.initDB()
+	if err != nil {
+		//log.Panic("error %s", err.Error())
+		log.Fatalf("db init error %s", err.Error())
+	}
+	rootToken, err := db.createRootXtoken()
+	if err != nil {
+		//log.Panic("error %s", err.Error())
+		fmt.Printf("error %s", err.Error())
+	}
+	fmt.Printf("\nAPI Root token: %s\n\n", rootToken)
+	return db, rootToken, err
+}
+
 // main application function
 func main() {
 	rand.Seed(time.Now().UnixNano())
@@ -361,27 +381,8 @@ func main() {
 
 	var err error
 	var masterKey []byte
-	if err != nil {
-		//log.Panic("error %s", err.Error())
-		fmt.Printf("error %s", err.Error())
-	}
 	if *initPtr {
-		fmt.Printf("\nDatabunker init\n\n")
-		masterKey, err = generateMasterKey()
-		fmt.Printf("Master key: %x\n\n", masterKey)
-		fmt.Printf("Init databunker.db\n\n")
-		db, _ := newDB(masterKey, dbPtr)
-		err = db.initDB()
-		if err != nil {
-			//log.Panic("error %s", err.Error())
-			log.Fatalf("db init error %s", err.Error())
-		}
-		rootToken, err := db.createRootXtoken()
-		if err != nil {
-			//log.Panic("error %s", err.Error())
-			fmt.Printf("error %s", err.Error())
-		}
-		fmt.Printf("\nAPI Root token: %s\n\n", rootToken)
+		db, _, _ := setupDB(dbPtr)
 		db.closeDB()
 		os.Exit(0)
 	}
