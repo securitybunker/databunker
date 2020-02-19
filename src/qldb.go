@@ -490,10 +490,12 @@ func (dbobj dbcon) getRecordInTableDo(q string, values []interface{}) (bson.M, e
 	return recBson, nil
 }
 
+/*
 func (dbobj dbcon) deleteRecord(t Tbl, keyName string, keyValue string) (int64, error) {
 	tbl := getTable(t)
 	return dbobj.deleteRecordInTable(tbl, keyName, keyValue)
 }
+*/
 
 func (dbobj dbcon) deleteRecordInTable(table string, keyName string, keyValue string) (int64, error) {
 	q := "delete from " + table + " WHERE " + escapeName(keyName) + "=$1"
@@ -765,38 +767,6 @@ func (dbobj dbcon) validateNewApp(appName string) bool {
 	return true
 }
 
-func (dbobj dbcon) indexNewApp(appName string) {
-	if contains(knownApps, appName) == false {
-		// it is a new app, create an index
-		fmt.Printf("This is a new app, creating index for :%s\n", appName)
-
-		tx, err := dbobj.db.Begin()
-		if err != nil {
-			return
-		}
-		defer tx.Rollback()
-		_, err = tx.Exec("CREATE TABLE IF NOT EXISTS " + appName + ` (
-			token STRING,
-			md5 STRING,
-			rofields STRING,
-			data TEXT,
-			status STRING,
-			` + "`when` int);")
-		if err != nil {
-			return
-		}
-		_, err = tx.Exec("CREATE INDEX IF NOT EXISTS " + appName + "_token ON " + appName + " (token)")
-		if err != nil {
-			return
-		}
-		if err = tx.Commit(); err != nil {
-			return
-		}
-		knownApps = append(knownApps, appName)
-	}
-	return
-}
-
 func execQueries(db *sql.DB, queries []string) error {
 	tx, err := db.Begin()
 	if err != nil {
@@ -813,6 +783,26 @@ func execQueries(db *sql.DB, queries []string) error {
 		return err
 	}
 	return nil
+}
+
+func (dbobj dbcon) indexNewApp(appName string) {
+	if contains(knownApps, appName) == false {
+		// it is a new app, create an index
+		fmt.Printf("This is a new app, creating table & index for: %s\n", appName)
+		queries := []string{"CREATE TABLE IF NOT EXISTS " + appName + ` (
+			token STRING,
+			md5 STRING,
+			rofields STRING,
+			data TEXT,
+			status STRING,
+			` + "`when` int);",
+			"CREATE INDEX IF NOT EXISTS " + appName + "_token ON " + appName + " (token);"}
+		err := execQueries(dbobj.db, queries)
+		if err == nil {
+			knownApps = append(knownApps, appName)
+		}
+	}
+	return
 }
 
 func initUsers(db *sql.DB) error {
