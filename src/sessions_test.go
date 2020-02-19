@@ -9,8 +9,8 @@ import (
 	uuid "github.com/hashicorp/go-uuid"
 )
 
-func helpCreateSession(userTOKEN string, dataJSON string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/session/token/" + userTOKEN
+func helpCreateSession(mode string, address string, dataJSON string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/session/" + mode + "/" + address
 	request := httptest.NewRequest("POST", url, strings.NewReader(dataJSON))
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
@@ -23,8 +23,8 @@ func helpGetSession(recordTOKEN string) (map[string]interface{}, error) {
 	return helpServe(request)
 }
 
-func helpGetUserTokenSessions(userTOKEN string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/session/token/" + userTOKEN
+func helpGetUserSessions(mode string, address string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/session/" + mode + "/" + address
 	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
@@ -48,7 +48,7 @@ func TestCreateSessionRecord(t *testing.T) {
 	}
 	userTOKEN := raw["token"].(string)
 	data := `{"expiration":"1m","cookie":"abcdefg"}`
-	raw, _ = helpCreateSession(userTOKEN, data)
+	raw, _ = helpCreateSession("token", userTOKEN, data)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("failed to create session")
 	}
@@ -57,7 +57,7 @@ func TestCreateSessionRecord(t *testing.T) {
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("failed to get session")
 	}
-	raw, _ = helpGetUserTokenSessions(userTOKEN)
+	raw, _ = helpGetUserSessions("token", userTOKEN)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("failed to get session")
 	}
@@ -65,11 +65,11 @@ func TestCreateSessionRecord(t *testing.T) {
 		t.Fatalf("wrong number of sessions")
 	}
 	data2 := `{"expiration":"1m","cookie":"abcdefg2"}`
-	raw, _ = helpCreateSession(userTOKEN, data2)
+	raw, _ = helpCreateSession("token", userTOKEN, data2)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("failed to create session")
 	}
-	raw, _ = helpGetUserLoginSessions("alex")
+	raw, _ = helpGetUserSessions("login", "alex")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("failed to get session")
 	}
@@ -89,7 +89,7 @@ func TestCreateSessionAndSharedRecord(t *testing.T) {
 	}
 	userTOKEN := raw["token"].(string)
 	data := `{"expiration":"1m","cookie":"abcdefg","secret":"value"}`
-	raw, _ = helpCreateSession(userTOKEN, data)
+	raw, _ = helpCreateSession("token", userTOKEN, data)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("failed to create session")
 	}
@@ -104,19 +104,42 @@ func TestCreateSessionAndSharedRecord(t *testing.T) {
 	}
 }
 
-func TestFailCreateSession(t *testing.T) {
+func TestCreateFakeUserSession(t *testing.T) {
 	userTOKEN, _ := uuid.GenerateUUID()
 	data := `{"expiration":"1d","cookie":"12345"}`
-	raw, _ := helpCreateSession(userTOKEN, data)
-
+	raw, _ := helpCreateSession("token", userTOKEN, data)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Created session record for non-existing user\n")
+		t.Fatalf("Should failed to create session for fake user")
+	}
+	raw, _ = helpCreateSession("token", "faketoken", data)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to create session for fake user")
+	}
+	raw, _ = helpCreateSession("faketoken", userTOKEN, data)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to create session for fake user")
 	}
 }
 
 func TestGetFakeSession(t *testing.T) {
 	rtoken, _ := uuid.GenerateUUID()
 	raw, _ := helpGetSession(rtoken)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to retrieve non-existing record\n")
+	}
+	raw, _ = helpGetSession("faketoken")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to retrieve non-existing record\n")
+	}
+}
+
+func TestGetFakeSessions(t *testing.T) {
+	rtoken, _ := uuid.GenerateUUID()
+	raw, _ := helpGetUserSessions("token", rtoken)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to retrieve non-existing record\n")
+	}
+	raw, _ = helpGetUserSessions("faketoken", rtoken)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to retrieve non-existing record\n")
 	}
