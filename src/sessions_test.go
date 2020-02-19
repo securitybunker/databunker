@@ -95,7 +95,7 @@ func TestCreateSessionAndSharedRecord(t *testing.T) {
 	}
 	sessionTOKEN := raw["session"].(string)
 	data = fmt.Sprintf(`{"expiration":"1d","session":"%s","fields":"cookie,missing"}`, sessionTOKEN)
-	raw, _ = helpCreateSharedRecord(userTOKEN, data)
+	raw, _ = helpCreateSharedRecord("token", userTOKEN, data)
 	recordTOKEN := raw["record"].(string)
 	fmt.Printf("User record token: %s\n", recordTOKEN)
 	raw, _ = helpGetSharedRecord(recordTOKEN)
