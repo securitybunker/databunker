@@ -67,6 +67,16 @@ func TestCreateSharedRecordFakeUser(t *testing.T) {
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should failed to create shared record for fake user")
 	}
+}
+
+func TestCreateSharedRecordBadInput(t *testing.T) {
+	userTOKEN, _ := uuid.GenerateUUID()
+	data := `{"expiration":"1d","fields":"uuid,name,pass,k1","app":"ju$nk"}`
+	raw, _ := helpCreateSharedRecord("token", userTOKEN, "a=b")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to create shared record for fake user")
+	}
+	data = `{"expiration":"1d","fields":"uuid,name,pass,k1"}`
 	raw, _ = helpCreateSharedRecord("token", userTOKEN, "a=b")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should failed to create shared record for fake user")
