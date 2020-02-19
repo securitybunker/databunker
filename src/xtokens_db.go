@@ -13,11 +13,8 @@ var rootXTOKEN string
 
 func (dbobj dbcon) getRootXtoken() (string, error) {
 	record, err := dbobj.getRecord(TblName.Xtokens, "type", "root")
-	if err != nil {
+	if record == nil || err != nil {
 		return "", err
-	}
-	if record == nil {
-		return "", nil
 	}
 	return record["xtoken"].(string), nil
 }
@@ -45,17 +42,12 @@ func (dbobj dbcon) createRootXtoken() (string, error) {
 }
 
 func (dbobj dbcon) generateUserLoginXtoken(userTOKEN string) (string, error) {
-	if isValidUUID(userTOKEN) == false {
-		return "", errors.New("bad token format")
-	}
-
 	// check if user record exists
 	record, err := dbobj.lookupUserRecord(userTOKEN)
 	if record == nil || err != nil {
 		// not found
 		return "", errors.New("not found")
 	}
-
 	tokenUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return "", err
@@ -68,10 +60,7 @@ func (dbobj dbcon) generateUserLoginXtoken(userTOKEN string) (string, error) {
 	bdoc["type"] = "login"
 	bdoc["endtime"] = expired
 	_, err = dbobj.createRecord(TblName.Xtokens, bdoc)
-	if err != nil {
-		return "", err
-	}
-	return tokenUUID, nil
+	return tokenUUID, err
 }
 
 /*

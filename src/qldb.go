@@ -820,23 +820,33 @@ func initUsers(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	//fmt.Println("going to create indexes")
-	_, err = tx.Exec(`CREATE INDEX users_token ON users (token);`)
-	if err != nil {
-		//fmt.Println("error in create index")
+	queries := []string{`CREATE INDEX users_token ON users (token);`,
+		`CREATE INDEX users_login ON users (loginidx);`,
+		`CREATE INDEX users_email ON users (emailidx);`,
+		`CREATE INDEX users_phone ON users (phoneidx);`}
+	for _, value := range queries {
+		_, err = tx.Exec(value)
+		if err != nil {
+			return err
+		}
+	}
+	if err = tx.Commit(); err != nil {
 		return err
 	}
-	_, err = tx.Exec(`CREATE INDEX users_login ON users (loginidx);`)
+	return nil
+}
+
+func execQueries(db *sql.DB, queries []string) error {
+	tx, err := db.Begin()
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(`CREATE INDEX users_email ON users (emailidx);`)
-	if err != nil {
-		return err
-	}
-	_, err = tx.Exec(`CREATE INDEX users_phone ON users (phoneidx);`)
-	if err != nil {
-		return err
+	defer tx.Rollback()
+	for _, value := range queries {
+		_, err = tx.Exec(value)
+		if err != nil {
+			return err
+		}
 	}
 	if err = tx.Commit(); err != nil {
 		return err
@@ -845,205 +855,99 @@ func initUsers(db *sql.DB) error {
 }
 
 func initXTokens(db *sql.DB) error {
-	tx, err := db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	_, err = tx.Exec(`
-	CREATE TABLE IF NOT EXISTS xtokens (
-	  xtoken STRING,
-	  token STRING,
-	  type STRING,
-	  app STRING,
-	  fields STRING,
-	  endtime int
-	);
-	`)
-	if err != nil {
-		return err
-	}
-	_, err = tx.Exec(`CREATE INDEX xtokens_xtoken ON xtokens (xtoken);`)
-	if err != nil {
-		return err
-	}
-	_, err = tx.Exec(`CREATE INDEX xtokens_type ON xtokens (type);`)
-	if err != nil {
-		return err
-	}
-	if err = tx.Commit(); err != nil {
-		return err
-	}
-	return nil
+	queries := []string{`CREATE TABLE IF NOT EXISTS xtokens (
+				  xtoken STRING,
+				  token STRING,
+				  type STRING,
+				  app STRING,
+				  fields STRING,
+				  endtime int
+				);`,
+		`CREATE INDEX xtokens_xtoken ON xtokens (xtoken);`,
+		`CREATE INDEX xtokens_type ON xtokens (type);`}
+	return execQueries(db, queries)
 }
 
 func initSharedRecords(db *sql.DB) error {
-	tx, err := db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	_, err = tx.Exec(`
-	CREATE TABLE IF NOT EXISTS sharedrecords (
-	  token STRING,
-	  record STRING,
-	  partner STRING,
-	  session STRING,
-	  app STRING,
-	  fields STRING,
-	  endtime int,
-	  ` + "`when` int);")
-	if err != nil {
-		return err
-	}
-	_, err = tx.Exec(`CREATE INDEX sharedrecords_record ON sharedrecords (record);`)
-	if err != nil {
-		return err
-	}
-	if err = tx.Commit(); err != nil {
-		return err
-	}
-	return nil
+	queries := []string{`CREATE TABLE IF NOT EXISTS sharedrecords (
+				  token STRING,
+				  record STRING,
+				  partner STRING,
+				  session STRING,
+				  app STRING,
+				  fields STRING,
+				  endtime int,
+				  ` + "`when` int);",
+		`CREATE INDEX sharedrecords_record ON sharedrecords (record);`}
+	return execQueries(db, queries)
 }
 
 func initAudit(db *sql.DB) error {
-	tx, err := db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	_, err = tx.Exec(`
-	CREATE TABLE IF NOT EXISTS audit (
-	  atoken STRING,
-	  identity STRING,
-	  record STRING,
-	  who STRING,
-	  mode STRING,
-	  app STRING,
-	  title STRING,
-	  status STRING,
-	  msg STRING,
-	  debug STRING,
-	  before TEXT,
-	  after TEXT,
-	  ` + "`when` int);")
-	if err != nil {
-		return err
-	}
-	_, err = tx.Exec(`CREATE INDEX audit_atoken ON audit (atoken);`)
-	if err != nil {
-		return err
-	}
-	_, err = tx.Exec(`CREATE INDEX audit_record ON audit (record);`)
-	if err != nil {
-		return err
-	}
-	if err = tx.Commit(); err != nil {
-		return err
-	}
-	return nil
+	queries := []string{`CREATE TABLE IF NOT EXISTS audit (
+				  atoken STRING,
+				  identity STRING,
+				  record STRING,
+				  who STRING,
+				  mode STRING,
+				  app STRING,
+				  title STRING,
+				  status STRING,
+				  msg STRING,
+				  debug STRING,
+				  before TEXT,
+				  after TEXT,
+				  ` + "`when` int);",
+		`CREATE INDEX audit_atoken ON audit (atoken);`,
+		`CREATE INDEX audit_record ON audit (record);`}
+	return execQueries(db, queries)
 }
 
 func initRequests(db *sql.DB) error {
-	tx, err := db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	_, err = tx.Exec(`
-	CREATE TABLE IF NOT EXISTS requests (
-	  rtoken STRING,
-	  token STRING,
-	  app STRING,
-	  brief STRING,
-	  action STRING,
-	  status STRING,
-	  change STRING,
-	  creationtime int,
-	  ` + "`when` int);")
-	if err != nil {
-		return err
-	}
-	_, err = tx.Exec(`CREATE INDEX requests_rtoken ON requests (rtoken);`)
-	if err != nil {
-		return err
-	}
-	_, err = tx.Exec(`CREATE INDEX requests_token ON requests (token);`)
-	if err != nil {
-		return err
-	}
-	_, err = tx.Exec(`CREATE INDEX requests_status ON requests (status);`)
-	if err != nil {
-		return err
-	}
-	if err = tx.Commit(); err != nil {
-		return err
-	}
-	return nil
+	queries := []string{`CREATE TABLE IF NOT EXISTS requests (
+				  rtoken STRING,
+				  token STRING,
+				  app STRING,
+				  brief STRING,
+				  action STRING,
+				  status STRING,
+				  change STRING,
+				  creationtime int,
+				  ` + "`when` int);",
+		`CREATE INDEX requests_rtoken ON requests (rtoken);`,
+		`CREATE INDEX requests_token ON requests (token);`,
+		`CREATE INDEX requests_status ON requests (status);`}
+	return execQueries(db, queries)
 }
 
 func initConsent(db *sql.DB) error {
-	tx, err := db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	_, err = tx.Exec(`
-	CREATE TABLE IF NOT EXISTS consent (
-	  who STRING,
-	  mode STRING,
-	  token STRING,
-	  brief STRING,
-	  status STRING,
-	  message STRING,
-	  freetext STRING,
-	  lawfulbasis STRING,
-	  consentmethod STRING,
-	  referencecode STRING,
-	  lastmodifiedby STRING,
-	  creationtime int,
-	  starttime int,
-	  endtime int,
-	  ` + "`when` int);")
-	if err != nil {
-		return err
-	}
-	_, err = tx.Exec(`CREATE INDEX consent_token ON consent (token);`)
-	if err != nil {
-		return err
-	}
-	if err = tx.Commit(); err != nil {
-		return err
-	}
-	return nil
+	queries := []string{`CREATE TABLE IF NOT EXISTS consent (
+				  who STRING,
+				  mode STRING,
+				  token STRING,
+				  brief STRING,
+				  status STRING,
+				  message STRING,
+				  freetext STRING,
+				  lawfulbasis STRING,
+				  consentmethod STRING,
+				  referencecode STRING,
+				  lastmodifiedby STRING,
+				  creationtime int,
+				  starttime int,
+				  endtime int,
+				  ` + "`when` int);",
+		`CREATE INDEX consent_token ON consent (token);`}
+	return execQueries(db, queries)
 }
 
 func initSessions(db *sql.DB) error {
-	tx, err := db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	_, err = tx.Exec(`
-	CREATE TABLE IF NOT EXISTS sessions (
-	  token STRING,
-	  session STRING,
-	  data TEXT,
-	  endtime int,
-	  ` + "`when` int);")
-	if err != nil {
-		return err
-	}
-	_, err = tx.Exec(`CREATE INDEX sessions_token ON sessions (token);`)
-	if err != nil {
-		return err
-	}
-	_, err = tx.Exec(`CREATE INDEX sessions_session ON sessions (session);`)
-	if err != nil {
-		return err
-	}
-	if err = tx.Commit(); err != nil {
-		return err
-	}
-	return nil
+	queries := []string{`CREATE TABLE IF NOT EXISTS sessions (
+				  token STRING,
+				  session STRING,
+				  data TEXT,
+				  endtime int,
+				  ` + "`when` int);",
+		`CREATE INDEX sessions_token ON sessions (token);`,
+		`CREATE INDEX sessions_session ON sessions (session);`}
+	return execQueries(db, queries)
 }
