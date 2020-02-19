@@ -176,6 +176,10 @@ func TestGetFakeUserConsents(t *testing.T) {
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to get user consent")
 	}
+	raw, _ = helpGetUserConsent("email", "fakeemail222@fakeemail.com", "alibaba")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get user consent")
+	}
 }
 
 func TestAcceptConsentEmail(t *testing.T) {
@@ -195,7 +199,7 @@ func TestAcceptConsentFakeUser(t *testing.T) {
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to accept consent")
 	}
-	raw, _ = helpAcceptConsent("fakemode", "aaa@bb.com", "br$ief", "")
+	raw, _ = helpAcceptConsent("email", "aaa@bb.com", "br$ief", "")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to accept consent")
 	}

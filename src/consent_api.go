@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -327,37 +328,33 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
-
 	brief = normalizeBrief(brief)
 	if isValidBrief(brief) == false {
 		returnError(w, r, "bad brief format", 405, nil, event)
 		return
 	}
-	userTOKEN := ""
+	userTOKEN := address
+	var userBson bson.M
 	if mode == "token" {
 		if enforceUUID(w, address, event) == false {
 			return
 		}
-		userBson, _ := e.db.lookupUserRecord(address)
-		if userBson == nil {
-			returnError(w, r, "internal error", 405, nil, event)
-			return
-		}
-		userTOKEN = address
+		userBson, _ = e.db.lookupUserRecord(address)
 	} else {
-		// TODO: decode url in code!
-		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		userBson, _ = e.db.lookupUserRecordByIndex(mode, address, e.conf)
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 			event.Record = userTOKEN
 		}
 	}
-
+	if userBson == nil {
+		returnError(w, r, "internal error", 405, nil, event)
+		return
+	}
 	// make sure that user is logged in here, unless he wants to cancel emails
 	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
-
 	resultJSON, err := e.db.viewConsentRecord(userTOKEN, brief)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
@@ -377,7 +374,6 @@ func (e mainEnv) consentFilterRecords(w http.ResponseWriter, r *http.Request, ps
 	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
-
 	var offset int32
 	var limit int32 = 10
 	args := r.URL.Query()
@@ -393,7 +389,6 @@ func (e mainEnv) consentFilterRecords(w http.ResponseWriter, r *http.Request, ps
 		return
 	}
 	fmt.Printf("Total count of rows: %d\n", numRecords)
-	//fmt.Fprintf(w, "<html><head><title>title</title></head>")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
@@ -411,7 +406,6 @@ func (e mainEnv) consentBriefs(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	fmt.Printf("Total count of rows: %d\n", numRecords)
-	//fmt.Fprintf(w, "<html><head><title>title</title></head>")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)

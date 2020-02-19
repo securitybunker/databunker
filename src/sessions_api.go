@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -20,27 +21,23 @@ func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httproute
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
-
-	userTOKEN := ""
+	userTOKEN := address
+	var userBson bson.M
 	if mode == "token" {
 		if enforceUUID(w, address, event) == false {
 			return
 		}
-		userBson, _ := e.db.lookupUserRecord(address)
-		if userBson == nil {
-			returnError(w, r, "internal error", 405, nil, event)
-			return
-		}
-		userTOKEN = address
+		userBson, _ = e.db.lookupUserRecord(address)
 	} else {
-		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		userBson, _ = e.db.lookupUserRecordByIndex(mode, address, e.conf)
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 			event.Record = userTOKEN
-		} else {
-			returnError(w, r, "internal error", 405, nil, event)
-			return
 		}
+	}
+	if userBson == nil {
+		returnError(w, r, "internal error", 405, nil, event)
+		return
 	}
 	if e.enforceAuth(w, r, event) == "" {
 		return
@@ -95,28 +92,24 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
-
-	userTOKEN := ""
+	userTOKEN := address
+	var userBson bson.M
 	if mode == "token" {
 		if enforceUUID(w, address, event) == false {
 			return
 		}
-		userBson, _ := e.db.lookupUserRecord(address)
-		if userBson == nil {
-			returnError(w, r, "internal error", 405, nil, event)
-			return
-		}
-		userTOKEN = address
+		userBson, _ = e.db.lookupUserRecord(address)
 	} else {
 		// TODO: decode url in code!
-		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		userBson, _ = e.db.lookupUserRecordByIndex(mode, address, e.conf)
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 			event.Record = userTOKEN
-		} else {
-			returnError(w, r, "internal error", 405, nil, event)
-			return
 		}
+	}
+	if userBson == nil {
+		returnError(w, r, "internal error", 405, nil, event)
+		return
 	}
 	if e.enforceAuth(w, r, event) == "" {
 		return
@@ -149,7 +142,6 @@ func (e mainEnv) getSession(w http.ResponseWriter, r *http.Request, session stri
 
 	when, record, userTOKEN, err := e.db.getUserSession(session)
 	if err != nil {
-		fmt.Printf("error: %s\n", err)
 		returnError(w, r, err.Error(), 405, err, event)
 		return
 	}
