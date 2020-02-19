@@ -797,45 +797,6 @@ func (dbobj dbcon) indexNewApp(appName string) {
 	return
 }
 
-func initUsers(db *sql.DB) error {
-	tx, err := db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	_, err = tx.Exec(`
-	CREATE TABLE IF NOT EXISTS users (
-	  token STRING,
-	  key STRING,
-	  md5 STRING,
-	  loginidx STRING,
-	  emailidx STRING,
-	  phoneidx STRING,
-	  rofields STRING,
-	  tempcodeexp int,
-	  tempcode int,
-	  data TEXT
-	);
-	`)
-	if err != nil {
-		return err
-	}
-	queries := []string{`CREATE INDEX users_token ON users (token);`,
-		`CREATE INDEX users_login ON users (loginidx);`,
-		`CREATE INDEX users_email ON users (emailidx);`,
-		`CREATE INDEX users_phone ON users (phoneidx);`}
-	for _, value := range queries {
-		_, err = tx.Exec(value)
-		if err != nil {
-			return err
-		}
-	}
-	if err = tx.Commit(); err != nil {
-		return err
-	}
-	return nil
-}
-
 func execQueries(db *sql.DB, queries []string) error {
 	tx, err := db.Begin()
 	if err != nil {
@@ -852,6 +813,26 @@ func execQueries(db *sql.DB, queries []string) error {
 		return err
 	}
 	return nil
+}
+
+func initUsers(db *sql.DB) error {
+	queries := []string{`CREATE TABLE IF NOT EXISTS users (
+			  token STRING,
+			  key STRING,
+			  md5 STRING,
+			  loginidx STRING,
+			  emailidx STRING,
+			  phoneidx STRING,
+			  rofields STRING,
+			  tempcodeexp int,
+			  tempcode int,
+			  data TEXT
+			);`,
+		`CREATE INDEX users_token ON users (token);`,
+		`CREATE INDEX users_login ON users (loginidx);`,
+		`CREATE INDEX users_email ON users (emailidx);`,
+		`CREATE INDEX users_phone ON users (phoneidx);`}
+	return execQueries(db, queries)
 }
 
 func initXTokens(db *sql.DB) error {

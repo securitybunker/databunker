@@ -363,6 +363,7 @@ func (dbobj dbcon) deleteUserRecord(userTOKEN string) (bool, error) {
 	return true, nil
 }
 
+/*
 func (dbobj dbcon) wipeRecord(userTOKEN string) (bool, error) {
 	userApps, err := dbobj.listAllAppsOnly()
 	if err != nil {
@@ -383,14 +384,15 @@ func (dbobj dbcon) wipeRecord(userTOKEN string) (bool, error) {
 	}
 	return false, nil
 }
+*/
 
 func (dbobj dbcon) userEncrypt(userTOKEN string, data []byte) (string, error) {
 	userBson, err := dbobj.lookupUserRecord(userTOKEN)
-	if err != nil {
-		// not found
+	if userBson == nil || err != nil {
 		return "", errors.New("not found")
 	}
-	if userBson == nil {
+	if _, ok := userBson["key"]; !ok {
+		// user might be deleted already
 		return "", errors.New("not found")
 	}
 	userKey := userBson["key"].(string)
@@ -409,11 +411,7 @@ func (dbobj dbcon) userEncrypt(userTOKEN string, data []byte) (string, error) {
 
 func (dbobj dbcon) userDecrypt(userTOKEN, src string) ([]byte, error) {
 	userBson, err := dbobj.lookupUserRecord(userTOKEN)
-	if err != nil {
-		// not found
-		return nil, errors.New("not found")
-	}
-	if userBson == nil {
+	if userBson == nil || err != nil {
 		return nil, errors.New("not found")
 	}
 	if _, ok := userBson["key"]; !ok {
@@ -435,11 +433,11 @@ func (dbobj dbcon) userDecrypt(userTOKEN, src string) ([]byte, error) {
 
 func (dbobj dbcon) userDecrypt2(userTOKEN, src string, src2 string) ([]byte, []byte, error) {
 	userBson, err := dbobj.lookupUserRecord(userTOKEN)
-	if err != nil {
-		// not found
+	if userBson == nil || err != nil {
 		return nil, nil, errors.New("not found")
 	}
-	if userBson == nil {
+	if _, ok := userBson["key"]; !ok {
+		// user might be deleted already
 		return nil, nil, errors.New("not found")
 	}
 	userKey := userBson["key"].(string)
