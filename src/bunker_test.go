@@ -147,6 +147,9 @@ func TestMetrics(t *testing.T) {
 func TestAnonPage(t *testing.T) {
 	goodJsons := []map[string]interface{}{
 		{"url": "/", "pattern": "login"},
+		{"url": "/site/", "pattern": "document.location"},
+		{"url": "/site/site.js", "pattern": "dateFormat"},
+		{"url": "/site/style.css", "pattern": "html"},
 		{"url": "/site/user-profile.html", "pattern": "profile"},
 		{"url": "/not-fund-page.html", "pattern": "not found"},
 		{"url": "/site/not-fund-page.html", "pattern": "not found"},
