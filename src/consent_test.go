@@ -148,7 +148,14 @@ func TestCreateWithdrawConsent(t *testing.T) {
 func TestGetFakeBrief(t *testing.T) {
 	raw, _ := helpGetAllUsersByBrief("unknown")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
-		t.Fatalf("Should fal to get all users with this brif")
+		t.Fatalf("Should fale to get all users with this brif")
+	}
+	if raw["total"].(float64) != 0 {
+		t.Fatalf("Wrong number of briefs")
+	}
+	raw, _ = helpGetAllUsersByBrief("unk$nown")
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Should fale to get all users with this brif")
 	}
 	if raw["total"].(float64) != 0 {
 		t.Fatalf("Wrong number of briefs")
@@ -161,35 +168,13 @@ func TestGetFakeUserConsents(t *testing.T) {
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to get user consent")
 	}
-}
-
-func TestGetFakeUserConsents2(t *testing.T) {
-	userTOKEN, _ := uuid.GenerateUUID()
-	raw, _ := helpGetUserConsent("fake", userTOKEN, "alibaba")
+	raw, _ = helpGetUserConsent("fake", userTOKEN, "alibaba")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to get user consent")
 	}
-}
-
-func TestAcceptConsentFakeMode(t *testing.T) {
-	raw, _ := helpAcceptConsent("fakemode", "aaa@bb.com", "brief", "")
+	raw, _ = helpGetUserConsent("token", "faketoken", "alibaba")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should fail to accept consent")
-	}
-}
-
-func TestAcceptConsentFakeToken(t *testing.T) {
-	raw, _ := helpAcceptConsent("token", "faketoken", "brief", "")
-	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should fail to accept consent")
-	}
-}
-
-func TestAcceptConsentFakeUserToken(t *testing.T) {
-	userTOKEN, _ := uuid.GenerateUUID()
-	raw, _ := helpAcceptConsent("token", userTOKEN, "brief", "")
-	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should fail to accept consent")
+		t.Fatalf("Should fail to get user consent")
 	}
 }
 
@@ -200,45 +185,74 @@ func TestAcceptConsentEmail(t *testing.T) {
 	}
 }
 
-func TestAcceptConsentBadBrief(t *testing.T) {
-	raw, _ := helpAcceptConsent("email", "aaa@bb.com", "bri$ef", "")
+func TestAcceptConsentFakeUser(t *testing.T) {
+	userTOKEN, _ := uuid.GenerateUUID()
+	raw, _ := helpAcceptConsent("token", userTOKEN, "brief", "")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to accept consent")
 	}
-}
-
-func TestAcceptConsentBadPOST(t *testing.T) {
-	raw, _ := helpAcceptConsent("phone", "112234889966", "brief", "a=b")
+	raw, _ = helpAcceptConsent("fakemode", "aaa@bb.com", "brief", "")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to accept consent")
+	}
+	raw, _ = helpAcceptConsent("fakemode", "aaa@bb.com", "br$ief", "")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to accept consent")
+	}
+	raw, _ = helpAcceptConsent("token", "faketoken", "brief", "")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to accept consent")
+	}
+	raw, _ = helpAcceptConsent("login", "blahblah", "brief", "")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to accept consent")
+	}
+	raw, _ = helpAcceptConsent("phone", "112234889966", "brief", "a=b")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to accept on consent")
 	}
 }
 
-func TestWithdrawConsentBadMode(t *testing.T) {
-	raw, _ := helpWithdrawConsent("fakemode", "aaa@bb.com", "brief")
-	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should fail to accept consent")
-	}
-}
-
-func TestWithdrawConsentBadBried(t *testing.T) {
-	raw, _ := helpWithdrawConsent("email", "aaa@bb.com", "bri$ef")
-	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should fail to accept consent")
-	}
-}
-
-func TestWithdrawConsentBadToken(t *testing.T) {
-	raw, _ := helpWithdrawConsent("token", "badtoken", "brief")
-	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should fail to accept consent")
-	}
-}
-
-func TestWithdrawConsentFakeToken(t *testing.T) {
+func TestWithdrawConsentBadUser(t *testing.T) {
 	userTOKEN, _ := uuid.GenerateUUID()
 	raw, _ := helpWithdrawConsent("token", userTOKEN, "brief")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to accept consent")
+	}
+	raw, _ = helpWithdrawConsent("token", "badtoken", "brief")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to accept consent")
+	}
+	raw, _ = helpWithdrawConsent("fakemode", "aaa@bb.com", "brief")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to accept consent")
+	}
+	raw, _ = helpWithdrawConsent("login", "blahblah", "brief")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to accept consent")
+	}
+	raw, _ = helpWithdrawConsent("email", "aaa@bb.com", "bri$ef")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to accept consent")
+	}
+}
+
+func TestGetAllUserConsentsFake(t *testing.T) {
+	userTOKEN, _ := uuid.GenerateUUID()
+	raw, _ := helpGetAllUserConsents("token", userTOKEN)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get all user consents")
+	}
+	raw, _ = helpGetAllUserConsents("faketoken", userTOKEN)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get all user consents")
+	}
+	raw, _ = helpGetAllUserConsents("login", userTOKEN)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get all user consents")
+	}
+	raw, _ = helpGetAllUserConsents("token", "faketoken")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get all user consents")
 	}
 }
