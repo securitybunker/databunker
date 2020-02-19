@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -85,15 +84,14 @@ func helpConfigurationDump(token string) ([]byte, error) {
 
 func init() {
 	fmt.Printf("**INIT*TEST*CODE***\n")
-	masterKey, _ := hex.DecodeString("71c65924336c5e6f41129b6f0540ad03d2a8bf7e9b10db72")
 	testDBFile := "/tmp/test.sqlite3"
 	os.Remove(testDBFile)
-	db, _ := newDB(masterKey, &testDBFile)
-	err := db.initDB()
+	db, myRootToken, err := setupDB(&testDBFile)
 	if err != nil {
 		//log.Panic("error %s", err.Error())
-		log.Fatalf("db init error %s", err.Error())
+		fmt.Printf("error %s", err.Error())
 	}
+	rootToken = myRootToken
 	db.initUserApps()
 	var cfg2 Config
 	cfile := "../databunker.yaml"
@@ -105,12 +103,6 @@ func init() {
 	cfg.Generic.CreateUserWithoutAccessToken = true
 	cfg.Policy.MaxAuditRetentionPeriod = "1m"
 	e := mainEnv{db, cfg, make(chan struct{})}
-	rootToken, err = db.createRootXtoken()
-	if err != nil {
-		//log.Panic("error %s", err.Error())
-		fmt.Printf("error %s", err.Error())
-	}
-	fmt.Printf("Root token: %s\n", rootToken)
 	rootToken2, err := e.db.getRootXtoken()
 	if err != nil {
 		fmt.Printf("Failed to retrieve root token: %s\n", err)
