@@ -72,7 +72,6 @@ func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps http
 	}
 	recordUUID, err := e.db.saveSharedRecord(userTOKEN, fields, expiration, session, appName, partner)
 	if err != nil {
-		fmt.Println(err)
 		returnError(w, r, err.Error(), 405, err, event)
 		return
 	}
