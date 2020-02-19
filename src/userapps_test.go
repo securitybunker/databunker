@@ -239,7 +239,7 @@ func TestUserAppAnonymouse(t *testing.T) {
 }
 
 func TestCreateUserAppShared(t *testing.T) {
-	userJSON := `{"login":"dima"}`
+	userJSON := `{"login":"tdkuser"}`
 	raw, _ := helpCreateUser(userJSON)
 	userTOKEN := raw["token"].(string)
 	appJSON := `{"shipping2":"done"}`
