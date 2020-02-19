@@ -119,6 +119,10 @@ func TestCreateFakeUserSession(t *testing.T) {
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should failed to create session for fake user")
 	}
+	raw, _ = helpCreateSession("email", "fakemail23@fake.com", data)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to create session for fake user")
+	}
 }
 
 func TestGetFakeSession(t *testing.T) {
