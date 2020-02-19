@@ -212,7 +212,6 @@ func TestUserAppAnonymouse(t *testing.T) {
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to create userapp")
 	}
-
 	oldRootToken := rootToken
 	rootToken, _ = uuid.GenerateUUID()
 	raw, _ = helpCreateUserApp(userTOKEN, appName, appJSON)
@@ -237,4 +236,24 @@ func TestUserAppAnonymouse(t *testing.T) {
 		t.Fatalf("Should fail to get userapp list")
 	}
 	rootToken = oldRootToken
+}
+
+func TestCreateUserAppShared(t *testing.T) {
+	userJSON := `{"login":"dima"}`
+	raw, _ := helpCreateUser(userJSON)
+	userTOKEN := raw["token"].(string)
+	appJSON := `{"shipping2":"done"}`
+	appName := "shipping"
+	raw, _ = helpCreateUserApp(userTOKEN, appName, appJSON)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to create userapp")
+	}
+	data := `{"expiration":"1d","app":"shipping","fields":"shipping2"}`
+	raw, _ = helpCreateSharedRecord("token", userTOKEN, data)
+	recordTOKEN := raw["record"].(string)
+	//fmt.Printf("User record token: %s\n", recordTOKEN)
+	raw, _ = helpGetSharedRecord(recordTOKEN)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to get shared record: %s\n", raw["message"])
+	}
 }
