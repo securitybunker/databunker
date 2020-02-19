@@ -9,8 +9,8 @@ import (
 	uuid "github.com/hashicorp/go-uuid"
 )
 
-func helpCreateSharedRecord(userTOKEN string, dataJSON string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/sharedrecord/token/" + userTOKEN
+func helpCreateSharedRecord(mode string, address string, dataJSON string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/sharedrecord/" + mode + "/" + address
 	request := httptest.NewRequest("POST", url, strings.NewReader(dataJSON))
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
@@ -46,9 +46,8 @@ func TestCreateSharedRecord(t *testing.T) {
 	if len(userTOKEN) == 0 {
 		t.Fatalf("Failed to parse user token")
 	}
-
 	data := `{"expiration":"1d","fields":"uuid,name,pass,k1,k2.f3"}`
-	raw, _ = helpCreateSharedRecord(userTOKEN, data)
+	raw, _ = helpCreateSharedRecord("token", userTOKEN, data)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to create shared record: %s\n", raw["message"])
 	}
@@ -61,13 +60,24 @@ func TestCreateSharedRecord(t *testing.T) {
 	helpDeleteUser("token", userTOKEN)
 }
 
-func TestFailCreateSharedRecord(t *testing.T) {
+func TestCreateSharedRecordFakeUser(t *testing.T) {
 	userTOKEN, _ := uuid.GenerateUUID()
 	data := `{"expiration":"1d","fields":"uuid,name,pass,k1"}`
-	raw, _ := helpCreateSharedRecord(userTOKEN, data)
-
+	raw, _ := helpCreateSharedRecord("token", userTOKEN, data)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Created shared record for non-existing user\n")
+		t.Fatalf("Should failed to create shared record for fake user")
+	}
+	raw, _ = helpCreateSharedRecord("token", userTOKEN, "a=b")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to create shared record for fake user")
+	}
+	raw, _ = helpCreateSharedRecord("faketoken", userTOKEN, data)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to create shared record for fake user")
+	}
+	raw, _ = helpCreateSharedRecord("token", "faketoken", data)
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to create shared record for fake user")
 	}
 }
 

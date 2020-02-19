@@ -425,8 +425,6 @@ func main() {
 		time.Sleep(1)
 		srv.Shutdown(context.TODO())
 		db.closeDB()
-		//DeleteFiles()
-		//os.Exit(0)
 	}()
 
 	if _, err := os.Stat(cfg.Ssl.SslCertificate); !os.IsNotExist(err) {
