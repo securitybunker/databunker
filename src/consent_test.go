@@ -110,6 +110,10 @@ func TestCreateWithdrawConsent(t *testing.T) {
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get user consent")
 	}
+	raw, _ = helpGetUserConsent("email", "moshe@moshe-int.com", brief)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to get user consent")
+	}
 	record := raw["data"].(map[string]interface{})
 	if record["brief"].(string) != brief {
 		t.Fatalf("Wrong consent brief value")
@@ -162,9 +166,29 @@ func TestGetFakeBrief(t *testing.T) {
 	}
 }
 
+func TestGetUserUnkConsent(t *testing.T) {
+	userJSON := `{"email":"moshe23@mosh23e-int.com","phone":"123586678"}`
+	raw, err := helpCreateUser(userJSON)
+	if err != nil {
+		t.Fatalf("Wrror in user creation: %s", err)
+	}
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to create user")
+	}
+	userTOKEN := raw["token"].(string)
+	raw, _ = helpGetUserConsent("token", userTOKEN, "kolhoz")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get user consent")
+	}
+}
+
 func TestGetFakeUserConsents(t *testing.T) {
 	userTOKEN, _ := uuid.GenerateUUID()
 	raw, _ := helpGetUserConsent("token", userTOKEN, "alibaba")
+	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail to get user consent")
+	}
+	raw, _ = helpGetUserConsent("token", userTOKEN, "ali$baba")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to get user consent")
 	}
