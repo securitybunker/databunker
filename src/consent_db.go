@@ -163,7 +163,7 @@ func (dbobj dbcon) listConsentRecords(userTOKEN string) ([]byte, int, error) {
 
 func (dbobj dbcon) viewConsentRecord(userTOKEN string, brief string) ([]byte, error) {
 	record, err := dbobj.getRecord2(TblName.Consent, "token", userTOKEN, "brief", brief)
-	if err != nil {
+	if record == nil || err != nil {
 		return nil, err
 	}
 	resultJSON, err := json.Marshal(record)

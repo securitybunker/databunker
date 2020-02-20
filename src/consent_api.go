@@ -360,6 +360,10 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
+	if resultJSON == nil {
+		returnError(w, r, "not found", 405, nil, event)
+		return
+	}
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
