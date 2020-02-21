@@ -71,7 +71,7 @@ func TestCreateSharedRecordFakeUser(t *testing.T) {
 
 func TestCreateSharedRecordBadInput(t *testing.T) {
 	userTOKEN, _ := uuid.GenerateUUID()
-	data := `{"expiration":"1d","fields":"uuid,name","app":"ju!nk"}`
+	data := `{"expiration":"1d","fields":"name","app":"ju!nk"}`
 	raw, _ := helpCreateSharedRecord("token", userTOKEN, "a=b")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should failed to create shared record for fake user")
