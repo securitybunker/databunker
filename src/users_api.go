@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/paranoidguy/databunker/src/storage"
 )
 
 func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -75,17 +76,17 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	}
 	if len(parsedData.emailIdx) > 0 && len(parsedData.phoneIdx) > 0 {
 		// delete duplicate consent records for user
-		records, _ := e.db.getList(TblName.Consent, "who", parsedData.emailIdx, 0, 0)
+		records, _ := e.db.store.GetList(storage.TblName.Consent, "who", parsedData.emailIdx, 0, 0)
 		var briefCodes []string
 		for _, val := range records {
 			//fmt.Printf("adding brief code: %s\n", val["brief"].(string))
 			briefCodes = append(briefCodes, val["brief"].(string))
 		}
-		records, _ = e.db.getList(TblName.Consent, "who", parsedData.phoneIdx, 0, 0)
+		records, _ = e.db.store.GetList(storage.TblName.Consent, "who", parsedData.phoneIdx, 0, 0)
 		for _, val := range records {
 			//fmt.Printf("XXX checking brief code for duplicates: %s\n", val["brief"].(string))
 			if contains(briefCodes, val["brief"].(string)) == true {
-				e.db.deleteRecord2(TblName.Consent, "token", userTOKEN, "who", parsedData.phoneIdx)
+				e.db.store.DeleteRecord2(storage.TblName.Consent, "token", userTOKEN, "who", parsedData.phoneIdx)
 			}
 		}
 	}

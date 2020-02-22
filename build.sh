@@ -1,5 +1,5 @@
 # build without debug
-go build -ldflags "-w" -o databunker ./src/bunker.go ./src/qldb.go ./src/xtokens_db.go \
+go build -ldflags "-w" -o databunker ./src/bunker.go ./src/xtokens_db.go \
   ./src/utils.go ./src/cryptor.go ./src/notify.go \
   ./src/audit_db.go ./src/audit_api.go \
   ./src/sms.go ./src/email.go \

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	uuid "github.com/hashicorp/go-uuid"
+	"github.com/paranoidguy/databunker/src/storage"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -37,7 +38,7 @@ func auditApp(title string, record string, app string, mode string, address stri
 	return &auditEvent{Title: title, Mode: mode, Who: address, Record: record, Status: "ok", When: int32(time.Now().Unix())}
 }
 
-func (event auditEvent) submit(db dbcon) {
+func (event auditEvent) submit(db *dbcon) {
 	//fmt.Println("submit event to audit!!!!!!!!!!")
 	/*
 		bdoc, err := bson.Marshal(event)
@@ -86,12 +87,12 @@ func (event auditEvent) submit(db dbcon) {
 	if len(event.After) > 0 {
 		bdoc["after"] = event.After
 	}
-	db.createRecord(TblName.Audit, &bdoc)
+	db.store.CreateRecord(storage.TblName.Audit, &bdoc)
 }
 
 func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) ([]byte, int64, error) {
 	//var results []*auditEvent
-	count, err := dbobj.countRecords(TblName.Audit, "record", userTOKEN)
+	count, err := dbobj.store.CountRecords(storage.TblName.Audit, "record", userTOKEN)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -99,7 +100,7 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 		return []byte("[]"), 0, err
 	}
 	var results []bson.M
-	records, err := dbobj.getList(TblName.Audit, "record", userTOKEN, offset, limit)
+	records, err := dbobj.store.GetList(storage.TblName.Audit, "record", userTOKEN, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -130,7 +131,7 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 
 func (dbobj dbcon) getAuditEvent(atoken string) (string, []byte, error) {
 	//var results []*auditEvent
-	record, err := dbobj.getRecord(TblName.Audit, "atoken", atoken)
+	record, err := dbobj.store.GetRecord(storage.TblName.Audit, "atoken", atoken)
 	if err != nil {
 		return "", nil, err
 	}

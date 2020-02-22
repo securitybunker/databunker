@@ -1,19 +1,8 @@
-package main
-
-// github.com/mattn/go-sqlite3
-
-// This project is using the following golang internal database:
-// https://godoc.org/modernc.org/ql
-
-// go build modernc.org/ql/ql
-// go install modernc.org/ql/ql
-
-// https://stackoverflow.com/questions/21986780/is-it-possible-to-retrieve-a-column-value-by-name-using-golang-database-sql
+package storage
 
 // https://stackoverflow.com/questions/21986780/is-it-possible-to-retrieve-a-column-value-by-name-using-golang-database-sql
 
 import (
-	"crypto/md5"
 	"database/sql"
 	"fmt"
 	"log"
@@ -33,13 +22,38 @@ var (
 	knownApps []string
 )
 
-type dbcon struct {
-	db        *sql.DB
-	masterKey []byte
-	hash      []byte
+// Tbl is used to store table id
+type Tbl int
+
+// listTbls used to store list of tables
+type listTbls struct {
+	Users         Tbl
+	Audit         Tbl
+	Xtokens       Tbl
+	Consent       Tbl
+	Sessions      Tbl
+	Requests      Tbl
+	Sharedrecords Tbl
 }
 
-func dbExists(filepath *string) bool {
+// TblName is enum of tables
+var TblName = &listTbls{
+	Users:         0,
+	Audit:         1,
+	Xtokens:       2,
+	Consent:       3,
+	Sessions:      4,
+	Requests:      5,
+	Sharedrecords: 6,
+}
+
+// DBStorage struct is used to store database object
+type DBStorage struct {
+	db *sql.DB
+}
+
+// DBExists function checks if database exists
+func DBExists(filepath *string) bool {
 	dbfile := "./databunker.db"
 	if filepath != nil {
 		if len(*filepath) > 0 {
@@ -52,8 +66,8 @@ func dbExists(filepath *string) bool {
 	return true
 }
 
-func newDB(masterKey []byte, filepath *string) (dbcon, error) {
-	dbobj := dbcon{nil, nil, nil}
+// OpenDB function opens the database
+func OpenDB(filepath *string) (DBStorage, error) {
 	dbfile := "./databunker.db"
 	if filepath != nil {
 		if len(*filepath) > 0 {
@@ -90,8 +104,7 @@ func newDB(masterKey []byte, filepath *string) (dbcon, error) {
 	if err != nil {
 		log.Fatalf("Error on vacuum database command")
 	}
-	hash := md5.Sum(masterKey)
-	dbobj = dbcon{db, masterKey, hash[:]}
+	dbobj := DBStorage{db}
 
 	// load all table names
 	q := "select name from sqlite_master where type ='table'"
@@ -111,7 +124,8 @@ func newDB(masterKey []byte, filepath *string) (dbcon, error) {
 	return dbobj, nil
 }
 
-func (dbobj dbcon) initDB() error {
+// InitDB function creates tables and indexes
+func (dbobj DBStorage) InitDB() error {
 	var err error
 	if err = initUsers(dbobj.db); err != nil {
 		return err
@@ -137,11 +151,13 @@ func (dbobj dbcon) initDB() error {
 	return nil
 }
 
-func (dbobj dbcon) closeDB() {
+// CloseDB function closes the open database
+func (dbobj DBStorage) CloseDB() {
 	dbobj.db.Close()
 }
 
-func (dbobj dbcon) backupDB(w http.ResponseWriter) {
+// BackupDB function backups existing databsae and prints database structure to http.ResponseWriter
+func (dbobj DBStorage) BackupDB(w http.ResponseWriter) {
 	err := sqlite3dump.DumpDB(dbobj.db, w)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -149,7 +165,8 @@ func (dbobj dbcon) backupDB(w http.ResponseWriter) {
 	}
 }
 
-func (dbobj dbcon) initUserApps() error {
+// InitUserApps initialises list of databases.
+func (dbobj DBStorage) InitUserApps() error {
 	return nil
 }
 
@@ -283,7 +300,8 @@ func getTable(t Tbl) string {
 	return "users"
 }
 
-func (dbobj dbcon) createRecordInTable(tbl string, data interface{}) (int, error) {
+// CreateRecordInTable creates new record
+func (dbobj DBStorage) CreateRecordInTable(tbl string, data interface{}) (int, error) {
 	fields, values := decodeFieldsValues(data)
 	valuesInQ := "$1"
 	for idx := range values {
@@ -309,13 +327,15 @@ func (dbobj dbcon) createRecordInTable(tbl string, data interface{}) (int, error
 	return 1, nil
 }
 
-func (dbobj dbcon) createRecord(t Tbl, data interface{}) (int, error) {
+// CreateRecord creates new record
+func (dbobj DBStorage) CreateRecord(t Tbl, data interface{}) (int, error) {
 	//if reflect.TypeOf(value) == reflect.TypeOf("string")
 	tbl := getTable(t)
-	return dbobj.createRecordInTable(tbl, data)
+	return dbobj.CreateRecordInTable(tbl, data)
 }
 
-func (dbobj dbcon) countRecords(t Tbl, keyName string, keyValue string) (int64, error) {
+// CountRecords returns number of records that match filter
+func (dbobj DBStorage) CountRecords(t Tbl, keyName string, keyValue string) (int64, error) {
 	tbl := getTable(t)
 	q := "select count(*) from " + tbl + " WHERE " + escapeName(keyName) + "=$1"
 	fmt.Printf("q: %s\n", q)
@@ -338,18 +358,21 @@ func (dbobj dbcon) countRecords(t Tbl, keyName string, keyValue string) (int64, 
 	return int64(count), nil
 }
 
-func (dbobj dbcon) updateRecord(t Tbl, keyName string, keyValue string, bdoc *bson.M) (int64, error) {
+// UpdateRecord updates database record
+func (dbobj DBStorage) UpdateRecord(t Tbl, keyName string, keyValue string, bdoc *bson.M) (int64, error) {
 	table := getTable(t)
 	filter := escapeName(keyName) + "=\"" + keyValue + "\""
 	return dbobj.updateRecordInTableDo(table, filter, bdoc, nil)
 }
 
-func (dbobj dbcon) updateRecordInTable(table string, keyName string, keyValue string, bdoc *bson.M) (int64, error) {
+// UpdateRecordInTable updates database record
+func (dbobj DBStorage) UpdateRecordInTable(table string, keyName string, keyValue string, bdoc *bson.M) (int64, error) {
 	filter := escapeName(keyName) + "=\"" + keyValue + "\""
 	return dbobj.updateRecordInTableDo(table, filter, bdoc, nil)
 }
 
-func (dbobj dbcon) updateRecord2(t Tbl, keyName string, keyValue string,
+// UpdateRecord2 updates database record
+func (dbobj DBStorage) UpdateRecord2(t Tbl, keyName string, keyValue string,
 	keyName2 string, keyValue2 string, bdoc *bson.M, bdel *bson.M) (int64, error) {
 	table := getTable(t)
 	filter := escapeName(keyName) + "=\"" + keyValue + "\" AND " +
@@ -357,14 +380,15 @@ func (dbobj dbcon) updateRecord2(t Tbl, keyName string, keyValue string,
 	return dbobj.updateRecordInTableDo(table, filter, bdoc, bdel)
 }
 
-func (dbobj dbcon) updateRecordInTable2(table string, keyName string,
+// UpdateRecordInTable2 updates database record
+func (dbobj DBStorage) UpdateRecordInTable2(table string, keyName string,
 	keyValue string, keyName2 string, keyValue2 string, bdoc *bson.M, bdel *bson.M) (int64, error) {
 	filter := escapeName(keyName) + "=\"" + keyValue + "\" AND " +
 		escapeName(keyName2) + "=\"" + keyValue2 + "\""
 	return dbobj.updateRecordInTableDo(table, filter, bdoc, bdel)
 }
 
-func (dbobj dbcon) updateRecordInTableDo(table string, filter string, bdoc *bson.M, bdel *bson.M) (int64, error) {
+func (dbobj DBStorage) updateRecordInTableDo(table string, filter string, bdoc *bson.M, bdel *bson.M) (int64, error) {
 	op, values := decodeForUpdate(bdoc, bdel)
 	q := "update " + table + " SET " + op + " WHERE " + filter
 	fmt.Printf("q: %s\n", q)
@@ -385,7 +409,8 @@ func (dbobj dbcon) updateRecordInTableDo(table string, filter string, bdoc *bson
 	return num, err
 }
 
-func (dbobj dbcon) getRecord(t Tbl, keyName string, keyValue string) (bson.M, error) {
+// GetRecord returns specific record from database
+func (dbobj DBStorage) GetRecord(t Tbl, keyName string, keyValue string) (bson.M, error) {
 	table := getTable(t)
 	q := "select * from " + table + " WHERE " + escapeName(keyName) + "=$1"
 	values := make([]interface{}, 0)
@@ -393,14 +418,16 @@ func (dbobj dbcon) getRecord(t Tbl, keyName string, keyValue string) (bson.M, er
 	return dbobj.getRecordInTableDo(q, values)
 }
 
-func (dbobj dbcon) getRecordInTable(table string, keyName string, keyValue string) (bson.M, error) {
+// GetRecordInTable returns specific record from database
+func (dbobj DBStorage) GetRecordInTable(table string, keyName string, keyValue string) (bson.M, error) {
 	q := "select * from " + table + " WHERE " + escapeName(keyName) + "=$1"
 	values := make([]interface{}, 0)
 	values = append(values, keyValue)
 	return dbobj.getRecordInTableDo(q, values)
 }
 
-func (dbobj dbcon) getRecord2(t Tbl, keyName string, keyValue string,
+// GetRecord2  returns specific record from database
+func (dbobj DBStorage) GetRecord2(t Tbl, keyName string, keyValue string,
 	keyName2 string, keyValue2 string) (bson.M, error) {
 	table := getTable(t)
 	q := "select * from " + table + " WHERE " + escapeName(keyName) + "=$1 AND " +
@@ -411,7 +438,7 @@ func (dbobj dbcon) getRecord2(t Tbl, keyName string, keyValue string,
 	return dbobj.getRecordInTableDo(q, values)
 }
 
-func (dbobj dbcon) getRecordInTableDo(q string, values []interface{}) (bson.M, error) {
+func (dbobj DBStorage) getRecordInTableDo(q string, values []interface{}) (bson.M, error) {
 	fmt.Printf("query: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -490,14 +517,14 @@ func (dbobj dbcon) getRecordInTableDo(q string, values []interface{}) (bson.M, e
 	return recBson, nil
 }
 
-/*
-func (dbobj dbcon) deleteRecord(t Tbl, keyName string, keyValue string) (int64, error) {
+// DeleteRecord deletes record in database
+func (dbobj DBStorage) DeleteRecord(t Tbl, keyName string, keyValue string) (int64, error) {
 	tbl := getTable(t)
-	return dbobj.deleteRecordInTable(tbl, keyName, keyValue)
+	return dbobj.DeleteRecordInTable(tbl, keyName, keyValue)
 }
-*/
 
-func (dbobj dbcon) deleteRecordInTable(table string, keyName string, keyValue string) (int64, error) {
+// DeleteRecordInTable deletes record in database
+func (dbobj DBStorage) DeleteRecordInTable(table string, keyName string, keyValue string) (int64, error) {
 	q := "delete from " + table + " WHERE " + escapeName(keyName) + "=$1"
 	fmt.Printf("q: %s\n", q)
 
@@ -517,12 +544,13 @@ func (dbobj dbcon) deleteRecordInTable(table string, keyName string, keyValue st
 	return num, err
 }
 
-func (dbobj dbcon) deleteRecord2(t Tbl, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
+// DeleteRecord2 deletes record in database
+func (dbobj DBStorage) DeleteRecord2(t Tbl, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
 	tbl := getTable(t)
 	return dbobj.deleteRecordInTable2(tbl, keyName, keyValue, keyName2, keyValue2)
 }
 
-func (dbobj dbcon) deleteRecordInTable2(table string, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
+func (dbobj DBStorage) deleteRecordInTable2(table string, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
 	q := "delete from " + table + " WHERE " + escapeName(keyName) + "=$1 AND " +
 		escapeName(keyName2) + "=$2"
 	fmt.Printf("q: %s\n", q)
@@ -544,14 +572,14 @@ func (dbobj dbcon) deleteRecordInTable2(table string, keyName string, keyValue s
 }
 
 /*
-func (dbobj dbcon) deleteDuplicate2(t Tbl, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
+func (dbobj DBStorage) deleteDuplicate2(t Tbl, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
 	tbl := getTable(t)
 	return dbobj.deleteDuplicateInTable2(tbl, keyName, keyValue, keyName2, keyValue2)
 }
 */
 
 /*
-func (dbobj dbcon) deleteDuplicateInTable2(table string, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
+func (dbobj DBStorage) deleteDuplicateInTable2(table string, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
 	q := "delete from " + table + " where " + escapeName(keyName) + "=$1 AND " +
 		escapeName(keyName2) + "=$2 AND rowid not in " +
 		"(select min(rowid) from " + table + " where " + escapeName(keyName) + "=$3 AND " +
@@ -575,7 +603,8 @@ func (dbobj dbcon) deleteDuplicateInTable2(table string, keyName string, keyValu
 }
 */
 
-func (dbobj dbcon) deleteExpired0(t Tbl, expt int32) (int64, error) {
+// DeleteExpired0 deletes expired records in database
+func (dbobj DBStorage) DeleteExpired0(t Tbl, expt int32) (int64, error) {
 	table := getTable(t)
 	now := int32(time.Now().Unix())
 	q := fmt.Sprintf("delete from %s WHERE `when`>0 AND `when`<%d", table, now-expt)
@@ -598,7 +627,8 @@ func (dbobj dbcon) deleteExpired0(t Tbl, expt int32) (int64, error) {
 	return num, err
 }
 
-func (dbobj dbcon) deleteExpired(t Tbl, keyName string, keyValue string) (int64, error) {
+// DeleteExpired deletes expired records in database
+func (dbobj DBStorage) DeleteExpired(t Tbl, keyName string, keyValue string) (int64, error) {
 	table := getTable(t)
 	q := "delete from " + table + " WHERE endtime>0 AND endtime<$1 AND " + escapeName(keyName) + "=$2"
 	fmt.Printf("q: %s\n", q)
@@ -620,7 +650,8 @@ func (dbobj dbcon) deleteExpired(t Tbl, keyName string, keyValue string) (int64,
 	return num, err
 }
 
-func (dbobj dbcon) cleanupRecord(t Tbl, keyName string, keyValue string, data interface{}) (int64, error) {
+// CleanupRecord nullifies specific feilds in records in database
+func (dbobj DBStorage) CleanupRecord(t Tbl, keyName string, keyValue string, data interface{}) (int64, error) {
 	tbl := getTable(t)
 	cleanup := decodeForCleanup(data)
 	q := "update " + tbl + " SET " + cleanup + " WHERE " + escapeName(keyName) + "=$1"
@@ -642,7 +673,8 @@ func (dbobj dbcon) cleanupRecord(t Tbl, keyName string, keyValue string, data in
 	return num, err
 }
 
-func (dbobj dbcon) getExpiring(t Tbl, keyName string, keyValue string) ([]bson.M, error) {
+// GetExpiring get records that are expiring
+func (dbobj DBStorage) GetExpiring(t Tbl, keyName string, keyValue string) ([]bson.M, error) {
 	table := getTable(t)
 	now := int32(time.Now().Unix())
 	q := fmt.Sprintf("select * from %s WHERE endtime>0 AND endtime<%d AND %s=$1", table, now, escapeName(keyName))
@@ -650,7 +682,8 @@ func (dbobj dbcon) getExpiring(t Tbl, keyName string, keyValue string) ([]bson.M
 	return dbobj.getListDo(q, keyValue)
 }
 
-func (dbobj dbcon) getUniqueList(t Tbl, keyName string) ([]bson.M, error) {
+// GetUniqueList returns a unique list of values from specific column in database
+func (dbobj DBStorage) GetUniqueList(t Tbl, keyName string) ([]bson.M, error) {
 	table := getTable(t)
 	keyName = escapeName(keyName)
 	q := "select distinct " + keyName + " from " + table + " ORDER BY " + keyName
@@ -658,7 +691,8 @@ func (dbobj dbcon) getUniqueList(t Tbl, keyName string) ([]bson.M, error) {
 	return dbobj.getListDo(q, "")
 }
 
-func (dbobj dbcon) getList(t Tbl, keyName string, keyValue string, start int32, limit int32) ([]bson.M, error) {
+// GetList is used to return list of rows. It can be used to return values using pager.
+func (dbobj DBStorage) GetList(t Tbl, keyName string, keyValue string, start int32, limit int32) ([]bson.M, error) {
 	table := getTable(t)
 	if limit > 100 {
 		limit = 100
@@ -675,7 +709,7 @@ func (dbobj dbcon) getList(t Tbl, keyName string, keyValue string, start int32, 
 	return dbobj.getListDo(q, keyValue)
 }
 
-func (dbobj dbcon) getListDo(q string, keyValue string) ([]bson.M, error) {
+func (dbobj DBStorage) getListDo(q string, keyValue string) ([]bson.M, error) {
 	tx, err := dbobj.db.Begin()
 	if err != nil {
 		return nil, err
@@ -753,11 +787,13 @@ func (dbobj dbcon) getListDo(q string, keyValue string) ([]bson.M, error) {
 	return results, nil
 }
 
-func (dbobj dbcon) getAllTables() ([]string, error) {
+// GetAllTables returns all tables that exists in database
+func (dbobj DBStorage) GetAllTables() ([]string, error) {
 	return knownApps, nil
 }
 
-func (dbobj dbcon) validateNewApp(appName string) bool {
+// ValidateNewApp function check if app name can be part of the table name
+func (dbobj DBStorage) ValidateNewApp(appName string) bool {
 	if contains(knownApps, appName) == true {
 		return true
 	}
@@ -785,7 +821,8 @@ func execQueries(db *sql.DB, queries []string) error {
 	return nil
 }
 
-func (dbobj dbcon) indexNewApp(appName string) {
+// IndexNewApp creates a new app table and creates indexes for it.
+func (dbobj DBStorage) IndexNewApp(appName string) {
 	if contains(knownApps, appName) == false {
 		// it is a new app, create an index
 		fmt.Printf("This is a new app, creating table & index for: %s\n", appName)
@@ -921,4 +958,14 @@ func initSessions(db *sql.DB) error {
 		`CREATE INDEX sessions_token ON sessions (token);`,
 		`CREATE INDEX sessions_session ON sessions (session);`}
 	return execQueries(db, queries)
+}
+
+func contains(slice []string, item string) bool {
+	set := make(map[string]struct{}, len(slice))
+	for _, s := range slice {
+		set[s] = struct{}{}
+	}
+
+	_, ok := set[item]
+	return ok
 }

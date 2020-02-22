@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
 	"flag"
@@ -20,34 +21,16 @@ import (
 	"github.com/gobuffalo/packr"
 	"github.com/julienschmidt/httprouter"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/paranoidguy/databunker/src/storage"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	yaml "gopkg.in/yaml.v2"
 )
 
-// Tbl is used to store table id
-type Tbl int
-
-// listTbls used to store list of tables
-type listTbls struct {
-	Users         Tbl
-	Audit         Tbl
-	Xtokens       Tbl
-	Consent       Tbl
-	Sessions      Tbl
-	Requests      Tbl
-	Sharedrecords Tbl
-}
-
-// TblName is enum of tables
-var TblName = &listTbls{
-	Users:         0,
-	Audit:         1,
-	Xtokens:       2,
-	Consent:       3,
-	Sessions:      4,
-	Requests:      5,
-	Sharedrecords: 6,
+type dbcon struct {
+	store     storage.DBStorage
+	masterKey []byte
+	hash      []byte
 }
 
 // Config is u	sed to store application configuration
@@ -99,7 +82,7 @@ type Config struct {
 
 // mainEnv struct stores global structures
 type mainEnv struct {
-	db       dbcon
+	db       *dbcon
 	conf     Config
 	stopChan chan struct{}
 }
@@ -164,7 +147,7 @@ func (e mainEnv) backupDB(w http.ResponseWriter, r *http.Request, ps httprouter.
 		return
 	}
 	w.WriteHeader(200)
-	e.db.backupDB(w)
+	e.db.store.BackupDB(w)
 }
 
 // setupRouter() setup HTTP Router object.
@@ -260,7 +243,7 @@ func readFile(cfg *Config, filepath *string) error {
 			confFile = *filepath
 		}
 	}
-	fmt.Printf("Databunker conf file is: %s\n", confFile)
+	fmt.Printf("Databunker configuration file is: %s\n", confFile)
 	f, err := os.Open(confFile)
 	if err != nil {
 		return err
@@ -284,7 +267,7 @@ func (e mainEnv) dbCleanupDo() {
 	log.Printf("db cleanup timeout\n")
 	exp, _ := parseExpiration0(e.conf.Policy.MaxAuditRetentionPeriod)
 	if exp > 0 {
-		e.db.deleteExpired0(TblName.Audit, exp)
+		e.db.store.DeleteExpired0(storage.TblName.Audit, exp)
 	}
 	notifyURL := e.conf.Notification.ConsentNotificationURL
 	e.db.expireConsentRecords(notifyURL)
@@ -344,17 +327,19 @@ func logRequest(handler http.Handler) http.Handler {
 	})
 }
 
-func setupDB(dbPtr *string) (dbcon, string, error) {
+func setupDB(dbPtr *string) (*dbcon, string, error) {
 	fmt.Printf("\nDatabunker init\n\n")
 	masterKey, err := generateMasterKey()
+	hash := md5.Sum(masterKey)
 	fmt.Printf("Master key: %x\n\n", masterKey)
 	fmt.Printf("Init databunker.db\n\n")
-	db, _ := newDB(masterKey, dbPtr)
-	err = db.initDB()
+	store, _ := storage.NewDBStorage(dbPtr)
+	err = store.InitDB()
 	if err != nil {
 		//log.Panic("error %s", err.Error())
 		log.Fatalf("db init error %s", err.Error())
 	}
+	db := &dbcon{store, masterKey, hash[:]}
 	rootToken, err := db.createRootXtoken()
 	if err != nil {
 		//log.Panic("error %s", err.Error())
@@ -364,51 +349,62 @@ func setupDB(dbPtr *string) (dbcon, string, error) {
 	return db, rootToken, err
 }
 
+func getMasterKey(masterKeyPtr *string) []byte {
+	masterKeyStr := ""
+	if masterKeyPtr != nil && len(*masterKeyPtr) > 0 {
+		masterKeyStr = *masterKeyPtr
+	} else {
+		masterKeyStr = os.Getenv("DATABUNKER_MASTERKEY")
+	}
+	if len(masterKeyStr) != 48 {
+		fmt.Printf("Failed to decode master key: bad length\n")
+		os.Exit(0)
+	}
+	masterKey, err := hex.DecodeString(masterKeyStr)
+	if err != nil {
+		fmt.Printf("Failed to decode master key: %s\n", err)
+		os.Exit(0)
+	}
+	return masterKey
+}
+
 // main application function
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	lockMemory()
 	//fmt.Printf("%+v\n", cfg)
-	initPtr := flag.Bool("init", false, "a bool")
+	initPtr := flag.Bool("init", false, "generate master key and init database")
+	startPtr := flag.Bool("start", false, "start databunker service. User DATABUNKER_MASTERKEY environment variable.")
 	masterKeyPtr := flag.String("masterkey", "", "master key")
 	dbPtr := flag.String("db", "", "database file")
-	confPtr := flag.String("conf", "", "configuration file")
+	confPtr := flag.String("conf", "", "configuration file name")
 	flag.Parse()
 
 	var cfg Config
 	readFile(&cfg, confPtr)
 	readEnv(&cfg)
-
-	var err error
-	var masterKey []byte
 	if *initPtr {
 		db, _, _ := setupDB(dbPtr)
-		db.closeDB()
+		db.store.CloseDB()
 		os.Exit(0)
 	}
-	if dbExists(dbPtr) == false {
-		fmt.Printf("\ndatabunker.db file is missing.\n\n")
-		fmt.Println(`Run "./databunker -init" for the first time to init database.`)
+	if storage.DBExists(dbPtr) == false {
+		fmt.Printf("\nDatabase is not initialized.\n\n")
+		fmt.Println(`Run "databunker -init" for the first time to generate keys and init database.`)
 		fmt.Println("")
 		os.Exit(0)
 	}
-	if masterKeyPtr != nil && len(*masterKeyPtr) > 0 {
-		if len(*masterKeyPtr) != 48 {
-			fmt.Printf("Failed to decode master key: bad length\n")
-			os.Exit(0)
-		}
-		masterKey, err = hex.DecodeString(*masterKeyPtr)
-		if err != nil {
-			fmt.Printf("Failed to decode master key: %s\n", err)
-			os.Exit(0)
-		}
-	} else {
-		fmt.Println(`Masterkey is missing.`)
-		fmt.Println(`Run "./databunker -masterkey key"`)
+	if masterKeyPtr == nil || *startPtr == false {
+		fmt.Println(`Run "databunker -start" will load DATABUNKER_MASTERKEY environment variable.`)
+		fmt.Println(`For testing "databunker -masterkey MASTER_KEY_VALUE" can be used. Not recommended for production.`)
+		fmt.Println("")
 		os.Exit(0)
 	}
-	db, _ := newDB(masterKey, dbPtr)
-	db.initUserApps()
+	masterKey := getMasterKey(masterKeyPtr)
+	store, _ := storage.OpenDB(dbPtr)
+	store.InitUserApps()
+	hash := md5.Sum(masterKey)
+	db := &dbcon{store, masterKey, hash[:]}
 	e := mainEnv{db, cfg, make(chan struct{})}
 	e.dbCleanup()
 	fmt.Printf("host %s\n", cfg.Server.Host+":"+cfg.Server.Port)
@@ -424,7 +420,7 @@ func main() {
 		close(e.stopChan)
 		time.Sleep(1)
 		srv.Shutdown(context.TODO())
-		db.closeDB()
+		db.store.CloseDB()
 	}()
 
 	if _, err := os.Stat(cfg.Ssl.SslCertificate); !os.IsNotExist(err) {
