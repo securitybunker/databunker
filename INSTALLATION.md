@@ -1,14 +1,15 @@
 # Installing Databunker
 
-## Just run from the Docker container
+## Just run as the Docker container
 
 This is the easiest method to start with Data Bunker. Always use the latest version.
 
-You can fetch and start Databunker with the following command:
+**For the first time**, you can fetch and start Databunker with the following command:
 
 ```
 cd ~
 mkdir -p data
+chmod 0777 data
 docker run -v ~/data:/databunker/data -p 3000:3000 \
   --rm --name dbunker paranoidguy/databunker
 ```
@@ -17,9 +18,9 @@ This command will init Databunker service, init database and start container.
 
 This command will print **DATABUNKER_MASTERKEY** and **DATABUNKER_ROOTTOKEN**.
 
-You can run: ```docker logs dbunker``` to view these codes.
+You can run: ```docker logs dbunker``` to view these important variables.
 
-The database will be init in the ~/data directory.
+The database will be saved in the ~/data directory.
 
 **DATABUNKER_MASTERKEY** is used to encrypt database records.
 
@@ -36,7 +37,8 @@ docker kill dbunker
 
 # Run it again
 
-You can run it again, after it was initalized. Use the following command:
+You can run it again, after it was initalized. This time, you will have to provide the
+**DATABUNKER_MASTERKEY** environment variable. Use the following command:
 
 ```
 docker run -p 3000:3000 -v ~/data:/databunker/data \
@@ -47,7 +49,7 @@ docker run -p 3000:3000 -v ~/data:/databunker/data \
 # Custom configuration
 
 Databunker has a configuration file that you can alter to enable custom email gateway, notification urls,
-twilio account (sms gateway), etc...
+twilio account (sms gateway), user serf-service behaviour, etc...
 
 There are number of ways you can change configuration file in container, for example by creating your own Docker file.
 Another option is to create this file outside of container in conf/ directory and mount this directory in container.
@@ -68,7 +70,7 @@ curl https://raw.githubusercontent.com/paranoidguy/databunker/master/databunker.
 ```
 docker run -p 3000:3000 -v ~/data:/databunker/data -v ~/conf:/databunker/conf \
   -e "DATABUNKER_MASTERKEY=**DATABUNKER_MASTERKEY**" \
-  --rm --name dbunker paranoidguy/databunker
+  --restart unless-stopped --name dbunker paranoidguy/databunker
 ```
 
 # SSL certificates
