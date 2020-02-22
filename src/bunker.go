@@ -333,7 +333,7 @@ func setupDB(dbPtr *string) (*dbcon, string, error) {
 	hash := md5.Sum(masterKey)
 	fmt.Printf("Master key: %x\n\n", masterKey)
 	fmt.Printf("Init databunker.db\n\n")
-	store, _ := storage.NewDBStorage(dbPtr)
+	store, _ := storage.OpenDB(dbPtr)
 	err = store.InitDB()
 	if err != nil {
 		//log.Panic("error %s", err.Error())
