@@ -39,19 +39,6 @@ func auditApp(title string, record string, app string, mode string, address stri
 }
 
 func (event auditEvent) submit(db *dbcon) {
-	//fmt.Println("submit event to audit!!!!!!!!!!")
-	/*
-		bdoc, err := bson.Marshal(event)
-		if err != nil {
-			fmt.Printf("failed to marshal audit event: %s\n", err)
-			return
-		}
-		var bdoc2 bson.M
-		err = bson.Unmarshal(bdoc, &bdoc2)
-		if err != nil {
-			fmt.Printf("failed to marshal audit event2: %s\n", err)
-			return
-		}*/
 	bdoc := bson.M{}
 	atoken, _ := uuid.GenerateUUID()
 	bdoc["atoken"] = atoken
