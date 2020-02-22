@@ -11,6 +11,7 @@ import (
 
 	jsonpatch "github.com/evanphx/json-patch"
 	uuid "github.com/hashicorp/go-uuid"
+	"github.com/paranoidguy/databunker/src/storage"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -56,7 +57,7 @@ func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (str
 		event.Record = userTOKEN
 	}
 	//fmt.Println("creating new user")
-	_, err = dbobj.createRecord(TblName.Users, bdoc)
+	_, err = dbobj.store.CreateRecord(storage.TblName.Users, bdoc)
 	if err != nil {
 		fmt.Printf("error in create!\n")
 		return "", err
@@ -72,7 +73,7 @@ func (dbobj dbcon) generateTempLoginCode(userTOKEN string) int32 {
 	expired := int32(time.Now().Unix()) + 60
 	bdoc["tempcodeexp"] = expired
 	//fmt.Printf("op json: %s\n", update)
-	dbobj.updateRecord(TblName.Users, "token", userTOKEN, &bdoc)
+	dbobj.store.UpdateRecord(storage.TblName.Users, "token", userTOKEN, &bdoc)
 	return rnd
 }
 
@@ -84,7 +85,7 @@ func (dbobj dbcon) generateDemoLoginCode(userTOKEN string) int32 {
 	expired := int32(time.Now().Unix()) + 60
 	bdoc["tempcodeexp"] = expired
 	//fmt.Printf("op json: %s\n", update)
-	dbobj.updateRecord(TblName.Users, "token", userTOKEN, &bdoc)
+	dbobj.store.UpdateRecord(storage.TblName.Users, "token", userTOKEN, &bdoc)
 	return rnd
 }
 
@@ -239,7 +240,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ev
 	//filter2 := bson.D{{"token", userTOKEN}, {"md5", sig}}
 
 	//fmt.Printf("op json: %s\n", update)
-	result, err := dbobj.updateRecord2(TblName.Users, "token", userTOKEN, "md5", sig, &bdoc, &bdel)
+	result, err := dbobj.store.UpdateRecord2(storage.TblName.Users, "token", userTOKEN, "md5", sig, &bdoc, &bdel)
 	if err != nil {
 		return nil, nil, false, err
 	}
@@ -257,7 +258,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ev
 }
 
 func (dbobj dbcon) lookupUserRecord(userTOKEN string) (bson.M, error) {
-	return dbobj.getRecord(TblName.Users, "token", userTOKEN)
+	return dbobj.store.GetRecord(storage.TblName.Users, "token", userTOKEN)
 }
 
 func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string, conf Config) (bson.M, error) {
@@ -271,7 +272,7 @@ func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string, 
 	}
 	idxStringHashHex := hashString(dbobj.hash, indexValue)
 	fmt.Printf("loading by %s, value: %s\n", indexName, indexValue)
-	return dbobj.getRecord(TblName.Users, indexName+"idx", idxStringHashHex)
+	return dbobj.store.GetRecord(storage.TblName.Users, indexName+"idx", idxStringHashHex)
 }
 
 func (dbobj dbcon) getUser(userTOKEN string) ([]byte, error) {
@@ -341,11 +342,11 @@ func (dbobj dbcon) deleteUserRecord(userTOKEN string) (bool, error) {
 	// delete all user app records
 	for _, appName := range userApps {
 		appNameFull := "app_" + appName
-		dbobj.deleteRecordInTable(appNameFull, "token", userTOKEN)
+		dbobj.store.DeleteRecordInTable(appNameFull, "token", userTOKEN)
 	}
 	//delete in audit
-	dbobj.deleteRecordInTable("audit", "record", userTOKEN)
-	dbobj.deleteRecordInTable("sessions", "token", userTOKEN)
+	dbobj.store.DeleteRecord(storage.TblName.Audit, "record", userTOKEN)
+	dbobj.store.DeleteRecord(storage.TblName.Sessions, "token", userTOKEN)
 	// cleanup user record
 	bdel := bson.M{}
 	bdel["data"] = ""
@@ -353,7 +354,7 @@ func (dbobj dbcon) deleteUserRecord(userTOKEN string) (bool, error) {
 	bdel["loginidx"] = ""
 	bdel["emailidx"] = ""
 	bdel["phoneidx"] = ""
-	result, err := dbobj.cleanupRecord(TblName.Users, "token", userTOKEN, bdel)
+	result, err := dbobj.store.CleanupRecord(storage.TblName.Users, "token", userTOKEN, bdel)
 	if err != nil {
 		return false, err
 	}
@@ -375,7 +376,7 @@ func (dbobj dbcon) wipeRecord(userTOKEN string) (bool, error) {
 		dbobj.deleteRecordInTable(appNameFull, "token", userTOKEN)
 	}
 	// delete user record
-	result, err := dbobj.deleteRecord(TblName.Users, "token", userTOKEN)
+	result, err := dbobj.store.DeleteRecord(storage.TblName.Users, "token", userTOKEN)
 	if err != nil {
 		return false, err
 	}

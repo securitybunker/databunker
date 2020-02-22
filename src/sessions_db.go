@@ -7,6 +7,7 @@ import (
 	"time"
 
 	uuid "github.com/hashicorp/go-uuid"
+	"github.com/paranoidguy/databunker/src/storage"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -39,7 +40,7 @@ func (dbobj dbcon) createSessionRecord(userTOKEN string, expiration string, data
 	bdoc["endtime"] = endtime
 	bdoc["when"] = now
 	bdoc["data"] = encodedStr
-	_, err = dbobj.createRecord(TblName.Sessions, bdoc)
+	_, err = dbobj.store.CreateRecord(storage.TblName.Sessions, bdoc)
 	if err != nil {
 		return "", err
 	}
@@ -47,7 +48,7 @@ func (dbobj dbcon) createSessionRecord(userTOKEN string, expiration string, data
 }
 
 func (dbobj dbcon) getUserSession(sessionUUID string) (int32, []byte, string, error) {
-	record, err := dbobj.getRecord(TblName.Sessions, "session", sessionUUID)
+	record, err := dbobj.store.GetRecord(storage.TblName.Sessions, "session", sessionUUID)
 	if err != nil {
 		return 0, nil, "", err
 	}
@@ -82,12 +83,12 @@ func (dbobj dbcon) getUserSessionsByToken(userTOKEN string, offset int32, limit 
 		return nil, 0, err
 	}
 
-	count, err := dbobj.countRecords(TblName.Sessions, "token", userTOKEN)
+	count, err := dbobj.store.CountRecords(storage.TblName.Sessions, "token", userTOKEN)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	records, err := dbobj.getList(TblName.Sessions, "token", userTOKEN, offset, limit)
+	records, err := dbobj.store.GetList(storage.TblName.Sessions, "token", userTOKEN, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}

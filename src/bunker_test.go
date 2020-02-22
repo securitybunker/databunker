@@ -92,7 +92,7 @@ func init() {
 		fmt.Printf("error %s", err.Error())
 	}
 	rootToken = myRootToken
-	db.initUserApps()
+	db.store.InitUserApps()
 	var cfg2 Config
 	cfile := "../databunker.yaml"
 	readFile(&cfg2, &cfile)

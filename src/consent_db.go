@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/fatih/structs"
+	"github.com/paranoidguy/databunker/src/storage"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -52,13 +53,13 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode s
 	bdoc["lastmodifiedby"] = lastmodifiedby
 	if len(userTOKEN) > 0 {
 		// first check if this consent exists, then update
-		raw, err := dbobj.getRecord2(TblName.Consent, "token", userTOKEN, "brief", brief)
+		raw, err := dbobj.store.GetRecord2(storage.TblName.Consent, "token", userTOKEN, "brief", brief)
 		if err != nil {
 			fmt.Printf("error to find:%s", err)
 			return false, err
 		}
 		if raw != nil {
-			dbobj.updateRecord2(TblName.Consent, "token", userTOKEN, "brief", brief, &bdoc, nil)
+			dbobj.store.UpdateRecord2(storage.TblName.Consent, "token", userTOKEN, "brief", brief, &bdoc, nil)
 			if status != raw["status"].(string) {
 				// status changed
 				return true, nil
@@ -66,13 +67,13 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode s
 			return false, nil
 		}
 	} else {
-		raw, err := dbobj.getRecord2(TblName.Consent, "who", usercode, "brief", brief)
+		raw, err := dbobj.store.GetRecord2(storage.TblName.Consent, "who", usercode, "brief", brief)
 		if err != nil {
 			fmt.Printf("error to find:%s", err)
 			return false, err
 		}
 		if raw != nil {
-			dbobj.updateRecord2(TblName.Consent, "who", usercode, "brief", brief, &bdoc, nil)
+			dbobj.store.UpdateRecord2(storage.TblName.Consent, "who", usercode, "brief", brief, &bdoc, nil)
 			if status != raw["status"].(string) {
 				// status changed
 				return true, nil
@@ -103,7 +104,7 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode s
 		Lastmodifiedby: lastmodifiedby,
 	}
 	// in any case - insert record
-	_, err := dbobj.createRecord(TblName.Consent, structs.Map(ev))
+	_, err := dbobj.store.CreateRecord(storage.TblName.Consent, structs.Map(ev))
 	if err != nil {
 		fmt.Printf("error to insert record: %s\n", err)
 		return false, err
@@ -115,7 +116,7 @@ func (dbobj dbcon) createConsentRecord(userTOKEN string, mode string, usercode s
 func (dbobj dbcon) linkConsentRecords(userTOKEN string, mode string, usercode string) error {
 	bdoc := bson.M{}
 	bdoc["token"] = userTOKEN
-	_, err := dbobj.updateRecord2(TblName.Consent, "token", "", "who", usercode, &bdoc, nil)
+	_, err := dbobj.store.UpdateRecord2(storage.TblName.Consent, "token", "", "who", usercode, &bdoc, nil)
 	return err
 }
 
@@ -135,9 +136,9 @@ func (dbobj dbcon) withdrawConsentRecord(userTOKEN string, brief string, mode st
 	bdoc["lastmodifiedby"] = lastmodifiedby
 	if len(userTOKEN) > 0 {
 		fmt.Printf("%s %s\n", userTOKEN, brief)
-		dbobj.updateRecord2(TblName.Consent, "token", userTOKEN, "brief", brief, &bdoc, nil)
+		dbobj.store.UpdateRecord2(storage.TblName.Consent, "token", userTOKEN, "brief", brief, &bdoc, nil)
 	} else {
-		dbobj.updateRecord2(TblName.Consent, "who", usercode, "brief", brief, &bdoc, nil)
+		dbobj.store.UpdateRecord2(storage.TblName.Consent, "who", usercode, "brief", brief, &bdoc, nil)
 	}
 	return nil
 }
@@ -145,7 +146,7 @@ func (dbobj dbcon) withdrawConsentRecord(userTOKEN string, brief string, mode st
 // link consent to user?
 
 func (dbobj dbcon) listConsentRecords(userTOKEN string) ([]byte, int, error) {
-	records, err := dbobj.getList(TblName.Consent, "token", userTOKEN, 0, 0)
+	records, err := dbobj.store.GetList(storage.TblName.Consent, "token", userTOKEN, 0, 0)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -162,7 +163,7 @@ func (dbobj dbcon) listConsentRecords(userTOKEN string) ([]byte, int, error) {
 }
 
 func (dbobj dbcon) viewConsentRecord(userTOKEN string, brief string) ([]byte, error) {
-	record, err := dbobj.getRecord2(TblName.Consent, "token", userTOKEN, "brief", brief)
+	record, err := dbobj.store.GetRecord2(storage.TblName.Consent, "token", userTOKEN, "brief", brief)
 	if record == nil || err != nil {
 		return nil, err
 	}
@@ -176,14 +177,14 @@ func (dbobj dbcon) viewConsentRecord(userTOKEN string, brief string) ([]byte, er
 
 func (dbobj dbcon) filterConsentRecords(brief string, offset int32, limit int32) ([]byte, int64, error) {
 	//var results []*auditEvent
-	count, err := dbobj.countRecords(TblName.Consent, "brief", brief)
+	count, err := dbobj.store.CountRecords(storage.TblName.Consent, "brief", brief)
 	if err != nil {
 		return nil, 0, err
 	}
 	if count == 0 {
 		return []byte("[]"), 0, err
 	}
-	records, err := dbobj.getList(TblName.Consent, "brief", brief, offset, limit)
+	records, err := dbobj.store.GetList(storage.TblName.Consent, "brief", brief, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -201,7 +202,7 @@ func (dbobj dbcon) filterConsentRecords(brief string, offset int32, limit int32)
 }
 
 func (dbobj dbcon) getConsentBriefs() ([]byte, int64, error) {
-	records, err := dbobj.getUniqueList(TblName.Consent, "brief")
+	records, err := dbobj.store.GetUniqueList(storage.TblName.Consent, "brief")
 	if err != nil {
 		return nil, 0, err
 	}
@@ -223,7 +224,7 @@ func (dbobj dbcon) getConsentBriefs() ([]byte, int64, error) {
 }
 
 func (dbobj dbcon) expireConsentRecords(notifyURL string) error {
-	records, err := dbobj.getExpiring(TblName.Consent, "status", "yes")
+	records, err := dbobj.store.GetExpiring(storage.TblName.Consent, "status", "yes")
 	if err != nil {
 		return err
 	}
@@ -238,11 +239,11 @@ func (dbobj dbcon) expireConsentRecords(notifyURL string) error {
 		fmt.Printf("This consent record is expired: %s - %s\n", userTOKEN, brief)
 		if len(userTOKEN) > 0 {
 			fmt.Printf("%s %s\n", userTOKEN, brief)
-			dbobj.updateRecord2(TblName.Consent, "token", userTOKEN, "brief", brief, &bdoc, nil)
+			dbobj.store.UpdateRecord2(storage.TblName.Consent, "token", userTOKEN, "brief", brief, &bdoc, nil)
 			notifyConsentChange(notifyURL, brief, "expired", "token", userTOKEN)
 		} else {
 			usercode := rec["who"].(string)
-			dbobj.updateRecord2(TblName.Consent, "who", usercode, "brief", brief, &bdoc, nil)
+			dbobj.store.UpdateRecord2(storage.TblName.Consent, "who", usercode, "brief", brief, &bdoc, nil)
 			notifyConsentChange(notifyURL, brief, "expired", rec["mode"].(string), usercode)
 		}
 

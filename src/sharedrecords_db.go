@@ -7,6 +7,7 @@ import (
 	"time"
 
 	uuid "github.com/hashicorp/go-uuid"
+	"github.com/paranoidguy/databunker/src/storage"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -57,7 +58,7 @@ func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, expiration 
 	if len(session) > 0 {
 		bdoc["session"] = session
 	}
-	_, err = dbobj.createRecord(TblName.Sharedrecords, bdoc)
+	_, err = dbobj.store.CreateRecord(storage.TblName.Sharedrecords, bdoc)
 	if err != nil {
 		return "", err
 	}
@@ -69,7 +70,7 @@ func (dbobj dbcon) getSharedRecord(recordUUID string) (checkRecordResult, error)
 	if isValidUUID(recordUUID) == false {
 		return result, errors.New("failed to authenticate")
 	}
-	record, err := dbobj.getRecord(TblName.Sharedrecords, "record", recordUUID)
+	record, err := dbobj.store.GetRecord(storage.TblName.Sharedrecords, "record", recordUUID)
 	if record == nil || err != nil {
 		return result, errors.New("failed to authenticate")
 	}

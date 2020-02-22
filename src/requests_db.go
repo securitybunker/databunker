@@ -5,6 +5,7 @@ import (
 	"time"
 
 	uuid "github.com/hashicorp/go-uuid"
+	"github.com/paranoidguy/databunker/src/storage"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -44,18 +45,18 @@ func (dbobj dbcon) saveUserRequest(action string, token string, app string, brie
 	if len(brief) > 0 {
 		bdoc["brief"] = brief
 	}
-	_, err := dbobj.createRecord(TblName.Requests, &bdoc)
+	_, err := dbobj.store.CreateRecord(storage.TblName.Requests, &bdoc)
 	return rtoken, err
 }
 
 func (dbobj dbcon) getRequests(status string, offset int32, limit int32) ([]byte, int64, error) {
 	//var results []*auditEvent
-	count, err := dbobj.countRecords(TblName.Requests, "status", status)
+	count, err := dbobj.store.CountRecords(storage.TblName.Requests, "status", status)
 	if err != nil {
 		return nil, 0, err
 	}
 	var results []bson.M
-	records, err := dbobj.getList(TblName.Requests, "status", status, offset, limit)
+	records, err := dbobj.store.GetList(storage.TblName.Requests, "status", status, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -77,7 +78,7 @@ func (dbobj dbcon) getRequests(status string, offset int32, limit int32) ([]byte
 }
 
 func (dbobj dbcon) getRequest(rtoken string) (bson.M, error) {
-	record, err := dbobj.getRecord(TblName.Requests, "rtoken", rtoken)
+	record, err := dbobj.store.GetRecord(storage.TblName.Requests, "rtoken", rtoken)
 	if err != nil {
 		return record, err
 	}
@@ -106,5 +107,5 @@ func (dbobj dbcon) updateRequestStatus(rtoken string, status string) {
 	bdoc := bson.M{}
 	bdoc["status"] = status
 	//fmt.Printf("op json: %s\n", update)
-	dbobj.updateRecord(TblName.Requests, "rtoken", rtoken, &bdoc)
+	dbobj.store.UpdateRecord(storage.TblName.Requests, "rtoken", rtoken, &bdoc)
 }

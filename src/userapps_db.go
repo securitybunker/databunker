@@ -14,7 +14,7 @@ import (
 
 func (dbobj dbcon) getUserApp(userTOKEN string, appName string) ([]byte, error) {
 
-	record, err := dbobj.getRecordInTable("app_"+appName, "token", userTOKEN)
+	record, err := dbobj.store.GetRecordInTable("app_"+appName, "token", userTOKEN)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, appName st
 	if err != nil {
 		return userTOKEN, err
 	}
-	dbobj.indexNewApp("app_" + appName)
+	dbobj.store.IndexNewApp("app_" + appName)
 
 	//var bdoc interface{}
 	bdoc := bson.M{}
@@ -46,14 +46,14 @@ func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, appName st
 		event.Record = userTOKEN
 	}
 	//fmt.Println("creating new app")
-	record, err := dbobj.getRecordInTable("app_"+appName, "token", userTOKEN)
+	record, err := dbobj.store.GetRecordInTable("app_"+appName, "token", userTOKEN)
 	if err != nil {
 		return userTOKEN, err
 	}
 	if record != nil {
-		_, err = dbobj.updateRecordInTable("app_"+appName, "token", userTOKEN, &bdoc)
+		_, err = dbobj.store.UpdateRecordInTable("app_"+appName, "token", userTOKEN, &bdoc)
 	} else {
-		_, err = dbobj.createRecordInTable("app_"+appName, bdoc)
+		_, err = dbobj.store.CreateRecordInTable("app_"+appName, bdoc)
 	}
 	return userTOKEN, err
 }
@@ -72,7 +72,7 @@ func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appNa
 		return userTOKEN, err
 	}
 
-	record, err := dbobj.getRecordInTable("app_"+appName, "token", userTOKEN)
+	record, err := dbobj.store.GetRecordInTable("app_"+appName, "token", userTOKEN)
 	if err != nil {
 		return userTOKEN, err
 	}
@@ -113,7 +113,7 @@ func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appNa
 	// here I add md5 of the original record to filter
 	// to make sure this record was not change by other thread
 	fmt.Println("update user app")
-	result, err := dbobj.updateRecordInTable2("app_"+appName, "token", userTOKEN, "md5", sig, &bdoc, nil)
+	result, err := dbobj.store.UpdateRecordInTable2("app_"+appName, "token", userTOKEN, "md5", sig, &bdoc, nil)
 	if err != nil {
 		return userTOKEN, err
 	}
@@ -138,14 +138,14 @@ func (dbobj dbcon) listUserApps(userTOKEN string) ([]byte, error) {
 		// not found
 		return nil, err
 	}
-	allCollections, err := dbobj.getAllTables()
+	allCollections, err := dbobj.store.GetAllTables()
 	if err != nil {
 		return nil, err
 	}
 	var result []string
 	for _, colName := range allCollections {
 		if strings.HasPrefix(colName, "app_") {
-			record, err := dbobj.getRecordInTable(colName, "token", userTOKEN)
+			record, err := dbobj.store.GetRecordInTable(colName, "token", userTOKEN)
 			if err != nil {
 				return nil, err
 			}
@@ -164,7 +164,7 @@ func (dbobj dbcon) listUserApps(userTOKEN string) ([]byte, error) {
 
 func (dbobj dbcon) listAllAppsOnly() ([]string, error) {
 	//fmt.Println("dump list of collections")
-	allCollections, err := dbobj.getAllTables()
+	allCollections, err := dbobj.store.GetAllTables()
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +179,7 @@ func (dbobj dbcon) listAllAppsOnly() ([]string, error) {
 
 func (dbobj dbcon) listAllApps() ([]byte, error) {
 	//fmt.Println("dump list of collections")
-	allCollections, err := dbobj.getAllTables()
+	allCollections, err := dbobj.store.GetAllTables()
 	if err != nil {
 		return nil, err
 	}

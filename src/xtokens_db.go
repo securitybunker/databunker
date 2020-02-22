@@ -6,13 +6,14 @@ import (
 	"time"
 
 	uuid "github.com/hashicorp/go-uuid"
+	"github.com/paranoidguy/databunker/src/storage"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 var rootXTOKEN string
 
 func (dbobj dbcon) getRootXtoken() (string, error) {
-	record, err := dbobj.getRecord(TblName.Xtokens, "type", "root")
+	record, err := dbobj.store.GetRecord(storage.TblName.Xtokens, "type", "root")
 	if record == nil || err != nil {
 		return "", err
 	}
@@ -34,7 +35,7 @@ func (dbobj dbcon) createRootXtoken() (string, error) {
 	bdoc := bson.M{}
 	bdoc["xtoken"] = hashString(dbobj.hash, rootToken)
 	bdoc["type"] = "root"
-	_, err = dbobj.createRecord(TblName.Xtokens, bdoc)
+	_, err = dbobj.store.CreateRecord(storage.TblName.Xtokens, bdoc)
 	if err != nil {
 		return rootToken, err
 	}
@@ -59,7 +60,7 @@ func (dbobj dbcon) generateUserLoginXtoken(userTOKEN string) (string, error) {
 	bdoc["xtoken"] = hashString(dbobj.hash, tokenUUID)
 	bdoc["type"] = "login"
 	bdoc["endtime"] = expired
-	_, err = dbobj.createRecord(TblName.Xtokens, bdoc)
+	_, err = dbobj.store.CreateRecord(storage.TblName.Xtokens, bdoc)
 	return tokenUUID, err
 }
 
@@ -74,7 +75,7 @@ func (dbobj dbcon) checkXtoken(xtokenUUID string) bool {
 		fmt.Println("It is a root token")
 		return true
 	}
-	record, err := dbobj.getRecord(TblName.Xtokens, "xtoken", xtokenHashed)
+	record, err := dbobj.store.GetRecord(storage.TblName.Xtokens, "xtoken", xtokenHashed)
 	if record == nil || err != nil {
 		return false
 	}
@@ -99,7 +100,7 @@ func (dbobj dbcon) checkUserAuthXToken(xtokenUUID string) (tokenAuthResult, erro
 		result.name = "root"
 		return result, nil
 	}
-	record, err := dbobj.getRecord(TblName.Xtokens, "xtoken", xtokenHashed)
+	record, err := dbobj.store.GetRecord(storage.TblName.Xtokens, "xtoken", xtokenHashed)
 	if record == nil || err != nil {
 		return result, errors.New("failed to authenticate")
 	}

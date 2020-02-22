@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/paranoidguy/databunker/src/storage"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -81,7 +82,7 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 	mode := ps.ByName("mode")
 
 	if mode == "session" {
-		e.db.deleteExpired(TblName.Sessions, "session", address)
+		e.db.store.DeleteExpired(storage.TblName.Sessions, "session", address)
 		e.getSession(w, r, address)
 		return
 	}
@@ -114,7 +115,7 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
-	e.db.deleteExpired(TblName.Sessions, "token", userTOKEN)
+	e.db.store.DeleteExpired(storage.TblName.Sessions, "token", userTOKEN)
 	args := r.URL.Query()
 	var offset int32
 	var limit int32 = 10
