@@ -12,6 +12,12 @@ if [ ! -f /databunker/data/databunker.db ]; then
   echo "DATABUNKER_ROOTTOKEN $DATABUNKER_ROOTTOKEN"
   echo "DATABUNKER_MASTERKEY $DATABUNKER_MASTERKEY"
   /bin/busybox rm -rf /tmp/init.txt
+  export DATABUNKER_MASTERKEY=$DATABUNKER_MASTERKEY
+fi
+if [ -z "$DATABUNKER_MASTERKEY" ]; then
+  echo "DATABUNKER_MASTERKEY environment value is empty"
+  /bin/busybox sleep 60
+  exit
 fi
 #echo "-------------ENV-------------"
 #/bin/busybox env
