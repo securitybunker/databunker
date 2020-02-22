@@ -48,6 +48,8 @@ RUN /bin/busybox ln -s /bin/busybox /bin/addgroup
 RUN /bin/busybox ln -s /bin/busybox /bin/adduser
 COPY --from=builder /etc/group /etc/
 RUN /bin/busybox touch /etc/passwd
+RUN /bin/busybox mkdir -p /tmp
+RUN /bin/busybox chmod 0777 /tmp
 # Create a group and user
 RUN addgroup -S appgroup && adduser --no-create-home -S appuser -G appgroup
 # Tell docker that all future commands should run as the appuser user
