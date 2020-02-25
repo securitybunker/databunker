@@ -52,8 +52,8 @@ func GetAuto(key string) interface{} {
 	return nil
 }
 
-// Reset function removes specific context busket from map
-func Reset(r *http.Request) {
+// Clean function removes specific context busket from map
+func Clean(r *http.Request) {
 	contextMutex.Lock()
 	defer contextMutex.Unlock()
 	addr := fmt.Sprintf("%p", r)
@@ -67,7 +67,7 @@ func getRequestAddress() (string, error) {
 	trace := make([]byte, 2048)
 	count := runtime.Stack(trace, true)
 	//fmt.Printf("Stack of %d bytes: %s\n", count, trace)
-	pos := strings.Index(string(trace),"\n\n")
+	pos := strings.Index(string(trace[0:count]),"\n\n")
 	if pos > 0 {
 		// we are interested only in first goroutene
 		trace = trace[0:pos]
