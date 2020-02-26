@@ -6,12 +6,12 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 
 	uuid "github.com/hashicorp/go-uuid"
 	"github.com/julienschmidt/httprouter"
+	"github.com/paranoidguy/databunker/src/storage"
 )
 
 var (
@@ -84,8 +84,7 @@ func helpConfigurationDump(token string) ([]byte, error) {
 
 func init() {
 	fmt.Printf("**INIT*TEST*CODE***\n")
-	testDBFile := "/tmp/test.sqlite3"
-	os.Remove(testDBFile)
+	testDBFile := storage.CreateTestDB()
 	db, myRootToken, err := setupDB(&testDBFile)
 	if err != nil {
 		//log.Panic("error %s", err.Error())
