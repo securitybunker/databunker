@@ -21,6 +21,7 @@ import (
 	"github.com/gobuffalo/packr"
 	"github.com/julienschmidt/httprouter"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/paranoidguy/databunker/src/autocontext"
 	"github.com/paranoidguy/databunker/src/storage"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -321,8 +322,10 @@ func (w *CustomResponseWriter) WriteHeader(statusCode int) {
 
 func logRequest(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		autocontext.Set(r, "host", r.Host)
 		w2 := NewCustomResponseWriter(w)
 		handler.ServeHTTP(w2, r)
+		autocontext.Clean(r)
 		log.Printf("%d %s %s\n", w2.Code, r.Method, r.URL)
 	})
 }
@@ -332,7 +335,7 @@ func setupDB(dbPtr *string) (*dbcon, string, error) {
 	masterKey, err := generateMasterKey()
 	hash := md5.Sum(masterKey)
 	fmt.Printf("Master key: %x\n\n", masterKey)
-	fmt.Printf("Init databunker.db\n\n")
+	fmt.Printf("Init database\n\n")
 	store, _ := storage.OpenDB(dbPtr)
 	err = store.InitDB()
 	if err != nil {
@@ -376,7 +379,7 @@ func main() {
 	initPtr := flag.Bool("init", false, "generate master key and init database")
 	startPtr := flag.Bool("start", false, "start databunker service. User DATABUNKER_MASTERKEY environment variable.")
 	masterKeyPtr := flag.String("masterkey", "", "master key")
-	dbPtr := flag.String("db", "", "database file")
+	dbPtr := flag.String("db", "databunker", "database file")
 	confPtr := flag.String("conf", "", "configuration file name")
 	flag.Parse()
 
@@ -394,7 +397,8 @@ func main() {
 		fmt.Println("")
 		os.Exit(0)
 	}
-	if masterKeyPtr == nil || *startPtr == false {
+	if masterKeyPtr == nil && *startPtr == false {
+		fmt.Println("")
 		fmt.Println(`Run "databunker -start" will load DATABUNKER_MASTERKEY environment variable.`)
 		fmt.Println(`For testing "databunker -masterkey MASTER_KEY_VALUE" can be used. Not recommended for production.`)
 		fmt.Println("")
