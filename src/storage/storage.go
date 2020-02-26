@@ -60,12 +60,21 @@ func DBExists(filepath *string) bool {
 			dbfile = *filepath
 		}
 	}
+	if len(dbfile) >= 3 && dbfile[len(dbfile)-3:] != ".db" {
+		dbfile = dbfile + ".db"
+	}
 	if _, err := os.Stat(dbfile); os.IsNotExist(err) {
 		return false
 	}
 	return true
 }
 
+// CreateTestDB creates a test db
+func CreateTestDB() string {
+	testDBFile := "/tmp/test-sqlite.db"
+	os.Remove(testDBFile)
+	return testDBFile
+}
 // OpenDB function opens the database
 func OpenDB(filepath *string) (DBStorage, error) {
 	dbfile := "./databunker.db"
@@ -73,6 +82,9 @@ func OpenDB(filepath *string) (DBStorage, error) {
 		if len(*filepath) > 0 {
 			dbfile = *filepath
 		}
+	}
+	if len(dbfile) >= 3 && dbfile[len(dbfile)-3:] != ".db" {
+		dbfile = dbfile + ".db"
 	}
 	fmt.Printf("Databunker db file is: %s\n", dbfile)
 	// collect list of all tables
@@ -126,28 +138,13 @@ func OpenDB(filepath *string) (DBStorage, error) {
 
 // InitDB function creates tables and indexes
 func (dbobj DBStorage) InitDB() error {
-	var err error
-	if err = initUsers(dbobj.db); err != nil {
-		return err
-	}
-	if err = initXTokens(dbobj.db); err != nil {
-		return err
-	}
-	if err = initAudit(dbobj.db); err != nil {
-		return err
-	}
-	if err = initConsent(dbobj.db); err != nil {
-		return err
-	}
-	if err = initSessions(dbobj.db); err != nil {
-		return err
-	}
-	if err = initRequests(dbobj.db); err != nil {
-		return err
-	}
-	if err = initSharedRecords(dbobj.db); err != nil {
-		return err
-	}
+	initUsers(dbobj.db)
+	initXTokens(dbobj.db)
+	initAudit(dbobj.db)
+	initConsent(dbobj.db)
+	initSessions(dbobj.db)
+	initRequests(dbobj.db)
+	initSharedRecords(dbobj.db)
 	return nil
 }
 
@@ -679,7 +676,9 @@ func (dbobj DBStorage) GetExpiring(t Tbl, keyName string, keyValue string) ([]bs
 	now := int32(time.Now().Unix())
 	q := fmt.Sprintf("select * from %s WHERE endtime>0 AND endtime<%d AND %s=$1", table, now, escapeName(keyName))
 	fmt.Printf("q: %s\n", q)
-	return dbobj.getListDo(q, keyValue)
+	values := make([]interface{}, 0)
+	values = append(values, keyValue)
+	return dbobj.getListDo(q, values)
 }
 
 // GetUniqueList returns a unique list of values from specific column in database
@@ -688,7 +687,8 @@ func (dbobj DBStorage) GetUniqueList(t Tbl, keyName string) ([]bson.M, error) {
 	keyName = escapeName(keyName)
 	q := "select distinct " + keyName + " from " + table + " ORDER BY " + keyName
 	fmt.Printf("q: %s\n", q)
-	return dbobj.getListDo(q, "")
+	values := make([]interface{}, 0)
+	return dbobj.getListDo(q, values)
 }
 
 // GetList is used to return list of rows. It can be used to return values using pager.
@@ -706,16 +706,18 @@ func (dbobj DBStorage) GetList(t Tbl, keyName string, keyValue string, start int
 		q = q + " LIMIT " + strconv.FormatInt(int64(limit), 10)
 	}
 	fmt.Printf("q: %s\n", q)
-	return dbobj.getListDo(q, keyValue)
+	values := make([]interface{}, 0)
+	values = append(values, keyValue)
+	return dbobj.getListDo(q, values)
 }
 
-func (dbobj DBStorage) getListDo(q string, keyValue string) ([]bson.M, error) {
+func (dbobj DBStorage) getListDo(q string, values []interface{}) ([]bson.M, error) {
 	tx, err := dbobj.db.Begin()
 	if err != nil {
 		return nil, err
 	}
 	defer tx.Rollback()
-	rows, err := tx.Query(q, keyValue)
+	rows, err := tx.Query(q, values...)
 	if err == sql.ErrNoRows {
 		fmt.Println("nothing found")
 		return nil, nil
@@ -833,7 +835,7 @@ func (dbobj DBStorage) IndexNewApp(appName string) {
 			data TEXT,
 			status STRING,
 			` + "`when` int);",
-			"CREATE INDEX IF NOT EXISTS " + appName + "_token ON " + appName + " (token);"}
+			"CREATE INDEX " + appName + "_token ON " + appName + " (token);"}
 		err := execQueries(dbobj.db, queries)
 		if err == nil {
 			knownApps = append(knownApps, appName)
