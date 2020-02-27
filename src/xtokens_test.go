@@ -167,6 +167,8 @@ func TestUserLoginDelete(t *testing.T) {
 			} else {
 				helpCancelUserRequest(rtoken)
 			}
+		} else if action == "forget-me" {
+			// do not approve now
 		} else {
 			helpApproveUserRequest(rtoken)
 			raw9, _ := helpCancelUserRequest(rtoken)
@@ -175,6 +177,7 @@ func TestUserLoginDelete(t *testing.T) {
 			}
 		}
 	}
+	helpApproveUserRequest(rtoken0)
 
 	// user should be deleted now
 	raw10, _ := helpGetUserAppList(userTOKEN)
