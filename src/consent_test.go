@@ -152,14 +152,14 @@ func TestCreateWithdrawConsent(t *testing.T) {
 func TestGetFakeBrief(t *testing.T) {
 	raw, _ := helpGetAllUsersByBrief("unknown")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
-		t.Fatalf("Should fale to get all users with this brif")
+		t.Fatalf("Should fail to get all users with this brief")
 	}
 	if raw["total"].(float64) != 0 {
 		t.Fatalf("Wrong number of briefs")
 	}
 	raw, _ = helpGetAllUsersByBrief("unk$nown")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
-		t.Fatalf("Should fale to get all users with this brif")
+		t.Fatalf("Should fail to get all users with this brief")
 	}
 	if raw["total"].(float64) != 0 {
 		t.Fatalf("Wrong number of briefs")
