@@ -137,7 +137,27 @@ func OpenDB(filepath *string) (DBStorage, error) {
 }
 
 // InitDB function creates tables and indexes
-func (dbobj DBStorage) InitDB() error {
+func InitDB(filepath *string) (DBStorage, error){
+	dbfile := "./databunker.db"
+	if filepath != nil {
+		if len(*filepath) > 0 {
+			dbfile = *filepath
+		}
+	}
+	if len(dbfile) >= 3 && dbfile[len(dbfile)-3:] != ".db" {
+		dbfile = dbfile + ".db"
+	}
+	fmt.Printf("Init Databunker db file is: %s\n", dbfile)
+	db, err := sql.Open("sqlite3", "file:"+dbfile+"?_journal_mode=WAL")
+	if err != nil {
+		log.Fatalf("Failed to open databunker.db file: %s", err)
+	}
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("Error on opening database connection: %s", err.Error())
+	}
+	dbobj := DBStorage{db}
+	
 	initUsers(dbobj.db)
 	initXTokens(dbobj.db)
 	initAudit(dbobj.db)
@@ -145,7 +165,7 @@ func (dbobj DBStorage) InitDB() error {
 	initSessions(dbobj.db)
 	initRequests(dbobj.db)
 	initSharedRecords(dbobj.db)
-	return nil
+	return dbobj, nil
 }
 
 // CloseDB function closes the open database
