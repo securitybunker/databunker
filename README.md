@@ -8,7 +8,7 @@ Project **demo** is available at: [https://demo.paranoidguy.com/](https://demo.p
 
 We live in a world where our privacy of information is nonexistent, the EU has been working to remediate this fallacy with GDPR, and the US (California) follows with a first sparrow called CCPA.
 
-Data Bunker Project is intended to ease the acceptance of GDPR and CCPA regulations while giving organizations an easy to implement API's, platform and secure Database. This will give all of us, the real data owners, control of our data, and allow us to know who is using our data, what is he doing with it and have the freedom to decide if we agree to that or not.
+Data Bunker Project is intended to ease the acceptance of GDPR and CCPA regulations while giving organizations an easy to implement API's, secure Database to store PII and privacy portal. This will give all of us, the real data owners, control of our data, and allow us to know who is using our data, what is he doing with it and have the freedom to decide if we agree to that or not.
 
 This project, when deployed correctly, replaces all the customer's personal records (PII) scattered in the organization's different
 internal databases and log files with a single, randomly generated token managed by the Data Bunker service.
@@ -237,12 +237,20 @@ In Data Bunker:
 When implementing signup and sign-in in your customer-facing applications, we recommend you to
 store all signup records in the Data Bunker database. We support 3 types of indexes, index
 by login name, index by email address and index by phone number. So you can easily implement
-login logic into your solution with our service.
+login logic into your solution with the helpof Databunker API.
 
-Index by email and index by phone allow us to give your customers passwordless access to their
-personal profile at Data Bunker. We send your customer a one-time login code by SMS or email to
+Index by email and index by phone allow us to give your customers passwordless access to the
+Databunker privacy portal. We send your customer a one-time login code by SMS or email to
 give them access to thier account at Data Bunker.
 
+
+## Self-service vs DPO approval
+
+**Customer** operations like change of personal records like name, email, or application information change,
+consent withdrawal or forget-me request can be automatically saved in the Databunker database or
+Admin/DPO request will be created instead. This can help with organizations with the DPO to approve user requests.
+You can configure what operations can be self-service or what operations require Admin / DPO approval.
+For more info, check Data Bunker configuration file.
 
 ---
 
@@ -273,7 +281,7 @@ our product.
 
 Almost all Data Bunker requests are using database level indexes when performing API calls.
 We would love your DBA to check product database schema for improvements. If we are missing something let us know.
-We are using sqlite3 in open source version and MongoDB in enterprive version. You can easily backup sqlite3
+We are using sqlite3 in open source version and PostgreSQL in enterprive version. You can easily backup sqlite3
 database and view it's structure.
 
 ## What is the difference between tokenization solution XXX and Data Bunker?
