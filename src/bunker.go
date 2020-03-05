@@ -336,8 +336,7 @@ func setupDB(dbPtr *string) (*dbcon, string, error) {
 	hash := md5.Sum(masterKey)
 	fmt.Printf("Master key: %x\n\n", masterKey)
 	fmt.Printf("Init database\n\n")
-	store, _ := storage.OpenDB(dbPtr)
-	err = store.InitDB()
+	store, err := storage.InitDB(dbPtr)
 	if err != nil {
 		//log.Panic("error %s", err.Error())
 		log.Fatalf("db init error %s", err.Error())
