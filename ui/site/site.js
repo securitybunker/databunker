@@ -1,10 +1,29 @@
 function bunker_logout() {
   localStorage.removeItem("xtoken");
-  localStorage.removeItem("xtoken");
   localStorage.removeItem("login");
   document.location = "/";
 }
 
+var ui_configuration;
+function loadUIConfiguration() {
+  if (ui_configuration) {
+    return ui_configuration;
+  }
+  var xhr10 = new XMLHttpRequest();
+  xhr10.open('GET', "/v1/sys/uiconfiguration", false);
+  xhr10.onload = function () {
+    if (xhr10.status === 200) {
+      console.log(xhr10.responseText);
+      var data = JSON.parse(xhr10.responseText);
+      if (data.status == "ok") {
+        ui_configuration = data.ui;
+      }
+    }
+  }
+  xhr10.send();
+  return ui_configuration;
+}
+	
 function dateFormat(value, row, index) {
   //return moment(value).format('DD/MM/YYYY');
   var d = new Date(parseInt(value) * 1000);

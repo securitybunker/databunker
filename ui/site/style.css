@@ -16,6 +16,11 @@ body {
   height: 100%;
   background-color: #f9fafb !important;
 }
+img.logo {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
 .container {
     height: 100%;
     width: 100%;
@@ -107,9 +112,9 @@ h4 {
     transition: background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
     transition: background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
 }
-.pY-120 {
-    padding-top: 120px!important;
-    padding-bottom: 120px!important;
+.pY-100 {
+    padding-top: 100px!important;
+    padding-bottom: 100px!important;
 }
 .shortstring {
     display: block;
