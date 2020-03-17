@@ -79,6 +79,16 @@ type Config struct {
 		Pass   string `yaml:"pass", envconfig:"SMTP_PASS"`
 		Sender string `yaml:"sender", envconfig:"SMTP_SENDER"`
 	} `yaml:"smtp"`
+	UI struct {
+		LogoLink           string `yaml:"logo_link"`
+		CompanyTitle       string `yaml:"company_title"`
+		CompanyLink        string `yaml:"company_link"`
+		TermOfServiceTitle string `yaml:"term_of_service_title"`
+		TermOfServiceLink  string `yaml:"term_of_service_link"`
+		PrivacyPolicyTitle string `yaml:"privacy_policy_title"`
+		PrivacyPolicyLink  string `yaml:"privacy_policy_link"`
+
+	}
 }
 
 // mainEnv struct stores global structures
@@ -142,6 +152,15 @@ func (e mainEnv) configurationDump(w http.ResponseWriter, r *http.Request, ps ht
 	w.Write([]byte(finalJSON))
 }
 
+// UI configuration dump API call.
+func (e mainEnv) uiConfigurationDump(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	resultJSON, _ := json.Marshal(e.conf.UI)
+	finalJSON := fmt.Sprintf(`{"status":"ok","ui":%s}`, resultJSON)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	w.Write([]byte(finalJSON))
+}
+
 // backupDB API call.
 func (e mainEnv) backupDB(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if e.enforceAuth(w, r, nil) == "" {
@@ -159,7 +178,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 
 	router.GET("/v1/sys/backup", e.backupDB)
 	router.GET("/v1/sys/configuration", e.configurationDump)
-
+	router.GET("/v1/sys/uiconfconfiguration", e.uiConfigurationDump)
+	
 	router.POST("/v1/user", e.userNew)
 	router.GET("/v1/user/:mode/:address", e.userGet)
 	router.DELETE("/v1/user/:mode/:address", e.userDelete)
