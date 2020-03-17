@@ -11,16 +11,18 @@ RESULT=`curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/cont
 echo "Create anonymous consent by email 1: $RESULT"
 
 RESULT=`curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/contract-approval -XPOST \
-   -H "X-Bunker-Token: $XTOKEN"` \
+   -H "X-Bunker-Token: $XTOKEN"`  -H "Content-Type: application/json"` \
    -d '{"lawfulbasis":"contract"}'
 echo "Create anonymous consent by email 2: $RESULT"
 
 RESULT=`curl -s http://localhost:3000/v1/consent/phone/4444/contract-approval -XPOST \
-   -H "X-Bunker-Token: $XTOKEN"`
+   -H "X-Bunker-Token: $XTOKEN"`  -H "Content-Type: application/json"` \
+   -d '{"lawfulbasis":"contract"}'
 echo "Create anonymous consent by phone 1: $RESULT"
 
 RESULT=`curl -s http://localhost:3000/v1/consent/phone/4444/contract-approval -XPOST \
-   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
+   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"` \
+   -d '{"lawfulbasis":"contract"}'
 echo "Create anonymous consent by phone 2: $RESULT"
 
 echo "Creating user."
