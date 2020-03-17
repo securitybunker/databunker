@@ -44,3 +44,12 @@ smtp:
   user: "postmaster@mg.your-company.com"
   pass: ""
   sender: "bot@databunker.your-company.com"
+ui:
+  logo_link: "https://logosbynick.com/wp-content/uploads/2018/03/final-logo-example.png"
+  company_title: "Your company name here"
+  company_link: "https://paranoidguy.com/"
+  term_of_service_title: "Your Terms of service link"
+  term_of_service_link: "https://paranoidguy.com/"
+  privacy_policy_title: "Your Privacy Policy link"
+  privacy_policy_link: "https://paranoidguy.com/"
+  custom_css_file: ""
