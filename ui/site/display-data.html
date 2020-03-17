@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Data Bunker Login</title>
+	<script src="site.js"></script>
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -25,11 +26,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/languages/json.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/styles/a11y-dark.min.css">
+<script>
+conf = loadUIConfiguration();
+if (conf["custom_css_file"]) {
+  document.write("<link rel='stylesheet' type='text/css' href='" + conf["custom_css_file"] +"' />");
+}
+</script>
 </head>
 
 <body>
-    <div class="container col-md-6 pY-120">
-        <div class="row col-12 col-md-12 ">
+    <div class="container col-md-6 pY-100">
+		<script>
+		conf = loadUIConfiguration();
+		if (conf["LogoLink"]) {
+		  document.write("<center><div class='col-6'><img class='logo img-responsive' src='"+conf["LogoLink"]+"'></div></center>" );
+		}
+		</script>
+        <div class="row">
             <div class="bigblock">
                 <h4>Record display</h4>
                 <p id="msg">text</p>
