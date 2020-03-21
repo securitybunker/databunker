@@ -88,6 +88,7 @@ type Config struct {
 		PrivacyPolicyTitle string `yaml:"privacy_policy_title"`
 		PrivacyPolicyLink  string `yaml:"privacy_policy_link"`
 		CustomCSSFile      string `yaml:"custom_css_file"`
+		MagicLookup        bool   `yaml:"magic_lookup"`
 	} `yaml:"ui"`
 }
 
@@ -154,6 +155,10 @@ func (e mainEnv) configurationDump(w http.ResponseWriter, r *http.Request, ps ht
 
 // UI configuration dump API call.
 func (e mainEnv) uiConfigurationDump(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	if len(e.conf.Notification.MagicSyncURL) != 0 &&
+		len(e.conf.Notification.MagicSyncToken) != 0 {
+		e.conf.UI.MagicLookup = true
+	}
 	resultJSON, _ := json.Marshal(e.conf.UI)
 	finalJSON := fmt.Sprintf(`{"status":"ok","ui":%s}`, resultJSON)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
