@@ -24,19 +24,18 @@ func Test_UUID(t *testing.T) {
 }
 
 func Test_AppNames(t *testing.T) {
-	goodApps := []string{"penn", "teller", "a123"}
+	goodApps := []string{"penn", "teller", "a123", "good_app"}
 	for _, value := range goodApps {
 		if isValidApp(value) == false {
 			t.Fatalf("Failed to validate good app name: %s ", value)
 		}
 	}
-	badApps := []string{"P1", "1as", "_a", "a_a", "a.a", "a a"}
+	badApps := []string{"P1", "4as", "_a", "a.a", "a a", "a!b"}
 	for _, value := range badApps {
 		if isValidApp(value) == true {
 			t.Fatalf("Failed to validate bad app name: %s ", value)
 		}
 	}
-
 }
 
 func Test_stringPatternMatch(t *testing.T) {
