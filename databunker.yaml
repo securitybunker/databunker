@@ -46,7 +46,7 @@ smtp:
   sender: "bot@databunker.your-company.com"
 ui:
   logo_link: "https://logosbynick.com/wp-content/uploads/2018/03/final-logo-example.png"
-  company_title: "Your company name here"
+  company_title: "Your company here"
   company_link: "https://paranoidguy.com/"
   term_of_service_title: "Your Terms of service link"
   term_of_service_link: "https://paranoidguy.com/"
