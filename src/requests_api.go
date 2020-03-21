@@ -169,7 +169,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 			event.Status = "failed"
 			event.Msg = "failed to delete"
 		}
-		notifyURL := e.conf.Notification.ForgetmeNotificationURL
+		notifyURL := e.conf.Notification.NotificationURL
 		notifyForgetMe(notifyURL, resultJSON, "token", userTOKEN)
 	} else if action == "change-profile" {
 		oldJSON, newJSON, lookupErr, err := e.db.updateUserRecord(requestInfo["change"].([]uint8), userTOKEN, event, e.conf)
@@ -182,7 +182,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 			return
 		}
 		returnUUID(w, userTOKEN)
-		notifyURL := e.conf.Notification.ProfileNotificationURL
+		notifyURL := e.conf.Notification.NotificationURL
 		notifyProfileChange(notifyURL, oldJSON, newJSON, "token", userTOKEN)
 	} else if action == "change-app-data" {
 		app := requestInfo["app"].(string)

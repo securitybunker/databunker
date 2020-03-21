@@ -9,6 +9,15 @@ import (
 	"net/http"
 )
 
+func notifyBadLogin(notifyURL string, mode string, address string) {
+	if len(notifyURL) == 0 {
+		return
+	}
+	requestBody := fmt.Sprintf(`{"action":"%s","address":"%s","mode":"%s"}`,
+		"badlogin", address, mode)
+	go notify(notifyURL, []byte(requestBody))
+}
+
 func notifyProfileNew(notifyURL string, profile []byte, mode string, address string) {
 	if len(notifyURL) == 0 {
 		return

@@ -47,11 +47,9 @@ type Config struct {
 		ConsentWithdraw  []string `yaml:"consent_withdraw"`
 	}
 	Notification struct {
-		ConsentNotificationURL  string `yaml:"consent_notification_url"`
-		ProfileNotificationURL  string `yaml:"profile_notification_url"`
-		ForgetmeNotificationURL string `yaml:"forgetme_notification_url"`
-		MagicSyncURL            string `yaml:"magic_sync_url"`
-		MagicSyncToken          string `yaml:"magic_sync_token"`
+		NotificationURL string `yaml:"notification_url"`
+		MagicSyncURL    string `yaml:"magic_sync_url"`
+		MagicSyncToken  string `yaml:"magic_sync_token"`
 	}
 	Policy struct {
 		MaxAuditRetentionPeriod           string `yaml:"max_audit_retention_period"`
@@ -158,6 +156,8 @@ func (e mainEnv) uiConfigurationDump(w http.ResponseWriter, r *http.Request, ps 
 	if len(e.conf.Notification.MagicSyncURL) != 0 &&
 		len(e.conf.Notification.MagicSyncToken) != 0 {
 		e.conf.UI.MagicLookup = true
+	} else {
+		e.conf.UI.MagicLookup = false
 	}
 	resultJSON, _ := json.Marshal(e.conf.UI)
 	finalJSON := fmt.Sprintf(`{"status":"ok","ui":%s}`, resultJSON)
@@ -295,7 +295,7 @@ func (e mainEnv) dbCleanupDo() {
 	if exp > 0 {
 		e.db.store.DeleteExpired0(storage.TblName.Audit, exp)
 	}
-	notifyURL := e.conf.Notification.ConsentNotificationURL
+	notifyURL := e.conf.Notification.NotificationURL
 	e.db.expireConsentRecords(notifyURL)
 }
 

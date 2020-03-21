@@ -92,7 +92,7 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	}
 	event.Record = userTOKEN
 	returnUUID(w, userTOKEN)
-	notifyURL := e.conf.Notification.ProfileNotificationURL
+	notifyURL := e.conf.Notification.NotificationURL
 	notifyProfileNew(notifyURL, parsedData.jsonData, "token", userTOKEN)
 	return
 }
@@ -208,7 +208,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 	returnUUID(w, userTOKEN)
-	notifyURL := e.conf.Notification.ProfileNotificationURL
+	notifyURL := e.conf.Notification.NotificationURL
 	notifyProfileChange(notifyURL, oldJSON, newJSON, "token", userTOKEN)
 }
 
@@ -271,7 +271,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","result":"done"}`)
-	notifyURL := e.conf.Notification.ForgetmeNotificationURL
+	notifyURL := e.conf.Notification.NotificationURL
 	notifyForgetMe(notifyURL, resultJSON, "token", userTOKEN)
 }
 
@@ -307,6 +307,12 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			}
 		}
 	} else {
+		if mode == "phone" || mode == "email" {
+			notifyURL := e.conf.Notification.NotificationURL
+			notifyBadLogin(notifyURL, mode, address)
+			returnError(w, r, "not found", 405, errors.New("not found"), event)
+			return
+		}
 		fmt.Println("user record not found, still returning ok status")
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
