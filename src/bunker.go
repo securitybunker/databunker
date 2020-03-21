@@ -87,7 +87,7 @@ type Config struct {
 		TermOfServiceLink  string `yaml:"term_of_service_link"`
 		PrivacyPolicyTitle string `yaml:"privacy_policy_title"`
 		PrivacyPolicyLink  string `yaml:"privacy_policy_link"`
-		CustomCssFile      string `yaml:"custom_css_file"`
+		CustomCSSFile      string `yaml:"custom_css_file"`
 	} `yaml:"ui"`
 }
 
@@ -179,7 +179,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/sys/backup", e.backupDB)
 	router.GET("/v1/sys/configuration", e.configurationDump)
 	router.GET("/v1/sys/uiconfiguration", e.uiConfigurationDump)
-	
+
 	router.POST("/v1/user", e.userNew)
 	router.GET("/v1/user/:mode/:address", e.userGet)
 	router.DELETE("/v1/user/:mode/:address", e.userDelete)
