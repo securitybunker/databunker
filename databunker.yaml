@@ -13,11 +13,13 @@ selfservice:
   # accepting consent does not require admin/DPO approval.
   consent_withdraw: ["*mail*", "*phone*", "*sms*", "*news*"]
 notification:
-  # this should be an iternal url that receives user consent change requests
-  # user details are send as POST data
-  consent_notification_url: "https://httpbin.org/post"
-  profile_notification_url: "https://httpbin.org/post"
-  forgetme_notification_url: "https://httpbin.org/post"
+  # url that receives notifications:
+  # - bad login
+  # - forget me
+  # - user profile change
+  # - consent change
+  # user details are send as json data.
+  notification_url: "https://httpbin.org/post"
 policy:
   # max time to store records, untill they are deleted
   max_audit_retention_period: "6m"
