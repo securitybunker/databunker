@@ -47,7 +47,7 @@ RUN /bin/busybox mkdir -p /databunker/certs
 RUN /bin/busybox ln -s /bin/busybox /bin/addgroup
 RUN /bin/busybox ln -s /bin/busybox /bin/adduser
 COPY --from=builder /etc/group /etc/
-COPY --from=builder /etc/ssl /etc
+COPY --from=builder /etc/ssl /etc/
 RUN /bin/busybox touch /etc/passwd
 RUN /bin/busybox mkdir -p /tmp
 RUN /bin/busybox chmod 0777 /tmp
