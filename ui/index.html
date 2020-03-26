@@ -65,6 +65,9 @@ if (conf["custom_css_file"]) {
                     <div id="badformat" class="alert alert-warning" role="alert" style="display:none;">
                         Bad input value!
                     </div>
+					<div id="notfound" class="alert alert-warning" role="alert" style="display:none;">
+                        User not found
+                    </div>
                     <div class="form-group">
                         <input id="loginvalue" type="login" autocomplete="off" class="form-control" onclick="hidebadformat();"
                             placeholder="Enter token...">
@@ -84,11 +87,37 @@ if (conf["custom_css_file"]) {
                         </div>
                     </div>
                 </form>
+				<div id="loading" style="display:none;">
+					<center><img src="/site/loading.gif" /></center>
+				</div>
             </div>
         </div>
 	    <script>displayFooterLinks();</script>
     </div>
     <script>
+		var lookupTimer;
+		var lookupCount;
+		function lookupUser(url) {
+			if (lookupCount > 0) {
+				// try to login with user again
+				var xhr10 = new XMLHttpRequest();
+				xhr10.open('GET', url);
+                xhr10.onload = function () {
+                    if (xhr10.status === 200) {
+                        document.location = "/site/enter.html";
+                    }
+                }
+                xhr10.send();
+				lookupCount = lookupCount - 1;
+			} else {
+				clearTimeout(lookupTimer);
+				var loading = document.getElementById('loading');
+				loading.style.display = "none";
+				var notfound = document.getElementById('notfound');
+				notfound.style.display = "block";
+			}
+		}
+		
         function isUUID(uuid) {
             let s = "" + uuid;
             s = s.match('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$');
@@ -105,7 +134,9 @@ if (conf["custom_css_file"]) {
         }
         function hidebadformat() {
             var badformat = document.getElementById('badformat');
+		    var notfound = document.getElementById('notfound');
             badformat.style.display = "none";
+            notfound.style.display = "none";
         }
         function changemethod(obj) {
             var value = obj.value;
@@ -122,12 +153,16 @@ if (conf["custom_css_file"]) {
             var emailchk = document.getElementById('emailchk');
             var confalert = document.getElementById('confalert');
             var badformat = document.getElementById('badformat');
-
+			var loading = document.getElementById('loading');
+			var notfound = document.getElementById('notfound');
+			
             if (!element || !smsform || !emailform ||
-                !smschk || !emailchk || !confalert || !badformat) {
+                !smschk || !emailchk || !confalert || 
+				!badformat || !loading) {
                 return false;
             }
             badformat.style.display = "none";
+			notfound.style.display = "none";
             smschk.checked = false;
             emailchk.checked = false;
             value = value.toLowerCase();
@@ -211,10 +246,17 @@ if (conf["custom_css_file"]) {
                 xhr0.onload = function () {
                     if (xhr0.status === 200) {
                         var xhr = new XMLHttpRequest();
-                        xhr.open('GET', "/v1/login/email/" + encodeURI(key));
+						var url = "/v1/login/email/" + encodeURI(key)
+                        xhr.open('GET', url);
                         xhr.onload = function () {
                             if (xhr.status === 200) {
                                 document.location = "/site/enter.html";
+							} else if (conf["MagicLookup"]) {
+								//error
+								var loading = document.getElementById('loading');
+								loading.style.display = "block";
+								lookupCount = 5;
+								lookupTimer = setInterval(lookupUser, 500, url);
                             }
                         }
                         xhr.send();
@@ -235,7 +277,7 @@ if (conf["custom_css_file"]) {
                         xhr.onload = function () {
                             if (xhr.status === 200) {
                                 document.location = "/site/enter.html";
-                            }
+							}
                         }
                         xhr.send();
                     }
