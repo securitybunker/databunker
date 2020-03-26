@@ -13,9 +13,9 @@ function loadUIConfiguration() {
   xhr10.open('GET', "/v1/sys/uiconfiguration", false);
   xhr10.onload = function () {
     if (xhr10.status === 200) {
-      console.log(xhr10.responseText);
+      //console.log(xhr10.responseText);
       var data = JSON.parse(xhr10.responseText);
-      if (data.status == "ok") {
+      if (data && data.status == "ok") {
         ui_configuration = data.ui;
       }
     }
