@@ -27,7 +27,7 @@ policy:
   max_shareable_record_retention_period: "3m"
 ssl:
   # ssl configuration
-  ssl_certificate: "/databunker/certs/server.crt"
+  ssl_certificate: "/databunker/certs/server.cer"
   ssl_certificate_key: "/databunker/certs/server.key"
 sms:
   # default country when sending out SMSM
