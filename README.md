@@ -270,19 +270,21 @@ We have a special API call for that. You can run the following command to dump d
 curl -s http://localhost:3000/v1/sys/backup -H "X-Bunker-Token: $TOKEN" -o backup.sql
 ```
 
-## What about replication?
+## Does your product multi-master solution?
 
-Replication is supported in **Data Bunker Enterprise version** using the backend **MongoDB database**.
-Open source version is using local sqlite3 database that does not supports replication. You can easily backup it
-using API call and restore. We decided to use sqlite3 as as it provides zero effort from customer to start using
+Multi-master solution or basically multiple instances of the databunker service is supported in **Data Bunker
+Enterprise version** running on AWS cloud. The product is using AWS Aurora PostgreSQL database at the backen.
+
+Open source version is using local **sqlite3** database that does not supports replication. You can easily backup it
+using API call and restore. We are using sqlite3 as as it provides zero effort from customer to start using
 our product.
 
 ## Can my DBA tune database performance characteristics?
 
 Almost all Data Bunker requests are using database level indexes when performing API calls.
 We would love your DBA to check product database schema for improvements. If we are missing something let us know.
-We are using sqlite3 in open source version and PostgreSQL in enterprive version. You can easily backup sqlite3
-database and view it's structure.
+We are using **sqlite3** in open source version and **Aurora PostgreSQL** in enterprive version. You can easily backup
+sqlite3 database and view it's structure.
 
 ## What is the difference between tokenization solution XXX and Data Bunker?
 
@@ -321,16 +323,27 @@ Following is a partial list.
 
 # Technology stack?
 
-We use golang/go to build the whole project. Open source version comes with internal
+We use golang/go to build the whole project, with 80% automatic test coverage. Open source version comes with internal
 database (**sqlite3**) and Web UI as one executable file to make the project easy to deploy.
 
-## Encryption in motion and encryption in storage
+## Does the product has encryption in motion and encryption in storage?
 
 All access to Data Bunker API is done using HTTPS SSL certificate. All records that have customer personal information
 are encrypted or securely hashed in the databases. All customer records are encrypted with a 32 byte key comprizing of
 **System Master key** (24 bytes, stored in memory, not on disk) and **customer record key** (8 bytes, stored on disk).
 The **System Master key** is kept in RAM and is never stored to disk. Enterprise version supports **Master key split**. 
 
+## Is databunker is end-user facing?
+
+Yes. The end-user, according to GDPR must have control over the PII data. The user can change the personal data, give 
+or withdraw consent, request forget-me. All user requests can be self - service (automatic) or with DPO / Admin approval.
+
+## Is databunker is a wrapper for exisitng MySQL/PostgreSQL/SQL Server database?
+
+This product is not a wrapper for existing database. It is a special database used to save personal informatin records
+in a compliant way. The service provides a REST API to store and update user records in JSON format; and customer
+facing web ui to perform user data requests.
+ 
 ## Data Bunker internal tables
 
 Information inside Data Bunker is saved in multiple tables in encrypted format. Here is a diagram of tables.
