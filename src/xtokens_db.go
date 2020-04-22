@@ -20,17 +20,20 @@ func (dbobj dbcon) getRootXtoken() (string, error) {
 	return record["xtoken"].(string), nil
 }
 
-func (dbobj dbcon) createRootXtoken() (string, error) {
+func (dbobj dbcon) createRootXtoken(demo bool) (string, error) {
 	rootToken, err := dbobj.getRootXtoken()
 	if err != nil {
 		return "", err
 	}
 	if len(rootToken) > 0 {
-		return rootToken, nil
+		return "already-initalized", nil
 	}
 	rootToken, err = uuid.GenerateUUID()
 	if err != nil {
 		return "", err
+	}
+	if demo {
+		rootToken = "DEMO"
 	}
 	bdoc := bson.M{}
 	bdoc["xtoken"] = hashString(dbobj.hash, rootToken)
@@ -90,7 +93,7 @@ func (dbobj dbcon) checkXtoken(xtokenUUID string) bool {
 
 func (dbobj dbcon) checkUserAuthXToken(xtokenUUID string) (tokenAuthResult, error) {
 	result := tokenAuthResult{}
-	if isValidUUID(xtokenUUID) == false {
+	if xtokenUUID != "DEMO" && isValidUUID(xtokenUUID) == false {
 		return result, errors.New("failed to authenticate")
 	}
 	xtokenHashed := hashString(dbobj.hash, xtokenUUID)
