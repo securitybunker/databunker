@@ -355,7 +355,7 @@ func logRequest(handler http.Handler) http.Handler {
 	})
 }
 
-func setupDB(dbPtr *string) (*dbcon, string, error) {
+func setupDB(dbPtr *string, demo bool) (*dbcon, string, error) {
 	fmt.Printf("\nDatabunker init\n\n")
 	masterKey, err := generateMasterKey()
 	hash := md5.Sum(masterKey)
@@ -367,7 +367,7 @@ func setupDB(dbPtr *string) (*dbcon, string, error) {
 		log.Fatalf("db init error %s", err.Error())
 	}
 	db := &dbcon{store, masterKey, hash[:]}
-	rootToken, err := db.createRootXtoken()
+	rootToken, err := db.createRootXtoken(demo)
 	if err != nil {
 		//log.Panic("error %s", err.Error())
 		fmt.Printf("error %s", err.Error())
@@ -401,6 +401,7 @@ func main() {
 	lockMemory()
 	//fmt.Printf("%+v\n", cfg)
 	initPtr := flag.Bool("init", false, "generate master key and init database")
+	demoPtr := flag.Bool("demoinit", false, "generate master key with a DEMO access token")
 	startPtr := flag.Bool("start", false, "start databunker service. User DATABUNKER_MASTERKEY environment variable.")
 	masterKeyPtr := flag.String("masterkey", "", "master key")
 	dbPtr := flag.String("db", "databunker", "database file")
@@ -410,8 +411,8 @@ func main() {
 	var cfg Config
 	readFile(&cfg, confPtr)
 	readEnv(&cfg)
-	if *initPtr {
-		db, _, _ := setupDB(dbPtr)
+	if *initPtr || *demoPtr {
+		db, _, _ := setupDB(dbPtr, *demoPtr)
 		db.store.CloseDB()
 		os.Exit(0)
 	}

@@ -3,9 +3,13 @@
 #/bin/busybox find /databunker
 
 if [ ! -f /databunker/data/databunker.db ]; then
+  OPTION="-init"
+  if [ "$1" == "demo" ]; then
+    OPTION="-demoinit"
+  fi
   echo "-------------INIT------------"
   #/bin/busybox mkdir -p /tmp
-  RESULT=`/databunker/bin/databunker -init -db /databunker/data/databunker.db -conf /databunker/conf/databunker.yaml > /tmp/init.txt`
+  RESULT=`/databunker/bin/databunker $OPTION -db /databunker/data/databunker.db -conf /databunker/conf/databunker.yaml > /tmp/init.txt`
   if [ ! -f /databunker/data/databunker.db ]; then
     echo "Failed to init databunker database. Probably permission issue for /databunker/data directory."
     /bin/busybox sleep 60
