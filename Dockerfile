@@ -46,6 +46,7 @@ RUN /bin/busybox mkdir -p /databunker/certs
 #RUN /bin/busybox ln -s /bin/busybox /bin/sh
 RUN /bin/busybox ln -s /bin/busybox /bin/addgroup
 RUN /bin/busybox ln -s /bin/busybox /bin/adduser
+RUN /bin/busybox ln -s /bin/busybox /bin/chown
 COPY --from=builder /etc/group /etc/
 COPY --from=builder /etc/ssl /etc/ssl
 RUN /bin/busybox touch /etc/passwd
@@ -53,6 +54,7 @@ RUN /bin/busybox mkdir -p /tmp
 RUN /bin/busybox chmod 0777 /tmp
 # Create a group and user
 RUN addgroup -S appgroup && adduser --no-create-home -S appuser -G appgroup
+RUN chown appuser:appgroup /databunker/data
 # Tell docker that all future commands should run as the appuser user
 USER appuser
 COPY --from=builder /go/bin/databunker /databunker/bin/databunker
