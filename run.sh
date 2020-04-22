@@ -6,7 +6,6 @@ if [ ! -f /databunker/data/databunker.db ]; then
   echo "-------------INIT------------"
   #/bin/busybox mkdir -p /tmp
   RESULT=`/databunker/bin/databunker -init -db /databunker/data/databunker.db -conf /databunker/conf/databunker.yaml > /tmp/init.txt`
-  echo $RESULT
   if [ ! -f /databunker/data/databunker.db ]; then
     echo "Failed to init databunker database. Probably permission issue for /databunker/data directory."
     /bin/busybox sleep 60
