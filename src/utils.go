@@ -402,6 +402,33 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 	return records, nil
 }
 
+func getIndexString(val interface{}) (string) {
+	myType := reflect.TypeOf(val).Kind()
+	newIdxValue := ""
+        if myType == reflect.String {
+                newIdxValue = val.(string)
+        }
+        if myType == reflect.Int {
+                newIdxValue = strconv.Itoa(val.(int))
+        }
+        if myType == reflect.Float64 {
+                newIdxValue = strconv.Itoa(int(val.(float64)))
+        }
+	return strings.TrimSpace(newIdxValue)
+}
+
+/*
+func getIndexValue(indexName string, val interface{}) (string) {
+	indexValue = getIndexString(val)
+        if indexName == "email" {
+                indexValue = normalizeEmail(indexValue)
+        } else if indexName == "phone" {
+                indexValue = normalizePhone(indexValue, conf.Sms.DefaultCountry)
+        }
+	return indexValue
+}
+*/
+
 func getJSONPost(r *http.Request, defaultCountry string) (userJSON, error) {
 	var result userJSON
 	records, err := getJSONPostData(r)
@@ -413,22 +440,13 @@ func getJSONPost(r *http.Request, defaultCountry string) (userJSON, error) {
 	}
 
 	if value, ok := records["login"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			result.loginIdx = value.(string)
-			result.loginIdx = strings.TrimSpace(result.loginIdx)
-		}
+		result.loginIdx = getIndexValue(value)
 	}
 	if value, ok := records["email"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			result.emailIdx = value.(string)
-			result.emailIdx = normalizeEmail(result.emailIdx)
-		}
+		result.emailIdx = normalizeEmail(getIndexValue(value))
 	}
 	if value, ok := records["phone"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			result.phoneIdx = value.(string)
-			result.phoneIdx = normalizePhone(result.phoneIdx, defaultCountry)
-		}
+		result.phoneIdx = normalizePhone(getIndexValue(value), defaultCountry)
 	}
 
 	result.jsonData, err = json.Marshal(records)
