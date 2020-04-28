@@ -200,7 +200,6 @@ if (conf["custom_css_file"]) {
                 confalert.style.display = "block";
                 return false;
             }
-            console.log("check admin");
             if (kkk == "Record" && isUUID(key) == true) {
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', "/v1/get/" + key);
@@ -219,19 +218,17 @@ if (conf["custom_css_file"]) {
                     }
                 };
                 xhr.send();
-            } else if (kkk == "Admin" && isUUID(key) == true) {
-                console.log("check admin");
+            } else if (kkk == "Admin" && (key == "DEMO" || isUUID(key) == true)) {
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', "/v1/userapps");
                 xhr.setRequestHeader("X-Bunker-Token", key)
-                xhr.setRequestHeader('Content-type', 'application/json');
+                xhr.setRequestHeader("Content-type", "application/json");
                 xhr.onload = function () {
                     if (xhr.status === 200) {
                         var data = JSON.parse(xhr.responseText);
                         if (data && data.status && data.status == "ok") {
                             window.localStorage.setItem('xtoken', key);
                             window.localStorage.setItem('type', data.type);
-                            console.log("data", data);
                             document.location = "/site/admin-view-requests.html";
                         }
                     }
@@ -240,23 +237,22 @@ if (conf["custom_css_file"]) {
             } else if (kkk == "Email" && key.indexOf('@') > 0) {
                 window.localStorage.setItem('login', key);
                 var xhr0 = new XMLHttpRequest();
-                // first save consent
                 xhr0.open('POST', "/v1/consent/email/" + encodeURI(key) + "/send-email-mailgun-on-login");
                 xhr0.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
                 xhr0.onload = function () {
                     if (xhr0.status === 200) {
                         var xhr = new XMLHttpRequest();
-						var url = "/v1/login/email/" + encodeURI(key)
+                        var url = "/v1/login/email/" + encodeURI(key)
                         xhr.open('GET', url);
                         xhr.onload = function () {
                             if (xhr.status === 200) {
                                 document.location = "/site/enter.html";
-							} else if (conf["MagicLookup"]) {
-								//error
-								var loading = document.getElementById('loading');
-								loading.style.display = "block";
-								lookupCount = 5;
-								lookupTimer = setInterval(lookupUser, 500, url);
+                            } else if (conf["MagicLookup"]) {
+                                //error
+                                var loading = document.getElementById('loading');
+                                loading.style.display = "block";
+                                lookupCount = 5;
+                                lookupTimer = setInterval(lookupUser, 500, url);
                             }
                         }
                         xhr.send();
