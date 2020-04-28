@@ -371,6 +371,9 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	if len(body) < 3 {
+		return nil, nil
+	}
 	if strings.HasPrefix(cType, "application/x-www-form-urlencoded") {
 		if body[0] == '{' {
 			return nil, errors.New("wrong content-type, json instead of url encoded data")
@@ -388,9 +391,6 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 			records[key] = value[0]
 		}
 	} else if strings.HasPrefix(cType, "application/json") {
-		if len(body) < 3 {
-			return nil, nil
-		}
 		err = json.Unmarshal(body, &records)
 		if err != nil {
 			return nil, err
