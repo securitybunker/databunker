@@ -367,25 +367,27 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 		// otherwise data is not parsed!
 		r.Method = "PATCH"
 	}
-
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
 	if strings.HasPrefix(cType, "application/x-www-form-urlencoded") {
-		err = r.ParseForm()
+		if body[0] == '{' {
+			return nil, errors.New("wrong content-type, json instead of url encoded data")
+		}
+		form, err := url.ParseQuery(string(body))
 		if err != nil {
 			fmt.Printf("error in http data parsing: %s\n", err)
 			return nil, err
 		}
-		if len(r.Form) == 0 {
+		if len(form) == 0 {
 			return nil, nil
 		}
-		for key, value := range r.Form {
+		for key, value := range form {
 			//fmt.Printf("data here %s => %s\n", key, value[0])
 			records[key] = value[0]
 		}
 	} else if strings.HasPrefix(cType, "application/json") {
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			return nil, err
-		}
 		if len(body) < 3 {
 			return nil, nil
 		}
