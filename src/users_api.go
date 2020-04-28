@@ -26,7 +26,7 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		return
 	}
 	if len(parsedData.jsonData) == 0 {
-		returnError(w, r, "empty body", 405, nil, event)
+		returnError(w, r, "empty request body", 405, nil, event)
 		return
 	}
 	// make sure that login, email and phone are unique
@@ -157,7 +157,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 	if len(parsedData.jsonData) == 0 {
-		returnError(w, r, "empty body", 405, nil, event)
+		returnError(w, r, "empty request body", 405, nil, event)
 		return
 	}
 
