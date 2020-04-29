@@ -440,13 +440,13 @@ func getJSONPost(r *http.Request, defaultCountry string) (userJSON, error) {
 	}
 
 	if value, ok := records["login"]; ok {
-		result.loginIdx = getIndexValue(value)
+		result.loginIdx = getIndexString(value)
 	}
 	if value, ok := records["email"]; ok {
-		result.emailIdx = normalizeEmail(getIndexValue(value))
+		result.emailIdx = normalizeEmail(getIndexString(value))
 	}
 	if value, ok := records["phone"]; ok {
-		result.phoneIdx = normalizePhone(getIndexValue(value), defaultCountry)
+		result.phoneIdx = normalizePhone(getIndexString(value), defaultCountry)
 	}
 
 	result.jsonData, err = json.Marshal(records)
