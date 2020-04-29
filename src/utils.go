@@ -85,6 +85,9 @@ func normalizeEmail(email0 string) string {
 func normalizePhone(phone string, defaultCountry string) string {
 	// 4444 is a phone number for testing, no need to normilize it
 	phone = strings.TrimSpace(phone)
+	if len(phone) == 0 {
+		return phone
+	}
 	if phone == "4444" {
 		return "4444"
 	}
@@ -403,6 +406,9 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 }
 
 func getIndexString(val interface{}) (string) {
+	if reflect.TypeOf(val) == reflect.TypeOf(nil) {
+		return ""
+	}
 	myType := reflect.TypeOf(val).Kind()
 	newIdxValue := ""
         if myType == reflect.String {
