@@ -174,7 +174,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 		if userBson == nil {
-			returnError(w, r, "internal error", 405, nil, event)
+			returnError(w, r, "record not found", 405, nil, event)
 			return
 		}
 		userTOKEN = userBson["token"].(string)
@@ -200,7 +200,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	oldJSON, newJSON, lookupErr, err := e.db.updateUserRecord(parsedData.jsonData, userTOKEN, event, e.conf)
 	if lookupErr {
-		returnError(w, r, "not found", 405, errors.New("not found"), event)
+		returnError(w, r, "record not found", 405, errors.New("record not found"), event)
 		return
 	}
 	if err != nil {
@@ -310,7 +310,7 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		if mode == "phone" || mode == "email" {
 			notifyURL := e.conf.Notification.NotificationURL
 			notifyBadLogin(notifyURL, mode, address)
-			returnError(w, r, "not found", 405, errors.New("not found"), event)
+			returnError(w, r, "record not found", 405, errors.New("record not found"), event)
 			return
 		}
 		fmt.Println("user record not found, still returning ok status")
