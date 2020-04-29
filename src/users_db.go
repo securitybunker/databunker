@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"reflect"
 	"time"
 
 	jsonpatch "github.com/evanphx/json-patch"
@@ -89,55 +88,6 @@ func (dbobj dbcon) generateDemoLoginCode(userTOKEN string) int32 {
 	return rnd
 }
 
-// int 0 - same value
-// int -1 remove
-// int 1 add
-func (dbobj dbcon) validateIndexChange(indexName string, idxOldValue string, raw map[string]interface{}, conf Config) (int, error) {
-	if len(idxOldValue) == 0 {
-		return 0, nil
-	}
-	// check type of raw[indexName]
-	//fmt.Println(raw[indexName])
-	if newIdxValue, ok2 := raw[indexName]; ok2 {
-		if reflect.TypeOf(newIdxValue) == reflect.TypeOf("string") {
-			newIdxFinalValue := newIdxValue.(string)
-			if indexName == "email" {
-				newIdxFinalValue = normalizeEmail(newIdxFinalValue)
-			} else if indexName == "phone" {
-				newIdxFinalValue = normalizePhone(newIdxFinalValue, conf.Sms.DefaultCountry)
-			}
-			idxStringHashHex := hashString(dbobj.hash, newIdxFinalValue)
-			if idxStringHashHex != idxOldValue {
-				fmt.Println("index value changed!")
-				// old index value renamed
-				// check if this value is uniqueue
-				otherUserBson, _ := dbobj.lookupUserRecordByIndex(indexName, newIdxFinalValue, conf)
-				if otherUserBson != nil {
-					// already exist user with same index value
-					return 0, errors.New("duplicate index")
-				}
-				//fmt.Println("new index value good")
-				return 1, nil
-			}
-			// same value, no need to check
-			//fmt.Println("same index value")
-			return 0, nil
-		} else if reflect.TypeOf(newIdxValue) == reflect.TypeOf(nil) {
-			//fmt.Println("old index removed!!!")
-			return -1, nil
-		} else {
-			// index value is changed to unknown value type
-			//e := fmt.Sprintf("wrong index type for %s : %s", indexName, reflect.TypeOf(newIdxValue))
-			//return 0, errors.New(e)
-			// silently remove index as value is not string
-			return -1, nil
-		}
-	}
-	// index value removed
-	//fmt.Println("old index removed!")
-	return -1, nil
-}
-
 func (dbobj dbcon) updateUserRecord(jsonDataPatch []byte, userTOKEN string, event *auditEvent, conf Config) ([]byte, []byte, bool, error) {
 	var err error
 	for x := 0; x < 10; x++ {
@@ -197,32 +147,41 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ev
 	keys := []string{"login", "email", "phone"}
 	for _, idx := range keys {
 		//fmt.Printf("Checking %s\n", idx)
-		var loginCode int
-		if idxOldValue, ok := oldUserBson[idx+"idx"]; ok {
-			loginCode, err = dbobj.validateIndexChange(idx, idxOldValue.(string), raw, conf)
-			if err != nil {
-				return nil, nil, false, err
-			}
-			if loginCode == -1 {
-				bdel[idx+"idx"] = ""
-			}
-		} else {
-			// check if new value is created
-			if newIdxValue, ok3 := raw[idx]; ok3 {
-				//fmt.Printf("adding index? %s\n", raw[idx])
-				otherUserBson, _ := dbobj.lookupUserRecordByIndex(idx, newIdxValue.(string), conf)
-				if otherUserBson != nil {
-					// already exist user with same index value
-					return nil, nil, true, fmt.Errorf("duplicate %s index", idx)
+		loginCode := 0
+		newIdxFinalValue := ""
+		if newIdxValue, ok3 := raw[idx]; ok3 {
+			newIdxFinalValue = getIndexString(newIdxValue)
+			if len(newIdxFinalValue) > 0 {
+				if idx == "email" {
+					newIdxFinalValue = normalizeEmail(newIdxFinalValue)
+				} else if idx == "phone" {
+					newIdxFinalValue = normalizePhone(newIdxFinalValue, conf.Sms.DefaultCountry)
 				}
-				//fmt.Printf("adding index2? %s\n", raw[idx])
-				// create login index
-				loginCode = 1
 			}
 		}
-		if loginCode == 1 {
+		if idxOldValue, ok := oldUserBson[idx+"idx"]; ok {
+			if len(newIdxFinalValue) > 0 {
+				idxStringHashHex := hashString(dbobj.hash, newIdxFinalValue)
+				if len(idxOldValue.(string)) == 0 {
+					loginCode = 1
+				} else if idxStringHashHex != idxOldValue.(string) {
+					fmt.Println("index value changed!")
+					loginCode = 1
+				}
+			} else {
+				bdel[idx+"idx"] = ""
+			}
+		}
+		if len(newIdxFinalValue) > 0 && loginCode == 1 {
+			// check if new value is created
+			//fmt.Printf("adding index? %s\n", raw[idx])
+			otherUserBson, _ := dbobj.lookupUserRecordByIndex(idx, newIdxFinalValue, conf)
+			if otherUserBson != nil {
+				// already exist user with same index value
+				return nil, nil, true, fmt.Errorf("duplicate %s index", idx)
+			}
 			//fmt.Printf("adding index3? %s\n", raw[idx])
-			bdoc[idx+"idx"] = hashString(dbobj.hash, raw[idx].(string))
+			bdoc[idx+"idx"] = hashString(dbobj.hash, newIdxFinalValue)
 		}
 	}
 
