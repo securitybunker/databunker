@@ -147,10 +147,11 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ev
 	keys := []string{"login", "email", "phone"}
 	for _, idx := range keys {
 		//fmt.Printf("Checking %s\n", idx)
-		loginCode := 0
+		actionCode := 1
 		newIdxFinalValue := ""
 		if newIdxValue, ok3 := raw[idx]; ok3 {
 			newIdxFinalValue = getIndexString(newIdxValue)
+			fmt.Println("newIdxFinalValue0", newIdxFinalValue)
 			if len(newIdxFinalValue) > 0 {
 				if idx == "email" {
 					newIdxFinalValue = normalizeEmail(newIdxFinalValue)
@@ -158,21 +159,22 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ev
 					newIdxFinalValue = normalizePhone(newIdxFinalValue, conf.Sms.DefaultCountry)
 				}
 			}
+			fmt.Println("newIdxFinalValue", newIdxFinalValue)
 		}
 		if idxOldValue, ok := oldUserBson[idx+"idx"]; ok {
-			if len(newIdxFinalValue) > 0 {
+			if len(newIdxFinalValue) > 0 && len(idxOldValue.(string)) >= 0 {
 				idxStringHashHex := hashString(dbobj.hash, newIdxFinalValue)
-				if len(idxOldValue.(string)) == 0 {
-					loginCode = 1
-				} else if idxStringHashHex != idxOldValue.(string) {
+				if idxStringHashHex == idxOldValue.(string) {
+					fmt.Println("index value NOT changed!")
+					actionCode = 0
+				} else {
 					fmt.Println("index value changed!")
-					loginCode = 1
 				}
 			} else {
-				bdel[idx+"idx"] = ""
+				fmt.Println("old or new is empty")
 			}
 		}
-		if len(newIdxFinalValue) > 0 && loginCode == 1 {
+		if len(newIdxFinalValue) > 0 && actionCode == 1 {
 			// check if new value is created
 			//fmt.Printf("adding index? %s\n", raw[idx])
 			otherUserBson, _ := dbobj.lookupUserRecordByIndex(idx, newIdxFinalValue, conf)
@@ -182,6 +184,8 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ev
 			}
 			//fmt.Printf("adding index3? %s\n", raw[idx])
 			bdoc[idx+"idx"] = hashString(dbobj.hash, newIdxFinalValue)
+		} else if len(newIdxFinalValue) == 0 {
+			bdel[idx+"idx"] = ""
 		}
 	}
 
