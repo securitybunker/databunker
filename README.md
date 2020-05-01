@@ -54,10 +54,10 @@ need to consult with an attorney specializing in privacy.
 
 ## Right of access
 
-Data Bunker will to extract **customer email** and **customer phone** out of the customers' personal records granting
+Data Bunker extracts **customer email**, **customer phone** values out of the customers' personal records granting
 **passwordless** access for the customer into their Data bunker' personal account.
 This is done by generating a random access key that Data Bunker sends to your customer by email or by SMS.
-Your customer login and can view all information collected and saved by Data Bunker in connection to his profile.
+Your customer can login and can view all information collected and saved by Data Bunker in connection to his profile.
 
 <p float="middle">
   <img align="top" style="vertical-align: top;" src="images/ui-login-form.png" alt="login form" />
@@ -67,7 +67,7 @@ Your customer login and can view all information collected and saved by Data Bun
 
 ## Right to restrict processing / Right to object / Consent withdrawal
 
-Data Bunker manages all the customer's consents. A customer can **Withdraw/restrict/object to a specific consent** in his personal account at Data Bunker, for example, to restrict or block email. Your backend can work with Data Bunker using our API to add, or cancel
+Data Bunker can manages all the customer's consents. A customer can **Withdraw/restrict/object to a specific consent** in his personal account at Data Bunker, for example, to restrict or block email. Your backend site can work with Data Bunker using our API to add, or cancel
 consents and a callback operation will be fired when a customer's action takes place.
 
 ![Consent management](images/ui-consent-management.png)
@@ -78,7 +78,7 @@ the customer records from other 3rd party processing companies. For example: web
 
 ## Privacy by design
 
-This product, from the architecture level and down was built to comply with strict privacy laws such as GDPR and CCPA. Deploying this project can make your architecture **privacy by design** compliant.
+This product, from the architecture level and down to code was built to comply with strict privacy laws such as GDPR and CCPA. Deploying this project can make your architecture **privacy by design** compliant.
 
 ## Transparency and Accountability principle
 
