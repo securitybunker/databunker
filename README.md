@@ -273,7 +273,7 @@ curl -s http://localhost:3000/v1/sys/backup -H "X-Bunker-Token: $TOKEN" -o backu
 ## Does your product multi-master solution?
 
 Multi-master solution or basically multiple instances of the databunker service is supported in **Data Bunker
-Enterprise version** running on AWS cloud. The product is using AWS Aurora PostgreSQL database at the backen.
+Enterprise version** running on AWS cloud. The product is using AWS Aurora PostgreSQL database at the backend.
 
 Open source version is using local **sqlite3** database that does not supports replication. You can easily backup it
 using API call and restore. We are using sqlite3 as as it provides zero effort from customer to start using
@@ -357,11 +357,10 @@ Detailed use case for each table is covered bellow.
 
 # Enterprise features (not an open source version)
 
-## Support for Mongo backend
+## PosgreSQL backend
 
-The Databunker open source works with a local database, while enterprise version works with MongoDB database.
-With MongoDB you can spin a number of database replicas using [MongoDB Atlas services](https://www.mongodb.com/cloud/atlas)
-and Databunker enterprise version will connect with this database cluster.
+The Databunker open source works with a local database, while enterprise version works with PostgreSQL.
+For example, AWS Autora PostgreSQL. The last one of Enterprise grade and is available in AWS cloud.
 
 ## Master key split
 
@@ -398,11 +397,12 @@ application server.
 
 This is all done with the help of custom plugin we build for Hashicorp Vault.
 
+Hashicorp plugin support is in BETTA stage. Contact us for more info.
+
+
 # Contact us
 
-For technical questions or for product demo you can talk with Yuli Stremovsky at stremovsky@gmail.com
-
-For business inquiries, partnership requests you can talk with Boaz Shunami at boaz@komodosec.com
+For any questions, you can talk with us at: office@paranoidguy.com
 
 ---
 
