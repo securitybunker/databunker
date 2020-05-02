@@ -129,7 +129,7 @@ if (conf["custom_css_file"]) {
                 if (xhr.status === 200) {
                     var data = JSON.parse(xhr.responseText);
                     if (data.status == "ok" && data.result && data.result == "request-created") {
-                        alert("Admin request created to withdraw your consent.");
+                        showAlert("Admin request created to withdraw your consent.");
                     } else {
                         document.location.reload();
                     }
