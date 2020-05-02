@@ -136,13 +136,12 @@ if (conf["custom_css_file"]) {
                 if (xhr.status === 200) {
                     var data = JSON.parse(xhr.responseText);
                     if (data.status == "ok" && data.result && data.result == "request-created") {
-                        alert("Admin request created to cancel your account.");
+                        showAlert("Admin request created to cancel your account.");
                     } else {
                         bunker_logout();
                     }
                 } else if (xhr.status > 400 && xhr.status < 500) {
-                    alert("error, try again");
-                    //document.location = "/";
+                    document.location = "/";
                 }
             }
             xhr.send();
@@ -157,10 +156,12 @@ if (conf["custom_css_file"]) {
             xhr0.setRequestHeader("X-Bunker-Token", xtoken)
             xhr0.setRequestHeader('Content-type', 'application/json');
             xhr0.onload = function () {
-                //if (xhr0.status === 200) {
-                //    //
-                //} else 
-                if (xhr0.status > 400 && xhr0.status < 500) {
+                if (xhr0.status === 200) {
+				    var data = JSON.parse(xhr0.responseText);
+                    if (data.status == "ok" && data.result && data.result == "request-created") {
+                        showAlert("Admin request created to approve changes in your profile.");
+                    }
+                } else if (xhr0.status > 400 && xhr0.status < 500) {
                     document.location = "/";
                 }
             }

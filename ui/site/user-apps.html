@@ -111,11 +111,8 @@ if (conf["custom_css_file"]) {
 
         }
         function saveApp(app) {
-            //console.log("app clicked", app);
             const updatedJson = editors["app"].get();
-            //console.log(updatedJson);
             var params = JSON.stringify(updatedJson);
-            //alert(d);
             var xhr0 = new XMLHttpRequest();
             // first save consent
             xhr0.open('PUT', "/v1/userapp/token/" + token+"/"+app);
@@ -125,7 +122,7 @@ if (conf["custom_css_file"]) {
                 if (xhr0.status === 200) {
                     var data = JSON.parse(xhr0.responseText);
                     if (data.status == "ok" && data.result && data.result == "request-created") {
-                        alert("Admin request created to change your app data record.");
+                        showAlert("Admin request created to approve your app data changes.");
                     }
                 } else if (xhr0.status > 400 && xhr0.status < 500) {
                     document.location = "/";
