@@ -185,7 +185,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 	if authResult == "login" {
-		event.Title = "User change-profile request"
+		event.Title = "user change-profile request"
 		if e.conf.SelfService.UserRecordChange == false {
 			rtoken, err := e.db.saveUserRequest("change-profile", userTOKEN, "", "", parsedData.jsonData)
 			if err != nil {
@@ -249,7 +249,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 
 	if authResult == "login" {
-		event.Title = "User forget-me request"
+		event.Title = "user forget-me request"
 		if e.conf.SelfService.ForgetMe == false {
 			rtoken, err := e.db.saveUserRequest("forget-me", userTOKEN, "", "", nil)
 			if err != nil {
@@ -324,7 +324,7 @@ func (e mainEnv) userLoginEnter(w http.ResponseWriter, r *http.Request, ps httpr
 	tmp := atoi(ps.ByName("tmp"))
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
-	event := audit("user login2 by "+mode, address, mode, address)
+	event := audit("user login step 2 by "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
 	if mode != "phone" && mode != "email" {
