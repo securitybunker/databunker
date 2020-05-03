@@ -1,0 +1,299 @@
+a {
+    text-decoration: none;
+    color: #36c;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+#main {
+    margin: 25px auto;
+    width: 95%
+}
+
+pre.codeBlock, div.codeBlock {
+  overflow:auto;
+  margin:0 0 1em;
+  padding:.5em 1em;
+}
+
+pre.codeBlock .codeLine,
+pre.codeBlock .line-number,
+div.codeBlock .codeLine,
+div.codeBlock .line-number {
+  font:normal normal 13px/16px monospace;
+  font-family: Monaco, monospace;
+  color:black;
+  display:block;
+}
+
+pre.codeBlock.codeBlock span.code, div.codeBlock span.code {
+    min-width: 97%;
+    display: inline-block;
+}
+
+pre.codeBlock .line-number, div.codeBlock .line-number {
+  margin:0 1em 0 -1em;
+  border-right:1px solid #eee;
+  color: #bbb;
+  text-align:right;
+  -webkit-user-select: none; /* Chrome/Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+ */
+  
+  -o-user-select: none;
+  user-select: none;
+  padding-left: 0.2em;
+  padding-right: 0.2em;
+}
+
+pre.codeBlock .line-number span, div.codeBlock .line-number span {
+  display:block;
+  padding:0 .5em 0 1em;
+}
+
+pre.codeBlock .cl {
+  display:block;
+  clear:both;
+}
+
+div.diffcontainer {
+    position: relative;
+    margin: 0 auto;
+    display: none;
+}
+
+div.left {
+    width: 40%;
+    display: inline-block;
+}
+
+div.right {
+    width: 40%;
+    display: inline-block;
+    vertical-align: top;
+}
+
+div.center {
+    width: 14%;
+    display: inline-block;
+    vertical-align: top;
+    text-align: left;
+    margin-top: 20%;
+    margin-left: 2%;
+	text-align: center;
+}
+    
+
+pre.codeBlock.left {
+    width: 40%;
+    display: inline-block;
+    vertical-align: top;
+}
+
+pre.codeBlock.right {
+    width: 40%;
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 1em;
+}
+
+ul.toolbar {
+    width: 11%;
+    display: inline-block;
+    right: 10px;
+    top: 5em;
+    position: absolute;
+}
+
+#report .reportTitle {
+    border: thin solid lightgray;
+    border-radius: 4px;
+    margin-bottom: 1em;
+    padding: 5px;
+    background-color: rgba(50, 57, 88, 0.1);
+    color: black;
+    width: 15em;
+}
+    
+
+ul.toolbar li {
+    border: thin solid lightgray;
+    border-radius: 4px;
+    margin-bottom: 1em;
+    padding: 5px;
+    background-color: rgba(50, 57, 88, 0.1);
+    color: black;
+    cursor: pointer;
+	line-height: 18px;
+}
+
+ul.toolbar li code {
+    margin: 0 2px;
+    padding: 0px 5px;
+    border: 1px solid #eaeaea;
+    background-color: #f8f8f8;
+    border-radius: 3px;
+    color: #333;
+    line-height: 20px;
+	font-family: Monaco, monospace;
+	font-size: 0.85em;
+}
+
+#buttons {
+    white-space: nowrap;
+    margin-bottom: 1em;
+}
+
+#buttons a {
+    color: #8a6d3b;
+    font-size: 18px;
+}
+
+#buttons a.disabled {
+    color: #999;
+    cursor: auto;
+}
+
+#buttons a.disabled:hover {
+    text-decoration: none;
+    cursor: default;
+}
+
+#prevNextLabel {
+    width: 80%;
+    text-align: center;
+    display: inline-block;
+}
+
+div.gutter {
+    float: left;
+}
+
+div.codeLine span.diff {
+    cursor: pointer;
+    color: #c00;
+}
+
+div.codeLine span.eq_off, div.codeLine span.type_off, div.codeLine span.missing_off {
+    cursor: auto;
+}
+
+div.codeLine span.eq {
+    background: rgba(50, 57, 88, 0.1);
+    color: #333;
+}
+
+div.codeLine span.type {
+    background: rgba(220, 100, 100, 0.1);
+}
+
+div.codeLine span.missing {
+    background: rgba(0, 160, 80, 0.1);
+    color: green;
+}
+
+div.codeLine span.selected {
+    background: #cef;
+    color: #47e;
+}
+
+canvas.center {
+    position: absolute;
+    left: 40%;
+    width: 20%;
+    height: 100%;
+    top: 0;
+}
+
+textarea {
+    width: 100%;
+    min-height: 500px;
+    padding: 5px;
+    background: #f3f3f3;
+    border-radius: 4px;
+    resize: vertical;
+    white-space: pre;
+    word-wrap: normal;
+}
+
+textarea.error {
+    border-color: #FBC2C4;
+}
+
+pre.error {
+    background: #FBE3E4;
+    color: #D12F19;
+    border: thin solid #FBC2C4;
+    border-radius: 4px;
+    padding: 1em;
+    display: none;
+}
+
+span.filterBlock {
+    margin-bottom: 1em;
+}
+
+span.filterBlock input {
+    margin-left: 2em;
+}
+
+#report {
+    margin-bottom: 1em;
+    position: relative;
+    height: 4em;
+}
+
+#report button {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 56.5%;
+    border-color: #36c;
+    color: #36c;
+}
+
+button {
+    font-size: 1.2em;
+    color: #333;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background: white;
+    padding: .5rem .7rem;
+	cursor: pointer;
+}
+
+.weak {
+    color: #333;
+    max-width: 25rem;
+    font-size: .9em;
+    position: absolute;
+    top: 29px;
+    left: 56.5%;
+    right: 3%;
+    padding: 0 1em 0 0;
+}
+
+p {
+    margin-bottom: 1em;
+}
+
+.header {
+    height: 8em;
+}
+
+span.fileInput {
+    margin-left: 2em;
+	margin-top: 0.5em;
+	display: inline-block;
+}
+
+.throbber-loader:not(:required) {
+    display: none;
+}
+
+.progress .throbber-loader:not(:required) {
+    display: block;
+    margin: 5px auto;
+}
