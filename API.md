@@ -71,7 +71,7 @@ user `{token}`. Shareable `{record}` is time bounded.
 
 
 ## Get user record
-### `GET /v1/user/{token,login,email,phone}/{address}`
+### `GET /v1/user/{token,login,email,phone}/{identity}`
 
 ### Explanation
 This API is used to get user record stored in Databunker. You can lookup user record by `{token}`,
@@ -99,7 +99,7 @@ curl --header "X-Bunker-Token: $XTOKEN" -XGET \
 
 
 ## Update user record
-### `PUT /v1/user/{token,login,email,phone}/{address}`
+### `PUT /v1/user/{token,login,email,phone}/{identity}`
 
 ### Explanation
 
@@ -125,7 +125,7 @@ curl --header "X-Bunker-Token: $XTOKEN" -d 'name=Alex' -XPUT \
 
 
 ## Delete user record
-### `DELETE /v1/user/{token,login,email,phone}/{address}`
+### `DELETE /v1/user/{token,login,email,phone}/{identity}`
 
 This command will remove all user records from the database, leaving only user `{token}` for refference.
 This API is used to fullfull the customer' **right to forget**.
@@ -229,7 +229,7 @@ Each session record has an expiration period. When the record it is expired, it 
 
 
 ## Create user session record
-### `POST /v1/session/{token,login,email,phone}/{address}`
+### `POST /v1/session/{token,login,email,phone}/{identity}`
 
 ### Explanation
 
@@ -265,8 +265,8 @@ curl -s http://localhost:3000/v1/session/session/7a77ffad-2010-4e47-abbe-bcd0450
 ```
 
 
-## Get all session records by user address.
-### `GET /v1/session/{token,login,email,phone}/{address}`
+## Get all session records by user identity.
+### `GET /v1/session/{token,login,email,phone}/{identity}`
 
 ### Explanation
 
@@ -316,7 +316,7 @@ It is unique per user, short consent id. Allowed chars are [a-z0-9\-] . Max 64 c
 
 
 ## Create consent record
-### `POST /v1/consent/{token,login,email,phone}/{address}/{brief}`
+### `POST /v1/consent/{token,login,email,phone}/{identity}/{brief}`
 
 ### Explanation
 
@@ -364,7 +364,7 @@ curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/send-sms -XP
 ---
 
 ## Withdraw consent record
-### `DELETE /v1/consent/{token,login,email,phone}/{address}/{brief}`
+### `DELETE /v1/consent/{token,login,email,phone}/{identity}/{brief}`
 
 ### Explanation
 
@@ -383,7 +383,7 @@ curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/send-sms -XD
 ---
 
 ## Get a list of all user consent records
-### `GET /v1/consent/{token,login,email,phone}/{address}`
+### `GET /v1/consent/{token,login,email,phone}/{identity}`
 
 ### Explanation
 This API returns an array of all user consent records. No pagination is supported.
