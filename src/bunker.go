@@ -211,6 +211,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.POST("/v1/userapp/token/:token/:appname", e.userappNew)
 	router.GET("/v1/userapp/token/:token/:appname", e.userappGet)
 	router.PUT("/v1/userapp/token/:token/:appname", e.userappChange)
+	router.DELETE("/v1/userapp/token/:token/:appname", e.userappDelete)
 	router.GET("/v1/userapp/token/:token", e.userappList)
 	router.GET("/v1/userapps", e.appList)
 
