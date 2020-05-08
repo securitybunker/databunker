@@ -405,21 +405,21 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 	return records, nil
 }
 
-func getIndexString(val interface{}) (string) {
+func getIndexString(val interface{}) string {
 	if reflect.TypeOf(val) == reflect.TypeOf(nil) {
 		return ""
 	}
 	myType := reflect.TypeOf(val).Kind()
 	newIdxValue := ""
-        if myType == reflect.String {
-                newIdxValue = val.(string)
-        }
-        if myType == reflect.Int {
-                newIdxValue = strconv.Itoa(val.(int))
-        }
-        if myType == reflect.Float64 {
-                newIdxValue = strconv.Itoa(int(val.(float64)))
-        }
+	if myType == reflect.String {
+		newIdxValue = val.(string)
+	}
+	if myType == reflect.Int {
+		newIdxValue = strconv.Itoa(val.(int))
+	}
+	if myType == reflect.Float64 {
+		newIdxValue = strconv.Itoa(int(val.(float64)))
+	}
 	return strings.TrimSpace(newIdxValue)
 }
 
