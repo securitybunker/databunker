@@ -179,6 +179,31 @@ func (e mainEnv) userappGet(w http.ResponseWriter, r *http.Request, ps httproute
 	w.Write([]byte(finalJSON))
 }
 
+func (e mainEnv) userappDelete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	userTOKEN := ps.ByName("token")
+	appName := strings.ToLower(ps.ByName("appname"))
+	event := auditApp("delete user app record", userTOKEN, appName, "token", userTOKEN)
+	defer func() { event.submit(e.db) }()
+
+	if enforceUUID(w, userTOKEN, event) == false {
+		return
+	}
+	if e.enforceAuth(w, r, event) == "" {
+		return
+	}
+	if isValidApp(appName) == false {
+		returnError(w, r, "bad appname", 405, nil, event)
+		return
+	}
+
+	e.db.deleteUserApp(userTOKEN, appName)
+
+	finalJSON := fmt.Sprintf(`{"status":"ok","token":"%s"}`, userTOKEN)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	w.Write([]byte(finalJSON))
+}
+
 func (e mainEnv) appList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	fmt.Printf("/APPLIST\n")
 	if e.enforceAuth(w, r, nil) == "" {

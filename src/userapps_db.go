@@ -25,6 +25,11 @@ func (dbobj dbcon) getUserApp(userTOKEN string, appName string) ([]byte, error) 
 	return dbobj.userDecrypt(userTOKEN, encData0)
 }
 
+func (dbobj dbcon) deleteUserApp(userTOKEN string, appName string) {
+	appNameFull := "app_" + appName
+	dbobj.store.DeleteRecordInTable(appNameFull, "token", userTOKEN)
+}
+
 func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, appName string, event *auditEvent) (string, error) {
 	fmt.Printf("createAppRecord app is : %s\n", appName)
 	encodedStr, err := dbobj.userEncrypt(userTOKEN, jsonData)
