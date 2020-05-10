@@ -7,6 +7,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -356,9 +357,23 @@ func logRequest(handler http.Handler) http.Handler {
 	})
 }
 
-func setupDB(dbPtr *string, demo bool) (*dbcon, string, error) {
+func setupDB(dbPtr *string, masterKeyPtr *string, demo bool) (*dbcon, string, error) {
 	fmt.Printf("\nDatabunker init\n\n")
-	masterKey, err := generateMasterKey()
+	var masterKey []byte
+	var err error
+	if masterkeyProvided(masterKeyPtr) == true {
+		masterKey, err = masterkeyGet(masterKeyPtr)
+		if err != nil {
+			fmt.Printf("Failed to parse master key: %s", err)
+			os.Exit(0)
+		}
+	} else {
+		masterKey, err = generateMasterKey()
+		if err != nil {
+                        fmt.Printf("Failed to generate master key: %s", err)
+                        os.Exit(0)
+                }
+	}
 	hash := md5.Sum(masterKey)
 	fmt.Printf("Master key: %x\n\n", masterKey)
 	fmt.Printf("Init database\n\n")
@@ -377,23 +392,37 @@ func setupDB(dbPtr *string, demo bool) (*dbcon, string, error) {
 	return db, rootToken, err
 }
 
-func getMasterKey(masterKeyPtr *string) []byte {
+func masterkeyProvided(masterKeyPtr *string) bool {
+	if masterKeyPtr != nil && len(*masterKeyPtr) > 0 {
+		return true
+	}
+	if len(os.Getenv("DATABUNKER_MASTERKEY")) > 0 {
+		return true
+	}
+	return false
+}
+
+func masterkeyGet(masterKeyPtr *string) ([]byte, error) {
 	masterKeyStr := ""
 	if masterKeyPtr != nil && len(*masterKeyPtr) > 0 {
 		masterKeyStr = *masterKeyPtr
 	} else {
 		masterKeyStr = os.Getenv("DATABUNKER_MASTERKEY")
 	}
+	if len(masterKeyStr) == 0 {
+                return nil, errors.New("Master key environment variable/parameter is missing")
+        }
 	if len(masterKeyStr) != 48 {
-		fmt.Printf("Failed to decode master key: bad length\n")
-		os.Exit(0)
+		return nil, errors.New("Master key length is wrong")
+	}
+	if isValidHex(masterKeyStr) == false {
+		return nil, errors.New("Master key is not valid hex string")
 	}
 	masterKey, err := hex.DecodeString(masterKeyStr)
 	if err != nil {
-		fmt.Printf("Failed to decode master key: %s\n", err)
-		os.Exit(0)
+		return nil, errors.New("Failed to decode master key")
 	}
-	return masterKey
+	return masterKey, nil
 }
 
 // main application function
@@ -413,7 +442,7 @@ func main() {
 	readFile(&cfg, confPtr)
 	readEnv(&cfg)
 	if *initPtr || *demoPtr {
-		db, _, _ := setupDB(dbPtr, *demoPtr)
+		db, _, _ := setupDB(dbPtr, masterKeyPtr, *demoPtr)
 		db.store.CloseDB()
 		os.Exit(0)
 	}
@@ -430,7 +459,11 @@ func main() {
 		fmt.Println("")
 		os.Exit(0)
 	}
-	masterKey := getMasterKey(masterKeyPtr)
+	masterKey, masterKeyErr := masterkeyGet(masterKeyPtr)
+	if masterKeyErr != nil {
+		fmt.Printf("Error: %s", masterKeyErr)
+                os.Exit(0)
+	}
 	store, _ := storage.OpenDB(dbPtr)
 	store.InitUserApps()
 	hash := md5.Sum(masterKey)
