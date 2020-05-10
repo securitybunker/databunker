@@ -27,6 +27,7 @@ var (
 	regexBrief         = regexp.MustCompile("^[a-z0-9\\-]{1,64}$")
 	regexAppName       = regexp.MustCompile("^[a-z][a-z0-9\\_]{1,30}$")
 	regexExpiration    = regexp.MustCompile("^([0-9]+)([mhds])?$")
+	regexHex           = regexp.MustCompile("^[a-zA-F0-9]+$")
 	consentYesStatuses = []string{"y", "yes", "accept", "agree", "approve", "given", "true", "good"}
 )
 
@@ -242,8 +243,13 @@ func isValidUUID(uuidCode string) bool {
 func isValidApp(app string) bool {
 	return regexAppName.MatchString(app)
 }
+
 func isValidBrief(brief string) bool {
 	return regexBrief.MatchString(brief)
+}
+
+func isValidHex(hex1 string) bool {
+	return regexHex.MatchString(hex1)
 }
 
 // stringPatternMatch looks for basic human patterns like "*", "*abc*", etc...
