@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Data Bunker - list of apps</title>
+    <title>Data Bunker - app data</title>
 	<script src="site.js"></script>
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
@@ -52,7 +52,7 @@ if (conf["custom_css_file"]) {
                     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                         <div class="navbar-nav">
                             <a class="nav-item nav-link" href="user-profile.html">Profile</a>
-                            <a class="nav-item nav-link active" href="user-apps.html">Data</a>
+                            <a class="nav-item nav-link active" href="user-apps.html">App data</a>
                             <a class="nav-item nav-link" href="user-privacy-portal.html">Privacy portal</a>
                             <a class="nav-item nav-link" href="user-audit.html">History</a>
                             <a class="nav-item nav-link" href="javascript:bunker_logout();">Logout</a>
@@ -61,7 +61,7 @@ if (conf["custom_css_file"]) {
                 </nav>
             </div>
             <div class="bigblock">
-                <h4>My additional app data</h4>
+                <h4>Additional app data</h4>
                 <p id="msg"></p>
                 <div id="data"></div>
             </div>
@@ -89,7 +89,7 @@ if (conf["custom_css_file"]) {
                         //document.querySelectorAll('pre code').forEach((block) => {
                         //    hljs.highlightBlock(block);
                         //});
-                        $('#data').append('<div class="row"><div class="col-9"><h5>App Data: ' + displayApp + '</h5></div>' +
+                        $('#data').append('<div class="row"><div class="col-9"><h5>App: ' + displayApp + '</h5></div>' +
                             '<div class="col-3 col-md3 "><button onclick="return saveApp(\'' + app + '\');" class="btn btn-secondary">Save</button></div></div>' +
                             '<div id="jsoneditor-' + app + '" style="width: 100%; min-height: 200px;"></div>');
                         const container = document.getElementById("jsoneditor-" + app)
