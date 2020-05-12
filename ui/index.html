@@ -242,11 +242,11 @@ if (conf["custom_css_file"]) {
                 xhr0.onload = function () {
                     if (xhr0.status === 200) {
                         var xhr = new XMLHttpRequest();
-                        var url = "/v1/login/email/" + encodeURI(key)
+                        var url = "/v1/prelogin/email/" + encodeURI(key)
                         xhr.open('GET', url);
                         xhr.onload = function () {
                             if (xhr.status === 200) {
-                                document.location = "/site/enter.html";
+                                document.location = "/site/login.html";
                             } else if (conf["MagicLookup"]) {
                                 //error
                                 var loading = document.getElementById('loading');
@@ -269,10 +269,10 @@ if (conf["custom_css_file"]) {
                 xhr0.onload = function () {
                     if (xhr0.status === 200) {
                         var xhr = new XMLHttpRequest();
-                        xhr.open('GET', "/v1/login/phone/" + encodeURI(key));
+                        xhr.open('GET', "/v1/prelogin/phone/" + encodeURI(key));
                         xhr.onload = function () {
                             if (xhr.status === 200) {
-                                document.location = "/site/enter.html";
+                                document.location = "/site/login.html";
 							}
                         }
                         xhr.send();

@@ -69,7 +69,7 @@ if (conf["custom_css_file"]) {
             var code = $('#codevalue').val();
             var login = window.localStorage.getItem('login')
             if (login.indexOf('@') > 0) {
-                $.get("/v1/enter/email/" + encodeURI(login) + "/" + encodeURI(code), function (data) {
+                $.get("/v1/login/email/" + encodeURI(login) + "/" + encodeURI(code), function (data) {
                     window.localStorage.setItem('login', "");
                     if (data.xtoken) {
                         window.localStorage.setItem('xtoken', data.xtoken);
@@ -80,7 +80,7 @@ if (conf["custom_css_file"]) {
                     }
                 }, "json");
             } else {
-                $.get("/v1/enter/phone/" + encodeURI(login) + "/" + encodeURI(code), function (data) {
+                $.get("/v1/login/phone/" + encodeURI(login) + "/" + encodeURI(code), function (data) {
                     window.localStorage.setItem('login', "");
                     if (data.xtoken) {
                         window.localStorage.setItem('xtoken', data.xtoken);
