@@ -275,10 +275,10 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	notifyForgetMe(notifyURL, resultJSON, "token", userTOKEN)
 }
 
-func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
-	event := audit("user login by "+mode, address, mode, address)
+	event := audit("user prelogin by "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
 	if mode != "phone" && mode != "email" {
@@ -320,11 +320,11 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	fmt.Fprintf(w, `{"status":"ok","result":"done"}`)
 }
 
-func (e mainEnv) userLoginEnter(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	tmp := atoi(ps.ByName("tmp"))
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
-	event := audit("user login step 2 by "+mode, address, mode, address)
+	event := audit("user login by "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
 	if mode != "phone" && mode != "email" {
