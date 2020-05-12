@@ -77,6 +77,34 @@ func (dbobj dbcon) getRequests(status string, offset int32, limit int32) ([]byte
 	return resultJSON, count, nil
 }
 
+func (dbobj dbcon) getUserRequests(userTOKEN string, offset int32, limit int32) ([]byte, int64, error) {
+	//var results []*auditEvent
+	count, err := dbobj.store.CountRecords(storage.TblName.Requests, "token", userTOKEN)
+	if err != nil {
+		return nil, 0, err
+	}
+	var results []bson.M
+	records, err := dbobj.store.GetList(storage.TblName.Requests, "token", userTOKEN, offset, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+	for _, element := range records {
+		element["more"] = false
+		if _, ok := element["change"]; ok {
+			element["more"] = true
+			delete(element, "change")
+		}
+		results = append(results, element)
+	}
+
+	resultJSON, err := json.Marshal(records)
+	if err != nil {
+		return nil, 0, err
+	}
+	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
+	return resultJSON, count, nil
+}
+
 func (dbobj dbcon) getRequest(rtoken string) (bson.M, error) {
 	record, err := dbobj.store.GetRecord(storage.TblName.Requests, "rtoken", rtoken)
 	if err != nil {
