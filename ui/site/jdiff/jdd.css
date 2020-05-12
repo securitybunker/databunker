@@ -102,7 +102,6 @@ pre.codeBlock.right {
 ul.toolbar {
     width: 11%;
     display: inline-block;
-    right: 10px;
     top: 5em;
     position: absolute;
 }
@@ -119,11 +118,7 @@ ul.toolbar {
     
 
 ul.toolbar li {
-    border: thin solid lightgray;
-    border-radius: 4px;
     margin-bottom: 1em;
-    padding: 5px;
-    background-color: rgba(50, 57, 88, 0.1);
     color: black;
     cursor: pointer;
 	line-height: 18px;
