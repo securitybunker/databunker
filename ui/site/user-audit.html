@@ -83,20 +83,19 @@
             data = data.event;
             var d = JSON.stringify(data, null, 4);
             setTimeout(function () {
-              console.log("load", data.before);
               if (data["before"] && data["after"]) {
                 var code = '<div class="diffcontainer"><div id="report"></div>'+
 			   '<pre id="out" class="left" class="codeBlock"></pre>'+
 		           '<pre id="out2" class="right" class="codeBlock"></pre>'+
 			   '<ul id="toolbar" class="toolbar"></ul></div>';
                 $('#drilldown').html(code);
-		jdd.compare(data["before"], data["after"]);
-	      } else {
-	        $('#drilldown').html('<pre><code class="json">' + d + '</code></pre>');
+                jdd.compare(data["before"], data["after"]);
+	          } else {
+	            $('#drilldown').html('<pre><code class="json">' + d + '</code></pre>');
                 document.querySelectorAll('pre code').forEach((block) => {
                   hljs.highlightBlock(block);
                 });
-	      }
+              }
             }, 300);
           }
         }
