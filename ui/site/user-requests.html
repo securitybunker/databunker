@@ -58,9 +58,11 @@
     function displayDrillDownLink(rtoken, row, index) {
       console.log(row);
       var links = '<a href=\'javascript:displayRequest(\"' + rtoken +
-        '\");\'>view</a>&nbsp;|&nbsp;';
-      links += '<a href=\'javascript:cancelRequest(\"' + rtoken +
-          '\");\'>reject</a>';
+        '\");\'>view</a>';
+	  if (row["status"] != "cancel") {
+        links += '&nbsp;|&nbsp;<a href=\'javascript:cancelRequest(\"' + rtoken +
+          '\");\'>withdraw</a>';
+      }
       return links;
     }
     var modalPopup;
@@ -202,7 +204,7 @@
       </div>
       <div class="bigblock">
         <h4>User requests</h4>
-        <p id="msg">All open requests listed below.</p>
+        <p id="msg">All your requests listed below.</p>
         <table id="table" class="table">
           <thead>
             <tr>

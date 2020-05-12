@@ -103,10 +103,6 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 	if enforceUUID(w, request, event) == false {
 		return
 	}
-	authResult := e.enforceAuth(w, r, event)
-	if authResult == "" {
-		return
-	}
 	requestInfo, err := e.db.getRequest(request)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, nil)
@@ -124,6 +120,10 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 	if value, ok := requestInfo["token"]; ok {
 		userTOKEN = value.(string)
 		event.Record = userTOKEN
+	}
+	authResult := e.enforceAuth(w, r, event)
+	if authResult == "" {
+		return
 	}
 	if value, ok := requestInfo["change"]; ok {
 		switch value.(type) {
@@ -267,10 +267,6 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 	if enforceUUID(w, request, event) == false {
 		return
 	}
-	authResult := e.enforceAuth(w, r, event)
-	if authResult == "" {
-		return
-	}
 	requestInfo, err := e.db.getRequest(request)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
@@ -284,6 +280,10 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 	if value, ok := requestInfo["token"]; ok {
 		userTOKEN = value.(string)
 		event.Record = userTOKEN
+	}
+	authResult := e.enforceAuth(w, r, event)
+	if authResult == "" {
+		return
 	}
 	if requestInfo["status"].(string) != "open" {
 		returnError(w, r, "wrong status", 405, err, event)
