@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (e mainEnv) getUserRequests(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -31,6 +32,61 @@ func (e mainEnv) getUserRequests(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 	fmt.Printf("Total count of user requests: %d\n", counter)
+	//fmt.Fprintf(w, "<html><head><title>title</title></head>")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, counter, resultJSON)
+	w.Write([]byte(str))
+}
+
+func (e mainEnv) getCustomUserRequests(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	address := ps.ByName("address")
+	mode := ps.ByName("mode")
+	event := audit("get user privacy requests", address, mode, address)
+	defer func() { event.submit(e.db) }()
+
+	if validateMode(mode) == false {
+		returnError(w, r, "bad mode", 405, nil, event)
+		return
+	}
+	userTOKEN := address
+	var userBson bson.M
+	if mode == "token" {
+		if enforceUUID(w, address, event) == false {
+			return
+		}
+		userBson, _ = e.db.lookupUserRecord(address)
+	} else {
+		userBson, _ = e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		if userBson != nil {
+			userTOKEN = userBson["token"].(string)
+			event.Record = userTOKEN
+		}
+	}
+	if userBson == nil {
+		returnError(w, r, "internal error", 405, nil, event)
+		return
+	}
+	if e.enforceAuth(w, r, event) == "" {
+		return
+	}
+	
+	var offset int32
+	var limit int32 = 10
+	args := r.URL.Query()
+	if value, ok := args["offset"]; ok {
+		offset = atoi(value[0])
+	}
+	if value, ok := args["limit"]; ok {
+		limit = atoi(value[0])
+	}
+	resultJSON, counter, err := e.db.getUserRequests(userTOKEN, offset, limit)
+	if err != nil {
+		returnError(w, r, "internal error", 405, err, nil)
+		return
+	}
+	fmt.Printf("Total count of custom user requests: %d\n", counter)
 	//fmt.Fprintf(w, "<html><head><title>title</title></head>")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
