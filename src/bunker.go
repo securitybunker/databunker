@@ -367,15 +367,16 @@ func setupDB(dbPtr *string, masterKeyPtr *string, demo bool) (*dbcon, string, er
 			fmt.Printf("Failed to parse master key: %s", err)
 			os.Exit(0)
 		}
+		fmt.Printf("Master key: ****\n\n", masterKey)
 	} else {
 		masterKey, err = generateMasterKey()
 		if err != nil {
-                        fmt.Printf("Failed to generate master key: %s", err)
-                        os.Exit(0)
-                }
+			fmt.Printf("Failed to generate master key: %s", err)
+			os.Exit(0)
+        }
+		fmt.Printf("Master key: %x\n\n", masterKey)
 	}
 	hash := md5.Sum(masterKey)
-	fmt.Printf("Master key: %x\n\n", masterKey)
 	fmt.Printf("Init database\n\n")
 	store, err := storage.InitDB(dbPtr)
 	if err != nil {
