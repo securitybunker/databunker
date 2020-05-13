@@ -298,7 +298,7 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 		returnError(w, r, "not found", 405, err, event)
 		return
 	}
-	e.db.updateRequestStatus(request, "cancel")
+	e.db.updateRequestStatus(request, "canceled")
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
