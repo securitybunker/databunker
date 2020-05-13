@@ -244,7 +244,7 @@ func TestGetFakeRequest(t *testing.T) {
 	}
 	raw, _ = helpCancelUserRequest(rtoken)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Shoud faile to cancel request")
+		t.Fatalf("Shoud fail to cancel request")
 	}
 }
 
@@ -260,6 +260,6 @@ func TestGetFakeRequestToken(t *testing.T) {
 	}
 	raw, _ = helpCancelUserRequest(rtoken)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Shoud faile to cancel request")
+		t.Fatalf("Shoud fail to cancel request")
 	}
 }
