@@ -855,38 +855,26 @@ var jdd = {
              */
             return;
         }
-console.log("left", left)
         $('div.diffcontainer').show();
-
         jdd.diffs = [];
-
         var config = jdd.createConfig();
         jdd.formatAndDecorate(config, left);
         $('#out').text(config.out);
-
         var config2 = jdd.createConfig();
         jdd.formatAndDecorate(config2, right);
         $('#out2').text(config2.out);
-
         jdd.formatPRETags();
-
         config.currentPath = [];
         config2.currentPath = [];
-
         jdd.diffVal(left, config, right, config2);
         jdd.processDiffs();
         jdd.generateReport();
-
-        //console.log('diffs: ' + JSON.stringify(jdd.diffs));
-
         if (jdd.diffs.length > 0) {
             jdd.highlightDiff(0);
             jdd.currentDiff = 0;
             jdd.updateButtonStyles();
         }
-
         $('body').removeClass('progress');
-
     },
 
     getParameterByName: function (name) {
