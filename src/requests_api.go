@@ -253,7 +253,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		lastmodifiedby := "admin"
 		e.db.withdrawConsentRecord(userTOKEN, brief, mode, userTOKEN, lastmodifiedby)
 	}
-	e.db.updateRequestStatus(request, "approve")
+	e.db.updateRequestStatus(request, "approve", "")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","result":"done"}`)
@@ -298,7 +298,11 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 		returnError(w, r, "not found", 405, err, event)
 		return
 	}
-	e.db.updateRequestStatus(request, "canceled")
+	reason := ""
+	if authResult == "login" {
+		reason = "user operation"
+	}
+	e.db.updateRequestStatus(request, "canceled", reason)
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
