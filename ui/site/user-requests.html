@@ -59,7 +59,7 @@
       console.log(row);
       var links = '<a href=\'javascript:displayRequest(\"' + rtoken +
         '\");\'>view</a>';
-	  if (row["status"] != "cancel") {
+	  if (row["status"] != "canceled") {
         links += '&nbsp;|&nbsp;<a href=\'javascript:cancelRequest(\"' + rtoken +
           '\");\'>withdraw</a>';
       }
