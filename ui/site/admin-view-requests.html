@@ -56,7 +56,7 @@
       return result;
     }
     function displayDrillDownLink(rtoken, row, index) {
-      console.log(row);
+      //console.log(row);
       var links = '<a href=\'javascript:displayRequest(\"' + rtoken +
         '\");\'>view</a>&nbsp;|&nbsp;';
       if (row["action"] == "forget-me") {
@@ -117,7 +117,7 @@
         if (xhr0.status === 200) {
           var data = JSON.parse(xhr0.responseText);
           if (data.status == "ok") {
-		  	console.log("aaaa", data)
+		  	//console.log("aaaa", data)
             var d = JSON.stringify(data, null, 4);
             setTimeout(function () {
               if (data["original"] && data["change"]) {
@@ -164,14 +164,13 @@
           '</a>' +
           '</div>' +
           '</div></div></div>');
-
       modalPopup.find('#okButton').click(function (event) {
-        //callback();
-        //cancelConsent(brief);
         modalPopup.modal('hide');
       });
-
       modalPopup.modal('show');
+      modalPopup.on('hidden.bs.modal', function() {
+        $('#drilldown').html(null);
+      });
     }
 
     $(function () {

@@ -140,14 +140,13 @@
           '</a>' +
           '</div>' +
           '</div></div></div>');
-
       modalPopup.find('#okButton').click(function (event) {
-        //callback();
-        //cancelConsent(brief);
         modalPopup.modal('hide');
       });
-
       modalPopup.modal('show');
+      modalPopup.on('hidden.bs.modal', function() {
+        $('#drilldown').html(null);
+      });
     }
 
     $(function () {
