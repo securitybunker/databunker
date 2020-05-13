@@ -941,6 +941,7 @@ func initRequests(db *sql.DB) error {
 				  action STRING,
 				  status STRING,
 				  change STRING,
+				  reason STRING,
 				  creationtime int,
 				  ` + "`when` int);",
 		`CREATE INDEX requests_rtoken ON requests (rtoken);`,

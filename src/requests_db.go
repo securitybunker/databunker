@@ -20,6 +20,7 @@ type requestEvent struct {
 	Status       string `json:"status"`
 	Change       string `json:"change,omitempty"`
 	Rtoken       string `json:"rtoken"`
+	Reason       string `json:"reason"`
 }
 
 func (dbobj dbcon) saveUserRequest(action string, token string, app string, brief string, change []byte) (string, error) {
@@ -131,9 +132,12 @@ func (dbobj dbcon) getRequest(rtoken string) (bson.M, error) {
 	return record, nil
 }
 
-func (dbobj dbcon) updateRequestStatus(rtoken string, status string) {
+func (dbobj dbcon) updateRequestStatus(rtoken string, status string, reason string) {
 	bdoc := bson.M{}
 	bdoc["status"] = status
+	if len(reason) > 0 {
+		bdoc["reason"] = reason
+	}
 	//fmt.Printf("op json: %s\n", update)
 	dbobj.store.UpdateRecord(storage.TblName.Requests, "rtoken", rtoken, &bdoc)
 }
