@@ -127,14 +127,13 @@
           '</a>' +
           '</div>' +
           '</div></div></div>');
-
       confirmModal.find('#okButton').click(function (event) {
-        //callback();
-        //cancelConsent(brief);
         confirmModal.modal('hide');
       });
-
       confirmModal.modal('show');
+      confirmModal.on('hidden.bs.modal', function() {
+        $('#drilldown').html(null);
+      });
     }
 
     $(function () {
