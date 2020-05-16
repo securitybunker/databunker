@@ -4,7 +4,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Data Bunker - admin / view user requests</title>
+  <title>Data Bunker - audit events</title>
+  <script src="site.js"></script>
   <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -22,10 +23,11 @@
     integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
     crossorigin="anonymous"></script>
   <script src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
- 
+  <script src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
+
   <script src="jdiff/jdd.js" type="text/javascript" charset="utf-8"></script>
   <link rel="stylesheet" href="jdiff/jdd.css">
-  
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/languages/json.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/styles/a11y-dark.min.css">
@@ -39,94 +41,55 @@
       }
       return target;
     }
-    function displayActivity(action, row, index) {
-      var info = '';
-      if (row.brief) {
-        info = '(' + row.brief + ') ';
-      }
+    function displayActivity(title, row, index) {
+      var app = '';
       if (row.app) {
-        info = '(' + row.app + ') ';
+        app = '(' + row.app + ') ';
       }
       result = '';
       if (row.status && row.status == "ok") {
-        result = '<i class="fas fa-check"></i>&nbsp;' + info + action;
+        result = '<i class="fas fa-check"></i>&nbsp;' + app + title;
       } else {
-        result = '<i class="fas fa-times"></i>&nbsp;' + info + action;
+        result = '<i class="fas fa-times"></i>&nbsp;' + app + title;
+      }
+      if (row.msg) {
+        if (row.status && row.status == "ok") {
+          result = result + '<br/><i class="fas fa-check"></i>&nbsp;' + row.msg;
+        } else {
+          result = result + '<br/><i class="fas fa-times"></i>&nbsp;' + row.msg;
+        }
       }
       return result;
     }
-    function displayDrillDownLink(rtoken, row, index) {
-      //console.log(row);
-      var links = '<a href=\'javascript:displayRequest(\"' + rtoken +
-        '\");\'>view</a>&nbsp;|&nbsp;';
-      if (row["action"] == "forget-me") {
-        links += '<a href=\'javascript:approveRequest(\"' + rtoken +
-          '\");\'>approve & delete</a>&nbsp;|&nbsp;';
-      } else if (row["action"] == "consent-withdraw") {
-        links += '<a href=\'javascript:approveRequest(\"' + rtoken +
-          '\");\'>approve & withdraw</a>&nbsp;|&nbsp;';
-      } else {
-        links += '<a href=\'javascript:approveRequest(\"' + rtoken +
-          '\");\'>approve</a>&nbsp;|&nbsp;';
+    function displayDrillDownLink(atoken, row, index) {
+      if (row.more) {
+        //console.log(row);
+        return '<a href=\'javascript:displayAudit(\"' + atoken + '\");\'>View</a>';
       }
-      links += '<a href=\'javascript:cancelRequest(\"' + rtoken +
-          '\");\'>reject</a>';
-      return links;
+      return '';
     }
-    var modalPopup;
+    var confirmModal;
 
-    function approveRequest(request) {
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', "/v1/request/" + request);
-      xhr.setRequestHeader("X-Bunker-Token", xtoken)
-      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-      xhr.onload = function () {
-        if (xhr.status === 200) {
-          document.location.reload();
-        } else if (xhr.status > 400 && xhr.status < 500) {
-          //alert("error, try again");
-          document.location = "/";
-        }
-      }
-      xhr.send();
-    }
-
-    function cancelRequest(request) {
-      var xhr = new XMLHttpRequest();
-      xhr.open('DELETE', "/v1/request/" + request);
-      xhr.setRequestHeader("X-Bunker-Token", xtoken)
-      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-      xhr.onload = function () {
-        if (xhr.status === 200) {
-          document.location.reload();
-        } else if (xhr.status > 400 && xhr.status < 500) {
-          //alert("error, try again");
-          document.location = "/";
-        }
-      }
-      xhr.send();
-    }
-
-    function displayRequest(rtoken) {
+    function displayAudit(atoken) {
       var xhr0 = new XMLHttpRequest();
       // first save consent
-      xhr0.open('GET', '/v1/request/' + rtoken, false);
+      xhr0.open('GET', '/v1/audit/get/' + atoken, false);
       xhr0.setRequestHeader("X-Bunker-Token", xtoken)
       xhr0.setRequestHeader('Content-type', 'application/json');
       xhr0.onload = function () {
         if (xhr0.status === 200) {
           var data = JSON.parse(xhr0.responseText);
           if (data.status == "ok") {
-		  	//console.log("aaaa", data)
+            data = data.event;
             var d = JSON.stringify(data, null, 4);
             setTimeout(function () {
-              if (data["original"] && data["change"]) {
+              if (data["before"] && data["after"]) {
                 var code = '<div class="diffcontainer"><div id="report"></div>'+
 			   '<pre id="out" class="left" class="codeBlock"></pre>'+
 		           '<pre id="out2" class="right" class="codeBlock"></pre>'+
 			   '<ul id="toolbar" class="toolbar"></ul></div>';
                 $('#drilldown').html(code);
-                jdd.compare(data["original"], data["change"]);
+                jdd.compare(data["before"], data["after"]);
 	          } else {
 	            $('#drilldown').html('<pre><code class="json">' + d + '</code></pre>');
                 document.querySelectorAll('pre code').forEach((block) => {
@@ -139,15 +102,15 @@
       }
       xhr0.send();
 
-      var heading = "Request drill down";
-      var text = "Display event: " + rtoken;
+      var heading = "Audit drill down";
+      var text = "Display audit event: " + atoken;
       var cancelButtonTxt = "Close popup";
-      if (modalPopup) {
-        $('#request-event-text').text(text)
-        modalPopup.modal('show');
+      if (confirmModal) {
+        $('#audit-event-text').text(text)
+        confirmModal.modal('show');
         return;
       }
-      modalPopup =
+      confirmModal =
         $('<div class="modal fade" role="dialog"><div class="modal-dialog" role="document" style="max-width: 80%;"><div class="modal-content">' +
           '<div class="modal-header">' +
           '<h5 class="modal-title">' + heading + '</h5>' +
@@ -155,7 +118,7 @@
           '<span aria-hidden="true">&times;</span></button>' +
           '</div>' +
           '<div class="modal-body">' +
-          '<p id="request-event-text">' + text + '</p>' +
+          '<p id="audit-event-text">' + text + '</p>' +
           '<div id="drilldown"></div>' +
           '</div>' +
           '<div class="modal-footer">' +
@@ -164,11 +127,11 @@
           '</a>' +
           '</div>' +
           '</div></div></div>');
-      modalPopup.find('#okButton').click(function (event) {
-        modalPopup.modal('hide');
+      confirmModal.find('#okButton').click(function (event) {
+        confirmModal.modal('hide');
       });
-      modalPopup.modal('show');
-      modalPopup.on('hidden.bs.modal', function() {
+      confirmModal.modal('show');
+      confirmModal.on('hidden.bs.modal', function() {
         $('#drilldown').html(null);
       });
     }
@@ -178,7 +141,7 @@
       //token = "faa006da-475e-45c6-a4a1-6586dce8b8d2";
       $('#table').bootstrapTable({
         /*data: mydata */
-        url: "/v1/requests",
+        url: "/v1/audit/list/" + token,
         undefinedText: 'n/a',
         /* url: "data1.json", */
         method: "GET",
@@ -200,7 +163,12 @@
       });
     });
   </script>
-  <script src="site.js"></script>
+<script>
+conf = loadUIConfiguration();
+if (conf["custom_css_file"]) {
+  document.write("<link rel='stylesheet' type='text/css' href='" + conf["custom_css_file"] +"' />");
+}
+</script>
 </head>
 
 <body>
@@ -208,37 +176,37 @@
     <div class="row col-md-12">
       <div style="width:100%;">
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-          <a class="navbar-brand" href="#">Admin</a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
             aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
-              <a class="nav-item nav-link active" href="admin-view-requests.html">User requests</a>
+              <a class="nav-item nav-link" href="admin-view-requests.html">User requests</a>
               <a class="nav-item nav-link" href="admin-magic-sync.html">Magic Sync</a>
-	      <a class="nav-item nav-link" href="admin-audit.html">Audit</a>
+              <a class="nav-item nav-link active" href="admin-audit.html">Audit</a>
               <a class="nav-item nav-link" href="javascript:bunker_logout();">Logout</a>
             </div>
           </div>
         </nav>
       </div>
       <div class="bigblock">
-        <h4>User requests</h4>
-        <p id="msg">All open requests listed below.</p>
+        <h4>Profile activity history</h4>
+        <p id="msg">All profile operations and changes.</p>
         <table id="table" class="table">
           <thead>
             <tr>
-              <th scope="col-2" data-field="when" data-formatter="dateFormat">Time</th>
-              <th scope="col-2" data-field="token" data-formatter="displayTargetObject">User Identifier</th>
-              <th scope="col-4" data-field="action" data-formatter="displayActivity">Activity</th>
-              <th scope="col-2" data-field="status">Status</th>
-              <th scope="col-2" data-field="rtoken" data-formatter="displayDrillDownLink">Actions</th>
+              <th scope="col-4" data-field="title" data-formatter="displayActivity">Event Name</th>
+              <th scope="col-1" data-field="when" data-formatter="dateFormat">Time</th>
+              <th scope="col-1" data-field="identity" data-formatter="shortString">Who Accessed</th>
+              <th scope="col-2" data-field="who" data-formatter="displayTargetObject">User Identifier</th>
+              <th scope="col-1" data-field="atoken" data-formatter="displayDrillDownLink">Action</th>
             </tr>
           </thead>
         </table>
       </div>
     </div>
+	<script>displayFooterLinks();</script>
   </div>
 </body>
 
