@@ -432,7 +432,10 @@ func (dbobj DBStorage) LookupRecord(t Tbl, row bson.M) (bson.M, error) {
 	num := 1
 	values := make([]interface{}, 0)
 	for keyName, keyValue := range row {
-		q = q + escapeName(keyName) + "=$" + strconv.FormatInt(int64(num), 10) + " "
+		q = q + escapeName(keyName) + "=$" + strconv.FormatInt(int64(num), 10)
+		if num < len(row) {
+			q = q + " AND "
+		}
 		values = append(values, keyValue)
 		num = num + 1
 	}
