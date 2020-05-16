@@ -426,6 +426,7 @@ func (dbobj DBStorage) updateRecordInTableDo(table string, filter string, bdoc *
 	return num, err
 }
 
+// Lookup record by multiple fields
 func (dbobj DBStorage) LookupRecord(t Tbl, row bson.M) (bson.M, error) {
 	table := getTable(t)
 	q := "select * from " + table + " WHERE "
