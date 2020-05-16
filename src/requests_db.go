@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	uuid "github.com/hashicorp/go-uuid"
@@ -26,13 +27,24 @@ type requestEvent struct {
 func (dbobj dbcon) saveUserRequest(action string, token string, app string, brief string, change []byte) (string, error) {
 	now := int32(time.Now().Unix())
 	bdoc := bson.M{}
-	rtoken, _ := uuid.GenerateUUID()
-	bdoc["when"] = now
 	bdoc["token"] = token
 	bdoc["action"] = action
+	bdoc["status"] = "open"
+	if len(app) > 0 {
+		bdoc["app"] = app
+	}
+	if len(brief) > 0 {
+		bdoc["brief"] = brief
+	}
+	record, err := dbobj.store.LookupRecord(storage.TblName.Requests, bdoc)
+	if record != nil {
+		fmt.Printf("this record already exists")
+                return record["rtoken"].(string), nil
+        }
+	rtoken, _ := uuid.GenerateUUID()
+	bdoc["when"] = now
 	bdoc["rtoken"] = rtoken
 	bdoc["creationtime"] = now
-	bdoc["status"] = "open"
 	if change != nil {
 		encodedStr, err := dbobj.userEncrypt(token, change)
 		if err != nil {
@@ -40,13 +52,7 @@ func (dbobj dbcon) saveUserRequest(action string, token string, app string, brie
 		}
 		bdoc["change"] = encodedStr
 	}
-	if len(app) > 0 {
-		bdoc["app"] = app
-	}
-	if len(brief) > 0 {
-		bdoc["brief"] = brief
-	}
-	_, err := dbobj.store.CreateRecord(storage.TblName.Requests, &bdoc)
+	_, err = dbobj.store.CreateRecord(storage.TblName.Requests, &bdoc)
 	return rtoken, err
 }
 

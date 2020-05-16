@@ -426,6 +426,19 @@ func (dbobj DBStorage) updateRecordInTableDo(table string, filter string, bdoc *
 	return num, err
 }
 
+func (dbobj DBStorage) LookupRecord(t Tbl, row bson.M) (bson.M, error) {
+	table := getTable(t)
+	q := "select * from " + table + " WHERE "
+	num := 1
+	values := make([]interface{}, 0)
+	for keyName, keyValue := range row {
+		q = q + escapeName(keyName) + "=$" + strconv.FormatInt(int64(num), 10) + " "
+		values = append(values, keyValue)
+		num = num + 1
+	}
+	return dbobj.getRecordInTableDo(q, values)
+}
+
 // GetRecord returns specific record from database
 func (dbobj DBStorage) GetRecord(t Tbl, keyName string, keyValue string) (bson.M, error) {
 	table := getTable(t)
