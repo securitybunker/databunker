@@ -38,7 +38,7 @@ func (dbobj dbcon) saveUserRequest(action string, token string, app string, brie
 	}
 	record, err := dbobj.store.LookupRecord(storage.TblName.Requests, bdoc)
 	if record != nil {
-		fmt.Printf("this record already exists")
+		fmt.Printf("This record already exists.\n")
                 return record["rtoken"].(string), nil
         }
 	rtoken, _ := uuid.GenerateUUID()
