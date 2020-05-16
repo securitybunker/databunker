@@ -64,7 +64,7 @@
     function displayDrillDownLink(atoken, row, index) {
       if (row.more) {
         //console.log(row);
-        return '<a href=\'javascript:displayAudit(\"' + atoken + '\");\'>*</a>';
+        return '<a href=\'javascript:displayAudit(\"' + atoken + '\");\'>View</a>';
       }
       return '';
     }
@@ -198,11 +198,11 @@ if (conf["custom_css_file"]) {
         <table id="table" class="table">
           <thead>
             <tr>
+              <th scope="col-4" data-field="title" data-formatter="displayActivity">Event Name</th>
               <th scope="col-1" data-field="when" data-formatter="dateFormat">Time</th>
               <th scope="col-1" data-field="identity" data-formatter="shortString">Who Accessed</th>
               <th scope="col-2" data-field="who" data-formatter="displayTargetObject">User Identifier</th>
-              <th scope="col-4" data-field="title" data-formatter="displayActivity">Activity</th>
-              <th scope="col-1" data-field="atoken" data-formatter="displayDrillDownLink">More</th>
+              <th scope="col-1" data-field="atoken" data-formatter="displayDrillDownLink">Action</th>
             </tr>
           </thead>
         </table>
