@@ -36,6 +36,9 @@ img.logo {
 div.bigblock table {
     color: #72777a;
 }
+.table thead {
+  background-color: #F1F8FF;
+}
 .table tbody tr:hover {
   background-color: #f9fafb !important;
 }
@@ -129,3 +132,4 @@ h4 {
 .bigblock .jsoneditor {
     border: none;
 }
+
