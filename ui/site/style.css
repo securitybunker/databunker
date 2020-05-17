@@ -36,6 +36,9 @@ img.logo {
 div.bigblock table {
     color: #72777a;
 }
+.table tbody tr:hover {
+  background-color: #f9fafb !important;
+}
 h4 {
     color: #313435!important;
     margin-bottom: 20px!important;
