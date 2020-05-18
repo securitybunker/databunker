@@ -681,10 +681,10 @@ var jdd = {
         });
         buttons.append(next);
 
-        $('ul.toolbar').append(buttons);
-        jdd.updateButtonStyles();
+        //$('ul.toolbar').append(buttons);
+        //jdd.updateButtonStyles();
 
-        jdd.showDiffDetails(diffs);
+        //jdd.showDiffDetails(diffs);
     },
 
     highlightPrevDiff: function () {
