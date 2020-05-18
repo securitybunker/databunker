@@ -87,13 +87,13 @@ div.center {
     
 
 pre.codeBlock.left {
-    width: 40%;
+    width: 48%;
     display: inline-block;
     vertical-align: top;
 }
 
 pre.codeBlock.right {
-    width: 40%;
+    width: 48%;
     display: inline-block;
     vertical-align: top;
     margin-left: 1em;
@@ -107,12 +107,6 @@ ul.toolbar {
 }
 
 #report .reportTitle {
-    border: thin solid lightgray;
-    border-radius: 4px;
-    margin-bottom: 1em;
-    padding: 5px;
-    background-color: rgba(50, 57, 88, 0.1);
-    color: black;
     width: 15em;
 }
     
@@ -235,9 +229,6 @@ span.filterBlock input {
 }
 
 #report {
-    margin-bottom: 1em;
-    position: relative;
-    height: 4em;
 }
 
 #report button {
