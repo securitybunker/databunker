@@ -54,9 +54,9 @@
       }
       if (row.msg) {
         if (row.status && row.status == "ok") {
-          result = result + '<br/><i class="fas fa-check"></i>&nbsp;' + row.msg;
+          result = result + '<br/><i class="fas fa-check"></i>&nbsp;' + shortString(row.msg);
         } else {
-          result = result + '<br/><i class="fas fa-times"></i>&nbsp;' + row.msg;
+          result = result + '<br/><i class="fas fa-times"></i>&nbsp;' + shortString(row.msg);
         }
       }
       return result;
