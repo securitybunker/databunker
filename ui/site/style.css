@@ -123,6 +123,7 @@ h4 {
     padding-bottom: 100px!important;
 }
 .shortstring {
+    vertical-align: middle;
     display: inline-block;
     text-overflow: ellipsis; 
     white-space: nowrap;
