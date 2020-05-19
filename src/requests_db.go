@@ -63,7 +63,7 @@ func (dbobj dbcon) getRequests(status string, offset int32, limit int32) ([]byte
 		return nil, 0, err
 	}
 	var results []bson.M
-	records, err := dbobj.store.GetList(storage.TblName.Requests, "status", status, offset, limit)
+	records, err := dbobj.store.GetList(storage.TblName.Requests, "status", status, offset, limit, "when")
 	if err != nil {
 		return nil, 0, err
 	}
@@ -91,7 +91,7 @@ func (dbobj dbcon) getUserRequests(userTOKEN string, offset int32, limit int32) 
 		return nil, 0, err
 	}
 	var results []bson.M
-	records, err := dbobj.store.GetList(storage.TblName.Requests, "token", userTOKEN, offset, limit)
+	records, err := dbobj.store.GetList(storage.TblName.Requests, "token", userTOKEN, offset, limit, "")
 	if err != nil {
 		return nil, 0, err
 	}

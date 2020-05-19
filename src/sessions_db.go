@@ -88,7 +88,7 @@ func (dbobj dbcon) getUserSessionsByToken(userTOKEN string, offset int32, limit 
 		return nil, 0, err
 	}
 
-	records, err := dbobj.store.GetList(storage.TblName.Sessions, "token", userTOKEN, offset, limit)
+	records, err := dbobj.store.GetList(storage.TblName.Sessions, "token", userTOKEN, offset, limit, "")
 	if err != nil {
 		return nil, 0, err
 	}

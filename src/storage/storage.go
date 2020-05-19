@@ -729,13 +729,16 @@ func (dbobj DBStorage) GetUniqueList(t Tbl, keyName string) ([]bson.M, error) {
 }
 
 // GetList is used to return list of rows. It can be used to return values using pager.
-func (dbobj DBStorage) GetList(t Tbl, keyName string, keyValue string, start int32, limit int32) ([]bson.M, error) {
+func (dbobj DBStorage) GetList(t Tbl, keyName string, keyValue string, start int32, limit int32, orderField string) ([]bson.M, error) {
 	table := getTable(t)
 	if limit > 100 {
 		limit = 100
 	}
 
 	q := "select * from " + table + " WHERE " + escapeName(keyName) + "=$1"
+	if len(orderField) > 0 {
+		q = q + " ORDER BY " + escapeName(orderField) + " DESC"
+	}
 	if start > 0 {
 		q = q + " LIMIT " + strconv.FormatInt(int64(limit), 10) +
 			" OFFSET " + strconv.FormatInt(int64(start), 10)
