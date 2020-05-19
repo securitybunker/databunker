@@ -123,7 +123,7 @@ h4 {
     padding-bottom: 100px!important;
 }
 .shortstring {
-    display: block;
+    display: inline-block;
     text-overflow: ellipsis; 
     white-space: nowrap;
     overflow: hidden;
