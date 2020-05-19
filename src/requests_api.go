@@ -205,6 +205,10 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		userTOKEN = value.(string)
 		event.Record = userTOKEN
 	}
+	if requestInfo["status"].(string) != "open" {
+		returnError(w, r, "wrong status: " + requestInfo["status"].(string), 405, err, event)
+		return
+	}
 	resultJSON, err := e.db.getUser(userTOKEN)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
@@ -253,7 +257,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		lastmodifiedby := "admin"
 		e.db.withdrawConsentRecord(userTOKEN, brief, mode, userTOKEN, lastmodifiedby)
 	}
-	e.db.updateRequestStatus(request, "approve", "")
+	e.db.updateRequestStatus(request, "approved", "")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","result":"done"}`)
@@ -286,7 +290,7 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 		return
 	}
 	if requestInfo["status"].(string) != "open" {
-		returnError(w, r, "wrong status", 405, err, event)
+		returnError(w, r, "wrong status: " + requestInfo["status"].(string), 405, err, event)
 		return
 	}
 	resultJSON, err := e.db.getUser(userTOKEN)
