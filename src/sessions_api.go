@@ -15,7 +15,7 @@ import (
 func (e mainEnv) newSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
-	event := audit("create new login session", address, mode, address)
+	event := audit("create user session", address, mode, address)
 	defer func() { event.submit(e.db) }()
 
 	if validateMode(mode) == false {
