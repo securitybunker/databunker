@@ -146,7 +146,7 @@ func (dbobj dbcon) withdrawConsentRecord(userTOKEN string, brief string, mode st
 // link consent to user?
 
 func (dbobj dbcon) listConsentRecords(userTOKEN string) ([]byte, int, error) {
-	records, err := dbobj.store.GetList(storage.TblName.Consent, "token", userTOKEN, 0, 0)
+	records, err := dbobj.store.GetList(storage.TblName.Consent, "token", userTOKEN, 0, 0, "")
 	if err != nil {
 		return nil, 0, err
 	}
@@ -184,7 +184,7 @@ func (dbobj dbcon) filterConsentRecords(brief string, offset int32, limit int32)
 	if count == 0 {
 		return []byte("[]"), 0, err
 	}
-	records, err := dbobj.store.GetList(storage.TblName.Consent, "brief", brief, offset, limit)
+	records, err := dbobj.store.GetList(storage.TblName.Consent, "brief", brief, offset, limit, "")
 	if err != nil {
 		return nil, 0, err
 	}

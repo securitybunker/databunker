@@ -87,7 +87,7 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 		return []byte("[]"), 0, err
 	}
 	var results []bson.M
-	records, err := dbobj.store.GetList(storage.TblName.Audit, "record", userTOKEN, offset, limit)
+	records, err := dbobj.store.GetList(storage.TblName.Audit, "record", userTOKEN, offset, limit, "when")
 	if err != nil {
 		return nil, 0, err
 	}
