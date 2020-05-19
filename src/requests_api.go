@@ -286,7 +286,7 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 		return
 	}
 	if requestInfo["status"].(string) != "open" {
-		returnError(w, r, "wrong status", 405, err, event)
+		returnError(w, r, "wrong status: " + requestInfo["status"].(string), 405, err, event)
 		return
 	}
 	resultJSON, err := e.db.getUser(userTOKEN)
