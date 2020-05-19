@@ -45,26 +45,27 @@ func (dbobj dbcon) createRootXtoken(demo bool) (string, error) {
 	return rootToken, nil
 }
 
-func (dbobj dbcon) generateUserLoginXtoken(userTOKEN string) (string, error) {
+func (dbobj dbcon) generateUserLoginXtoken(userTOKEN string) (string, string, error) {
 	// check if user record exists
 	record, err := dbobj.lookupUserRecord(userTOKEN)
 	if record == nil || err != nil {
 		// not found
-		return "", errors.New("not found")
+		return "", "", errors.New("not found")
 	}
 	tokenUUID, err := uuid.GenerateUUID()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
+	hashedToken := hashString(dbobj.hash, tokenUUID)
 	// by default login token for 30 minutes only
 	expired := int32(time.Now().Unix()) + 10*60
 	bdoc := bson.M{}
 	bdoc["token"] = userTOKEN
-	bdoc["xtoken"] = hashString(dbobj.hash, tokenUUID)
+	bdoc["xtoken"] = hashedToken
 	bdoc["type"] = "login"
 	bdoc["endtime"] = expired
 	_, err = dbobj.store.CreateRecord(storage.TblName.Xtokens, bdoc)
-	return tokenUUID, err
+	return tokenUUID, hashedToken, err
 }
 
 /*

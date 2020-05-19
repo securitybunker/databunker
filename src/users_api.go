@@ -347,12 +347,13 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	if tmp == tmpCode {
 		// user ented correct key
 		// generate temp user access code
-		xtoken, err := e.db.generateUserLoginXtoken(userTOKEN)
+		xtoken, hashedToken, err := e.db.generateUserLoginXtoken(userTOKEN)
 		//fmt.Printf("generate user access token: %s\n", xtoken)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
 		}
+		event.Msg = "Generating access token: " + hashedToken
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		fmt.Fprintf(w, `{"status":"ok","xtoken":"%s","token":"%s"}`, xtoken, userTOKEN)
