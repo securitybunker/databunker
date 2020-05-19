@@ -353,7 +353,7 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			returnError(w, r, "internal error", 405, err, event)
 			return
 		}
-		event.Msg = "Generating access token: " + hashedToken
+		event.Msg = "Generate: " + hashedToken
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		fmt.Fprintf(w, `{"status":"ok","xtoken":"%s","token":"%s"}`, xtoken, userTOKEN)
