@@ -76,7 +76,7 @@ func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 	event.Record = userTOKEN
-	event.Msg = "Generated " + recordUUID
+	event.Msg = "generated: " + recordUUID
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","record":%q}`, recordUUID)
