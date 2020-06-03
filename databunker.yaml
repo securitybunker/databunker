@@ -41,9 +41,12 @@ server:
   host: "0.0.0.0"
   port: 3000
 smtp:
-  server: "smtp.eu.mailgun.org"
+  # You need to get SMTP server to send out email notification for example to allow user login.
+  # You can look for a email service company offering SMTP services. You can pick from here:
+  # https://paranoidguy.com/blog/european-saas-companies/
+  server: "email-smtp-server.com"
   port: 587
-  user: "postmaster@mg.your-company.com"
+  user: "user@your-company.com"
   pass: ""
   sender: "bot@databunker.your-company.com"
 ui:
