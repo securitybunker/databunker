@@ -62,10 +62,15 @@ type Config struct {
 		SslCertificateKey string `yaml:"ssl_certificate_key", envconfig:"SSL_CERTIFICATE_KEY"`
 	}
 	Sms struct {
+		Url            string `yaml:"url"`
+		From           string `yaml:"from"`
+		Body           string `yaml:"body"`
+		Token          string `yaml:"token"`
+		Method         string `yaml:"method"`
+		BasicAuth      string `yaml:"basic_auth"`
+		ContentType    string `yaml:"content_type"`
+		CustomHeader   string `yaml:"custom_header"`
 		DefaultCountry string `yaml:"default_country"`
-		TwilioAccount  string `yaml:"twilio_account"`
-		TwilioToken    string `yaml:"twilio_token"`
-		TwilioFrom     string `yaml:"twilio_from"`
 	}
 	Server struct {
 		Port string `yaml:"port", envconfig:"BUNKER_PORT"`
