@@ -83,12 +83,7 @@ if (conf["custom_css_file"]) {
                 if (xhr0.status === 200) {
                     var data = JSON.parse(xhr0.responseText);
                     if (data.status == "ok") {
-                        //var d = JSON.stringify(data.data, null, 4);
                         const displayApp = app.charAt(0).toUpperCase() + app.substring(1);
-                        //$('#data').append('<h4>'+displayApp+'</h4><code class="json">' + d + '</code>');
-                        //document.querySelectorAll('pre code').forEach((block) => {
-                        //    hljs.highlightBlock(block);
-                        //});
                         $('#data').append('<div class="row"><div class="col-9"><h5>App: ' + displayApp + '</h5></div>' +
                             '<div class="col-3 col-md3 "><button onclick="return saveApp(\'' + app + '\');" class="btn btn-secondary">Save</button></div></div>' +
                             '<div id="jsoneditor-' + app + '" style="width: 100%; min-height: 200px;"></div>');
@@ -101,7 +96,7 @@ if (conf["custom_css_file"]) {
                         }
                         const editor = new JSONEditor(container, options);
                         editor.set(data.data);
-                        editors["app"] = editor;
+                        editors[app] = editor;
                     }
                 } else if (xhr0.status > 400 && xhr0.status < 500) {
                     document.location = "/";
@@ -111,7 +106,7 @@ if (conf["custom_css_file"]) {
 
         }
         function saveApp(app) {
-            const updatedJson = editors["app"].get();
+            const updatedJson = editors[app].get();
             var params = JSON.stringify(updatedJson);
             var xhr0 = new XMLHttpRequest();
             // first save consent
