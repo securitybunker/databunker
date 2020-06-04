@@ -47,13 +47,10 @@ if (conf["custom_css_file"]) {
                         </div>
                     </div>
                     <div class="form-group" id="sms-conf-form" style="display:none;">
-                        <p>We will send you SMS with access code using <a target="_blank"
-                                href="https://www.twilio.com/">https://www.twilio.com/</a>&nbsp;-&nbsp;<a
-                                target="_blank" href="https://www.twilio.com/gdpr">Twilio GDPR page</a></p>
+			    <p>We might send you SMS using 3rd party service. Check the <b>Privacy policy</b> bellow.</p>
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" onclick="hidealert();" id="smschk">
-                            <label class="form-check-label" for="smschk">Confirm to allow sending access code with
-                                twilio.com</label>
+			    <label class="form-check-label" for="smschk">Confirm to allow sending access code using 3rd party service.</label>
                         </div>
                     </div>
                     <div id="confalert" class="alert alert-warning" role="alert" style="display:none;">
@@ -234,7 +231,7 @@ if (conf["custom_css_file"]) {
             } else if (kkk == "Email" && key.indexOf('@') > 0) {
                 window.localStorage.setItem('login', key);
                 var xhr0 = new XMLHttpRequest();
-                xhr0.open('POST', "/v1/consent/email/" + encodeURI(key) + "/send-email-mailgun-on-login");
+                xhr0.open('POST', "/v1/consent/email/" + encodeURI(key) + "/send-email-on-login");
                 xhr0.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
                 xhr0.onload = function () {
                     if (xhr0.status === 200) {
@@ -261,7 +258,7 @@ if (conf["custom_css_file"]) {
             } else if (kkk == "Phone") {
                 window.localStorage.setItem('login', key);
                 var xhr0 = new XMLHttpRequest();
-                xhr0.open('POST', "/v1/consent/phone/" + encodeURI(key) + "/send-sms-twilio-on-login");
+                xhr0.open('POST', "/v1/consent/phone/" + encodeURI(key) + "/send-sms-on-login");
                 xhr0.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
                 xhr0.onload = function () {
                     if (xhr0.status === 200) {
