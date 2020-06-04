@@ -30,10 +30,28 @@ ssl:
   ssl_certificate: "/databunker/certs/server.cer"
   ssl_certificate_key: "/databunker/certs/server.key"
 sms:
-  # default country when sending out SMSM
-  twilio_account: ""
-  twilio_token: ""
-  twilio_from: ""
+  # REQUIRED: Specify SMS gateway URL.
+  # Available modifiers for url parameters: {token}, {from}, {phone}, {msg}
+  # url: "https://sms-gateway.com/send?token=_TOKEN_&from=_FROM_&phone=_PHONE_&msg=_MSG_"
+  # OPTIONAL: Specify From address
+  # from: ""
+  # OPTIONAL: Specify SMS gateway access token
+  # token: ""
+  # OPTIONAL: Specify SMS gateway Basic Auth header, format: username:password
+  # basic_auth: "user:pssword"
+  # OPTIONAL: Specify SMS gateway HTTP request method: GET or POST. Default is GET
+  # method: "GET"
+  # OPTIONAL: Specify SMS gateway HTTP request custom header. Can be used for authorization.
+  # custom_header: "x-token: value"
+  # OTIONAL: Specify SMS gateway HTTP request Content Type. It can be application/json.
+  # By default application/x-www-form-urlencoded
+  # content_type: "json"
+  # REQUIRED FOR POST REQUEST: POST body. Available modifiers: _TOKEN_, _FROM_, _PHONE_, _MSG_
+  # Example for application/json POST request:
+  # body: '{"from":"_FROM_","phone":"_PHONE_","message":"_MSG_"}'
+  # Example for application/x-www-form-urlencoded POST request
+  # body: 'from=_FROM_&phone=_PHONE_&message=_MSG_'
+  # default country when sending out SMS
   # Use country code when normalizing phone numbers. Use country code as defined here:
   # https://github.com/ttacon/libphonenumber/blob/master/countrycodetoregionmap.go
   default_country: "GB"
