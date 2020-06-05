@@ -31,11 +31,15 @@ func sendCodeByPhoneDo(domain string, client *http.Client, code int32, address s
 		req, _ := http.NewRequest("GET", finalUrl, nil)
 		if len(cfg.Sms.BasicAuth) > 0 && strings.Contains(cfg.Sms.BasicAuth, ":") {
 			s := strings.SplitN(cfg.Sms.BasicAuth, ":", 2)
-			req.SetBasicAuth(strings.TrimSpace(s[0]), strings.TrimSpace(s[1]))
+			if len(s) == 2 {
+				req.SetBasicAuth(strings.TrimSpace(s[0]), strings.TrimSpace(s[1]))
+			}
 		}
 		if len(cfg.Sms.CustomHeader) > 0 && strings.Contains(cfg.Sms.CustomHeader, ":") {
 			s := strings.SplitN(cfg.Sms.CustomHeader, ":", 2)
-			req.Header.Add(strings.TrimSpace(s[0]), strings.TrimSpace(s[1]))
+			if len(s) == 2 {
+				req.Header.Add(strings.TrimSpace(s[0]), strings.TrimSpace(s[1]))
+			}
 		}
 		resp, _ := client.Do(req)
 		fmt.Println(resp.Status)
@@ -66,11 +70,15 @@ func sendCodeByPhoneDo(domain string, client *http.Client, code int32, address s
 	req, _ := http.NewRequest("POST", finalUrl, &msgDataReader)
 	if len(cfg.Sms.BasicAuth) > 0 && strings.Contains(cfg.Sms.BasicAuth, ":") {
 		s := strings.SplitN(cfg.Sms.BasicAuth, ":", 2)
-		req.SetBasicAuth(strings.TrimSpace(s[0]), strings.TrimSpace(s[1]))
+		if len(s) == 2 {
+			req.SetBasicAuth(strings.TrimSpace(s[0]), strings.TrimSpace(s[1]))
+		}
 	}
 	if len(cfg.Sms.CustomHeader) > 0 && strings.Contains(cfg.Sms.CustomHeader, ":") {
 		s := strings.SplitN(cfg.Sms.CustomHeader, ":", 2)
-		req.Header.Add(strings.TrimSpace(s[0]), strings.TrimSpace(s[1]))
+		if len(s) == 2 {
+			req.Header.Add(strings.TrimSpace(s[0]), strings.TrimSpace(s[1]))
+		}
 	}
 	req.Header.Add("Content-Type", cType)
 	resp, _ := client.Do(req)
