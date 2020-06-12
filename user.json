@@ -1,0 +1,41 @@
+{
+"$id": "https://paranoidguy.com/schema/",
+"$comment" : "user record",
+"title": "user",
+"description": "user record",
+"type": "object",
+"required": ["fname", "passportid", "email", "phone", "status"],
+"properties": {
+  "fname": {
+    "type": "string",
+    "minLength": 1
+  },
+  "lname": {
+    "type": "string",
+    "minLength": 1
+  },
+  "passportid": {
+    "type": "string",
+    "locked": true,
+    "minLength": 6,
+    "maxLength": 10
+  },
+  "email": {
+    "type": "string",
+    "minLength": 1,
+    "format": "email"
+  },
+  "phone": {
+    "type": "string",
+    "minLength": 1
+  },  
+  "status": {
+    "type": "string",
+    "enum": ["prospect", "customer", "old-customer", "not-relevant"]
+  },
+  "age": {
+    "type": "integer",
+    "minimum": 10
+  }
+}
+}
