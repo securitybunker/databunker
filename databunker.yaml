@@ -1,7 +1,7 @@
 # Server configurations
 generic:
   # allow to create user object without login
-  create_user_without_token: true
+  create_user_without_access_token: true
 selfservice:
   # specifies if admin/DPO is required to approve user deletion
   forget_me: false
