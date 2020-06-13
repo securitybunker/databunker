@@ -66,6 +66,7 @@ if (conf["custom_css_file"]) {
                     </div>
                 </div>
                 <p id="msg">Click on a field to edit, when finished click Save.</p>
+                <div id="errordiv" class="alert alert-warning" role="alert" style="display:none;"></div>
                 <div id="jsoneditor" style="width:100%;height:300px;overflow:auto;"></div>
                 <pre id="data"></pre>
 
@@ -156,13 +157,20 @@ if (conf["custom_css_file"]) {
             xhr0.setRequestHeader("X-Bunker-Token", xtoken)
             xhr0.setRequestHeader('Content-type', 'application/json');
             xhr0.onload = function () {
+                $('#errordiv').hide();
                 if (xhr0.status === 200) {
-				    var data = JSON.parse(xhr0.responseText);
+                    var data = JSON.parse(xhr0.responseText);
                     if (data.status == "ok" && data.result && data.result == "request-created") {
                         showAlert("Admin request created to approve changes in your profile.");
                     }
-                } else if (xhr0.status > 400 && xhr0.status < 500) {
+                } else if (xhr0.status === 403) {
                     document.location = "/";
+                } else {
+                    var data = JSON.parse(xhr0.responseText);
+                    if (data.status == "error") {
+                        $('#errordiv').text(data.message);
+						$('#errordiv').show();
+                    }
                 }
             }
             xhr0.send(params);
