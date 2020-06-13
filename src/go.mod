@@ -13,7 +13,9 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/paranoidguy/databunker/src/storage v0.0.0
+	github.com/paranoidguy/jsonschema v0.2.1-0.20200613191419-2e32bc4eae60
 	github.com/prometheus/client_golang v1.4.1
+	github.com/qri-io/jsonpointer v0.1.1
 	github.com/schollz/sqlite3dump v1.2.4 // indirect
 	github.com/tidwall/gjson v1.5.0
 	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect

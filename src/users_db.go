@@ -88,6 +88,42 @@ func (dbobj dbcon) generateDemoLoginCode(userTOKEN string) int32 {
 	return rnd
 }
 
+func (dbobj dbcon) validateUserRecordChange(jsonDataPatch []byte, userTOKEN string) error {
+	oldUserBson, err := dbobj.lookupUserRecord(userTOKEN)
+	if oldUserBson == nil || err != nil {
+		// not found
+		return errors.New("not found")
+	}
+	// get user key
+	userKey := oldUserBson["key"].(string)
+	recordKey, err := base64.StdEncoding.DecodeString(userKey)
+	if err != nil {
+		return err
+	}
+	encData0 := oldUserBson["data"].(string)
+	encData, err := base64.StdEncoding.DecodeString(encData0)
+	if err != nil {
+		return err
+	}
+	decrypted, err := decrypt(dbobj.masterKey, recordKey, encData)
+	if err != nil {
+		return err
+	}
+	// prepare merge
+	fmt.Printf("old json: %s\n", decrypted)
+	fmt.Printf("json patch: %s\n", jsonDataPatch)
+	newJSON, err := jsonpatch.MergePatch(decrypted, jsonDataPatch)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("result: %s\n", newJSON)
+	err = ValidateUserRecord(newJSON)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (dbobj dbcon) updateUserRecord(jsonDataPatch []byte, userTOKEN string, event *auditEvent, conf Config) ([]byte, []byte, bool, error) {
 	var err error
 	for x := 0; x < 10; x++ {
