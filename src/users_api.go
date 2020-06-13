@@ -29,6 +29,11 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		returnError(w, r, "empty request body", 405, nil, event)
 		return
 	}
+	err = ValidateUserRecord(parsedData.jsonData)
+	if err != nil {
+		returnError(w, r, "user schema error: "+err.Error(), 405, err, event)
+		return
+	}
 	// make sure that login, email and phone are unique
 	if len(parsedData.loginIdx) > 0 {
 		otherUserBson, err := e.db.lookupUserRecordByIndex("login", parsedData.loginIdx, e.conf)
@@ -183,6 +188,13 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	authResult := e.enforceAuth(w, r, event)
 	if authResult == "" {
 		return
+	}
+	if ValidateUserEnabled() {
+	  err = e.db.validateUserRecordChange(parsedData.jsonData, userTOKEN)
+	  if err != nil {
+	    returnError(w, r, "schema validation error: " + err.Error(), 405, err, event)
+		return
+	  }
 	}
 	if authResult == "login" {
 		event.Title = "user change-profile request"

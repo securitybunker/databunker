@@ -39,6 +39,7 @@ type dbcon struct {
 type Config struct {
 	Generic struct {
 		CreateUserWithoutAccessToken bool   `yaml:"create_user_without_access_token"`
+		UserRecordSchema             string `yaml:"user_record_schema"`
 		AdminEmail                   string `yaml:"admin_email"`
 	}
 	SelfService struct {
@@ -269,8 +270,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	return router
 }
 
-// readFile() read configuration file.
-func readFile(cfg *Config, filepath *string) error {
+// readConfFile() read configuration file.
+func readConfFile(cfg *Config, filepath *string) error {
 	confFile := "databunker.yaml"
 	if filepath != nil {
 		if len(*filepath) > 0 {
@@ -446,7 +447,7 @@ func main() {
 	flag.Parse()
 
 	var cfg Config
-	readFile(&cfg, confPtr)
+	readConfFile(&cfg, confPtr)
 	readEnv(&cfg)
 	if *initPtr || *demoPtr {
 		db, _, _ := setupDB(dbPtr, masterKeyPtr, *demoPtr)
@@ -466,10 +467,15 @@ func main() {
 		fmt.Println("")
 		os.Exit(0)
 	}
+	err := loadUserSchema(cfg, confPtr)
+	if err != nil {
+		fmt.Printf("Failed to load user schema: %s\n", err)
+		os.Exit(0)
+	}
 	masterKey, masterKeyErr := masterkeyGet(masterKeyPtr)
 	if masterKeyErr != nil {
 		fmt.Printf("Error: %s", masterKeyErr)
-                os.Exit(0)
+        os.Exit(0)
 	}
 	store, _ := storage.OpenDB(dbPtr)
 	store.InitUserApps()
