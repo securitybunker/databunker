@@ -109,7 +109,7 @@ func ValidateUserRecordChange(oldRecord []byte, newRecord []byte, authResult str
   adminRecordChanged := false
   for _, r := range *result.ExtendedResults {
     fmt.Printf("path: %s key: %s data: %v\n", r.PropertyPath, r.Key, r.Value)
-    if r.Key == "locked" || (r.Key == "admin" && authResult == "login") {
+    if r.Key == "locked" || (r.Key == "admin" && authResult == "login" && adminRecordChanged == false) {
       pointer, _ := jptr.Parse(r.PropertyPath)
       data1, _ := pointer.Eval(oldDoc)
       data1Binary, _ := json.Marshal(data1)
