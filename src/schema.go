@@ -19,6 +19,7 @@ var userSchema *jsonschema.Schema
 
 // our custom validator
 type IsLocked bool
+type IsAdmin bool
 
 func loadUserSchema(cfg Config, confFile *string) error {
   fileSchema := cfg.Generic.UserRecordSchema
@@ -51,6 +52,7 @@ func loadUserSchema(cfg Config, confFile *string) error {
   rs := &jsonschema.Schema{}
   jsonschema.LoadDraft2019_09()
   jsonschema.RegisterKeyword("locked", newIsLocked)
+  jsonschema.RegisterKeyword("admin", newIsAdmin)
   err = rs.UnmarshalJSON(schemaData)
   if err != nil {
     return err
@@ -59,7 +61,7 @@ func loadUserSchema(cfg Config, confFile *string) error {
   return nil
 }
 
-func ValidateUserEnabled() bool {
+func UserSchemaEnabled() bool {
   if userSchema == nil {
     return false
   }
@@ -81,17 +83,17 @@ func ValidateUserRecord(record []byte) error {
   return nil
 }
 
-func ValidateUserRecordChange(oldRecord []byte, newRecord []byte) error {
+func ValidateUserRecordChange(oldRecord []byte, newRecord []byte, authResult string) (bool, error) {
   if userSchema == nil {
-    return nil
+    return false, nil
   }
   var oldDoc interface{}
   var newDoc interface{}
   if err := json.Unmarshal(oldRecord, &oldDoc); err != nil {
-    return err
+    return false, err
   }
   if err := json.Unmarshal(newRecord, &newDoc); err != nil {
-    return err
+    return false, err
   }
   result := userSchema.Validate(nil, newDoc)
   //if len(*result.Errs) > 0 {
@@ -99,25 +101,35 @@ func ValidateUserRecordChange(oldRecord []byte, newRecord []byte) error {
   //}
   result2 := userSchema.Validate(nil, oldDoc)
   if len(*result2.Errs) > 0 {
-    return (*result.Errs)[0]
+    return false, (*result.Errs)[0]
   }
+  if result.ExtendedResults == nil {
+    return false, nil
+  }
+  adminRecordChanged := false
   for _, r := range *result.ExtendedResults {
     fmt.Printf("path: %s key: %s data: %v\n", r.PropertyPath, r.Key, r.Value)
-    if r.Key == "locked" {
+    if r.Key == "locked" || (r.Key == "admin" && authResult == "login") {
       pointer, _ := jptr.Parse(r.PropertyPath)
       data1, _ := pointer.Eval(oldDoc)
       data1Binary, _ := json.Marshal(data1)
       data2, _ := pointer.Eval(newDoc)
       data2Binary, _ := json.Marshal(data2)
       if !jsonpatch.Equal(data1Binary, data2Binary) {
-  	    fmt.Printf("Locked value changed. Old: %s New %s\n", data1Binary, data2Binary)
-        return errors.New("User schema check error. Locked value changed: "+r.PropertyPath)
+        if r.Key == "locked" {
+  	      fmt.Printf("Locked value changed. Old: %s New %s\n", data1Binary, data2Binary)
+          return false, errors.New("User schema check error. Locked value changed: "+r.PropertyPath)
+        } else {
+		  fmt.Printf("Admin value changed. Approval required. Old: %s New %s\n", data1Binary, data2Binary)
+          adminRecordChanged = true
+        }
       }
     }
   }
-
-  return nil
+  return adminRecordChanged, nil
 }
+
+// Locked keyword - meaningin that value should never be changed after record created
 func newIsLocked() jsonschema.Keyword {
   return new(IsLocked)
 }
@@ -129,7 +141,6 @@ func (f *IsLocked) Validate(propPath string, data interface{}, errs *[]jsonschem
 
 // Register implements jsonschema.Keyword
 func (f *IsLocked) Register(uri string, registry *jsonschema.SchemaRegistry) {
-  fmt.Printf("Register %s\n", uri)
 }
 
 // Resolve implements jsonschema.Keyword
@@ -141,4 +152,29 @@ func (f *IsLocked) Resolve(pointer jptr.Pointer, uri string) *jsonschema.Schema 
 func (f *IsLocked) ValidateKeyword(ctx context.Context, currentState *jsonschema.ValidationState, data interface{}) {
   fmt.Printf("ValidateKeyword locked %s => %v\n", currentState.InstanceLocation.String(), data)
   currentState.AddExtendedResult("locked", data)
+}
+
+// Admin keyword. Any change in this record requires admin approval.
+func newIsAdmin() jsonschema.Keyword {
+  return new(IsAdmin)
+}
+
+// Validate implements jsonschema.Keyword
+func (f *IsAdmin) Validate(propPath string, data interface{}, errs *[]jsonschema.KeyError) {
+  fmt.Printf("Validate: %s -> %v\n", propPath, data)
+}
+
+// Register implements jsonschema.Keyword
+func (f *IsAdmin) Register(uri string, registry *jsonschema.SchemaRegistry) {
+}
+
+// Resolve implements jsonschema.Keyword
+func (f *IsAdmin) Resolve(pointer jptr.Pointer, uri string) *jsonschema.Schema {
+  fmt.Printf("Resolve %s\n", uri)
+  return nil
+}
+
+func (f *IsAdmin) ValidateKeyword(ctx context.Context, currentState *jsonschema.ValidationState, data interface{}) {
+  fmt.Printf("ValidateKeyword admin %s => %v\n", currentState.InstanceLocation.String(), data)
+  currentState.AddExtendedResult("admin", data)
 }

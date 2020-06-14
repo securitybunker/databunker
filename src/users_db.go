@@ -88,40 +88,36 @@ func (dbobj dbcon) generateDemoLoginCode(userTOKEN string) int32 {
 	return rnd
 }
 
-func (dbobj dbcon) validateUserRecordChange(jsonDataPatch []byte, userTOKEN string) error {
+func (dbobj dbcon) validateUserRecordChange(jsonDataPatch []byte, userTOKEN string, authResult string) (bool, error) {
 	oldUserBson, err := dbobj.lookupUserRecord(userTOKEN)
 	if oldUserBson == nil || err != nil {
 		// not found
-		return errors.New("not found")
+		return false, errors.New("not found")
 	}
 	// get user key
 	userKey := oldUserBson["key"].(string)
 	recordKey, err := base64.StdEncoding.DecodeString(userKey)
 	if err != nil {
-		return err
+		return false, err
 	}
 	encData0 := oldUserBson["data"].(string)
 	encData, err := base64.StdEncoding.DecodeString(encData0)
 	if err != nil {
-		return err
+		return false, err
 	}
 	decrypted, err := decrypt(dbobj.masterKey, recordKey, encData)
 	if err != nil {
-		return err
+		return false, err
 	}
 	// prepare merge
 	fmt.Printf("old json: %s\n", decrypted)
 	fmt.Printf("json patch: %s\n", jsonDataPatch)
 	newJSON, err := jsonpatch.MergePatch(decrypted, jsonDataPatch)
 	if err != nil {
-		return err
+		return false, err
 	}
 	fmt.Printf("result: %s\n", newJSON)
-	err = ValidateUserRecordChange(decrypted, newJSON)
-	if err != nil {
-		return err
-	}
-	return nil
+	return ValidateUserRecordChange(decrypted, newJSON, authResult)
 }
 
 func (dbobj dbcon) updateUserRecord(jsonDataPatch []byte, userTOKEN string, event *auditEvent, conf Config) ([]byte, []byte, bool, error) {
