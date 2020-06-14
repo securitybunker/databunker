@@ -23,11 +23,13 @@
   "email": {
     "type": "string",
     "minLength": 1,
-    "format": "email"
+    "format": "email",
+    "admin": true
   },
   "phone": {
     "type": "string",
-    "minLength": 1
+    "minLength": 1,
+    "admin": true
   },  
   "status": {
     "type": "string",
