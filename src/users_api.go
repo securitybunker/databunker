@@ -29,7 +29,7 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		returnError(w, r, "empty request body", 405, nil, event)
 		return
 	}
-	err = ValidateUserRecord(parsedData.jsonData)
+	err = validateUserRecord(parsedData.jsonData)
 	if err != nil {
 		returnError(w, r, "user schema error: "+err.Error(), 405, err, event)
 		return

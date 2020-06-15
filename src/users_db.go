@@ -117,7 +117,7 @@ func (dbobj dbcon) validateUserRecordChange(jsonDataPatch []byte, userTOKEN stri
 		return false, err
 	}
 	fmt.Printf("result: %s\n", newJSON)
-	return ValidateUserRecordChange(decrypted, newJSON, authResult)
+	return validateUserRecordChange(decrypted, newJSON, authResult)
 }
 
 func (dbobj dbcon) updateUserRecord(jsonDataPatch []byte, userTOKEN string, event *auditEvent, conf Config) ([]byte, []byte, bool, error) {
