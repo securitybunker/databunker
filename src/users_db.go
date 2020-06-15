@@ -88,36 +88,16 @@ func (dbobj dbcon) generateDemoLoginCode(userTOKEN string) int32 {
 	return rnd
 }
 
-func (dbobj dbcon) validateUserRecordChange(jsonDataPatch []byte, userTOKEN string, authResult string) (bool, error) {
-	oldUserBson, err := dbobj.lookupUserRecord(userTOKEN)
-	if oldUserBson == nil || err != nil {
-		// not found
-		return false, errors.New("not found")
-	}
-	// get user key
-	userKey := oldUserBson["key"].(string)
-	recordKey, err := base64.StdEncoding.DecodeString(userKey)
-	if err != nil {
-		return false, err
-	}
-	encData0 := oldUserBson["data"].(string)
-	encData, err := base64.StdEncoding.DecodeString(encData0)
-	if err != nil {
-		return false, err
-	}
-	decrypted, err := decrypt(dbobj.masterKey, recordKey, encData)
-	if err != nil {
-		return false, err
-	}
+func (dbobj dbcon) validateUserRecordChange(oldUserJSON []byte, jsonDataPatch []byte, userTOKEN string, authResult string) (bool, error) {
 	// prepare merge
-	fmt.Printf("old json: %s\n", decrypted)
+	fmt.Printf("old json: %s\n", oldUserJSON)
 	fmt.Printf("json patch: %s\n", jsonDataPatch)
-	newJSON, err := jsonpatch.MergePatch(decrypted, jsonDataPatch)
+	newJSON, err := jsonpatch.MergePatch(oldUserJSON, jsonDataPatch)
 	if err != nil {
 		return false, err
 	}
 	fmt.Printf("result: %s\n", newJSON)
-	return validateUserRecordChange(decrypted, newJSON, authResult)
+	return validateUserRecordChange(oldUserJSON, newJSON, authResult)
 }
 
 func (dbobj dbcon) updateUserRecord(jsonDataPatch []byte, userTOKEN string, event *auditEvent, conf Config) ([]byte, []byte, bool, error) {
@@ -329,7 +309,7 @@ func (dbobj dbcon) getUserIndex(indexValue string, indexName string, conf Config
 	return decrypted, userBson["token"].(string), err
 }
 
-func (dbobj dbcon) deleteUserRecord(userTOKEN string) (bool, error) {
+func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string) (bool, error) {
 	userApps, err := dbobj.listAllAppsOnly()
 	if err != nil {
 		return false, err
@@ -342,6 +322,7 @@ func (dbobj dbcon) deleteUserRecord(userTOKEN string) (bool, error) {
 	//delete in audit
 	dbobj.store.DeleteRecord(storage.TblName.Audit, "record", userTOKEN)
 	dbobj.store.DeleteRecord(storage.TblName.Sessions, "token", userTOKEN)
+	
 	// cleanup user record
 	bdel := bson.M{}
 	bdel["data"] = ""
