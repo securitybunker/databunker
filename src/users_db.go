@@ -323,13 +323,62 @@ func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string) (bool, er
 	dbobj.store.DeleteRecord(storage.TblName.Audit, "record", userTOKEN)
 	dbobj.store.DeleteRecord(storage.TblName.Sessions, "token", userTOKEN)
 	
-	// cleanup user record
+	dataJSON, record := cleanupRecord(userJSON)
 	bdel := bson.M{}
-	bdel["data"] = ""
-	bdel["key"] = ""
-	bdel["loginidx"] = ""
-	bdel["emailidx"] = ""
-	bdel["phoneidx"] = ""
+	if dataJSON != nil {
+		oldUserBson, err := dbobj.lookupUserRecord(userTOKEN)
+		if err != nil {
+			return false, err
+		}
+		userKey := oldUserBson["key"].(string)
+		recordKey, err := base64.StdEncoding.DecodeString(userKey)
+		if err != nil {
+			return false, err
+		}
+		sig := oldUserBson["md5"].(string)
+		bdoc := bson.M{}
+		
+		if _, ok := record["email"]; ok {
+			fmt.Printf("Preservice email idx\n")
+			bdoc["emailidx"] = oldUserBson["emailidx"].(string)
+		} else {
+			bdel["emailidx"] = ""
+		}
+		if _, ok := record["phone"]; ok {
+			fmt.Printf("Preservice phone idx\n")
+			bdoc["phoneidx"] = oldUserBson["phoneidx"].(string)
+		} else {
+			bdel["phoneidx"] = ""
+		}
+		if _, ok := record["login"]; ok {
+			fmt.Printf("Preservice login idx\n")
+			bdoc["loginidx"] = oldUserBson["loginidx"].(string)
+		} else {
+			bdel["loginidx"] = ""
+		}
+		encoded, _ := encrypt(dbobj.masterKey, recordKey, dataJSON)
+		encodedStr := base64.StdEncoding.EncodeToString(encoded)
+		bdoc["key"] = userKey
+		bdoc["data"] = encodedStr
+		md5Hash := md5.Sum([]byte(encodedStr))
+		bdoc["md5"] = base64.StdEncoding.EncodeToString(md5Hash[:])
+		bdoc["token"] = userTOKEN
+		result, err := dbobj.store.UpdateRecord2(storage.TblName.Users, "token", userTOKEN, "md5", sig, &bdoc, &bdel)
+		if err != nil {
+			return false, err
+		}
+		if result > 0 {
+			return true, nil
+		}
+		return false, nil
+	} else {
+		// cleanup user record
+		bdel["data"] = ""
+		bdel["key"] = ""
+		bdel["loginidx"] = ""
+		bdel["emailidx"] = ""
+		bdel["phoneidx"] = ""
+	}
 	result, err := dbobj.store.CleanupRecord(storage.TblName.Users, "token", userTOKEN, bdel)
 	if err != nil {
 		return false, err
