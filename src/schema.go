@@ -132,18 +132,17 @@ func validateUserRecordChange(oldRecord []byte, newRecord []byte, authResult str
   return adminRecordChanged, nil
 }
 
-func cleanupRecord(record []byte) []byte {
-  empty := []byte("{}")
+func cleanupRecord(record []byte) ([]byte, map[string]interface{}) {
   if userSchema == nil {
-    return empty
+    return nil, nil
   }
   var doc interface{}
   if err := json.Unmarshal(record, &doc); err != nil {
-    return empty
+    return nil, nil
   }
   result := userSchema.Validate(nil, doc)
   if result.ExtendedResults == nil {
-    return empty
+    return nil, nil
   }
   
   doc1 := make(map[string]interface{})
@@ -213,20 +212,24 @@ func cleanupRecord(record []byte) []byte {
     }
   }
 
+  found := false
   for _, r := range *result.ExtendedResults {
     fmt.Printf("path: %s key: %s data: %v\n", r.PropertyPath, r.Key, r.Value)
     if r.Key == "preserve" {
       //pointer, _ := jptr.Parse(r.PropertyPath)
       //data1, _ := pointer.Eval(oldDoc)
       nested(r.PropertyPath, r.Value)
-	  fmt.Printf("current doc1 %v\n", doc1)
+	  found = true
     }
   }
-  fmt.Printf("final doc1 %v\n", doc1)
-  dataBinary, err := json.Marshal(doc1)
-  fmt.Println(err)
+  if found == false {
+    return nil, nil
+  }
+  //fmt.Printf("final doc1 %v\n", doc1)
+  dataBinary, _ := json.Marshal(doc1)
+  //fmt.Println(err)
   fmt.Printf("data bin %s\n", dataBinary)
-  return dataBinary
+  return dataBinary, doc1
 }
 
 /*******************************************************************/
@@ -252,7 +255,7 @@ func (f *IsAdmin) Resolve(pointer jptr.Pointer, uri string) *jsonschema.Schema {
 }
 
 func (f *IsAdmin) ValidateKeyword(ctx context.Context, currentState *jsonschema.ValidationState, data interface{}) {
-  fmt.Printf("ValidateKeyword admin %s => %v\n", currentState.InstanceLocation.String(), data)
+  //fmt.Printf("ValidateKeyword admin %s => %v\n", currentState.InstanceLocation.String(), data)
   currentState.AddExtendedResult("admin", data)
 }
 
@@ -279,7 +282,7 @@ func (f *IsLocked) Resolve(pointer jptr.Pointer, uri string) *jsonschema.Schema 
 }
 
 func (f *IsLocked) ValidateKeyword(ctx context.Context, currentState *jsonschema.ValidationState, data interface{}) {
-  fmt.Printf("ValidateKeyword locked %s => %v\n", currentState.InstanceLocation.String(), data)
+  //fmt.Printf("ValidateKeyword locked %s => %v\n", currentState.InstanceLocation.String(), data)
   currentState.AddExtendedResult("locked", data)
 }
 
@@ -306,6 +309,6 @@ func (f *IsPreserve) Resolve(pointer jptr.Pointer, uri string) *jsonschema.Schem
 }
 
 func (f *IsPreserve) ValidateKeyword(ctx context.Context, currentState *jsonschema.ValidationState, data interface{}) {
-  fmt.Printf("ValidateKeyword preserve %s => %v\n", currentState.InstanceLocation.String(), data)
+  //fmt.Printf("ValidateKeyword preserve %s => %v\n", currentState.InstanceLocation.String(), data)
   currentState.AddExtendedResult("preserve", data)
 }
