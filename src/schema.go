@@ -9,6 +9,7 @@ import (
   "os"
   "path/filepath"
   "strings"
+  "strconv"
 
   "github.com/paranoidguy/jsonschema"
   jsonpatch "github.com/evanphx/json-patch"
@@ -68,7 +69,7 @@ func UserSchemaEnabled() bool {
   return true
 }
 
-func ValidateUserRecord(record []byte) error {
+func validateUserRecord(record []byte) error {
   if userSchema == nil {
     return nil
   }
@@ -83,7 +84,7 @@ func ValidateUserRecord(record []byte) error {
   return nil
 }
 
-func ValidateUserRecordChange(oldRecord []byte, newRecord []byte, authResult string) (bool, error) {
+func validateUserRecordChange(oldRecord []byte, newRecord []byte, authResult string) (bool, error) {
   if userSchema == nil {
     return false, nil
   }
@@ -127,6 +128,102 @@ func ValidateUserRecordChange(oldRecord []byte, newRecord []byte, authResult str
     }
   }
   return adminRecordChanged, nil
+}
+
+func cleanupRecord(record []byte) []byte {
+  empty := []byte("{}")
+  if userSchema == nil {
+    return empty
+  }
+  var doc interface{}
+  if err := json.Unmarshal(record, &doc); err != nil {
+    return empty
+  }
+  result := userSchema.Validate(nil, doc)
+  if result.ExtendedResults == nil {
+    return empty
+  }
+  
+  doc1 := make(map[string]interface{})
+  doc2 := make([]interface{},1)
+  nested := func(path string, data interface{}) {
+    currentStr := &doc1
+    currentNum := &doc2
+    keys := strings.Split(path, "/")
+    fmt.Printf("path: %s\n", path)
+    for i,k := range keys {
+      if len(k) == 0 {
+        continue
+      }
+      if kNum, err := strconv.Atoi(k); err == nil {
+        if (i+1) == len(keys) {
+          (*currentNum)[kNum] = data
+        } else if kNxt, err := strconv.Atoi(keys[i+1]); err == nil {
+          if (*currentNum)[kNum] == nil {
+            v := make([]interface{}, kNxt+1)
+            (*currentNum)[kNum] = v
+            currentNum = &v
+          } else {
+            v := (*currentNum)[kNum].([]interface{})
+            for (len(v) < kNxt+1) {
+              v = append(v, nil)
+            }
+            (*currentNum)[kNum] = v
+            currentNum = &v
+          }
+        } else {
+          if (*currentNum)[kNum] == nil {
+            v := make(map[string]interface{})
+            (*currentNum)[kNum] = v
+            currentStr = &v
+          } else {
+            v := (*currentNum)[kNum].(map[string]interface{})
+            currentStr = &v
+          }
+        }
+      } else {
+        if (i+1) == len(keys) {
+          (*currentStr)[k] = data
+        } else if kNxt, err := strconv.Atoi(keys[i+1]); err == nil {
+          if _, ok := (*currentStr)[k]; !ok {
+            v := make([]interface{}, kNxt+1)
+            (*currentStr)[k] = v
+            currentNum = &v
+          } else {
+            v := (*currentStr)[k].([]interface{})
+            for (len(v) < kNxt+1) {
+              v = append(v, nil)
+            }
+            (*currentStr)[k] = v
+            currentNum = &v
+          }
+        } else {
+          if _, ok := (*currentStr)[k]; !ok {
+            v := make(map[string]interface{})
+            (*currentStr)[k] = v
+            currentStr = &v
+          } else {
+            v := (*currentNum)[kNum].(map[string]interface{})
+            currentStr = &v
+          }
+        }
+      }
+    }
+  }
+
+  for _, r := range *result.ExtendedResults {
+    fmt.Printf("path: %s key: %s data: %v\n", r.PropertyPath, r.Key, r.Value)
+    if r.Key == "leftover" {
+      //pointer, _ := jptr.Parse(r.PropertyPath)
+      //data1, _ := pointer.Eval(oldDoc)
+      nested(r.PropertyPath, r.Value)
+    }
+  }
+  fmt.Printf("final doc1 %v\n", doc1)
+  dataBinary, err := json.Marshal(doc1)
+  fmt.Println(err)
+  fmt.Printf("data bin %s\n", dataBinary)
+  return dataBinary
 }
 
 // Locked keyword - meaningin that value should never be changed after record created
