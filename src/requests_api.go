@@ -219,7 +219,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		return
 	}
 	if action == "forget-me" {
-		result, err := e.db.deleteUserRecord(userTOKEN)
+		result, err := e.db.deleteUserRecord(resultJSON, userTOKEN)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return

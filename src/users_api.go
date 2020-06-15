@@ -167,22 +167,23 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 
 	userTOKEN := ""
+	var userJSON []byte
 	if mode == "token" {
 		if enforceUUID(w, address, event) == false {
 			return
 		}
 		userTOKEN = address
+		userJSON, err = e.db.getUser(address)
 	} else {
-		userBson, err := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		userJSON, userTOKEN, err = e.db.getUserIndex(mode, address, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
 		}
-		if userBson == nil {
+		if userJSON == nil {
 			returnError(w, r, "record not found", 405, nil, event)
 			return
 		}
-		userTOKEN = userBson["token"].(string)
 		event.Record = userTOKEN
 	}
 	authResult := e.enforceAuth(w, r, event)
@@ -191,7 +192,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	adminRecordChanged := false
 	if UserSchemaEnabled() {
-	  adminRecordChanged, err = e.db.validateUserRecordChange(parsedData.jsonData, userTOKEN, authResult)
+	  adminRecordChanged, err = e.db.validateUserRecordChange(userJSON, parsedData.jsonData, userTOKEN, authResult)
 	  if err != nil {
 	    returnError(w, r, "schema validation error: " + err.Error(), 405, err, event)
 		return
@@ -276,7 +277,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 		}
 	}
 	//fmt.Printf("deleting user %s\n", userTOKEN)
-	_, err = e.db.deleteUserRecord(userTOKEN)
+	_, err = e.db.deleteUserRecord(resultJSON, userTOKEN)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
