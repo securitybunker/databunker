@@ -19,8 +19,9 @@ import (
 var userSchema *jsonschema.Schema
 
 // our custom validator
-type IsLocked bool
 type IsAdmin bool
+type IsLocked bool
+type IsPreserve bool
 
 func loadUserSchema(cfg Config, confFile *string) error {
   fileSchema := cfg.Generic.UserRecordSchema
@@ -52,8 +53,9 @@ func loadUserSchema(cfg Config, confFile *string) error {
   }
   rs := &jsonschema.Schema{}
   jsonschema.LoadDraft2019_09()
-  jsonschema.RegisterKeyword("locked", newIsLocked)
   jsonschema.RegisterKeyword("admin", newIsAdmin)
+  jsonschema.RegisterKeyword("locked", newIsLocked)
+  jsonschema.RegisterKeyword("preserve", newIsPreserve)
   err = rs.UnmarshalJSON(schemaData)
   if err != nil {
     return err
@@ -213,10 +215,11 @@ func cleanupRecord(record []byte) []byte {
 
   for _, r := range *result.ExtendedResults {
     fmt.Printf("path: %s key: %s data: %v\n", r.PropertyPath, r.Key, r.Value)
-    if r.Key == "leftover" {
+    if r.Key == "preserve" {
       //pointer, _ := jptr.Parse(r.PropertyPath)
       //data1, _ := pointer.Eval(oldDoc)
       nested(r.PropertyPath, r.Value)
+	  fmt.Printf("current doc1 %v\n", doc1)
     }
   }
   fmt.Printf("final doc1 %v\n", doc1)
@@ -226,30 +229,7 @@ func cleanupRecord(record []byte) []byte {
   return dataBinary
 }
 
-// Locked keyword - meaningin that value should never be changed after record created
-func newIsLocked() jsonschema.Keyword {
-  return new(IsLocked)
-}
-
-// Validate implements jsonschema.Keyword
-func (f *IsLocked) Validate(propPath string, data interface{}, errs *[]jsonschema.KeyError) {
-  fmt.Printf("Validate: %s -> %v\n", propPath, data)
-}
-
-// Register implements jsonschema.Keyword
-func (f *IsLocked) Register(uri string, registry *jsonschema.SchemaRegistry) {
-}
-
-// Resolve implements jsonschema.Keyword
-func (f *IsLocked) Resolve(pointer jptr.Pointer, uri string) *jsonschema.Schema {
-  fmt.Printf("Resolve %s\n", uri)
-  return nil
-}
-
-func (f *IsLocked) ValidateKeyword(ctx context.Context, currentState *jsonschema.ValidationState, data interface{}) {
-  fmt.Printf("ValidateKeyword locked %s => %v\n", currentState.InstanceLocation.String(), data)
-  currentState.AddExtendedResult("locked", data)
-}
+/*******************************************************************/
 
 // Admin keyword. Any change in this record requires admin approval.
 func newIsAdmin() jsonschema.Keyword {
@@ -274,4 +254,58 @@ func (f *IsAdmin) Resolve(pointer jptr.Pointer, uri string) *jsonschema.Schema {
 func (f *IsAdmin) ValidateKeyword(ctx context.Context, currentState *jsonschema.ValidationState, data interface{}) {
   fmt.Printf("ValidateKeyword admin %s => %v\n", currentState.InstanceLocation.String(), data)
   currentState.AddExtendedResult("admin", data)
+}
+
+/*******************************************************************/
+
+// Locked keyword - meaningin that value should never be changed after record creation
+func newIsLocked() jsonschema.Keyword {
+  return new(IsLocked)
+}
+
+// Validate implements jsonschema.Keyword
+func (f *IsLocked) Validate(propPath string, data interface{}, errs *[]jsonschema.KeyError) {
+  fmt.Printf("Validate: %s -> %v\n", propPath, data)
+}
+
+// Register implements jsonschema.Keyword
+func (f *IsLocked) Register(uri string, registry *jsonschema.SchemaRegistry) {
+}
+
+// Resolve implements jsonschema.Keyword
+func (f *IsLocked) Resolve(pointer jptr.Pointer, uri string) *jsonschema.Schema {
+  fmt.Printf("Resolve %s\n", uri)
+  return nil
+}
+
+func (f *IsLocked) ValidateKeyword(ctx context.Context, currentState *jsonschema.ValidationState, data interface{}) {
+  fmt.Printf("ValidateKeyword locked %s => %v\n", currentState.InstanceLocation.String(), data)
+  currentState.AddExtendedResult("locked", data)
+}
+
+/*******************************************************************/
+
+// Preserve keyword - meaningin that value should never be deleted (after user is delete it is left)
+func newIsPreserve() jsonschema.Keyword {
+  return new(IsPreserve)
+}
+
+// Validate implements jsonschema.Keyword
+func (f *IsPreserve) Validate(propPath string, data interface{}, errs *[]jsonschema.KeyError) {
+  fmt.Printf("Validate: %s -> %v\n", propPath, data)
+}
+
+// Register implements jsonschema.Keyword
+func (f *IsPreserve) Register(uri string, registry *jsonschema.SchemaRegistry) {
+}
+
+// Resolve implements jsonschema.Keyword
+func (f *IsPreserve) Resolve(pointer jptr.Pointer, uri string) *jsonschema.Schema {
+  fmt.Printf("Resolve %s\n", uri)
+  return nil
+}
+
+func (f *IsPreserve) ValidateKeyword(ctx context.Context, currentState *jsonschema.ValidationState, data interface{}) {
+  fmt.Printf("ValidateKeyword preserve %s => %v\n", currentState.InstanceLocation.String(), data)
+  currentState.AddExtendedResult("preserve", data)
 }
