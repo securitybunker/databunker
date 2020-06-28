@@ -18,13 +18,15 @@
     "type": "string",
     "locked": true,
     "minLength": 6,
-    "maxLength": 10
+    "maxLength": 10,
+	"preserve": true
   },
   "email": {
     "type": "string",
     "minLength": 1,
     "format": "email",
-    "admin": true
+    "admin": true,
+    "preserve": true
   },
   "phone": {
     "type": "string",
