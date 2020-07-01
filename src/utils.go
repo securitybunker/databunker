@@ -29,6 +29,7 @@ var (
 	regexExpiration    = regexp.MustCompile("^([0-9]+)([mhds])?$")
 	regexHex           = regexp.MustCompile("^[a-zA-F0-9]+$")
 	consentYesStatuses = []string{"y", "yes", "accept", "agree", "approve", "given", "true", "good"}
+	basisTypes         = []string{"consent", "contract", "legitimate-interest", "vital-interest", "legal-requirement", "public-interest"}
 )
 
 // Consideration why collection of meta data patch was postpone:
@@ -67,6 +68,14 @@ func normalizeConsentStatus(status string) string {
 		return "yes"
 	}
 	return "no"
+}
+
+func normalizeBasisType(status string) string {
+	status = strings.ToLower(status)
+	if contains(basisTypes, status) {
+		return status
+	}
+	return "consent"
 }
 
 func normalizeBrief(brief string) string {
@@ -344,6 +353,22 @@ func (e mainEnv) enforceAuth(w http.ResponseWriter, r *http.Request, event *audi
 		event.Status = "error"
 		event.Msg = "access denied"
 	}
+	return ""
+}
+
+func (e mainEnv) enforceAdmin(w http.ResponseWriter, r *http.Request) string {
+	if token, ok := r.Header["X-Bunker-Token"]; ok {
+		authResult, err := e.db.checkUserAuthXToken(token[0])
+		//fmt.Printf("error in auth? error %s - %s\n", err, token[0])
+		if err == nil {
+			if len(authResult.ttype) > 0 && authResult.ttype != "login" {
+				return authResult.ttype
+			}
+		}
+	}
+	fmt.Printf("403 Access denied\n")
+	w.WriteHeader(http.StatusForbidden)
+	w.Write([]byte("Access denied"))
 	return ""
 }
 

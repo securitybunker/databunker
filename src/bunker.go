@@ -209,13 +209,23 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/requests/:mode/:address", e.getCustomUserRequests)
 	router.GET("/v1/requests", e.getUserRequests)
 
-	router.GET("/v1/consent/:mode/:address", e.consentAllUserRecords)
-	router.GET("/v1/consent/:mode/:address/:brief", e.consentUserRecord)
-	router.GET("/v1/consents/:brief", e.consentFilterRecords)
-	router.GET("/v1/consents", e.consentBriefs)
-	router.POST("/v1/consent/:mode/:address/:brief", e.consentAccept)
-	router.DELETE("/v1/consent/:mode/:address/:brief", e.consentWithdraw)
+	router.GET("/v1/pactivity", e.pactivityList)
+	router.POST("/v1/pactivity/:activity", e.pactivityCreate)
+	router.DELETE("/v1/pactivity/:activity", e.pactivityDelete)
+	router.POST("/v1/pactivity/:activity/:brief", e.pactivityLink)
+    router.DELETE("/v1/pactivity/:activity/:brief", e.pactivityUnlink)
+	
+    router.GET("/v1/lbasis", e.listLegalBasisRecords)
+	router.POST("/v1/lbasis/:brief", e.createLegalBasis)
+	router.DELETE("/v1/lbasis/:brief", e.deleteLegalBasis)
 
+	//router.GET("/v1/agreement/:mode/:address", e.pactivityUserReport)
+	router.POST("/v1/agreement/:brief/:mode/:address", e.agreementAccept)
+	router.DELETE("/v1/agreement/:brief/:mode/:address", e.consentWithdraw)
+
+	//router.GET("/v1/consent/:mode/:address", e.consentAllUserRecords)
+	//router.GET("/v1/consent/:mode/:address/:brief", e.consentUserRecord)
+	
 	router.POST("/v1/userapp/token/:token/:appname", e.userappNew)
 	router.GET("/v1/userapp/token/:token/:appname", e.userappGet)
 	router.PUT("/v1/userapp/token/:token/:appname", e.userappChange)
@@ -305,7 +315,7 @@ func (e mainEnv) dbCleanupDo() {
 		e.db.store.DeleteExpired0(storage.TblName.Audit, exp)
 	}
 	notifyURL := e.conf.Notification.NotificationURL
-	e.db.expireConsentRecords(notifyURL)
+	e.db.expireAgreementRecords(notifyURL)
 }
 
 func (e mainEnv) dbCleanup() {
