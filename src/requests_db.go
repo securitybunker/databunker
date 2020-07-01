@@ -62,6 +62,9 @@ func (dbobj dbcon) getRequests(status string, offset int32, limit int32) ([]byte
 	if err != nil {
 		return nil, 0, err
 	}
+	if count == 0 {
+		return []byte("[]"), 0, err
+	}
 	var results []bson.M
 	records, err := dbobj.store.GetList(storage.TblName.Requests, "status", status, offset, limit, "when")
 	if err != nil {
