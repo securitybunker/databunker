@@ -99,6 +99,7 @@ func (e mainEnv) deleteLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 		returnError(w, r, "bad brief format", 405, nil, nil)
 		return
 	}
+	e.db.unlinkProcessingActivityBrief(brief)
 	e.db.deleteLegalBasis(brief);
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)

@@ -118,6 +118,7 @@ func (dbobj dbcon) unlinkProcessingActivity(activity string, brief string) (bool
 		return false, nil
 	}
 	legalbasis = ""
+	found := false
 	for _, value := range briefs {
 		if value != brief {
 			if len(legalbasis) > 0 {
@@ -125,12 +126,48 @@ func (dbobj dbcon) unlinkProcessingActivity(activity string, brief string) (bool
 			} else {
 				legalbasis = value
 			}
+		} else {
+			found = true
 		}
+	}
+	if found == false {
+		return true, nil
 	}
 	bdoc := bson.M{}
 	bdoc["legalbasis"] = legalbasis
 	_, err = dbobj.store.UpdateRecord(storage.TblName.Processingactivities, "activity", activity, &bdoc)
 	return true, err
+}
+
+func (dbobj dbcon) unlinkProcessingActivityBrief(brief string) (bool, error) {
+	records, err := dbobj.store.GetList0(storage.TblName.Processingactivities, 0, 0, "")
+	if err != nil {
+		return false, err
+	}
+	for _, record := range records {
+		legalbasis := ""
+		found := false
+		briefs := strings.Split(record["legalbasis"].(string), ",")
+		if len(briefs) > 0 {
+			for _, value := range briefs {
+				if value != brief {
+					if len(legalbasis) > 0 {
+						legalbasis = legalbasis + "," + value
+					} else {
+						legalbasis = value
+					}
+				} else {
+					found = true
+				}
+			}
+		}
+		if found == true {
+			bdoc := bson.M{}
+			bdoc["legalbasis"] = legalbasis
+			dbobj.store.UpdateRecord(storage.TblName.Processingactivities, "activity", record["activity"].(string), &bdoc)
+		}
+	}
+	return true, nil
 }
 
 func (dbobj dbcon) listProcessingActivities() ([]byte, int, error) {
