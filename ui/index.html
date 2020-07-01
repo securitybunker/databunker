@@ -35,8 +35,8 @@ if (conf["custom_css_file"]) {
                         <select onchange="changemethod(this);" class="custom-select" required id="keymethod">
                             <option value="Admin">Admin Token</option>
                             <option value="Record">Record Token</option>
-                            <option value="Email">Email</option>
-                            <option selected value="Phone">Phone</option>
+                            <option selected value="Email">Email</option>
+                            <option value="Phone">Phone</option>
                         </select>
                     </div>
                     <div class="form-group" id="email-conf-form" style="display:none;">
@@ -279,7 +279,7 @@ if (conf["custom_css_file"]) {
             return false;
         }
 		(function() {
-			changemethoddo('Phone');
+			changemethoddo('Email');
 		})();
     </script>
 </body>
