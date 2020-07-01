@@ -32,7 +32,7 @@
         return consentBriefs;
       }
       var xhr0 = new XMLHttpRequest();
-      xhr0.open('GET', "/v1/consents", false);
+      xhr0.open('GET', "/v1/lbasis", false);
       xhr0.setRequestHeader("X-Bunker-Token", xtoken)
       xhr0.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
       xhr0.onload = function () {
@@ -115,8 +115,9 @@
           <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
               <a class="nav-item nav-link" href="admin-view-requests.html">User requests</a>
+              <a class="nav-item nav-link" href="admin-privacy-settings.html">Privacy settings</a>
               <a class="nav-item nav-link active" href="admin-magic-sync.html">Magic Sync</a>
-	      <a class="nav-item nav-link" href="admin-audit.html">Audit</a>
+              <a class="nav-item nav-link" href="admin-audit.html">Audit</a>
               <a class="nav-item nav-link" href="javascript:bunker_logout();">Logout</a>
             </div>
           </div>

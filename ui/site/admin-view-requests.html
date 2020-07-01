@@ -32,7 +32,6 @@
 
   <script>
     var xtoken = window.localStorage.getItem('xtoken');
-    var token = window.localStorage.getItem('token');
     function displayTargetObject(target, row, index) {
       if (row.mode) {
         return '(' + row.mode + ') ' + target;
@@ -218,8 +217,9 @@
           <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
               <a class="nav-item nav-link active" href="admin-view-requests.html">User requests</a>
+              <a class="nav-item nav-link" href="admin-privacy-settings.html">Privacy settings</a>
               <a class="nav-item nav-link" href="admin-magic-sync.html">Magic Sync</a>
-	      <a class="nav-item nav-link" href="admin-audit.html">Audit</a>
+	          <a class="nav-item nav-link" href="admin-audit.html">Audit</a>
               <a class="nav-item nav-link" href="javascript:bunker_logout();">Logout</a>
             </div>
           </div>

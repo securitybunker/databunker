@@ -1,0 +1,218 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Data Bunker - admin / view user requests</title>
+  <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
+    integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
+  
+  <script>
+    var xtoken = window.localStorage.getItem('xtoken');
+	var legalBasisList = [];
+	var privacyActivitiesList = [];
+	
+    $(function () {
+      //$('#msg').text("Loading data")
+      //token = "faa006da-475e-45c6-a4a1-6586dce8b8d2";
+      $('#table').bootstrapTable({
+        /*data: mydata */
+        url: "/v1/pactivity",
+        undefinedText: 'n/a',
+        /* url: "data1.json", */
+        method: "GET",
+        ajaxOptions: {
+          headers: { "X-Bunker-Token": xtoken },
+          crossDomain: true
+        },
+        showExtendedPagination: true,
+        sidePagination: "server",
+        pagination: true,
+        search: false,
+        classes: "table",
+		onLoadSuccess: function(data, status, res) {
+			privacyActivitiesList = data.rows;
+		},
+        onLoadError: function (status, res) {
+          console.log(status);
+          if (status > 400 && status < 500) {
+            document.location = "/";
+          }
+        }
+      });
+	  loadLegalBasisList();
+    });
+	function loadLegalBasisList() {
+		var xhr0 = new XMLHttpRequest();
+		xhr0.open('GET', '/v1/lbasis', true);
+		xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+		xhr0.setRequestHeader('Content-type', 'application/json');
+		xhr0.onload = function () {
+			if (xhr0.status === 200) {
+				var data = JSON.parse(xhr0.responseText);
+				legalBasisList = data.rows;
+			}
+		}
+		xhr0.send();
+	}
+	function linkExisting(activity, briefs) {
+		//console.log(briefs);
+		var existing = {};
+		for (jdx = 0; jdx < privacyActivitiesList.length; jdx++) {
+			if (privacyActivitiesList[jdx].activity == activity) {
+				var briefs = privacyActivitiesList[jdx].briefs;
+				for (idx = 0; idx < briefs.length; idx++) {
+					var b = briefs[idx];
+					existing[b["brief"]] = b["brief"];
+				}
+				break;
+			}
+		}
+		//console.log(existing);
+		var msg = '<form>';
+		for (idx = 0; idx < legalBasisList.length; idx++) {
+			const row = legalBasisList[idx];
+			msg += '<div class="form-check"><input type="checkbox" onclick="linkLegalBasis(this.checked,\''+activity+'\',\''+row.brief+'\');" class="form-check-input" id="cb-'+row.brief+'" ';
+			if (existing[row.brief]) {
+				msg += 'checked';
+			}
+			msg += '><label class="form-check-label" for="cb-'+row.brief+'">';
+			msg += row['basistype'] + " : " + row["brief"] + "<br/>\n";
+			msg += "Module: " + row["module"] + "<br/>\n";				msg += "Status: " + row["status"] + "<br/>\n";
+			msg += "Required to enable to continue? " + (row["requiredflag"] ? "yes" : "no")  + "<br/>\n";
+			msg += "User can change by himself?" + (row["usercontrol"] ? "yes" : "no")  + "<br/>\n";
+			msg += "Desc: " + row["shortdesc"];
+			msg += '</label></div>';
+		}
+		msg += "</form>";
+		showForm('Change '+activity, msg);
+		/*
+		var form = `<form>
+			  <div class="form-group">
+				<label for="exampleInputEmail1">Email address</label>
+				<input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+				<small id="emailHelp" class="form-text text-muted">Well never share your email with anyone else.</small>
+			  </div>
+			  <div class="form-group">
+				<label for="exampleInputPassword1">Password</label>
+				<input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+			  </div>
+			  <div class="form-check">
+				<input type="checkbox" class="form-check-input" id="exampleCheck1">
+				<label class="form-check-label" for="exampleCheck1">Check me out</label>
+			  </div>
+			  <button type="submit" class="btn btn-primary">Submit</button>
+			</form>`;
+		showForm('Change '+activity, form);
+		*/
+	}
+	function linkLegalBasis(checked, activity, brief) {
+		var url = '/v1/pactivity/'+activity+'/'+brief;
+		var xhr0 = new XMLHttpRequest();
+		if (checked) {
+			xhr0.open('POST', url, true);
+		} else {
+			xhr0.open('DELETE', url, true);
+		}
+		xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+		xhr0.setRequestHeader('Content-type', 'application/json');
+		xhr0.onload = function () {
+			if (xhr0.status === 200) {
+				$('#table').bootstrapTable('refresh');
+			}
+		}
+		xhr0.send();
+		return true;
+	}
+	function displayDescription(scr, row, index) {
+		var msg = "Title: " + row.title + "<br/>\n";
+		msg = msg +	"Desc: "+row.fulldesc+"</br>\n";
+		if (row.script) {
+            msg = msg + "JS script attached: yes<br/>\n";
+		}
+		if (row.applicableto) {
+            msg = msg + "Applicable to: "+row.applicableto+"<br/>\n";
+		}
+		return msg;
+	}
+	function displayLegalBasis(briefs, row, index) {
+		var msg = "";
+		for (idx = 0; idx < briefs.length; idx++) {
+			b = briefs[idx];
+		    msg = msg + b["basistype"]+":"+b["brief"] + "<br/>\n";
+		}
+		//console.log(row);
+		msg = msg + "<a href='javascript:linkExisting(\""+row.activity+"\",\""+row.legalbasis+"\");'>Link others</a><br/>\n";
+		msg = msg + "<a href='#'>Create new</a><br/>\n";		
+		return msg;
+	}
+	function displayActions(scr, row, index) {
+		var links = '<a href=\'javascript:displayRequest(\"' + row.action + '\");\'>view</a>&nbsp;|&nbsp;';
+		return links;
+	}
+  </script>
+  <script src="site.js"></script>
+  <style>
+  .bootstrap-table .fixed-table-body table.table tbody tr td {
+  vertical-align:top;
+  }
+  </style>
+</head>
+
+
+<body>
+  <div class="container">
+    <div class="row col-md-12">
+      <div style="width:100%;">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <a class="navbar-brand" href="#">Admin</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+              <a class="nav-item nav-link" href="admin-view-requests.html">User requests</a>
+			  <a class="nav-item nav-link active" href="admin-privacy-settings.html">Privacy settings</a>
+              <a class="nav-item nav-link" href="admin-magic-sync.html">Magic Sync</a>
+	          <a class="nav-item nav-link" href="admin-audit.html">Audit</a>
+              <a class="nav-item nav-link" href="javascript:bunker_logout();">Logout</a>
+            </div>
+          </div>
+        </nav>
+      </div>
+      <div class="bigblock">
+        <h4>Personal Data Processing Configuration</h4>
+        <p id="msg">All open requests listed below.</p>
+        <table id="table" class="table">
+          <thead>
+            <tr>
+              <th scope="col-4" data-field="activity">Processing activity</th>
+			  <th scope="col-2" data-field="briefs" data-formatter="displayLegalBasis">Legal Basis</th>
+              <th scope="col-2" data-field="fulldesc" data-formatter="displayDescription">Description</th>
+              <th scope="col-2" data-field="rtoken" data-formatter="displayActions">Actions</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
