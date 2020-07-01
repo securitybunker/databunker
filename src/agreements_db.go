@@ -32,6 +32,7 @@ func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, usercode strin
 	bdoc := bson.M{}
 	bdoc["when"] = now
 	bdoc["status"] = status
+	bdoc["starttime"] = starttime
 	bdoc["endtime"] = endtime
 	bdoc["lastmodifiedby"] = lastmodifiedby
 	if len(referencecode) > 0 {
@@ -71,6 +72,7 @@ func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, usercode strin
 	bdoc["mode"] = mode
 	bdoc["who"] = usercode
 	bdoc["token"] = userTOKEN
+	bdoc["creationtime"] = now
 	if len(agreementmethod) > 0 {
 		bdoc["agreementmethod"] = agreementmethod
 	} else {
