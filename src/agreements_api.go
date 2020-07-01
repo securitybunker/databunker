@@ -7,14 +7,14 @@ import (
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
-	"go.mongodb.org/mongo-driver/bson"
+	//"go.mongodb.org/mongo-driver/bson"
 )
 
-func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
-	event := audit("consent accept for "+brief, address, mode, address)
+	event := audit("agreement accept for "+brief, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
 	if validateMode(mode) == false {
@@ -27,7 +27,16 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 		returnError(w, r, "bad brief format", 405, nil, event)
 		return
 	}
-
+	exists, err := e.db.checkLegalBasis(brief)
+	if err != nil {
+		returnError(w, r, "internal error", 405, nil, event)
+		return
+	}
+	if exists == false {
+		returnError(w, r, "not found", 405, nil, event)
+		return	
+	}
+	
 	userTOKEN := ""
 	if mode == "token" {
 		if enforceUUID(w, address, event) == false {
@@ -69,32 +78,14 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 	}()
 
 	status := "yes"
-	message := ""
-	freetext := ""
-	lawfulbasis := ""
-	consentmethod := ""
+	agreementmethod := ""
 	referencecode := ""
 	lastmodifiedby := ""
 	starttime := int32(0)
 	expiration := int32(0)
-	if value, ok := records["message"]; ok {
+	if value, ok := records["agreementmethod"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			message = value.(string)
-		}
-	}
-	if value, ok := records["freetext"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			freetext = value.(string)
-		}
-	}
-	if value, ok := records["lawfulbasis"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			lawfulbasis = value.(string)
-		}
-	}
-	if value, ok := records["consentmethod"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			consentmethod = value.(string)
+			agreementmethod = value.(string)
 		}
 	}
 	if value, ok := records["referencecode"]; ok {
@@ -134,8 +125,9 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 	case "phone":
 		address = normalizePhone(address, e.conf.Sms.DefaultCountry)
 	}
-	newStatus, _ := e.db.createConsentRecord(userTOKEN, mode, address, brief, message, status, lawfulbasis, consentmethod,
-		referencecode, freetext, lastmodifiedby, starttime, expiration)
+	e.db.acceptAgreement(userTOKEN, mode, address, brief, status, agreementmethod,
+		referencecode, lastmodifiedby, starttime, expiration)
+	/*
 	notifyURL := e.conf.Notification.NotificationURL
 	if newStatus == true && len(notifyURL) > 0 {
 		// change notificate on new record or if status change
@@ -145,6 +137,7 @@ func (e mainEnv) consentAccept(w http.ResponseWriter, r *http.Request, ps httpro
 			notifyConsentChange(notifyURL, brief, status, mode, address)
 		}
 	}
+	*/
 }
 
 func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -164,7 +157,16 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 		returnError(w, r, "bad brief format", 405, nil, event)
 		return
 	}
-
+	exists, err := e.db.checkLegalBasis(brief)
+	if err != nil {
+		returnError(w, r, "internal error", 405, nil, event)
+		return
+	}
+	if exists == false {
+		returnError(w, r, "not  found", 405, nil, event)
+		return	
+	}
+	
 	userTOKEN := ""
 	authResult := ""
 	if mode == "token" {
@@ -242,7 +244,7 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 	case "phone":
 		address = normalizePhone(address, e.conf.Sms.DefaultCountry)
 	}
-	e.db.withdrawConsentRecord(userTOKEN, brief, mode, address, lastmodifiedby)
+	e.db.withdrawAgreement(userTOKEN, brief, mode, address, lastmodifiedby)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"status":"ok"}`))
@@ -255,6 +257,7 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 
 }
 
+/*
 func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
@@ -370,7 +373,9 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 	str := fmt.Sprintf(`{"status":"ok","data":%s}`, resultJSON)
 	w.Write([]byte(str))
 }
+*/
 
+/*
 func (e mainEnv) consentFilterRecords(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	brief := ps.ByName("brief")
 	event := audit("consent get all for "+brief, brief, "brief", brief)
@@ -416,3 +421,4 @@ func (e mainEnv) consentBriefs(w http.ResponseWriter, r *http.Request, ps httpro
 	str := fmt.Sprintf(`{"status":"ok","total":%d,"briefs":%s}`, numRecords, resultJSON)
 	w.Write([]byte(str))
 }
+*/

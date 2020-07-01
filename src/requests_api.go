@@ -142,7 +142,7 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 	if len(appName) > 0 {
 		resultJSON, err = e.db.getUserApp(userTOKEN, appName)
 	} else if len(brief) > 0 {
-		resultJSON, err = e.db.viewConsentRecord(userTOKEN, brief)
+		resultJSON, err = e.db.viewAgreementRecord(userTOKEN, brief)
 	} else {
 		resultJSON, err = e.db.getUser(userTOKEN)
 	}
@@ -251,11 +251,11 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 			returnError(w, r, "internal error", 405, err, event)
 			return
 		}
-	} else if action == "consent-withdraw" {
+	} else if action == "agreement-withdraw" {
 		brief := requestInfo["brief"].(string)
 		mode := "token"
 		lastmodifiedby := "admin"
-		e.db.withdrawConsentRecord(userTOKEN, brief, mode, userTOKEN, lastmodifiedby)
+		e.db.withdrawAgreement(userTOKEN, brief, mode, userTOKEN, lastmodifiedby)
 	}
 	e.db.updateRequestStatus(request, "approved", "")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

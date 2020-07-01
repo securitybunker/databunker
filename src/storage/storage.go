@@ -30,10 +30,12 @@ type listTbls struct {
 	Users         Tbl
 	Audit         Tbl
 	Xtokens       Tbl
-	Consent       Tbl
 	Sessions      Tbl
 	Requests      Tbl
+	Legalbasis    Tbl
+	Agreements    Tbl
 	Sharedrecords Tbl
+	Processingactivities Tbl
 }
 
 // TblName is enum of tables
@@ -41,10 +43,12 @@ var TblName = &listTbls{
 	Users:         0,
 	Audit:         1,
 	Xtokens:       2,
-	Consent:       3,
-	Sessions:      4,
-	Requests:      5,
-	Sharedrecords: 6,
+	Sessions:      3,
+	Requests:      4,
+	Legalbasis:    5,
+	Agreements:    6,
+	Sharedrecords: 7,
+	Processingactivities: 8,
 }
 
 // DBStorage struct is used to store database object
@@ -161,10 +165,12 @@ func InitDB(filepath *string) (DBStorage, error){
 	initUsers(dbobj.db)
 	initXTokens(dbobj.db)
 	initAudit(dbobj.db)
-	initConsent(dbobj.db)
 	initSessions(dbobj.db)
 	initRequests(dbobj.db)
 	initSharedRecords(dbobj.db)
+	initProcessingactivities(dbobj.db)
+	initLegalbasis(dbobj.db)
+	initAgreements(dbobj.db)
 	return dbobj, nil
 }
 
@@ -303,16 +309,20 @@ func getTable(t Tbl) string {
 		return "users"
 	case TblName.Audit:
 		return "audit"
-	case TblName.Consent:
-		return "consent"
 	case TblName.Xtokens:
 		return "xtokens"
 	case TblName.Sessions:
 		return "sessions"
 	case TblName.Requests:
 		return "requests"
+	case TblName.Legalbasis:
+		return "legalbasis"
+	case TblName.Agreements:
+		return "agreements"
 	case TblName.Sharedrecords:
 		return "sharedrecords"
+	case TblName.Processingactivities:
+		return "processingactivities"
 	}
 	return "users"
 }
@@ -530,6 +540,8 @@ func (dbobj DBStorage) getRecordInTableDo(q string, values []interface{}) (bson.
 			recBson[colName] = int32(columns[i].(int64))
 		case int32:
 			recBson[colName] = int32(columns[i].(int32))
+		case bool:
+			recBson[colName] = columns[i].(bool)
 		case nil:
 			//fmt.Printf("is nil, not interesting\n")
 		default:
@@ -729,6 +741,28 @@ func (dbobj DBStorage) GetUniqueList(t Tbl, keyName string) ([]bson.M, error) {
 }
 
 // GetList is used to return list of rows. It can be used to return values using pager.
+func (dbobj DBStorage) GetList0(t Tbl, start int32, limit int32, orderField string) ([]bson.M, error) {
+	table := getTable(t)
+	if limit > 100 {
+		limit = 100
+	}
+
+	q := "select * from " + table
+	if len(orderField) > 0 {
+		q = q + " ORDER BY " + escapeName(orderField) + " DESC"
+	}
+	if start > 0 {
+		q = q + " LIMIT " + strconv.FormatInt(int64(limit), 10) +
+			" OFFSET " + strconv.FormatInt(int64(start), 10)
+	} else if limit > 0 {
+		q = q + " LIMIT " + strconv.FormatInt(int64(limit), 10)
+	}
+	fmt.Printf("q: %s\n", q)
+	values := make([]interface{}, 0)
+	return dbobj.getListDo(q, values)
+}
+
+// GetList is used to return list of rows. It can be used to return values using pager.
 func (dbobj DBStorage) GetList(t Tbl, keyName string, keyValue string, start int32, limit int32, orderField string) ([]bson.M, error) {
 	table := getTable(t)
 	if limit > 100 {
@@ -806,6 +840,8 @@ func (dbobj DBStorage) getListDo(q string, values []interface{}) ([]bson.M, erro
 				recBson[colName] = string(columns[i].([]uint8))
 			case int64:
 				recBson[colName] = int32(columns[i].(int64))
+			case bool:
+				recBson[colName] = columns[i].(bool)
 			case nil:
 				//fmt.Printf("is nil, not interesting\n")
 			default:
@@ -970,24 +1006,51 @@ func initRequests(db *sql.DB) error {
 	return execQueries(db, queries)
 }
 
-func initConsent(db *sql.DB) error {
-	queries := []string{`CREATE TABLE IF NOT EXISTS consent (
+func initProcessingactivities(db *sql.DB) error {
+	queries := []string{`CREATE TABLE IF NOT EXISTS processingactivities (
+				  activity STRING,
+				  title STRING,
+				  script STRING,
+				  fulldesc STRING,
+				  legalbasis STRING,
+				  applicableto STRING,
+				  creationtime int);`,
+		`CREATE INDEX processingactivities_activity ON processingactivities (activity);`}
+	return execQueries(db, queries)
+}
+
+func initLegalbasis(db *sql.DB) error {
+	queries := []string{`CREATE TABLE IF NOT EXISTS legalbasis (
+				  brief STRING,
+				  status STRING,
+				  module STRING,
+				  shortdesc STRING,
+				  fulldesc STRING,
+				  basistype STRING,
+				  requiredmsg STRING,
+				  usercontrol BOOLEAN,
+				  requiredflag BOOLEAN,
+				  creationtime int);`,
+		`CREATE INDEX legalbasis_brief ON legalbasis (brief);`}
+	return execQueries(db, queries)
+}
+
+func initAgreements(db *sql.DB) error {
+	queries := []string{`CREATE TABLE IF NOT EXISTS agreements (
 				  who STRING,
 				  mode STRING,
 				  token STRING,
 				  brief STRING,
 				  status STRING,
-				  message STRING,
-				  freetext STRING,
-				  lawfulbasis STRING,
-				  consentmethod STRING,
 				  referencecode STRING,
 				  lastmodifiedby STRING,
+				  agreementmethod STRING,
 				  creationtime int,
 				  starttime int,
 				  endtime int,
 				  ` + "`when` int);",
-		`CREATE INDEX consent_token ON consent (token);`}
+		`CREATE INDEX agreements_token ON agreements (token);`,
+		`CREATE INDEX agreements_brief ON agreements (brief);`}
 	return execQueries(db, queries)
 }
 
