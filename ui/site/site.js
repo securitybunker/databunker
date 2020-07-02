@@ -83,9 +83,12 @@ function showAlert(message) {
     alertModal.modal('show');
 }
 
-function showForm(title, message) {
+function showForm(title, message, btn) {
+	if (!btn) {
+		btn = "";
+	}
 	var formModal =
-    $('<div class="modal fade" role="dialog"><div class="modal-dialog" role="document"><div class="modal-content">' +
+    $('<div class="modal fade" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content">' +
       '<div class="modal-header">' +
       '<h5 class="modal-title">' + title + '</h5>' +
       '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
@@ -94,9 +97,10 @@ function showForm(title, message) {
       '<div class="modal-body">' +
          message +
       '</div>' +
-      '<div class="modal-footer">' +
+      '<div class="modal-footer">' + btn +
         '<a href="#" class="btn" data-dismiss="modal">Cancel</a>' +
       '</div>' +
       '</div></div></div>');
     formModal.modal('show');
+	return formModal;
 }
