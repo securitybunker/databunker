@@ -27,7 +27,7 @@
   <script>
     var xtoken = window.localStorage.getItem('xtoken');
 	var legalBasisList = [];
-	var privacyActivitiesList = [];
+	var processingActivitiesList = [];
 	
     $(function () {
 	
@@ -68,7 +68,7 @@
         search: false,
         classes: "table",
 		onLoadSuccess: function(data, status, res) {
-			privacyActivitiesList = data.rows;
+			processingActivitiesList = data.rows;
 		},
         onLoadError: function (status, res) {
           if (status > 400 && status < 500) {
@@ -94,12 +94,14 @@
 	function linkExisting(activity, briefs) {
 		//console.log(briefs);
 		var existing = {};
-		for (jdx = 0; jdx < privacyActivitiesList.length; jdx++) {
-			if (privacyActivitiesList[jdx].activity == activity) {
-				var briefs = privacyActivitiesList[jdx].briefs;
-				for (idx = 0; idx < briefs.length; idx++) {
-					var b = briefs[idx];
-					existing[b["brief"]] = b["brief"];
+		for (jdx = 0; jdx < processingActivitiesList.length; jdx++) {
+			if (processingActivitiesList[jdx].activity == activity) {
+				var briefs = processingActivitiesList[jdx].briefs;
+				if (briefs) {
+					for (idx = 0; idx < briefs.length; idx++) {
+						var b = briefs[idx];
+						existing[b["brief"]] = b["brief"];
+					}
 				}
 				break;
 			}
@@ -122,25 +124,6 @@
 		}
 		msg += "</form>";
 		showForm('Change '+activity, msg);
-		/*
-		var form = `<form>
-			  <div class="form-group">
-				<label for="exampleInputEmail1">Email address</label>
-				<input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-				<small id="emailHelp" class="form-text text-muted">Well never share your email with anyone else.</small>
-			  </div>
-			  <div class="form-group">
-				<label for="exampleInputPassword1">Password</label>
-				<input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-			  </div>
-			  <div class="form-check">
-				<input type="checkbox" class="form-check-input" id="exampleCheck1">
-				<label class="form-check-label" for="exampleCheck1">Check me out</label>
-			  </div>
-			  <button type="submit" class="btn btn-primary">Submit</button>
-			</form>`;
-		showForm('Change '+activity, form);
-		*/
 	}
 	function linkLegalBasis(checked, activity, brief) {
 		var url = '/v1/pactivity/'+activity+'/'+brief;
@@ -197,17 +180,19 @@
 	}
 	function displayLegalBasis(briefs, row, index) {
 		var msg = "";
-		for (idx = 0; idx < briefs.length; idx++) {
-			b = briefs[idx];
-		    msg = msg + b["basistype"]+":"+b["brief"] + "<br/>\n";
+		if (row.briefs) {
+			for (idx = 0; idx < briefs.length; idx++) {
+				b = briefs[idx];
+				msg = msg + b["basistype"]+":"+b["brief"] + "<br/>\n";
+			}
 		}
 		//console.log(row);
-		msg = msg + "<a href='javascript:linkExisting(\""+row.activity+"\",\""+row.legalbasis+"\");'>Link others</a><br/>\n";
-		msg = msg + "<a href='#'>Create new</a><br/>\n";		
+		msg = msg + "<i class='fas fa-arrow-right'></i>&nbsp;<a href='javascript:linkExisting(\""+row.activity+"\",\""+row.legalbasis+"\");'>link existing</a><br/>\n";
+		msg = msg + "<i class='fas fa-arrow-right'></i>&nbsp;<a href='#'>create new</a><br/>\n";		
 		return msg;
 	}
 	function displayProcessingActions(scr, row, index) {
-		var links = '<a href=\'javascript:displayRequest(\"' + row.action + '\");\'>edit</a>&nbsp;&nbsp;';
+		var links = '<a href=\'javascript:editProcessingActivity(\"' + row.activity + '\");\'>edit</a>&nbsp;&nbsp;';
 		return links;
 	}
 	function displayLegalBasisActions(brief, row, index) {
@@ -219,35 +204,35 @@
 		return links;
 	}
 	function deleteLegalBasis(brief) {
-            var heading = "Confirm legal basis deletion";
-            var question = "Are you sure want to delete "+brief+"?";
-            var cancelButtonTxt = "Close popup";
-            var okButtonTxt = "Remove legal basis";
-            var confirmModal =
-                $('<div class="modal fade" role="dialog"><div class="modal-dialog" role="document"><div class="modal-content">' +
-                    '<div class="modal-header">' +
-                    '<h5 class="modal-title">' + heading + '</h5>' +
-                    '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
-                    '<span aria-hidden="true">&times;</span></button>' +
-                    '</div>' +
-                    '<div class="modal-body">' +
-                    '<p>' + question + '</p>' +
-                    '</div>' +
-                    '<div class="modal-footer">' +
-                    '<a href="#" class="btn" data-dismiss="modal">' +
-                    cancelButtonTxt +
-                    '</a>' +
-                    '<a href="#" id="okButton" class="btn btn-warning">' +
-                    okButtonTxt +
-                    '</a>' +
-                    '</div>' +
-                    '</div></div></div>');
-            confirmModal.find('#okButton').click(function (event) {
-                //callback();
-                deleteLegalBasisDo(brief);
-                confirmModal.modal('hide');
-            });
-            confirmModal.modal('show');
+        var heading = "Confirm legal basis deletion";
+        var question = "Are you sure want to delete "+brief+"?";
+        var cancelButtonTxt = "Close popup";
+        var okButtonTxt = "Remove legal basis";
+		var confirmModal =
+            $('<div class="modal fade" role="dialog"><div class="modal-dialog" role="document"><div class="modal-content">' +
+                '<div class="modal-header">' +
+                '<h5 class="modal-title">' + heading + '</h5>' +
+                '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+                '<span aria-hidden="true">&times;</span></button>' +
+				'</div>' +
+                '<div class="modal-body">' +
+                '<p>' + question + '</p>' +
+                '</div>' +
+                '<div class="modal-footer">' +
+                '<a href="#" class="btn" data-dismiss="modal">' + 
+                cancelButtonTxt +
+                '</a>' +
+                '<a href="#" id="okButton" class="btn btn-warning">' +
+                okButtonTxt +
+                '</a>' +
+                '</div>' +
+                '</div></div></div>');
+        confirmModal.find('#okButton').click(function (event) {
+            //callback();
+            deleteLegalBasisDo(brief);
+            confirmModal.modal('hide');
+        });
+        confirmModal.modal('show');
 	}
 	function deleteLegalBasisDo(brief) {
 		var xhr0 = new XMLHttpRequest();
@@ -263,6 +248,142 @@
 		xhr0.send();
 		return true;
 	}
+	function editProcessingActivity(activity) {
+		var applicableto = "";
+		var fulldesc = "";
+		var code = "";
+		if (activity) {
+			for (jdx = 0; jdx < processingActivitiesList.length; jdx++) {
+				if (processingActivitiesList[jdx].activity == activity) {
+					applicableto = processingActivitiesList[jdx].applicableto;
+					fulldesc = processingActivitiesList[jdx].fulldesc;
+					code = processingActivitiesList[jdx].script;
+					break;
+				}
+			}
+		} else {
+			activity = "";
+		}
+        var form = `<form>
+            <div class="form-group row">
+				<label for="shortdesc" class="col-sm-3 col-form-label">Activity Unique Identifier <strong>*</strong></label>
+				<div class="col-sm-9">
+					<input type="text" class="form-control" id="activity" aria-describedby="activityHelp" placeholder="Enter unique identifier" value="`+activity+`">
+					<small id="activityHelp" class="form-text text-muted">Supported: a-z, 0-9, '-' chars. Start with a-z. Max 64 chars.</small>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="applicableto" class="col-sm-3 col-form-label">Applicable to</label>
+				<div class="col-sm-9">
+					<input type="text" class="form-control" id="applicableto" placeholder="This activity is relevant for (ex. customers)" value="`+applicableto+`">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="fulldesc" class="col-sm-3 col-form-label0">Full desciption</label>
+				<div class="col-sm-9">
+					<textarea class="form-control" id="fulldesc" rows="2">`+fulldesc+`</textarea>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="code" class="col-sm-3 col-form-label">JS script</label>
+				<div class="col-sm-9">
+					<textarea class="form-control" id="code" rows="2">`+code+`</textarea>
+					<small id="scriptHelp" class="form-text text-muted">Exter JavaScript code to include on your side in case user gave his consent. Can be used for eample for Google Analytics code, etc...</small>
+				</div>
+			</div>
+			</form>`;
+		var btn = `<button type="submit" class="btn btn-primary" id="submitButton">Submit</button>`;
+		var modal = showForm('Change Processing Activity', form, btn);
+		modal.find('#submitButton').click(function (event) {
+			var newActivity = modal.find('#activity').val();
+			if (!newActivity){
+				alert("Activity can not be empty");
+				return;
+			}
+			var msg = {};
+			msg["applicableto"] =  modal.find('#applicableto').val();
+			msg["fulldesc"] = modal.find('#fulldesc').val();
+			msg["script"] = modal.find('#code').val();
+			if (!activity) {
+				activity = newActivity
+			}
+			var xhr0 = new XMLHttpRequest();
+			xhr0.open('POST', '/v1/pactivity/'+activity, true);
+			xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+			xhr0.setRequestHeader('Content-type', 'application/json');
+			xhr0.onload = function () {
+				if (xhr0.status === 200) {
+					$('#table').bootstrapTable('refresh');
+				}
+			}
+			xhr0.send(JSON.stringify(msg));
+            modal.modal('hide');
+        });
+	}
+    function editLegalBasis(brif) {
+        var form = `<form>
+            <div class="form-group row">
+				<label for="shortdesc" class="col-sm-3 col-form-label">Brief Unique Identifier</label>
+				<div class="col-sm-9">
+					<input type="text" class="form-control" id="brief" name="brief" aria-describedby="briefHelp" placeholder="Enter unique identifier">
+					<small id="briefHelp" class="form-text text-muted">Supported: a-z, 0-9, '-' chars. Start with a-z. Max 64 chars.</small>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="shortdesc" class="col-sm-3 col-form-label">Short description</label>
+				<div class="col-sm-9">
+					<input type="text" class="form-control" id="shortdesc" name="shortdesc" placeholder="Enter short description">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="exampleFormControlTextarea1" class="col-sm-3 col-form-label">Full desciption</label>
+				<div class="col-sm-9">
+					<textarea class="form-control" id="exampleFormControlTextarea1" rows="2"></textarea>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="exampleFormControlSelect1" class="col-sm-3 col-form-label">Legal ground type</label>
+				<div class="col-sm-9">
+				<select class="form-control" id="exampleFormControlSelect1">
+				  <option>consent</option>
+				  <option>contract</option>
+				  <option>legal-requirement</option>
+				  <option>legitimate-interest</option>
+				  <option>vital-interest</option>
+				  <option>public-interest</option>
+				</select>
+				</div>
+            </div>
+			<div class="form-group row">
+				<label for="exampleFormControlSelect2" class="col-sm-3 col-form-label">Module</label>
+				<div class="col-sm-9">
+				<select class="form-control" id="exampleFormControlSelect2">
+				  <option>registration</option>
+				  <option>checkout</option>
+				  <option>cookie</option>
+				  <option>login</option>
+				  <option>other</option>
+				</select>
+				</div>
+            </div>
+            <div class="form-check">
+				<input type="checkbox" class="form-check-input" id="userControlCheckbox" name="usercontrol">
+				<label class="form-check-label" for="userControlCheckbox">User can withdraw this consent without Admin/DPO approval.</label>
+			</div>
+            <div class="form-check">
+				<input type="checkbox" class="form-check-input" id="requiredCheckbox" name="requiredflag">
+				<label class="form-check-label" for="requiredCheckbox">Required checkbox. Your user needs to approve this consent when asked to get your service or product.</label>
+			</div>
+			<div class="form-group row">
+				<label for="requiredmsg" class="col-sm-3 col-form-label">Why it is required?</label>
+				<div class="col-sm-9">
+				<input type="text" class="form-control" id="requiredmsg" name="requiredmsg" placeholder="Enter custom explanation message why it is required">
+				</div>
+			</div>
+			<button type="submit" class="btn btn-primary">Submit</button>
+			</form>`;
+		showForm('Change Legal Basis', form);
+	}
   </script>
  
   <script src="site.js"></script>
@@ -272,7 +393,7 @@
   }
   h4 {display:inline-block; }
   .bigblock a.btn {
-	margin-top:-5px;
+	margin-top:-4px;
   }
   </style>
 </head>
@@ -300,7 +421,7 @@
         </nav>
       </div>
       <div class="bigblock">
-        <h4>Processing Activities Configuration</h4>&nbsp;&nbsp;<a class="btn btn-secondary" data-toggle="collapse" href="#processingInfo" role="button" aria-expanded="false" aria-controls="collapseExample">What is it?</a>
+        <h4>Processing Activities Configuration</h4>&nbsp;&nbsp;<a class="btn btn-secondary" data-toggle="collapse" href="#processingInfo" role="button" aria-expanded="false" aria-controls="collapseExample">What is it?</a>&nbsp;&nbsp;<a class="btn btn-primary" href="javascript:editProcessingActivity();" role="button" aria-expanded="false" aria-controls="collapseExample">Create New</a>
 		<div class="collapse" id="processingInfo">
 			<p><strong>Processing</strong> is GDPR means any operation or set of operations which is performed on personal data or on sets of personal data,
 			whether or not by automated means, such as collection, recording, organisation, structuring, storage, adaptation or alteration,
