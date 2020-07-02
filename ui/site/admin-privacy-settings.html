@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>Data Bunker - admin / view user requests</title>
+  <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/solid.min.css' rel='stylesheet' type='text/css'>
   <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -29,11 +30,9 @@
 	var privacyActivitiesList = [];
 	
     $(function () {
-      //$('#msg').text("Loading data")
-      //token = "faa006da-475e-45c6-a4a1-6586dce8b8d2";
-      $('#table').bootstrapTable({
-        /*data: mydata */
-        url: "/v1/pactivity",
+	
+	  $('#table2').bootstrapTable({
+        url: "/v1/lbasis",
         undefinedText: 'n/a',
         /* url: "data1.json", */
         method: "GET",
@@ -43,20 +42,41 @@
         },
         showExtendedPagination: true,
         sidePagination: "server",
-        pagination: true,
+        pagination: false,
+        search: false,
+        classes: "table",
+		onLoadSuccess: function(data, status, res) {
+			legalBasisList = data.rows;
+		},
+        onLoadError: function (status, res) {
+          if (status > 400 && status < 500) {
+            document.location = "/";
+          }
+        }
+      });
+      $('#table').bootstrapTable({
+        url: "/v1/pactivity",
+        undefinedText: 'n/a',
+        method: "GET",
+        ajaxOptions: {
+          headers: { "X-Bunker-Token": xtoken },
+          crossDomain: true
+        },
+        showExtendedPagination: true,
+        sidePagination: "server",
+        pagination: false,
         search: false,
         classes: "table",
 		onLoadSuccess: function(data, status, res) {
 			privacyActivitiesList = data.rows;
 		},
         onLoadError: function (status, res) {
-          console.log(status);
           if (status > 400 && status < 500) {
             document.location = "/";
           }
         }
       });
-	  loadLegalBasisList();
+	  //loadLegalBasisList();
     });
 	function loadLegalBasisList() {
 		var xhr0 = new XMLHttpRequest();
@@ -140,6 +160,12 @@
 		xhr0.send();
 		return true;
 	}
+	function displayActivity(activity, row, index) {
+		return '<i class="fas fa-cogs"></i>&nbsp;'+activity;
+	}
+	function displayBrief(brief, row, index) {
+		return '<i class="fas fa-cog"></i>&nbsp;'+brief;
+	}
 	function displayDescription(scr, row, index) {
 		var msg = "Title: " + row.title + "<br/>\n";
 		msg = msg +	"Desc: "+row.fulldesc+"</br>\n";
@@ -150,6 +176,21 @@
             msg = msg + "Applicable to: "+row.applicableto+"<br/>\n";
 		}
 		return msg;
+	}
+	function displayLegalBasisDesc(scr, row, index) {
+		//var msg = "Type: " + row.basistype + "<br/>\n";
+		var msg = "Status: "+row.status+"</br>\n";
+		if (row.module) {
+			msg = msg +	"Module: "+row.module+"</br>\n";
+		}
+		if (row.requireflag) {
+            msg = msg + "Required: yes<br/>\n";
+		}
+		if (row.usercontrol) {
+            msg = msg + "User can change: yes<br/>\n";
+		}
+		msg = msg +	"Desc: "+row.fulldesc+"</br>\n";
+		return msg;	
 	}
 	function displayLegalBasis(briefs, row, index) {
 		var msg = "";
@@ -163,10 +204,15 @@
 		return msg;
 	}
 	function displayActions(scr, row, index) {
-		var links = '<a href=\'javascript:displayRequest(\"' + row.action + '\");\'>view</a>&nbsp;|&nbsp;';
+		var links = '<a href=\'javascript:displayRequest(\"' + row.action + '\");\'>view</a>&nbsp;&nbsp;';
+		return links;
+	}
+	function displayLegalBasisActions(brief, row, index) {
+		var links = '<a href=\'javascript:deleteLegalBasis(\"' + brief + '\");\'>delete</a>&nbsp;&nbsp;';
 		return links;
 	}
   </script>
+ 
   <script src="site.js"></script>
   <style>
   .bootstrap-table .fixed-table-body table.table tbody tr td {
@@ -198,15 +244,27 @@
         </nav>
       </div>
       <div class="bigblock">
-        <h4>Personal Data Processing Configuration</h4>
-        <p id="msg">All open requests listed below.</p>
+        <h4>Processing Activities Configuration</h4>
+        <p id="msg">A list of all Processing Activities.</p>
         <table id="table" class="table">
           <thead>
             <tr>
-              <th scope="col-4" data-field="activity">Processing activity</th>
+              <th scope="col-4" data-field="activity" data-formatter="displayActivity">Processing activity</th>
 			  <th scope="col-2" data-field="briefs" data-formatter="displayLegalBasis">Legal Basis</th>
               <th scope="col-2" data-field="fulldesc" data-formatter="displayDescription">Description</th>
               <th scope="col-2" data-field="rtoken" data-formatter="displayActions">Actions</th>
+            </tr>
+          </thead>
+        </table>
+		<h4>Legal Basis Configuration</h4>
+		<p id="msg">A list of all Legal Basis objects.</p>
+        <table id="table2" class="table">
+          <thead>
+            <tr>
+              <th scope="col-4" data-field="brief" data-formatter="displayBrief">Brief</th>
+			  <th scope="col-4" data-field="basistype">Type</th>
+              <th scope="col-2" data-field="fulldesc" data-formatter="displayLegalBasisDesc">Description</th>
+              <th scope="col-2" data-field="brief" data-formatter="displayLegalBasisActions">Actions</th>
             </tr>
           </thead>
         </table>
