@@ -179,7 +179,10 @@
 	}
 	function displayLegalBasisDesc(scr, row, index) {
 		//var msg = "Type: " + row.basistype + "<br/>\n";
-		var msg = "Status: "+row.status+"</br>\n";
+		var msg = "";
+		if (row.status == "deleted") {
+			msg = "Status: <strong>"+row.status+"</strong></br>\n";
+		}
 		if (row.module) {
 			msg = msg +	"Module: "+row.module+"</br>\n";
 		}
@@ -203,13 +206,62 @@
 		msg = msg + "<a href='#'>Create new</a><br/>\n";		
 		return msg;
 	}
-	function displayActions(scr, row, index) {
-		var links = '<a href=\'javascript:displayRequest(\"' + row.action + '\");\'>view</a>&nbsp;&nbsp;';
+	function displayProcessingActions(scr, row, index) {
+		var links = '<a href=\'javascript:displayRequest(\"' + row.action + '\");\'>edit</a>&nbsp;&nbsp;';
 		return links;
 	}
 	function displayLegalBasisActions(brief, row, index) {
-		var links = '<a href=\'javascript:deleteLegalBasis(\"' + brief + '\");\'>delete</a>&nbsp;&nbsp;';
+		var links = "";
+		if (row.status !== "deleted") {
+			links = '<a href=\'javascript:deleteLegalBasis(\"' + brief + '\");\'>delete</a>&nbsp;|&nbsp;';
+		}
+		links = links + '<a href=\'javascript:editLegalBasis(\"' + brief + '\");\'>edit</a>';
 		return links;
+	}
+	function deleteLegalBasis(brief) {
+            var heading = "Confirm legal basis deletion";
+            var question = "Are you sure want to delete "+brief+"?";
+            var cancelButtonTxt = "Close popup";
+            var okButtonTxt = "Remove legal basis";
+            var confirmModal =
+                $('<div class="modal fade" role="dialog"><div class="modal-dialog" role="document"><div class="modal-content">' +
+                    '<div class="modal-header">' +
+                    '<h5 class="modal-title">' + heading + '</h5>' +
+                    '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+                    '<span aria-hidden="true">&times;</span></button>' +
+                    '</div>' +
+                    '<div class="modal-body">' +
+                    '<p>' + question + '</p>' +
+                    '</div>' +
+                    '<div class="modal-footer">' +
+                    '<a href="#" class="btn" data-dismiss="modal">' +
+                    cancelButtonTxt +
+                    '</a>' +
+                    '<a href="#" id="okButton" class="btn btn-warning">' +
+                    okButtonTxt +
+                    '</a>' +
+                    '</div>' +
+                    '</div></div></div>');
+            confirmModal.find('#okButton').click(function (event) {
+                //callback();
+                deleteLegalBasisDo(brief);
+                confirmModal.modal('hide');
+            });
+            confirmModal.modal('show');
+	}
+	function deleteLegalBasisDo(brief) {
+		var xhr0 = new XMLHttpRequest();
+		xhr0.open('DELETE', '/v1/lbasis/'+brief, true);
+		xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+		xhr0.setRequestHeader('Content-type', 'application/json');
+		xhr0.onload = function () {
+			if (xhr0.status === 200) {
+				$('#table2').bootstrapTable('refresh');
+				$('#table').bootstrapTable('refresh');
+			}
+		}
+		xhr0.send();
+		return true;
 	}
   </script>
  
@@ -264,7 +316,7 @@
               <th scope="col-4" data-field="activity" data-formatter="displayActivity">Processing activity</th>
 			  <th scope="col-2" data-field="briefs" data-formatter="displayLegalBasis">Legal Basis</th>
               <th scope="col-2" data-field="fulldesc" data-formatter="displayDescription">Description</th>
-              <th scope="col-2" data-field="rtoken" data-formatter="displayActions">Actions</th>
+              <th scope="col-2" data-field="rtoken" data-formatter="displayProcessingActions">Actions</th>
             </tr>
           </thead>
         </table>
