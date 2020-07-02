@@ -24,7 +24,7 @@ import (
 
 var (
 	regexUUID          = regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$")
-	regexBrief         = regexp.MustCompile("^[a-z0-9\\-]{1,64}$")
+	regexBrief         = regexp.MustCompile("^[a-z][a-z0-9\\-]{1,64}$")
 	regexAppName       = regexp.MustCompile("^[a-z][a-z0-9\\_]{1,30}$")
 	regexExpiration    = regexp.MustCompile("^([0-9]+)([mhds])?$")
 	regexHex           = regexp.MustCompile("^[a-zA-F0-9]+$")
