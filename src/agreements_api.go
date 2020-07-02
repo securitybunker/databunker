@@ -105,10 +105,10 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	}
 	if value, ok := records["expiration"]; ok {
 		switch records["expiration"].(type) {
-		case string:
-			expiration, _ = parseExpiration(value.(string))
-		case float64:
-			expiration = int32(value.(float64))
+			case string:
+				expiration, _ = parseExpiration(value.(string))
+			case float64:
+				expiration = int32(value.(float64))
 		}
 	}
 	if value, ok := records["starttime"]; ok {
