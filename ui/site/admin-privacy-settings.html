@@ -218,6 +218,10 @@
   .bootstrap-table .fixed-table-body table.table tbody tr td {
   vertical-align:top;
   }
+  h4 {display:inline-block; }
+  .bigblock a.btn {
+	margin-top:-5px;
+  }
   </style>
 </head>
 
@@ -244,8 +248,16 @@
         </nav>
       </div>
       <div class="bigblock">
-        <h4>Processing Activities Configuration</h4>
-        <p id="msg">A list of all Processing Activities.</p>
+        <h4>Processing Activities Configuration</h4>&nbsp;&nbsp;<a class="btn btn-secondary" data-toggle="collapse" href="#processingInfo" role="button" aria-expanded="false" aria-controls="collapseExample">What is it?</a>
+		<div class="collapse" id="processingInfo">
+			<p><strong>Processing</strong> is GDPR means any operation or set of operations which is performed on personal data or on sets of personal data,
+			whether or not by automated means, such as collection, recording, organisation, structuring, storage, adaptation or alteration,
+			retrieval, consultation, use, disclosure by transmission, dissemination or otherwise making available, alignment or combination,
+			restriction, erasure or destruction.</p>
+			<p>Under GDPR, organizations must process personal data <strong>lawfully, fairly, and transparently</strong>. To comply this principle,
+			Chapter 6 of the GDPR requires any organization <strong>processing personal data</strong> to have a valid <strong>legal basis</strong> for that personal data
+			processing activity. For example <strong>Consent</strong> is one of the six allowed methods.</p>
+		</div>
         <table id="table" class="table">
           <thead>
             <tr>
@@ -256,12 +268,25 @@
             </tr>
           </thead>
         </table>
-		<h4>Legal Basis Configuration</h4>
-		<p id="msg">A list of all Legal Basis objects.</p>
+		<h4>Legal Basis Configuration</h4>&nbsp;&nbsp;<a class="btn btn-secondary" data-toggle="collapse" href="#legalbasisInfo" role="button" aria-expanded="false" aria-controls="collapseExample">What is it?</a>
+		<div class="collapse" id="legalbasisInfo">
+			<p>The <strong>legal basis</strong> is the foundation for data processing under the GDPR. It means that if an organisation wants
+			to process personal data, there is a need to identify specific legal grounds for the processing. There are six options:<p>
+			<ol>
+			<li><strong>Consent</strong> - like in cookie consent. In GDPR Article 4(11) consent is defined as : any freely given, specific,
+			informed and unambiguous indication of the data subject's wishes by which he or she, by a statement or by a clear affirmative action,
+			signifies agreement to the processing of personal data relating to him or her.</li>
+			<li><strong>Contract</strong> - in case you use contract with you customers.</li>
+			<li><strong>Legitimate Interest</strong> - for example use of personal data for fraud detection.</li>
+			<li><strong>Vital Interest</strong> - for example in emergency medical care situations.</li>
+			<li><strong>Legal Requirements</strong> - for example comlianace with money anti-laundering laws, taxes, etc...</li>
+			<li><strong>Public Interest</strong> - processing required for public interest.</li>
+			</ol>
+		</div>
         <table id="table2" class="table">
           <thead>
             <tr>
-              <th scope="col-4" data-field="brief" data-formatter="displayBrief">Brief</th>
+              <th scope="col-4" data-field="brief" data-formatter="displayBrief">Legal Basis Brief</th>
 			  <th scope="col-4" data-field="basistype">Type</th>
               <th scope="col-2" data-field="fulldesc" data-formatter="displayLegalBasisDesc">Description</th>
               <th scope="col-2" data-field="brief" data-formatter="displayLegalBasisActions">Actions</th>
