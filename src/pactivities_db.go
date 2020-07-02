@@ -186,12 +186,14 @@ func (dbobj dbcon) listProcessingActivities() ([]byte, int, error) {
 	}
 	var results []interface{}
 	for _, record := range records {
-		briefs := strings.Split(record["legalbasis"].(string), ",")
 		var results0 []interface{}
-		if len(briefs) > 0 {
-			for _, brief := range briefs {
-				if value, ok := set[brief]; ok {
-					results0 = append(results0, value)
+		if record["legalbasis"] != nil {
+			briefs := strings.Split(record["legalbasis"].(string), ",")
+			if len(briefs) > 0 {
+				for _, brief := range briefs {
+					if value, ok := set[brief]; ok {
+						results0 = append(results0, value)
+					}
 				}
 			}
 		}
