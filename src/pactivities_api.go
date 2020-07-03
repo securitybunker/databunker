@@ -35,6 +35,7 @@ func (e mainEnv) pactivityCreate(w http.ResponseWriter, r *http.Request, ps http
 	script := ""
 	fulldesc := ""
 	legalbasis := ""
+	newactivity := ""
 	applicableto := ""
 	if value, ok := records["title"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
@@ -54,12 +55,17 @@ func (e mainEnv) pactivityCreate(w http.ResponseWriter, r *http.Request, ps http
 			fulldesc = value.(string)
 		}
 	}
+	if value, ok := records["newactivity"]; ok {
+		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+			newactivity = value.(string)
+		}
+	}
 	if value, ok := records["applicableto"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			applicableto = value.(string)
 		}
 	}
-	e.db.createProcessingActivity(activity, title, script, fulldesc, legalbasis, applicableto)
+	e.db.createProcessingActivity(activity, newactivity, title, script, fulldesc, legalbasis, applicableto)
 }
 
 func (e mainEnv) pactivityDelete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

@@ -28,6 +28,7 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 
 	module := ""
 	fulldesc := ""
+	newbrief := ""
 	shortdesc := ""
 	basistype := ""
 	requiredmsg := ""
@@ -42,6 +43,11 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 	if value, ok := records["fulldesc"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			fulldesc = value.(string)
+		}
+	}
+	if value, ok := records["newbrief"]; ok {
+		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+			newbrief = value.(string)
 		}
 	}
 	if value, ok := records["shortdesc"]; ok {
@@ -71,7 +77,7 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 		}
 	}
 	
-	e.db.createLegalBasis(brief, module, shortdesc, fulldesc, basistype, requiredmsg, usercontrol, requiredflag)
+	e.db.createLegalBasis(brief, newbrief, module, shortdesc, fulldesc, basistype, requiredmsg, usercontrol, requiredflag)
 	/*
 	notifyURL := e.conf.Notification.NotificationURL
 	if newStatus == true && len(notifyURL) > 0 {

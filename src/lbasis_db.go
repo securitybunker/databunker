@@ -22,22 +22,17 @@ type legalBasis struct {
 	Creationtime  int32  `json:"creationtime" structs:"creationtime"`
 }
 
-func (dbobj dbcon) createLegalBasis(brief string, module string, shortdesc string, fulldesc string, basistype string, requiredmsg string,
+func (dbobj dbcon) createLegalBasis(brief string, newbrief string, module string, shortdesc string, fulldesc string, basistype string, requiredmsg string,
 	usercontrol bool, requiredflag bool) (bool, error) {
-	now := int32(time.Now().Unix())
 	bdoc := bson.M{}
 	bdoc["basistype"] = basistype
-	if len(module) > 0 {
-		bdoc["module"] = module	
-	}
-	if len(shortdesc) > 0 {
-		bdoc["shortdesc"] = shortdesc
-	}
-	if len(fulldesc) > 0 {
-		bdoc["fulldesc"] = fulldesc
-	}
-	if len(requiredmsg) > 0 {
+	bdoc["module"] = module	
+	bdoc["shortdesc"] = shortdesc
+	bdoc["fulldesc"] = fulldesc
+	if requiredflag == true {
 		bdoc["requiredmsg"] = requiredmsg
+	} else {
+		bdoc["requiredmsg"] = ""
 	}
 	bdoc["status"] = "active";
 	bdoc["usercontrol"] = usercontrol
@@ -48,15 +43,14 @@ func (dbobj dbcon) createLegalBasis(brief string, module string, shortdesc strin
 		return false, err
 	}
 	if raw != nil {
-		if basistype != raw["basistype"].(string) {
-			// check if this legitbasis is used to change it's structure
-		} else {
-			dbobj.store.UpdateRecord(storage.TblName.Legalbasis, "brief", brief, &bdoc)
-			return true, nil
+		if len(newbrief) > 0 && newbrief != brief {
+			bdoc["brief"] = newbrief;
 		}
-		return false, err
+		dbobj.store.UpdateRecord(storage.TblName.Legalbasis, "brief", brief, &bdoc)
+		return true, nil
 	}
 	bdoc["brief"] = brief
+	now := int32(time.Now().Unix())
 	bdoc["creationtime"] = now
 	_, err = dbobj.store.CreateRecord(storage.TblName.Legalbasis, &bdoc)
 	if err != nil {
