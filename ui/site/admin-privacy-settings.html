@@ -272,6 +272,10 @@
 		return true;
 	}
 	function editProcessingActivity(activity) {
+		var title = "Create new Processing Operation";
+		if (activity) {
+			title = "Change Processing Operation";
+		}
 		var applicableto = "";
 		var fulldesc = "";
 		var code = "";
@@ -289,7 +293,7 @@
 		}
         var form = `<form>
             <div class="form-group row">
-				<label for="shortdesc" class="col-sm-3 col-form-label">Activity Unique Identifier <strong>*</strong></label>
+				<label for="shortdesc" class="col-sm-3 col-form-label">Operation Unique Identifier <strong>*</strong></label>
 				<div class="col-sm-9">
 					<input type="text" class="form-control" id="activity" aria-describedby="activityHelp" placeholder="Enter unique identifier" value="`+activity+`">
 					<small id="activityHelp" class="form-text text-muted">Supported: a-z, 0-9, '-' chars. Start with a-z. Max 64 chars.</small>
@@ -316,11 +320,11 @@
 			</div>
 			</form>`;
 		var btn = `<button type="submit" class="btn btn-primary" id="submitButton">Submit</button>`;
-		var modal = showForm('Change Processing Activity', form, btn);
+		var modal = showForm(title, form, btn);
 		modal.find('#submitButton').click(function (event) {
 			var newActivity = modal.find('#activity').val();
 			if (!newActivity){
-				alert("Activity can not be empty");
+				alert("Processing Oeration Unique Identifier can not be empty");
 				return;
 			}
 			var msg = {};
@@ -329,6 +333,8 @@
 			msg["script"] = modal.find('#code').val();
 			if (!activity) {
 				activity = newActivity
+			} else {
+				msg["newactivity"] = newActivity;
 			}
 			var xhr0 = new XMLHttpRequest();
 			xhr0.open('POST', '/v1/pactivity/'+activity, true);
@@ -344,6 +350,10 @@
         });
 	}
     function editLegalBasis(brief) {
+		var title = "Create new Legal Basis record";
+		if (brief) {
+			title = "Change Legal Basis record";
+		}
 		const options = getModulesOptions();
 		var fulldesc = "";
 		var shortdesc = "";
@@ -379,7 +389,7 @@
 			<div class="form-group row">
 				<label for="exampleFormControlTextarea1" class="col-sm-3 col-form-label">Full desciption</label>
 				<div class="col-sm-9">
-					<textarea class="form-control" id="exampleFormControlTextarea1" rows="2">`+fulldesc+`</textarea>
+					<textarea class="form-control" id="fulldesc" rows="2">`+fulldesc+`</textarea>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -419,7 +429,7 @@
 			</div>
 			</form>`;
 		var btn = `<button type="submit" class="btn btn-primary" id="submitButton">Submit</button>`;
-		var modal = showForm('Change Legal Basis', form, btn);
+		var modal = showForm(title, form, btn);
 		// setup current values
 		modal.find('#usercontrol').prop( "checked", usercontrol );
 		modal.find('#requiredflag').prop( "checked", requiredflag );
@@ -446,6 +456,11 @@
 			}
 		});
 		modal.find('#submitButton').click(function (event) {
+			var newBrief = modal.find('#brief').val();
+			if (!newBrief){
+				alert("Brief Unique Identifier can not be empty");
+				return;
+			}
 			const msg = {};
 			msg["requiredflag"] = modal.find('#requiredflag').prop("checked");
 			if (msg["requiredflag"]) {
@@ -456,9 +471,13 @@
 			msg["basistype"] = modal.find('#basistype').val();
 			msg["shortdesc"] = modal.find('#shortdesc').val();
 			msg["fulldesc"] = modal.find('#fulldesc').val();
-			newBrief = modal.find('#brief').val();
 			if (msg["module"] === "other") {
 				msg["module"] = modal.find('#other').val();
+			}
+			if (!brief) {
+				brief = newBrief
+			} else {
+				msg["newbrief"] = newBrief;
 			}
 			var xhr0 = new XMLHttpRequest();
 			xhr0.open('POST', '/v1/lbasis/'+brief, true);
@@ -466,6 +485,7 @@
 			xhr0.setRequestHeader('Content-type', 'application/json');
 			xhr0.onload = function () {
 				if (xhr0.status === 200) {
+					$('#table2').bootstrapTable('refresh');
 					$('#table').bootstrapTable('refresh');
 				}
 			}
@@ -510,7 +530,7 @@
         </nav>
       </div>
       <div class="bigblock">
-        <h4>Processing Activities Configuration</h4>&nbsp;&nbsp;
+        <h4>Personal Data Processing Operations</h4>&nbsp;&nbsp;
 			<a class="btn btn-secondary" data-toggle="collapse" href="#processingInfo" role="button" aria-expanded="false" aria-controls="collapseExample">What is it?</a>&nbsp;&nbsp;
 			<a class="btn btn-primary" href="javascript:editProcessingActivity();" role="button" aria-expanded="false" aria-controls="collapseExample">Create New</a>
 		<div class="collapse" id="processingInfo">
@@ -520,14 +540,14 @@
 			restriction, erasure or destruction.</p>
 			<p>Under GDPR, organizations must process personal data <strong>lawfully, fairly, and transparently</strong>. To comply this principle,
 			Chapter 6 of the GDPR requires any organization <strong>processing personal data</strong> to have a valid <strong>legal basis</strong> for that personal data
-			processing activity. For example <strong>Consent</strong> is one of the six allowed methods.</p>
+			processing operation. For example <strong>Consent</strong> is one of the six allowed methods.</p>
 		</div>
         <table id="table" class="table">
           <thead>
             <tr>
-              <th scope="col-4" data-field="activity" data-formatter="displayActivity">Processing activity</th>
-			  <th scope="col-2" data-field="briefs" data-formatter="displayLegalBasis">Legal Basis</th>
-              <th scope="col-2" data-field="fulldesc" data-formatter="displayDescription">Description</th>
+              <th scope="col-4" class="w-25" data-field="activity" data-formatter="displayActivity">Processing operation</th>
+			  <th scope="col-3" class="w-25" data-field="briefs" data-formatter="displayLegalBasis">Legal Basis</th>
+              <th scope="col-3" class="w-25" data-field="fulldesc" data-formatter="displayDescription">Description</th>
               <th scope="col-2" data-field="rtoken" data-formatter="displayProcessingActions">Actions</th>
             </tr>
           </thead>
@@ -552,9 +572,9 @@
         <table id="table2" class="table">
           <thead>
             <tr>
-              <th scope="col-4" data-field="brief" data-formatter="displayBrief">Legal Basis Brief</th>
-			  <th scope="col-4" data-field="basistype">Type</th>
-              <th scope="col-2" data-field="fulldesc" data-formatter="displayLegalBasisDesc">Description</th>
+              <th scope="col-4" class="w-25" data-field="brief" data-formatter="displayBrief">Legal Basis Brief</th>
+			  <th scope="col-3" class="w-25" data-field="basistype">Type</th>
+              <th scope="col-3" class="w-25" data-field="fulldesc" data-formatter="displayLegalBasisDesc">Description</th>
               <th scope="col-2" data-field="brief" data-formatter="displayLegalBasisActions">Actions</th>
             </tr>
           </thead>
