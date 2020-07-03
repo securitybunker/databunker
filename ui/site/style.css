@@ -133,4 +133,6 @@ h4 {
 .bigblock .jsoneditor {
     border: none;
 }
-
+.container .bigblock .bootstrap-table .fixed-table-container .fixed-table-body .fixed-table-loading .loading-wrap .loading-text {
+	font-size: 14px;
+}
