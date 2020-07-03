@@ -22,37 +22,30 @@ type processingActivity struct {
 	Creationtime int32  `json:"creationtime" structs:"creationtime"`
 }
 
-func (dbobj dbcon) createProcessingActivity(activity string, title string, script string, fulldesc string, legalbasis string, applicableto string) (bool, error) {
-	now := int32(time.Now().Unix())
+func (dbobj dbcon) createProcessingActivity(activity string, newactivity string, title string, script string, fulldesc string, legalbasis string, applicableto string) (bool, error) {
 	bdoc := bson.M{}
-	bdoc["creationtime"] = now
-	if len(activity) > 0 {
-		bdoc["activity"] = activity
-	}
-	if len(title) > 0 {
-		bdoc["title"] = title
-	}
-	if len(script) > 0 {
-		bdoc["script"] = script
-	}
-	if len(fulldesc) > 0 {
-		bdoc["fulldesc"] = fulldesc
-	}
+	bdoc["title"] = title
+	bdoc["script"] = script
+	bdoc["fulldesc"] = fulldesc
 	if len(legalbasis) > 0 {
 		bdoc["legalbasis"] = legalbasis
 	}
-	if len(applicableto) > 0 {
-		bdoc["applicableto"] = applicableto
-	}
+	bdoc["applicableto"] = applicableto
 	raw, err := dbobj.store.GetRecord(storage.TblName.Processingactivities, "activity", activity)
 	if err != nil {
 		fmt.Printf("error to find:%s", err)
 		return false, err
 	}
 	if raw != nil {
+		if len(newactivity) > 0 && newactivity != activity {
+			bdoc["activity"] = newactivity;
+		}
 		_, err = dbobj.store.UpdateRecord(storage.TblName.Processingactivities, "activity", activity, &bdoc)
 		return false, err
 	}
+	now := int32(time.Now().Unix())
+	bdoc["activity"] = activity
+	bdoc["creationtime"] = now
 	_, err = dbobj.store.CreateRecord(storage.TblName.Processingactivities, &bdoc)
 	if err != nil {
 		fmt.Printf("error to insert record: %s\n", err)
