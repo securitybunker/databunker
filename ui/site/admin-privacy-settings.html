@@ -91,8 +91,32 @@
 		}
 		xhr0.send();
 	}
-	function linkExisting(activity, briefs) {
-		//console.log(briefs);
+	function getModules() {
+		const modules = {};
+		for (idx = 0; idx < legalBasisList.length; idx++) {
+			const row = legalBasisList[idx];
+			modules[row.module] = row.module;
+		}
+		modules["checkout-page"] = "checkout-page";
+		modules["cookie-popup"] = "cookie-popup";
+		modules["signup-page"] = "signup-page";
+		modules["login-page"] = "login-page";
+		modules["other"] = "other";
+		return modules;
+	}
+	function getModulesOptions(current) {
+		const modules = getModules();
+		var msg = "";
+		for (var m in modules) {
+			if (current === m) {
+				msg = msg + '<option selected>'+m+'</option>';
+			} else {
+				msg = msg + '<option>'+m+'</option>';
+			}
+		}
+		return msg;
+	}
+	function linkExisting(activity, briefs_str) {
 		var existing = {};
 		for (jdx = 0; jdx < processingActivitiesList.length; jdx++) {
 			if (processingActivitiesList[jdx].activity == activity) {
@@ -106,7 +130,6 @@
 				break;
 			}
 		}
-		//console.log(existing);
 		var msg = '<form>';
 		for (idx = 0; idx < legalBasisList.length; idx++) {
 			const row = legalBasisList[idx];
@@ -301,7 +324,7 @@
 				return;
 			}
 			var msg = {};
-			msg["applicableto"] =  modal.find('#applicableto').val();
+			msg["applicableto"] = modal.find('#applicableto').val();
 			msg["fulldesc"] = modal.find('#fulldesc').val();
 			msg["script"] = modal.find('#code').val();
 			if (!activity) {
@@ -320,31 +343,49 @@
             modal.modal('hide');
         });
 	}
-    function editLegalBasis(brif) {
+    function editLegalBasis(brief) {
+		const options = getModulesOptions();
+		var fulldesc = "";
+		var shortdesc = "";
+		var basistype = "";
+		var requiredmsg = "";
+		var usercontrol = false;
+		var requiredflag = false;
+		for (idx = 0; idx < legalBasisList.length; idx++) {
+			const row = legalBasisList[idx];
+			if (row.brief === brief) {
+				fulldesc = row.fulldesc;
+				shortdesc = row.shortdesc;
+				basistype = row.basistype;
+				requiredmsg = row.requiredmsg;
+				usercontrol = row.usercontrol;
+				requiredflag = row.requiredflag;
+			}
+		}
         var form = `<form>
             <div class="form-group row">
 				<label for="shortdesc" class="col-sm-3 col-form-label">Brief Unique Identifier</label>
 				<div class="col-sm-9">
-					<input type="text" class="form-control" id="brief" name="brief" aria-describedby="briefHelp" placeholder="Enter unique identifier">
+					<input type="text" class="form-control" id="brief" aria-describedby="briefHelp" placeholder="Enter unique identifier" value="`+brief+`">
 					<small id="briefHelp" class="form-text text-muted">Supported: a-z, 0-9, '-' chars. Start with a-z. Max 64 chars.</small>
 				</div>
 			</div>
 			<div class="form-group row">
 				<label for="shortdesc" class="col-sm-3 col-form-label">Short description</label>
 				<div class="col-sm-9">
-					<input type="text" class="form-control" id="shortdesc" name="shortdesc" placeholder="Enter short description">
+					<input type="text" class="form-control" id="shortdesc" placeholder="Enter short description" value="`+shortdesc+`">
 				</div>
 			</div>
 			<div class="form-group row">
 				<label for="exampleFormControlTextarea1" class="col-sm-3 col-form-label">Full desciption</label>
 				<div class="col-sm-9">
-					<textarea class="form-control" id="exampleFormControlTextarea1" rows="2"></textarea>
+					<textarea class="form-control" id="exampleFormControlTextarea1" rows="2">`+fulldesc+`</textarea>
 				</div>
 			</div>
 			<div class="form-group row">
 				<label for="exampleFormControlSelect1" class="col-sm-3 col-form-label">Legal ground type</label>
 				<div class="col-sm-9">
-				<select class="form-control" id="exampleFormControlSelect1">
+				<select class="form-control" id="basistype">
 				  <option>consent</option>
 				  <option>contract</option>
 				  <option>legal-requirement</option>
@@ -355,34 +396,82 @@
 				</div>
             </div>
 			<div class="form-group row">
-				<label for="exampleFormControlSelect2" class="col-sm-3 col-form-label">Module</label>
+				<label for="selectModule" class="col-sm-3 col-form-label">Show on Page/Module</label>
 				<div class="col-sm-9">
-				<select class="form-control" id="exampleFormControlSelect2">
-				  <option>registration</option>
-				  <option>checkout</option>
-				  <option>cookie</option>
-				  <option>login</option>
-				  <option>other</option>
+				<select class="form-control" id="selectModule">`+options+`
 				</select>
+				<input style="display:none;margin-top:10px;" type="text" class="form-control" id="other" placeholder="Enter value">
 				</div>
             </div>
             <div class="form-check">
-				<input type="checkbox" class="form-check-input" id="userControlCheckbox" name="usercontrol">
-				<label class="form-check-label" for="userControlCheckbox">User can withdraw this consent without Admin/DPO approval.</label>
+				<input type="checkbox" class="form-check-input" id="usercontrol">
+				<label class="form-check-label" for="usercontrol">User can withdraw this consent/contract without Admin/DPO approval.</label>
 			</div>
             <div class="form-check">
-				<input type="checkbox" class="form-check-input" id="requiredCheckbox" name="requiredflag">
-				<label class="form-check-label" for="requiredCheckbox">Required checkbox. Your user needs to approve this consent when asked to get your service or product.</label>
+				<input type="checkbox" class="form-check-input" id="requiredflag">
+				<label class="form-check-label" for="requiredflag">Required checkbox. Your user needs to approve this consent/contract when asked to get your service or product.</label>
 			</div>
-			<div class="form-group row">
+			<div class="form-group row" id="requiredForm">
 				<label for="requiredmsg" class="col-sm-3 col-form-label">Why it is required?</label>
 				<div class="col-sm-9">
-				<input type="text" class="form-control" id="requiredmsg" name="requiredmsg" placeholder="Enter custom explanation message why it is required">
+				<input type="text" class="form-control" id="requiredmsg" placeholder="Enter custom explanation message why it is required" value="`+requiredmsg+`">
 				</div>
 			</div>
-			<button type="submit" class="btn btn-primary">Submit</button>
 			</form>`;
-		showForm('Change Legal Basis', form);
+		var btn = `<button type="submit" class="btn btn-primary" id="submitButton">Submit</button>`;
+		var modal = showForm('Change Legal Basis', form, btn);
+		// setup current values
+		modal.find('#usercontrol').prop( "checked", usercontrol );
+		modal.find('#requiredflag').prop( "checked", requiredflag );
+		if (requiredflag) {
+			modal.find('#requiredForm').show();
+		} else {
+			modal.find('#requiredForm').hide();
+		}
+		modal.find('#basistype').val(basistype);
+		// callbacks
+		modal.find('#selectModule').change(function (event) {
+			const current = $( this ).val();
+			if (current === "other") {
+				modal.find('#other').show();
+			} else {
+				modal.find('#other').hide();
+			}
+		});
+		modal.find('#requiredflag').change(function (event) {
+			if(this.checked) {
+				modal.find('#requiredForm').show();
+			} else {
+				modal.find('#requiredForm').hide();
+			}
+		});
+		modal.find('#submitButton').click(function (event) {
+			const msg = {};
+			msg["requiredflag"] = modal.find('#requiredflag').prop("checked");
+			if (msg["requiredflag"]) {
+				msg["requiredmsg"] = modal.find('#requiredmsg').val();
+			}
+			msg["usercontro"] = modal.find('#usercontrol').prop("checked");
+			msg["module"] = modal.find('#selectModule').val();
+			msg["basistype"] = modal.find('#basistype').val();
+			msg["shortdesc"] = modal.find('#shortdesc').val();
+			msg["fulldesc"] = modal.find('#fulldesc').val();
+			newBrief = modal.find('#brief').val();
+			if (msg["module"] === "other") {
+				msg["module"] = modal.find('#other').val();
+			}
+			var xhr0 = new XMLHttpRequest();
+			xhr0.open('POST', '/v1/lbasis/'+brief, true);
+			xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+			xhr0.setRequestHeader('Content-type', 'application/json');
+			xhr0.onload = function () {
+				if (xhr0.status === 200) {
+					$('#table').bootstrapTable('refresh');
+				}
+			}
+			xhr0.send(JSON.stringify(msg));
+            modal.modal('hide');
+		});
 	}
   </script>
  
@@ -421,7 +510,9 @@
         </nav>
       </div>
       <div class="bigblock">
-        <h4>Processing Activities Configuration</h4>&nbsp;&nbsp;<a class="btn btn-secondary" data-toggle="collapse" href="#processingInfo" role="button" aria-expanded="false" aria-controls="collapseExample">What is it?</a>&nbsp;&nbsp;<a class="btn btn-primary" href="javascript:editProcessingActivity();" role="button" aria-expanded="false" aria-controls="collapseExample">Create New</a>
+        <h4>Processing Activities Configuration</h4>&nbsp;&nbsp;
+			<a class="btn btn-secondary" data-toggle="collapse" href="#processingInfo" role="button" aria-expanded="false" aria-controls="collapseExample">What is it?</a>&nbsp;&nbsp;
+			<a class="btn btn-primary" href="javascript:editProcessingActivity();" role="button" aria-expanded="false" aria-controls="collapseExample">Create New</a>
 		<div class="collapse" id="processingInfo">
 			<p><strong>Processing</strong> is GDPR means any operation or set of operations which is performed on personal data or on sets of personal data,
 			whether or not by automated means, such as collection, recording, organisation, structuring, storage, adaptation or alteration,
@@ -441,7 +532,9 @@
             </tr>
           </thead>
         </table>
-		<h4>Legal Basis Configuration</h4>&nbsp;&nbsp;<a class="btn btn-secondary" data-toggle="collapse" href="#legalbasisInfo" role="button" aria-expanded="false" aria-controls="collapseExample">What is it?</a>
+		<h4>Legal Basis Configuration</h4>&nbsp;&nbsp;
+			<a class="btn btn-secondary" data-toggle="collapse" href="#legalbasisInfo" role="button" aria-expanded="false" aria-controls="collapseExample">What is it?</a>&nbsp;&nbsp;
+			<a class="btn btn-primary" href="javascript:editLegalBasis();" role="button" aria-expanded="false" aria-controls="collapseExample">Create New</a>
 		<div class="collapse" id="legalbasisInfo">
 			<p>The <strong>legal basis</strong> is the foundation for data processing under the GDPR. It means that if an organisation wants
 			to process personal data, there is a need to identify specific legal grounds for the processing. There are six options:<p>
