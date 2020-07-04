@@ -334,7 +334,7 @@
 			if (!activity) {
 				activity = newActivity
 			} else {
-				msg["newactivity"] = newActivity;
+				msg["activity"] = newActivity;
 			}
 			var xhr0 = new XMLHttpRequest();
 			xhr0.open('POST', '/v1/pactivity/'+activity, true);
@@ -353,6 +353,8 @@
 		var title = "Create new Legal Basis record";
 		if (brief) {
 			title = "Change Legal Basis record";
+		} else {
+			brief = "";
 		}
 		const options = getModulesOptions();
 		var fulldesc = "";
@@ -477,7 +479,7 @@
 			if (!brief) {
 				brief = newBrief
 			} else {
-				msg["newbrief"] = newBrief;
+				msg["brief"] = newBrief;
 			}
 			var xhr0 = new XMLHttpRequest();
 			xhr0.open('POST', '/v1/lbasis/'+brief, true);
