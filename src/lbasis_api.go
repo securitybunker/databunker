@@ -45,7 +45,7 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 			fulldesc = value.(string)
 		}
 	}
-	if value, ok := records["newbrief"]; ok {
+	if value, ok := records["brief"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			newbrief = value.(string)
 		}

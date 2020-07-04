@@ -55,7 +55,7 @@ func (e mainEnv) pactivityCreate(w http.ResponseWriter, r *http.Request, ps http
 			fulldesc = value.(string)
 		}
 	}
-	if value, ok := records["newactivity"]; ok {
+	if value, ok := records["activity"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			newactivity = value.(string)
 		}
