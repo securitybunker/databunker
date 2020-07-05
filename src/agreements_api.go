@@ -247,6 +247,32 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	}
 }
 
+func (e mainEnv) agreementRevokeAll(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	brief := ps.ByName("brief")
+	authResult := e.enforceAdmin(w, r)
+	if authResult == "" {
+		return
+	}
+	brief = normalizeBrief(brief)
+	if isValidBrief(brief) == false {
+		returnError(w, r, "bad brief format", 405, nil, nil)
+		return
+	}
+	exists, err := e.db.checkLegalBasis(brief)
+	if err != nil {
+		returnError(w, r, "internal error", 405, nil, event)
+		return
+	}
+	if exists == false {
+		returnError(w, r, "not found", 405, nil, event)
+		return	
+	}
+	e.db.revokeLegalBasis(brief);
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	w.Write([]byte(`{"status":"ok"}`))
+}
+
 /*
 func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
@@ -395,20 +421,4 @@ func (e mainEnv) consentFilterRecords(w http.ResponseWriter, r *http.Request, ps
 	w.Write([]byte(str))
 }
 
-func (e mainEnv) consentBriefs(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	if e.enforceAuth(w, r, nil) == "" {
-		return
-	}
-	resultJSON, numRecords, err := e.db.getConsentBriefs()
-	if err != nil {
-		returnError(w, r, "internal error", 405, err, nil)
-		return
-	}
-	fmt.Printf("Total count of rows: %d\n", numRecords)
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(200)
-	str := fmt.Sprintf(`{"status":"ok","total":%d,"briefs":%s}`, numRecords, resultJSON)
-	w.Write([]byte(str))
-}
 */
