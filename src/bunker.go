@@ -218,7 +218,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.POST("/v1/lbasis/:brief", e.createLegalBasis)
 	router.DELETE("/v1/lbasis/:brief", e.deleteLegalBasis)
 
-	//router.GET("/v1/agreement/:mode/:address", e.pactivityUserReport)
+	router.GET("/v1/agreement/:mode/:address", e.agreementUserReport)
 	router.POST("/v1/agreement/:brief/:mode/:address", e.agreementAccept)
 	router.DELETE("/v1/agreement/:brief", e.agreementRevokeAll)
 	router.DELETE("/v1/agreement/:brief/:mode/:address", e.agreementWithdraw)

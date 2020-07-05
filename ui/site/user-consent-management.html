@@ -65,7 +65,7 @@ if (conf["custom_css_file"]) {
         var token = window.localStorage.getItem('token');
 
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', "/v1/consent/token/" + token);
+        xhr.open('GET', "/v1/agreement/token/" + token);
         xhr.setRequestHeader("X-Bunker-Token", xtoken)
         xhr.setRequestHeader('Content-type', 'application/json');
         xhr.onload = function () {
@@ -122,7 +122,7 @@ if (conf["custom_css_file"]) {
         }
         function withdrawConsent(brief) {
             var xhr = new XMLHttpRequest();
-            xhr.open('DELETE', "/v1/consent/token/" + token + "/" + brief);
+            xhr.open('DELETE', "/v1/agreement/" + brief +"/token/" + token);
             xhr.setRequestHeader("X-Bunker-Token", xtoken)
             xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
             xhr.onload = function () {
@@ -141,7 +141,7 @@ if (conf["custom_css_file"]) {
         }
         function acceptConsent(brief) {
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', "/v1/consent/token/" + token + "/" + brief);
+            xhr.open('POST', "/v1/agreement/" + brief +"/token/" + token);
             xhr.setRequestHeader("X-Bunker-Token", xtoken)
             xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
             xhr.onload = function () {
