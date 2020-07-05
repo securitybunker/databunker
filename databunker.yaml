@@ -9,9 +9,6 @@ selfservice:
   user_record_change: true
   # specifies a list of app-data objects user can change without approval
   app_record_change: ["*"]
-  # specifies what consent briefs user can withdraw without admin/DPO approval.
-  # accepting consent does not require admin/DPO approval.
-  consent_withdraw: ["*mail*", "*phone*", "*sms*", "*news*"]
 notification:
   # url that receives notifications:
   # - bad login
