@@ -114,9 +114,8 @@ func (dbobj dbcon) withdrawAgreement(userTOKEN string, brief string, mode string
 	return nil
 }
 
-// link consent to user?
-/*
-func (dbobj dbcon) listConsentRecords(userTOKEN string) ([]byte, int, error) {
+
+func (dbobj dbcon) listAgreementRecords(userTOKEN string) ([]byte, int, error) {
 	records, err := dbobj.store.GetList(storage.TblName.Agreements, "token", userTOKEN, 0, 0, "")
 	if err != nil {
 		return nil, 0, err
@@ -132,7 +131,6 @@ func (dbobj dbcon) listConsentRecords(userTOKEN string) ([]byte, int, error) {
 	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, count, nil
 }
-*/
 
 func (dbobj dbcon) viewAgreementRecord(userTOKEN string, brief string) ([]byte, error) {
 	record, err := dbobj.store.GetRecord2(storage.TblName.Agreements, "token", userTOKEN, "brief", brief)
