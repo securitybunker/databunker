@@ -46,7 +46,6 @@ type Config struct {
 		ForgetMe         bool     `yaml:"forget_me"`
 		UserRecordChange bool     `yaml:"user_record_change"`
 		AppRecordChange  []string `yaml:"app_record_change"`
-		ConsentWithdraw  []string `yaml:"consent_withdraw"`
 	}
 	Notification struct {
 		NotificationURL string `yaml:"notification_url"`
@@ -221,7 +220,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 
 	//router.GET("/v1/agreement/:mode/:address", e.pactivityUserReport)
 	router.POST("/v1/agreement/:brief/:mode/:address", e.agreementAccept)
-	router.DELETE("/v1/agreement/:brief/:mode/:address", e.consentWithdraw)
+	//router.DELETE("/v1/agreement/:brief", e.agreementRevokeAll)
+	router.DELETE("/v1/agreement/:brief/:mode/:address", e.agreementWithdraw)
 
 	//router.GET("/v1/consent/:mode/:address", e.consentAllUserRecords)
 	//router.GET("/v1/consent/:mode/:address/:brief", e.consentUserRecord)

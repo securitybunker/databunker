@@ -98,7 +98,6 @@ func init() {
 	var cfg Config
 	cfg.Sms.TwilioToken = "ttoken"
 	cfg.SelfService.AppRecordChange = []string{"testapp", "super"}
-	cfg.SelfService.ConsentWithdraw = []string{"*email*"}
 	cfg.Generic.CreateUserWithoutAccessToken = true
 	cfg.Policy.MaxAuditRetentionPeriod = "1m"
 	e := mainEnv{db, cfg, make(chan struct{})}
