@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
-	"strings"
 
 	"github.com/julienschmidt/httprouter"
 	//"go.mongodb.org/mongo-driver/bson"
@@ -140,7 +139,7 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	*/
 }
 
-func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
@@ -157,12 +156,12 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 		returnError(w, r, "bad brief format", 405, nil, event)
 		return
 	}
-	exists, err := e.db.checkLegalBasis(brief)
+	lbasis, err := e.db.getLegalBasis(brief)
 	if err != nil {
 		returnError(w, r, "internal error", 405, nil, event)
 		return
 	}
-	if exists == false {
+	if lbasis == nil {
 		returnError(w, r, "not  found", 405, nil, event)
 		return	
 	}
@@ -208,27 +207,19 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 			lastmodifiedby = value.(string)
 		}
 	}
-	// make sure that user is logged in here, unless he wants to cancel emails
-	selfService := false
-	if e.conf.SelfService.ConsentWithdraw != nil {
-		for _, name := range e.conf.SelfService.ConsentWithdraw {
-			if stringPatternMatch(strings.ToLower(name), brief) {
-				selfService = true
-				break
-			}
-		}
-		if selfService == false {
-			// user can change consent only for briefs defined in self-service
-			if len(authResult) == 0 {
-				authResult = e.enforceAuth(w, r, event)
-				if authResult == "" {
-					return
-				}
+	selfService := lbasis["usercontrol"].(bool)
+	if selfService == false {
+		// user can change consent only for briefs defined in self-service
+		if len(authResult) == 0 {
+			authResult = e.enforceAuth(w, r, event)
+			if authResult == "" {
+				return
 			}
 		}
 	}
+
 	if authResult == "login" && selfService == false {
-		rtoken, err := e.db.saveUserRequest("consent-withdraw", userTOKEN, "", brief, nil)
+		rtoken, err := e.db.saveUserRequest("agreement-withdraw", userTOKEN, "", brief, nil)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
@@ -254,7 +245,6 @@ func (e mainEnv) consentWithdraw(w http.ResponseWriter, r *http.Request, ps http
 	} else {
 		notifyConsentChange(notifyURL, brief, "no", mode, address)
 	}
-
 }
 
 /*

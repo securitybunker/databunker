@@ -110,3 +110,12 @@ func (dbobj dbcon) checkLegalBasis(brief string) (bool, error) {
 	}
 	return true, nil
 }
+
+func (dbobj dbcon) getLegalBasis(brief string) (bson.M, error) {
+	row, err := dbobj.store.GetRecord(storage.TblName.Legalbasis, "brief", brief)
+	if err != nil {
+		fmt.Printf("error to find:%s", err)
+		return nil, err
+	}
+	return row, err
+}
