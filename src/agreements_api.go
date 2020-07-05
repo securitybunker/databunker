@@ -260,11 +260,11 @@ func (e mainEnv) agreementRevokeAll(w http.ResponseWriter, r *http.Request, ps h
 	}
 	exists, err := e.db.checkLegalBasis(brief)
 	if err != nil {
-		returnError(w, r, "internal error", 405, nil, event)
+		returnError(w, r, "internal error", 405, nil, nil)
 		return
 	}
 	if exists == false {
-		returnError(w, r, "not found", 405, nil, event)
+		returnError(w, r, "not found", 405, nil, nil)
 		return	
 	}
 	e.db.revokeLegalBasis(brief);
@@ -273,11 +273,10 @@ func (e mainEnv) agreementRevokeAll(w http.ResponseWriter, r *http.Request, ps h
 	w.Write([]byte(`{"status":"ok"}`))
 }
 
-/*
-func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) agreementUserReport(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
-	event := audit("consent list of records for "+mode, address, mode, address)
+	event := audit("privacy seetings for "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
 	if validateMode(mode) == false {
@@ -322,7 +321,7 @@ func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, p
 		return
 	}
 
-	resultJSON, numRecords, err := e.db.listConsentRecords(userTOKEN)
+	resultJSON, numRecords, err := e.db.listAgreementRecords(userTOKEN)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
@@ -336,6 +335,7 @@ func (e mainEnv) consentAllUserRecords(w http.ResponseWriter, r *http.Request, p
 	w.Write([]byte(str))
 }
 
+/*
 func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	brief := ps.ByName("brief")
