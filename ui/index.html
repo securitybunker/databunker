@@ -149,18 +149,21 @@ if (conf["custom_css_file"]) {
             var badformat = document.getElementById('badformat');
 			var loading = document.getElementById('loading');
 			var notfound = document.getElementById('notfound');
-			
             if (!element || !smsform || !emailform ||
                 !smschk || !emailchk || !confalert || 
-				!badformat || !loading) {
+                !badformat || !loading) {
                 return false;
             }
             badformat.style.display = "none";
-			notfound.style.display = "none";
+            notfound.style.display = "none";
             smschk.checked = false;
             emailchk.checked = false;
             value = value.toLowerCase();
-            var key = element.placeholder = "Enter " + value + "...";
+            valueDisplay = value;
+            if (valueDisplay === "admin") {
+                valueDisplay = "admin token";
+            }
+            var key = element.placeholder = "Enter " + valueDisplay + "...";
             confalert.style.display = "none";
             if (value == "email") {
                 smsform.style.display = "none";
