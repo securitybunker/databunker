@@ -83,6 +83,18 @@ func (dbobj dbcon) deleteLegalBasis(brief string) (bool, error) {
 	return true, nil
 }
 
+
+func (dbobj dbcon) revokeLegalBasis(brief string) (bool, error) {
+	// look up for user with this legal basis
+	bdoc := bson.M{}
+	now := int32(time.Now().Unix())
+	bdoc["who"] = "admin"
+	bdoc["when"] = now
+	bdoc["status"] = "revoked"
+	dbobj.store.UpdateRecord2(storage.TblName.Agreements, "brief", brief, "status", "yes", &bdoc, nil)
+	return true, nil
+}
+
 func (dbobj dbcon) getLegalBasisRecords() ([]byte, int, error) {
 	records, err := dbobj.store.GetList0(storage.TblName.Legalbasis, 0, 0, "")
 	if err != nil {

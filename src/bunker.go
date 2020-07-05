@@ -220,7 +220,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 
 	//router.GET("/v1/agreement/:mode/:address", e.pactivityUserReport)
 	router.POST("/v1/agreement/:brief/:mode/:address", e.agreementAccept)
-	//router.DELETE("/v1/agreement/:brief", e.agreementRevokeAll)
+	router.DELETE("/v1/agreement/:brief", e.agreementRevokeAll)
 	router.DELETE("/v1/agreement/:brief/:mode/:address", e.agreementWithdraw)
 
 	//router.GET("/v1/consent/:mode/:address", e.consentAllUserRecords)
