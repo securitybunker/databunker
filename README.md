@@ -43,6 +43,8 @@ Email: test@paranoidguy.com
 Code: 4444
 ```
 
+Demo Admin access token: ```DEMO```
+
 ---
 
 # This project resolves most** of the GDPR requirements for you including:
