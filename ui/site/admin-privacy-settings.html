@@ -356,7 +356,7 @@
 		} else {
 			brief = "";
 		}
-		const options = getModulesOptions();
+		var module = "";
 		var fulldesc = "";
 		var shortdesc = "";
 		var basistype = "";
@@ -366,6 +366,7 @@
 		for (idx = 0; idx < legalBasisList.length; idx++) {
 			const row = legalBasisList[idx];
 			if (row.brief === brief) {
+				module = row.module;
 				fulldesc = row.fulldesc;
 				shortdesc = row.shortdesc;
 				basistype = row.basistype;
@@ -374,6 +375,7 @@
 				requiredflag = row.requiredflag;
 			}
 		}
+		const options = getModulesOptions(module);
         var form = `<form>
             <div class="form-group row">
 				<label for="shortdesc" class="col-sm-3 col-form-label">Brief Unique Identifier</label>
@@ -440,7 +442,11 @@
 		} else {
 			modal.find('#requiredForm').hide();
 		}
-		modal.find('#basistype').val(basistype);
+		if (basistype) {
+			modal.find('#basistype').val(basistype);
+		} else {
+			modal.find('#basistype').val("consent");
+		}
 		// callbacks
 		modal.find('#selectModule').change(function (event) {
 			const current = $( this ).val();
