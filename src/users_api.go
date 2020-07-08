@@ -175,7 +175,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		userTOKEN = address
 		userJSON, err = e.db.getUser(address)
 	} else {
-		userJSON, userTOKEN, err = e.db.getUserIndex(mode, address, e.conf)
+		userJSON, userTOKEN, err = e.db.getUserIndex(address, mode, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
