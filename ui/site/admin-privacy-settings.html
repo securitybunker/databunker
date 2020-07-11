@@ -215,7 +215,9 @@
 		return msg;
 	}
 	function displayProcessingActions(scr, row, index) {
-		var links = '<a href=\'javascript:editProcessingActivity(\"' + row.activity + '\");\'>edit</a>&nbsp;&nbsp;';
+		var links = "";
+		links = '<a href=\'javascript:deleteProcessingActivity(\"' + row.activity + '\");\'>delete</a>&nbsp;|&nbsp;';
+		links = links + '<a href=\'javascript:editProcessingActivity(\"' + row.activity + '\");\'>edit</a>';
 		return links;
 	}
 	function displayLegalBasisActions(brief, row, index) {
@@ -225,6 +227,51 @@
 		}
 		links = links + '<a href=\'javascript:editLegalBasis(\"' + brief + '\");\'>edit</a>';
 		return links;
+	}
+	function deleteProcessingActivity(activity) {
+        var heading = "Confirm processing operation deletion";
+        var question = "Are you sure want to delete "+activity+"?";
+        var cancelButtonTxt = "Close popup";
+        var okButtonTxt = "Remove processing operation";
+		var confirmModal =
+            $('<div class="modal fade" role="dialog"><div class="modal-dialog" role="document"><div class="modal-content">' +
+                '<div class="modal-header">' +
+                '<h5 class="modal-title">' + heading + '</h5>' +
+                '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+                '<span aria-hidden="true">&times;</span></button>' +
+				'</div>' +
+                '<div class="modal-body">' +
+                '<p>' + question + '</p>' +
+                '</div>' +
+                '<div class="modal-footer">' +
+                '<a href="#" class="btn" data-dismiss="modal">' + 
+                cancelButtonTxt +
+                '</a>' +
+                '<a href="#" id="okButton" class="btn btn-warning">' +
+                okButtonTxt +
+                '</a>' +
+                '</div>' +
+                '</div></div></div>');
+        confirmModal.find('#okButton').click(function (event) {
+            //callback();
+            deleteProcessingActivityDo(activity);
+            confirmModal.modal('hide');
+        });
+        confirmModal.modal('show');
+	}
+	function deleteProcessingActivityDo(activity) {
+		var xhr0 = new XMLHttpRequest();
+		xhr0.open('DELETE', '/v1/pactivity/'+activity, true);
+		xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+		xhr0.setRequestHeader('Content-type', 'application/json');
+		xhr0.onload = function () {
+			if (xhr0.status === 200) {
+				$('#table2').bootstrapTable('refresh');
+				$('#table').bootstrapTable('refresh');
+			}
+		}
+		xhr0.send();
+		return true;
 	}
 	function deleteLegalBasis(brief) {
         var heading = "Confirm legal basis deletion";
