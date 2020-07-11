@@ -137,10 +137,10 @@ func (dbobj dbcon) unlinkProcessingActivityBrief(brief string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	for raw, record := range records {
+	for _, record := range records {
 		legalbasis := ""
 		found := false
-		if val, ok := raw["legalbasis"]; ok {
+		if val, ok := record["legalbasis"]; ok {
 			briefs := strings.Split(val.(string), ",")
 			if len(briefs) > 0 {
 				for _, value := range briefs {
