@@ -26,6 +26,7 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
+    status := "active";
 	module := ""
 	fulldesc := ""
 	newbrief := ""
@@ -66,6 +67,13 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 			requiredmsg = value.(string)
 		}
 	}
+	if value, ok := records["status"]; ok {
+		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+			if value.(string) == "disabled" {
+				status = value.(string)
+			}
+		}
+	}
 	if value, ok := records["usercontrol"]; ok {
 		if reflect.TypeOf(value).Kind() == reflect.Bool {
 			usercontrol = value.(bool)
@@ -77,7 +85,7 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 		}
 	}
 	
-	e.db.createLegalBasis(brief, newbrief, module, shortdesc, fulldesc, basistype, requiredmsg, usercontrol, requiredflag)
+	e.db.createLegalBasis(brief, newbrief, module, shortdesc, fulldesc, basistype, requiredmsg, status, usercontrol, requiredflag)
 	/*
 	notifyURL := e.conf.Notification.NotificationURL
 	if newStatus == true && len(notifyURL) > 0 {

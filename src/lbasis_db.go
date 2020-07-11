@@ -22,7 +22,8 @@ type legalBasis struct {
 	Creationtime  int32  `json:"creationtime" structs:"creationtime"`
 }
 
-func (dbobj dbcon) createLegalBasis(brief string, newbrief string, module string, shortdesc string, fulldesc string, basistype string, requiredmsg string,
+func (dbobj dbcon) createLegalBasis(brief string, newbrief string, module string, shortdesc string, 
+    fulldesc string, basistype string, requiredmsg string, status string,
 	usercontrol bool, requiredflag bool) (bool, error) {
 	bdoc := bson.M{}
 	bdoc["basistype"] = basistype
@@ -34,7 +35,7 @@ func (dbobj dbcon) createLegalBasis(brief string, newbrief string, module string
 	} else {
 		bdoc["requiredmsg"] = ""
 	}
-	bdoc["status"] = "active";
+	bdoc["status"] = status;
 	bdoc["usercontrol"] = usercontrol
 	bdoc["requiredflag"] = requiredflag
 	raw, err := dbobj.store.GetRecord(storage.TblName.Legalbasis, "brief", brief)
