@@ -137,7 +137,7 @@ func (dbobj dbcon) unlinkProcessingActivityBrief(brief string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	for _, record := range records {
+	for raw, record := range records {
 		legalbasis := ""
 		found := false
 		if val, ok := raw["legalbasis"]; ok {
