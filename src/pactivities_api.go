@@ -159,7 +159,6 @@ func (e mainEnv) pactivityList(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	fmt.Printf("Total count of rows: %d\n", numRecords)
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, numRecords, resultJSON)
