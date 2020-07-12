@@ -157,6 +157,19 @@ func (e mainEnv) configurationDump(w http.ResponseWriter, r *http.Request, ps ht
 	w.Write([]byte(finalJSON))
 }
 
+func (e mainEnv) cookieSettings(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	resultJSON, _, err := e.db.getLegalBasisCookieConf()
+	if err != nil {
+		returnError(w, r, "internal error", 405, err, nil)
+		return
+	}
+	resultUIConfJSON, _ := json.Marshal(e.conf.UI)
+	finalJSON := fmt.Sprintf(`{"status":"ok","ui":%s,"rows":%s}`, resultUIConfJSON, resultJSON)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	w.Write([]byte(finalJSON))
+}
+
 // UI configuration dump API call.
 func (e mainEnv) uiConfigurationDump(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if len(e.conf.Notification.MagicSyncURL) != 0 &&
@@ -190,6 +203,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/sys/backup", e.backupDB)
 	router.GET("/v1/sys/configuration", e.configurationDump)
 	router.GET("/v1/sys/uiconfiguration", e.uiConfigurationDump)
+	router.GET("/v1/sys/cookiesettings", e.cookieSettings)
 
 	router.POST("/v1/user", e.userNew)
 	router.GET("/v1/user/:mode/:address", e.userGet)

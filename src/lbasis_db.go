@@ -96,6 +96,35 @@ func (dbobj dbcon) revokeLegalBasis(brief string) (bool, error) {
 	return true, nil
 }
 
+func (dbobj dbcon) getLegalBasisCookieConf() ([]byte, int, error) {
+	records, err := dbobj.store.GetList(storage.TblName.Legalbasis, "status", "active", 0,0, "required")
+	if err != nil {
+		return nil, 0, err
+	}
+	count := len(records)
+	if count == 0 {
+		return []byte("[]"), 0, err
+	}
+	count = 0
+	var results []bson.M
+	for _, element := range records {
+		if _, ok := element["module"]; ok {
+			if element["module"].(string) == "cookie-popup" {
+				results = append(results, element)
+				count = count + 1
+			}
+		}
+	}
+	if count == 0 {
+		return []byte("[]"), 0, err
+	}
+	resultJSON, err := json.Marshal(results)
+	if err != nil {
+		return nil, 0, err
+	}
+	return resultJSON, count, nil
+}
+
 func (dbobj dbcon) getLegalBasisRecords() ([]byte, int, error) {
 	records, err := dbobj.store.GetList0(storage.TblName.Legalbasis, 0, 0, "")
 	if err != nil {
