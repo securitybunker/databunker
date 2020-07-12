@@ -296,6 +296,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 			header := w.Header()
 			header.Set("Access-Control-Allow-Methods", "OPTIONS GET POST PUT")
 			header.Set("Access-Control-Allow-Origin", "*")
+			header.Set("Access-Control-Allow-Headers", "Accept X-Bunker-Token origin");
 		}
 		// Adjust status code to 204
 		w.WriteHeader(http.StatusNoContent)
