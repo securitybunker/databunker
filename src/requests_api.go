@@ -32,8 +32,6 @@ func (e mainEnv) getUserRequests(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 	fmt.Printf("Total count of user requests: %d\n", counter)
-	//fmt.Fprintf(w, "<html><head><title>title</title></head>")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, counter, resultJSON)
@@ -87,8 +85,6 @@ func (e mainEnv) getCustomUserRequests(w http.ResponseWriter, r *http.Request, p
 		return
 	}
 	fmt.Printf("Total count of custom user requests: %d\n", counter)
-	//fmt.Fprintf(w, "<html><head><title>title</title></head>")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, counter, resultJSON)

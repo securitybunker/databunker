@@ -165,7 +165,6 @@ func (e mainEnv) cookieSettings(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 	resultUIConfJSON, _ := json.Marshal(e.conf.UI)
 	finalJSON := fmt.Sprintf(`{"status":"ok","ui":%s,"rows":%s}`, resultUIConfJSON, resultJSON)
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	w.Write([]byte(finalJSON))
@@ -277,7 +276,6 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte("url not found"))
 		} else {
-			//w.Header().Set("Access-Control-Allow-Origin", "*")
 			if strings.HasSuffix(r.URL.Path, ".css") {
 				w.Header().Set("Content-Type", "text/css")
 			} else if strings.HasSuffix(r.URL.Path, ".js") {
@@ -291,6 +289,16 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("url not found"))
+	})
+	router.GlobalOPTIONS = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Access-Control-Request-Method") != "" {
+			// Set CORS headers
+			header := w.Header()
+			header.Set("Access-Control-Allow-Methods", "OPTIONS GET POST PUT")
+			header.Set("Access-Control-Allow-Origin", "*")
+		}
+		// Adjust status code to 204
+		w.WriteHeader(http.StatusNoContent)
 	})
 	return router
 }

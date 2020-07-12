@@ -327,8 +327,6 @@ func (e mainEnv) agreementUserReport(w http.ResponseWriter, r *http.Request, ps 
 		return
 	}
 	fmt.Printf("Total count of rows: %d\n", numRecords)
-	//fmt.Fprintf(w, "<html><head><title>title</title></head>")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, numRecords, resultJSON)
@@ -383,7 +381,6 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 		returnError(w, r, "not found", 405, nil, event)
 		return
 	}
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	str := fmt.Sprintf(`{"status":"ok","data":%s}`, resultJSON)
@@ -414,7 +411,6 @@ func (e mainEnv) consentFilterRecords(w http.ResponseWriter, r *http.Request, ps
 		return
 	}
 	fmt.Printf("Total count of rows: %d\n", numRecords)
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, numRecords, resultJSON)
