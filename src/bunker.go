@@ -165,6 +165,7 @@ func (e mainEnv) cookieSettings(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 	resultUIConfJSON, _ := json.Marshal(e.conf.UI)
 	finalJSON := fmt.Sprintf(`{"status":"ok","ui":%s,"rows":%s}`, resultUIConfJSON, resultJSON)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	w.Write([]byte(finalJSON))
