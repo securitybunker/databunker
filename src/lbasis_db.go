@@ -97,7 +97,7 @@ func (dbobj dbcon) revokeLegalBasis(brief string) (bool, error) {
 }
 
 func (dbobj dbcon) getLegalBasisCookieConf() ([]byte, int, error) {
-	records, err := dbobj.store.GetList(storage.TblName.Legalbasis, "status", "active", 0,0, "required")
+	records, err := dbobj.store.GetList(storage.TblName.Legalbasis, "status", "active", 0,0, "requiredflag")
 	if err != nil {
 		return nil, 0, err
 	}
