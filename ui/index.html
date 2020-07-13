@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Data Bunker Login</title>
-	<script src="site/site.js"></script>
+    <script src="site/site.js"></script>
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -20,12 +20,12 @@ if (conf["custom_css_file"]) {
 
 <body>
     <div class="container col-md-6 pY-100">
-		<script>
-		conf = loadUIConfiguration();
-		if (conf["LogoLink"]) {
-		  document.write("<center><div class='col-6'><img class='logo img-responsive' src='"+conf["LogoLink"]+"'></div></center>" );
-		}
-		</script>
+        <script>
+        conf = loadUIConfiguration();
+        if (conf["LogoLink"]) {
+            document.write("<center><div class='col-6'><img class='logo img-responsive' src='"+conf["LogoLink"]+"'></div></center>" );
+        }
+        </script>
         <div class="row">
             <div class="bigblock">
                 <h4>Find my data</h4>
@@ -47,10 +47,10 @@ if (conf["custom_css_file"]) {
                         </div>
                     </div>
                     <div class="form-group" id="sms-conf-form" style="display:none;">
-			    <p>We might send you SMS using 3rd party service. Check the <b>Privacy policy</b> bellow.</p>
+                <p>We might send you SMS using 3rd party service. Check the <b>Privacy policy</b> bellow.</p>
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" onclick="hidealert();" id="smschk">
-			    <label class="form-check-label" for="smschk">Confirm to allow sending access code using 3rd party service.</label>
+                <label class="form-check-label" for="smschk">Confirm to allow sending access code using 3rd party service.</label>
                         </div>
                     </div>
                     <div id="confalert" class="alert alert-warning" role="alert" style="display:none;">
@@ -59,7 +59,7 @@ if (conf["custom_css_file"]) {
                     <div id="badformat" class="alert alert-warning" role="alert" style="display:none;">
                         Bad input value!
                     </div>
-					<div id="notfound" class="alert alert-warning" role="alert" style="display:none;">
+                    <div id="notfound" class="alert alert-warning" role="alert" style="display:none;">
                         User not found
                     </div>
                     <div class="form-group">
@@ -81,37 +81,37 @@ if (conf["custom_css_file"]) {
                         </div>
                     </div>
                 </form>
-				<div id="loading" style="display:none;">
-					<center><img src="/site/loading.gif" /></center>
-				</div>
+                <div id="loading" style="display:none;">
+                    <center><img src="/site/loading.gif" /></center>
+                </div>
             </div>
         </div>
-	    <script>displayFooterLinks();</script>
+        <script>displayFooterLinks();</script>
     </div>
     <script>
-		var lookupTimer;
-		var lookupCount;
-		function lookupUser(url) {
-			if (lookupCount > 0) {
-				// try to login with user again
-				var xhr10 = new XMLHttpRequest();
-				xhr10.open('GET', url);
+    var lookupTimer;
+    var lookupCount;
+    function lookupUser(url) {
+        if (lookupCount > 0) {
+            // try to login with user again
+                var xhr10 = new XMLHttpRequest();
+                xhr10.open('GET', url);
                 xhr10.onload = function () {
                     if (xhr10.status === 200) {
                         document.location = "/site/login.html";
                     }
                 }
                 xhr10.send();
-				lookupCount = lookupCount - 1;
-			} else {
-				clearTimeout(lookupTimer);
-				var loading = document.getElementById('loading');
-				loading.style.display = "none";
-				var notfound = document.getElementById('notfound');
-				notfound.style.display = "block";
-			}
-		}
-		
+                lookupCount = lookupCount - 1;
+            } else {
+                clearTimeout(lookupTimer);
+                var loading = document.getElementById('loading');
+                loading.style.display = "none";
+                var notfound = document.getElementById('notfound');
+                notfound.style.display = "block";
+            }
+        }
+        
         function isUUID(uuid) {
             let s = "" + uuid;
             s = s.match('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$');
@@ -128,7 +128,7 @@ if (conf["custom_css_file"]) {
         }
         function hidebadformat() {
             var badformat = document.getElementById('badformat');
-		    var notfound = document.getElementById('notfound');
+            var notfound = document.getElementById('notfound');
             badformat.style.display = "none";
             notfound.style.display = "none";
         }
@@ -147,8 +147,8 @@ if (conf["custom_css_file"]) {
             var emailchk = document.getElementById('emailchk');
             var confalert = document.getElementById('confalert');
             var badformat = document.getElementById('badformat');
-			var loading = document.getElementById('loading');
-			var notfound = document.getElementById('notfound');
+            var loading = document.getElementById('loading');
+            var notfound = document.getElementById('notfound');
             if (!element || !smsform || !emailform ||
                 !smschk || !emailchk || !confalert || 
                 !badformat || !loading) {
@@ -270,7 +270,7 @@ if (conf["custom_css_file"]) {
                         xhr.onload = function () {
                             if (xhr.status === 200) {
                                 document.location = "/site/login.html";
-							}
+                            }
                         }
                         xhr.send();
                     }
@@ -281,8 +281,8 @@ if (conf["custom_css_file"]) {
             }
             return false;
         }
-		(function() {
-			changemethoddo('Email');
-		})();
+        (function() {
+            changemethoddo('Email');
+        })();
     </script>
 </body>
