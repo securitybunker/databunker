@@ -226,9 +226,9 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.POST("/v1/pactivity/:activity", e.pactivityCreate)
 	router.DELETE("/v1/pactivity/:activity", e.pactivityDelete)
 	router.POST("/v1/pactivity/:activity/:brief", e.pactivityLink)
-    router.DELETE("/v1/pactivity/:activity/:brief", e.pactivityUnlink)
-	
-    router.GET("/v1/lbasis", e.listLegalBasisRecords)
+	router.DELETE("/v1/pactivity/:activity/:brief", e.pactivityUnlink)
+
+	router.GET("/v1/lbasis", e.listLegalBasisRecords)
 	router.POST("/v1/lbasis/:brief", e.createLegalBasis)
 	router.DELETE("/v1/lbasis/:brief", e.deleteLegalBasis)
 
@@ -239,7 +239,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 
 	//router.GET("/v1/consent/:mode/:address", e.consentAllUserRecords)
 	//router.GET("/v1/consent/:mode/:address/:brief", e.consentUserRecord)
-	
+
 	router.POST("/v1/userapp/token/:token/:appname", e.userappNew)
 	router.GET("/v1/userapp/token/:token/:appname", e.userappGet)
 	router.PUT("/v1/userapp/token/:token/:appname", e.userappChange)
@@ -294,9 +294,9 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 		if r.Header.Get("Access-Control-Request-Method") != "" {
 			// Set CORS headers
 			header := w.Header()
-			header.Set("Access-Control-Allow-Methods", "OPTIONS GET POST PUT")
-			header.Set("Access-Control-Allow-Origin", "*")
-			header.Set("Access-Control-Allow-Headers", "Accept X-Bunker-Token origin");
+			header.Set("Access-Control-Allow-Methods", "OPTIONS GET POST PUT DELETE")
+			//header.Set("Access-Control-Allow-Origin", "*")
+			header.Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-Bunker-Token");
 		}
 		// Adjust status code to 204
 		w.WriteHeader(http.StatusNoContent)
@@ -392,6 +392,7 @@ func logRequest(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		autocontext.Set(r, "host", r.Host)
 		w2 := NewCustomResponseWriter(w)
+		w2.Header().Set("Access-Control-Allow-Origin", "*")
 		handler.ServeHTTP(w2, r)
 		autocontext.Clean(r)
 		log.Printf("%d %s %s\n", w2.Code, r.Method, r.URL)
