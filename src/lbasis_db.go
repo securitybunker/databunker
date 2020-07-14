@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/paranoidguy/databunker/src/storage"
@@ -96,33 +97,60 @@ func (dbobj dbcon) revokeLegalBasis(brief string) (bool, error) {
 	return true, nil
 }
 
-func (dbobj dbcon) getLegalBasisCookieConf() ([]byte, int, error) {
+func (dbobj dbcon) getLegalBasisCookieConf() ([]byte, []byte, int, error) {
 	records, err := dbobj.store.GetList(storage.TblName.Legalbasis, "status", "active", 0,0, "requiredflag")
 	if err != nil {
-		return nil, 0, err
+		return nil, nil, 0, err
 	}
 	count := len(records)
 	if count == 0 {
-		return []byte("[]"), 0, err
+		return []byte("[]"), []byte("[]"), 0, err
 	}
 	count = 0
 	var results []bson.M
+	cookies := make(map[string]bool)
 	for _, element := range records {
 		if _, ok := element["module"]; ok {
 			if element["module"].(string) == "cookie-popup" {
+				cookies[element["brief"].(string)] = true
 				results = append(results, element)
 				count = count + 1
 			}
 		}
 	}
 	if count == 0 {
-		return []byte("[]"), 0, err
+		return []byte("[]"), []byte("[]"), 0, err
+	}
+	var scripts []bson.M
+	records0, err := dbobj.store.GetList0(storage.TblName.Processingactivities, 0, 0, "")
+	for _, record := range records0 {
+		if record["legalbasis"] != nil && record["script"] != nil {
+			var found []string
+			briefs := strings.Split(record["legalbasis"].(string), ",")
+			if len(briefs) > 0 {
+				for _, brief := range briefs {
+					if _, ok := cookies[brief]; ok {
+						found = append(found, brief)
+					}
+				}
+			}
+			if len(found) > 0 && len(record["script"].(string)) > 0 {
+				bdoc := bson.M{}
+				bdoc["script"]= record["script"]
+				bdoc["briefs"] = found;
+				scripts = append(scripts, bdoc)
+			}
+		}
 	}
 	resultJSON, err := json.Marshal(results)
 	if err != nil {
-		return nil, 0, err
+		return nil, nil, 0, err
 	}
-	return resultJSON, count, nil
+	scriptsJSON, err := json.Marshal(scripts)
+	if err != nil {
+		return resultJSON, []byte("[]"), 0, err
+	}
+	return resultJSON, scriptsJSON, count, nil
 }
 
 func (dbobj dbcon) getLegalBasisRecords() ([]byte, int, error) {
