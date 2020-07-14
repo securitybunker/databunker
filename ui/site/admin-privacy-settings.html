@@ -327,7 +327,7 @@
 		var code = "";
 		if (activity) {
 			for (jdx = 0; jdx < processingActivitiesList.length; jdx++) {
-				if (processingActivitiesList[jdx].activity == activity) {
+				if (processingActivitiesList[jdx].activity === activity) {
 					applicableto = processingActivitiesList[jdx].applicableto;
 					fulldesc = processingActivitiesList[jdx].fulldesc;
 					code = processingActivitiesList[jdx].script;
@@ -361,7 +361,7 @@
 				<label for="code" class="col-sm-3 col-form-label">JS script</label>
 				<div class="col-sm-9">
 					<textarea class="form-control" id="code" rows="2">`+code+`</textarea>
-					<small id="scriptHelp" class="form-text text-muted">Exter JavaScript code to include on your side in case user gave his consent. Can be used for eample for Google Analytics code, etc...</small>
+					<small id="scriptHelp" class="form-text text-muted">Enter JavaScript code to include on your site in case user gave his consent. Can be used for eample for Google Analytics code, etc...</small>
 				</div>
 			</div>
 			</form>`;
@@ -370,7 +370,7 @@
 		modal.find('#submitButton').click(function (event) {
 			var newActivity = modal.find('#activity').val();
 			if (!newActivity){
-				alert("Processing Oeration Unique Identifier can not be empty");
+				alert("Processing Operation Unique Identifier can not be empty");
 				return;
 			}
 			var msg = {};
