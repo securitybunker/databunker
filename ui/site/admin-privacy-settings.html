@@ -318,18 +318,20 @@
 		return true;
 	}
 	function editProcessingActivity(activity) {
-		var title = "Create new Processing Operation";
+		var title0 = "Create new Processing Operation";
 		if (activity) {
-			title = "Change Processing Operation";
+			title0 = "Change Processing Operation";
 		}
 		var applicableto = "";
 		var fulldesc = "";
+		var title = "";
 		var code = "";
 		if (activity) {
 			for (jdx = 0; jdx < processingActivitiesList.length; jdx++) {
 				if (processingActivitiesList[jdx].activity === activity) {
 					applicableto = processingActivitiesList[jdx].applicableto;
 					fulldesc = processingActivitiesList[jdx].fulldesc;
+					title = processingActivitiesList[jdx].title;
 					code = processingActivitiesList[jdx].script;
 					break;
 				}
@@ -343,6 +345,12 @@
 				<div class="col-sm-9">
 					<input type="text" class="form-control" id="activity" aria-describedby="activityHelp" placeholder="Enter unique identifier" value="`+activity+`">
 					<small id="activityHelp" class="form-text text-muted">Supported: a-z, 0-9, '-' chars. Start with a-z. Max 64 chars.</small>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="title" class="col-sm-3 col-form-label">Title</label>
+				<div class="col-sm-9">
+					<input type="text" class="form-control" id="title" placeholder="Processing operation title" value="`+title+`">
 				</div>
 			</div>
 			<div class="form-group row">
@@ -366,7 +374,7 @@
 			</div>
 			</form>`;
 		var btn = `<button type="submit" class="btn btn-primary" id="submitButton">Submit</button>`;
-		var modal = showForm(title, form, btn);
+		var modal = showForm(title0, form, btn);
 		modal.find('#submitButton').click(function (event) {
 			var newActivity = modal.find('#activity').val();
 			if (!newActivity){
@@ -376,6 +384,7 @@
 			var msg = {};
 			msg["applicableto"] = modal.find('#applicableto').val();
 			msg["fulldesc"] = modal.find('#fulldesc').val();
+			msg["title"] = modal.find('#title').val();
 			msg["script"] = modal.find('#code').val();
 			if (!activity) {
 				activity = newActivity
