@@ -158,13 +158,13 @@ func (e mainEnv) configurationDump(w http.ResponseWriter, r *http.Request, ps ht
 }
 
 func (e mainEnv) cookieSettings(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	resultJSON, _, err := e.db.getLegalBasisCookieConf()
+	resultJSON, scriptsJSON, _, err := e.db.getLegalBasisCookieConf()
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, nil)
 		return
 	}
 	resultUIConfJSON, _ := json.Marshal(e.conf.UI)
-	finalJSON := fmt.Sprintf(`{"status":"ok","ui":%s,"rows":%s}`, resultUIConfJSON, resultJSON)
+	finalJSON := fmt.Sprintf(`{"status":"ok","ui":%s,"rows":%s,"scripts":%s}`, resultUIConfJSON, resultJSON, scriptsJSON)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	w.Write([]byte(finalJSON))
