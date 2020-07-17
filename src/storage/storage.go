@@ -949,8 +949,8 @@ func initXTokens(db *sql.DB) error {
 				  fields STRING,
 				  endtime int
 				);`,
-		`CREATE INDEX xtokens_xtoken ON xtokens (xtoken);`,
-		`CREATE INDEX xtokens_type ON xtokens (type);`}
+		`CREATE UNIQUE INDEX xtokens_xtoken ON xtokens (xtoken);`,
+		`CREATE UNIQUE INDEX xtokens_uniq ON xtokens (token, type);`}
 	return execQueries(db, queries)
 }
 
