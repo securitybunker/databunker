@@ -13,7 +13,7 @@ import (
 var rootXTOKEN string
 
 func (dbobj dbcon) getRootXtoken() (string, error) {
-	record, err := dbobj.store.GetRecord(storage.TblName.Xtokens, "type", "root")
+	record, err := dbobj.store.GetRecord2(storage.TblName.Xtokens, "token", "", "type", "root")
 	if record == nil || err != nil {
 		return "", err
 	}
@@ -38,6 +38,7 @@ func (dbobj dbcon) createRootXtoken(demo bool) (string, error) {
 	bdoc := bson.M{}
 	bdoc["xtoken"] = hashString(dbobj.hash, rootToken)
 	bdoc["type"] = "root"
+	bdoc["token"] = ""
 	_, err = dbobj.store.CreateRecord(storage.TblName.Xtokens, bdoc)
 	if err != nil {
 		return rootToken, err
@@ -67,30 +68,6 @@ func (dbobj dbcon) generateUserLoginXtoken(userTOKEN string) (string, string, er
 	_, err = dbobj.store.CreateRecord(storage.TblName.Xtokens, bdoc)
 	return tokenUUID, hashedToken, err
 }
-
-/*
-func (dbobj dbcon) checkXtoken(xtokenUUID string) bool {
-	//fmt.Printf("Token0 %s\n", tokenUUID)
-	if isValidUUID(xtokenUUID) == false {
-		return false
-	}
-	xtokenHashed := hashString(dbobj.hash, xtokenUUID)
-	if len(rootXTOKEN) > 0 && rootXTOKEN == xtokenHashed {
-		fmt.Println("It is a root token")
-		return true
-	}
-	record, err := dbobj.store.GetRecord(storage.TblName.Xtokens, "xtoken", xtokenHashed)
-	if record == nil || err != nil {
-		return false
-	}
-	tokenType := record["type"].(string)
-	if tokenType == "root" {
-		rootXTOKEN = xtokenHashed
-		return true
-	}
-	return false
-}
-*/
 
 func (dbobj dbcon) checkUserAuthXToken(xtokenUUID string) (tokenAuthResult, error) {
 	result := tokenAuthResult{}
