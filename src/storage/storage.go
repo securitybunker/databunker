@@ -950,7 +950,7 @@ func initXTokens(db *sql.DB) error {
 				  endtime int
 				);`,
 		`CREATE UNIQUE INDEX xtokens_xtoken ON xtokens (xtoken);`,
-		`CREATE UNIQUE INDEX xtokens_uniq ON xtokens (token, type);`}
+		`CREATE INDEX xtokens_uniq ON xtokens (token, type);`}
 	return execQueries(db, queries)
 }
 
