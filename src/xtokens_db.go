@@ -20,7 +20,7 @@ func (dbobj dbcon) getRootXtoken() (string, error) {
 	return record["xtoken"].(string), nil
 }
 
-func (dbobj dbcon) createRootXtoken(demo bool) (string, error) {
+func (dbobj dbcon) createRootXtoken(customRootXtoken string) (string, error) {
 	rootToken, err := dbobj.getRootXtoken()
 	if err != nil {
 		return "", err
@@ -32,8 +32,11 @@ func (dbobj dbcon) createRootXtoken(demo bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if demo {
-		rootToken = "DEMO"
+	if len(customRootXtoken) > 0 {
+		if customRootXtoken != "DEMO" && !isValidUUID(customRootXtoken) {
+			return "bad-custom-root-token-format", nil
+		}
+		rootToken = customRootXtoken
 	}
 	bdoc := bson.M{}
 	bdoc["xtoken"] = hashString(dbobj.hash, rootToken)

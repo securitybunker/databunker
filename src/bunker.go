@@ -399,7 +399,7 @@ func logRequest(handler http.Handler) http.Handler {
 	})
 }
 
-func setupDB(dbPtr *string, masterKeyPtr *string, demo bool) (*dbcon, string, error) {
+func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbcon, string, error) {
 	fmt.Printf("\nDatabunker init\n\n")
 	var masterKey []byte
 	var err error
@@ -426,7 +426,7 @@ func setupDB(dbPtr *string, masterKeyPtr *string, demo bool) (*dbcon, string, er
 		log.Fatalf("db init error %s", err.Error())
 	}
 	db := &dbcon{store, masterKey, hash[:]}
-	rootToken, err := db.createRootXtoken(demo)
+	rootToken, err := db.createRootXtoken(customRootToken)
 	if err != nil {
 		//log.Panic("error %s", err.Error())
 		fmt.Printf("error %s", err.Error())
@@ -472,20 +472,26 @@ func masterkeyGet(masterKeyPtr *string) ([]byte, error) {
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	lockMemory()
-	//fmt.Printf("%+v\n", cfg)
-	initPtr := flag.Bool("init", false, "generate master key and init database")
-	demoPtr := flag.Bool("demoinit", false, "generate master key with a DEMO access token")
-	startPtr := flag.Bool("start", false, "start databunker service. User DATABUNKER_MASTERKEY environment variable.")
-	masterKeyPtr := flag.String("masterkey", "", "master key")
-	dbPtr := flag.String("db", "databunker", "database file")
-	confPtr := flag.String("conf", "", "configuration file name")
+	initPtr := flag.Bool("init", false, "Generate master key and init database")
+	demoPtr := flag.Bool("demoinit", false, "Generate master key with a DEMO root access token")
+	startPtr := flag.Bool("start", false, "Start databunker service. Provide additional --masterkey value or set it up using evironment variable: DATABUNKER_MASTERKEY")
+	masterKeyPtr := flag.String("masterkey", "", "Specify master key - main database encryption key")
+	dbPtr := flag.String("db", "databunker", "Specify database name/file")
+	confPtr := flag.String("conf", "", "Configuration file name to use")
+	rootTokenKeyPtr := flag.String("roottoken", "", "Specify custom root token to use during database init. It must be in UUID format.")
 	flag.Parse()
 
 	var cfg Config
 	readConfFile(&cfg, confPtr)
 	readEnv(&cfg)
+	customRootToken := ""
+	if *demoPtr {
+        customRootToken = "DEMO"
+	} else if rootTokenKeyPtr != nil && len(*rootTokenKeyPtr) > 0 {
+        customRootToken = *rootTokenKeyPtr
+	}
 	if *initPtr || *demoPtr {
-		db, _, _ := setupDB(dbPtr, masterKeyPtr, *demoPtr)
+		db, _, _ := setupDB(dbPtr, masterKeyPtr, customRootToken)
 		db.store.CloseDB()
 		os.Exit(0)
 	}
