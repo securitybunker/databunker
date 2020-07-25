@@ -34,7 +34,6 @@
 
   <script>
     var xtoken = window.localStorage.getItem('xtoken');
-    var token = window.localStorage.getItem('token');
     function displayTargetObject(target, row, index) {
       if (row.mode) {
         return '(' + row.mode + ') ' + target;
@@ -138,10 +137,9 @@
 
     $(function () {
       //$('#msg').text("Loading data")
-      //token = "faa006da-475e-45c6-a4a1-6586dce8b8d2";
       $('#table').bootstrapTable({
         /*data: mydata */
-        url: "/v1/audit/list/" + token,
+        url: "/v1/audit/admin/",
         undefinedText: 'n/a',
         /* url: "data1.json", */
         method: "GET",
@@ -156,9 +154,6 @@
         classes: "table",
         onLoadError: function (status, res) {
           console.log(status);
-          if (status > 400 && status < 500) {
-            document.location = "/";
-          }
         }
       });
     });

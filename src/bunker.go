@@ -208,6 +208,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 
 	router.GET("/v1/metrics", e.metrics)
 
+	router.GET("/v1/audit/admin", e.getAdminAuditEvents)
 	router.GET("/v1/audit/list/:token", e.getAuditEvents)
 	router.GET("/v1/audit/get/:atoken", e.getAuditEvent)
 
