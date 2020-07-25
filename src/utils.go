@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"mime"
 	"net/http"
@@ -55,6 +56,31 @@ func getMeta(r *http.Request) string {
 	return meta
 }
 */
+
+func getStringValue(records map[string]interface{}, key string) string {
+	if value, ok := records[key]; ok {
+		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+                        return strings.TrimSpace(value.(string))
+		}
+		log.Printf("getStringValue unknown type %s", key)
+	} else {
+		log.Printf("getStringValue not found %s", key)
+	}
+
+	return ""
+}
+
+func getInt64Value(records map[string]interface{}, key string) int64 {
+	if value, ok := records[key]; ok {
+		switch value.(type) {
+		case int32:
+			return int64(value.(int32))
+		case int64:
+			return int64(value.(int64))
+		}
+	}
+	return 0
+}
 
 func hashString(hash []byte, src string) string {
 	stringToHash := append(hash, []byte(src)...)
@@ -427,10 +453,22 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 	} else if strings.HasPrefix(cType, "application/json") {
 		err = json.Unmarshal(body, &records)
 		if err != nil {
+			log.Printf("Error in json decode %s", err)
 			return nil, err
 		}
+	} else if strings.HasPrefix(cType, "application/xml") {
+                err = json.Unmarshal(body, &records)
+                if err != nil {
+                        log.Printf("Error in xml/json decode %s", err)
+                        return nil, err
+                }
 	} else {
-		fmt.Printf("ignoring wrong content type: %s", cType)
+		log.Printf("Ignoring wrong content type: %s", cType)
+		max_str_len := 200
+		if len(body) < max_str_len {
+			max_str_len = len(body)
+		}
+		log.Printf("Body[max 200 chars]: %s", body[0:max_str_len])
 		return nil, nil
 	}
 	return records, nil
