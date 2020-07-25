@@ -78,7 +78,6 @@ func (event auditEvent) submit(db *dbcon) {
 }
 
 func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) ([]byte, int64, error) {
-	//var results []*auditEvent
 	count, err := dbobj.store.CountRecords(storage.TblName.Audit, "record", userTOKEN)
 	if err != nil {
 		return nil, 0, err
@@ -107,14 +106,46 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 		}
 		results = append(results, element)
 	}
-
 	resultJSON, err := json.Marshal(records)
 	if err != nil {
 		return nil, 0, err
 	}
-	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, count, nil
 }
+
+func (dbobj dbcon) getAdminAuditEvents(offset int32, limit int32) ([]byte, int64, error) {
+	count := int64(1000)
+        if count == 0 {
+                return []byte("[]"), 0, nil
+        }
+        var results []bson.M
+        records, err := dbobj.store.GetList0(storage.TblName.Audit, offset, limit, "when")
+        if err != nil {
+                return nil, 0, err
+        }
+        for _, element := range records {
+                element["more"] = false
+                if _, ok := element["before"]; ok {
+                        element["more"] = true
+                        element["before"] = ""
+                }
+                if _, ok := element["after"]; ok {
+                        element["more"] = true
+                        element["after"] = ""
+                }
+                if _, ok := element["debug"]; ok {
+                        element["more"] = true
+                        element["debug"] = ""
+                }
+                results = append(results, element)
+        }
+        resultJSON, err := json.Marshal(records)
+        if err != nil {
+                return nil, 0, err
+        }
+        return resultJSON, count, nil
+}
+
 
 func (dbobj dbcon) getAuditEvent(atoken string) (string, []byte, error) {
 	//var results []*auditEvent
