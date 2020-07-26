@@ -114,9 +114,12 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 }
 
 func (dbobj dbcon) getAdminAuditEvents(offset int32, limit int32) ([]byte, int64, error) {
-	count := int64(1000)
+        count, err := dbobj.store.CountRecords0(storage.TblName.Audit)
+        if err != nil {
+                return nil, 0, err
+        }
         if count == 0 {
-                return []byte("[]"), 0, nil
+                return []byte("[]"), 0, err
         }
         var results []bson.M
         records, err := dbobj.store.GetList0(storage.TblName.Audit, offset, limit, "when")
