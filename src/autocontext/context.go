@@ -77,6 +77,7 @@ func getRequestAddress() (string, error) {
 	if len(match) != 2 {
 		return "", errors.New("Failed to find *http.Request address")
 	}
-	fmt.Printf("*** extracted address from stacktrace: %s\n", match[1])
+	//fmt.Printf("*** extracted address from stacktrace: %s\n", match[1])
 	return match[1], nil
 }
+
