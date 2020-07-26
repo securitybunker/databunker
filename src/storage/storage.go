@@ -361,10 +361,10 @@ func (dbobj DBStorage) CreateRecord(t Tbl, data interface{}) (int, error) {
 	return dbobj.CreateRecordInTable(tbl, data)
 }
 
-// CountRecords returns number of records that match filter
-func (dbobj DBStorage) CountRecords(t Tbl, keyName string, keyValue string) (int64, error) {
+// CountRecords returns number of records in table
+func (dbobj DBStorage) CountRecords0(t Tbl) (int64, error) {
 	tbl := getTable(t)
-	q := "select count(*) from " + tbl + " WHERE " + escapeName(keyName) + "=$1"
+	q := "select count(*) from " + tbl
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -372,7 +372,7 @@ func (dbobj DBStorage) CountRecords(t Tbl, keyName string, keyValue string) (int
 		return 0, err
 	}
 	defer tx.Rollback()
-	row := tx.QueryRow(q, keyValue)
+	row := tx.QueryRow(q)
 	// Columns
 	var count int
 	err = row.Scan(&count)
@@ -383,6 +383,30 @@ func (dbobj DBStorage) CountRecords(t Tbl, keyName string, keyValue string) (int
 		return 0, err
 	}
 	return int64(count), nil
+}
+
+// CountRecords returns number of records that match filter
+func (dbobj DBStorage) CountRecords(t Tbl, keyName string, keyValue string) (int64, error) {
+        tbl := getTable(t)
+        q := "select count(*) from " + tbl + " WHERE " + escapeName(keyName) + "=$1"
+        fmt.Printf("q: %s\n", q)
+
+        tx, err := dbobj.db.Begin()
+        if err != nil {
+                return 0, err
+        }
+        defer tx.Rollback()
+        row := tx.QueryRow(q, keyValue)
+        // Columns
+        var count int
+        err = row.Scan(&count)
+        if err != nil {
+                return 0, err
+        }
+        if err = tx.Commit(); err != nil {
+                return 0, err
+        }
+        return int64(count), nil
 }
 
 // UpdateRecord updates database record
