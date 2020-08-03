@@ -345,6 +345,8 @@ func (w *CustomResponseWriter) WriteHeader(statusCode int) {
 	w.w.WriteHeader(statusCode)
 }
 
+var HealthCheckerCounter = 0
+
 func logRequest(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		autocontext.Set(r, "host", r.Host)
@@ -352,7 +354,18 @@ func logRequest(handler http.Handler) http.Handler {
 		w2.Header().Set("Access-Control-Allow-Origin", "*")
 		handler.ServeHTTP(w2, r)
 		autocontext.Clean(r)
-		log.Printf("%d %s %s\n", w2.Code, r.Method, r.URL)
+		if r.Header.Get("User-Agent") == "ELB-HealthChecker/2.0" && r.URL.RequestURI() == "/" && r.Method == "GET" {
+			if HealthCheckerCounter == 0 {
+				log.Printf("%d %s %s skiping %s\n", w2.Code, r.Method, r.URL, r.Header.Get("User-Agent"))
+				HealthCheckerCounter = 1
+			} else if (HealthCheckerCounter == 100) {
+				HealthCheckerCounter = 0
+			} else {
+				HealthCheckerCounter = HealthCheckerCounter + 1
+			}
+		} else {
+			log.Printf("%d %s %s\n", w2.Code, r.Method, r.URL)
+		}
 	})
 }
 
