@@ -90,7 +90,7 @@ type Config struct {
 		TermOfServiceLink  string `yaml:"term_of_service_link"`
 		PrivacyPolicyTitle string `yaml:"privacy_policy_title"`
 		PrivacyPolicyLink  string `yaml:"privacy_policy_link"`
-		CustomCSSFile      string `yaml:"custom_css_file"`
+		CustomCSSLink      string `yaml:"custom_css_link"`
 		MagicLookup        bool   `yaml:"magic_lookup"`
 	} `yaml:"ui"`
 }
