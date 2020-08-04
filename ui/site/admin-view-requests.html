@@ -13,6 +13,9 @@
   <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">
   <link rel="stylesheet" href="style.css">
 
+  <script src="conf.js"></script>
+  <script src="site.js"></script>
+
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"
     integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
@@ -175,6 +178,7 @@
     }
 
     $(function () {
+      showAdminMenu();
       //$('#msg').text("Loading data")
       //token = "faa006da-475e-45c6-a4a1-6586dce8b8d2";
       $('#table').bootstrapTable({
@@ -201,7 +205,6 @@
       });
     });
   </script>
-  <script src="site.js"></script>
 </head>
 
 <body>
@@ -215,12 +218,7 @@
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div class="navbar-nav">
-              <a class="nav-item nav-link active" href="admin-view-requests.html">User requests</a>
-              <a class="nav-item nav-link" href="admin-privacy-settings.html">Privacy settings</a>
-              <a class="nav-item nav-link" href="admin-magic-sync.html">Magic Sync</a>
-	          <a class="nav-item nav-link" href="admin-audit.html">Audit</a>
-              <a class="nav-item nav-link" href="javascript:bunker_logout();">Logout</a>
+            <div id="admin-menu" class="navbar-nav">
             </div>
           </div>
         </nav>

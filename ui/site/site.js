@@ -104,3 +104,19 @@ function showForm(title, message, btn) {
     formModal.modal('show');
 	return formModal;
 }
+
+function showAdminMenu() {
+  const currentFile = document.location.pathname.split(/[\/]+/).pop();
+  var code = '';
+  for (index = 0; index < adminMenu.length; ++index) {
+    const name = adminMenu[index]["name"];
+    const file = adminMenu[index]["file"];
+    const style = (file == currentFile) ? ' active' : '';
+    code += '<a class="nav-item nav-link'+style+'" href="'+file+'">'+name+'</a>'+"\n";
+  }
+  const m = document.getElementById("admin-menu");
+  if (m) {
+    m.innerHTML = code;
+  }
+}
+

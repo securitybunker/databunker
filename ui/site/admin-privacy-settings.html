@@ -13,7 +13,8 @@
     integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
   <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">
   <link rel="stylesheet" href="style.css">
-
+  <script src="conf.js"></script>
+  <script src="site.js"></script>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"
     integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
@@ -26,11 +27,11 @@
   
   <script>
     var xtoken = window.localStorage.getItem('xtoken');
-	var legalBasisList = [];
-	var processingActivitiesList = [];
+    var legalBasisList = [];
+    var processingActivitiesList = [];
 	
     $(function () {
-	
+        showAdminMenu();
 	  $('#table2').bootstrapTable({
         url: "/v1/lbasis",
         undefinedText: 'n/a',
@@ -557,8 +558,6 @@
 		});
 	}
   </script>
- 
-  <script src="site.js"></script>
   <style>
   .bootstrap-table .fixed-table-body table.table tbody tr td {
   vertical-align:top;
@@ -582,12 +581,7 @@
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div class="navbar-nav">
-              <a class="nav-item nav-link" href="admin-view-requests.html">User requests</a>
-			  <a class="nav-item nav-link active" href="admin-privacy-settings.html">Privacy settings</a>
-              <a class="nav-item nav-link" href="admin-magic-sync.html">Magic Sync</a>
-	          <a class="nav-item nav-link" href="admin-audit.html">Audit</a>
-              <a class="nav-item nav-link" href="javascript:bunker_logout();">Logout</a>
+            <div id="admin-menu" class="navbar-nav">
             </div>
           </div>
         </nav>
