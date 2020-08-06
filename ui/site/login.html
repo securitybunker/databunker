@@ -5,7 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Data Bunker Login</title>
-	<script src="site.js"></script>
+    <script src="conf.js"></script>
+    <script src="site.js"></script>
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -74,7 +75,7 @@ if (conf["custom_css_link"]) {
                     if (data.xtoken) {
                         window.localStorage.setItem('xtoken', data.xtoken);
                         window.localStorage.setItem('token', data.token);
-                        document.location = "user-profile.html";
+                        document.location = getUserStartPage();
                     } else {
                         document.location = "/";
                     }
@@ -85,7 +86,7 @@ if (conf["custom_css_link"]) {
                     if (data.xtoken) {
                         window.localStorage.setItem('xtoken', data.xtoken);
                         window.localStorage.setItem('token', data.token);
-                        document.location = "user-profile.html";
+                        document.location = getUserStartPage();
                     } else {
                         document.location = "/";
                     }

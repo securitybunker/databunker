@@ -130,3 +130,8 @@ function showUserMenu() {
   code = prepareMenu(userMenu);
   document.write(code);
 }
+
+function getUserStartPage() {
+  return userMenu[0].file;
+}
+
