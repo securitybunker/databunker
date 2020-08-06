@@ -105,18 +105,28 @@ function showForm(title, message, btn) {
 	return formModal;
 }
 
-function showAdminMenu() {
+function prepareMenu(menu) {
   const currentFile = document.location.pathname.split(/[\/]+/).pop();
   var code = '';
-  for (index = 0; index < adminMenu.length; ++index) {
-    const name = adminMenu[index]["name"];
-    const file = adminMenu[index]["file"];
+  for (index = 0; index < menu.length; ++index) {
+    const name = menu[index]["name"];
+    const file = menu[index]["file"];
     const style = (file == currentFile) ? ' active' : '';
     code += '<a class="nav-item nav-link'+style+'" href="'+file+'">'+name+'</a>'+"\n";
   }
+  return code;
+}
+
+function showAdminMenu() {
+  code = prepareMenu(adminMenu);
   const m = document.getElementById("admin-menu");
   if (m) {
     m.innerHTML = code;
   }
+
 }
 
+function showUserMenu() {
+  code = prepareMenu(userMenu);
+  document.write(code);
+}
