@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>Data Bunker - audit events</title>
+  <script src="conf.js"></script>
   <script src="site.js"></script>
   <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
@@ -182,12 +183,7 @@ if (conf["custom_css_link"]) {
           </button>
           <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
-              <a class="nav-item nav-link" href="user-profile.html">Profile <span class="sr-only">(current)</span></a>
-              <a class="nav-item nav-link" href="user-apps.html">App data</a>
-	      <a class="nav-item nav-link" href="user-consent-management.html">Consent Management</a>
-              <a class="nav-item nav-link" href="user-requests.html">My requests</a>
-              <a class="nav-item nav-link active" href="user-audit.html">History</a>
-              <a class="nav-item nav-link" href="javascript:bunker_logout();">Logout</a>
+		    <script>showUserMenu();</script>
             </div>
           </div>
         </nav>
