@@ -20,7 +20,6 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
-
 	brief = normalizeBrief(brief)
 	if isValidBrief(brief) == false {
 		returnError(w, r, "bad brief format", 405, nil, event)
@@ -28,22 +27,21 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	}
 	exists, err := e.db.checkLegalBasis(brief)
 	if err != nil {
-		returnError(w, r, "internal error", 405, nil, event)
+		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	if exists == false {
-		returnError(w, r, "not found", 405, nil, event)
-		return	
+		returnError(w, r, "not found", 404, nil, event)
+		return
 	}
-	
 	userTOKEN := ""
 	if mode == "token" {
 		if enforceUUID(w, address, event) == false {
 			return
 		}
-		userBson, _ := e.db.lookupUserRecord(address)
-		if userBson == nil {
-			returnError(w, r, "internal error", 405, nil, event)
+		userBson, err := e.db.lookupUserRecord(address)
+		if err != nil || userBson == nil {
+			returnError(w, r, "internal error", 405, err, event)
 			return
 		}
 		if e.enforceAuth(w, r, event) == "" {
@@ -51,7 +49,11 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 		}
 		userTOKEN = address
 	} else {
-		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		userBson, err := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+                if err != nil {
+			returnError(w, r, "internal error", 405, err, event)
+			return
+		}
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 			event.Record = userTOKEN
@@ -158,14 +160,13 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	}
 	lbasis, err := e.db.getLegalBasis(brief)
 	if err != nil {
-		returnError(w, r, "internal error", 405, nil, event)
+		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	if lbasis == nil {
 		returnError(w, r, "not  found", 405, nil, event)
 		return	
 	}
-	
 	userTOKEN := ""
 	authResult := ""
 	if mode == "token" {

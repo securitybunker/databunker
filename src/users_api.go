@@ -322,9 +322,10 @@ func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprou
 			}
 		}
 	} else {
-		if mode == "phone" || mode == "email" {
-			notifyURL := e.conf.Notification.NotificationURL
-			notifyBadLogin(notifyURL, mode, address)
+		if mode == "email" {
+			//notifyURL := e.conf.Notification.NotificationURL
+			//notifyBadLogin(notifyURL, mode, address)
+			e.pluginUserLookup(address)
 			returnError(w, r, "record not found", 405, errors.New("record not found"), event)
 			return
 		}
