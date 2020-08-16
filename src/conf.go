@@ -54,3 +54,11 @@ func (e mainEnv) uiConfigurationDump(w http.ResponseWriter, r *http.Request, ps 
         w.Write([]byte(finalJSON))
 }
 
+func (e mainEnv) globalUserDelete(userTOKEN string) {
+        // not implemented
+}
+
+func (e mainEnv) pluginUserDelete(pluginid, userTOKEN) {
+	// not implemented
+}
+
