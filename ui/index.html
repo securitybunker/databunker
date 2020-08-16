@@ -236,12 +236,12 @@ if (conf["custom_css_link"]) {
                         xhr.onload = function () {
                             if (xhr.status === 200) {
                                 document.location = "/site/login.html";
-                            } else if (conf["MagicLookup"]) {
+                            } else /* if (conf["MagicLookup"]) */ {
                                 //error
                                 var loading = document.getElementById('loading');
                                 loading.style.display = "block";
                                 lookupCount = 5;
-                                lookupTimer = setInterval(lookupUser, 500, url);
+                                lookupTimer = setInterval(lookupUser, 2500, url);
                             }
                         }
                         xhr.send();
