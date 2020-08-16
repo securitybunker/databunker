@@ -276,6 +276,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 	}
+	e.globalUserDelete(userTOKEN)
 	//fmt.Printf("deleting user %s\n", userTOKEN)
 	_, err = e.db.deleteUserRecord(resultJSON, userTOKEN)
 	if err != nil {
