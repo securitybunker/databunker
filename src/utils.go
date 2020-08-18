@@ -539,6 +539,7 @@ func randSeq(n int) string {
 	return string(b)
 }
 
+var numbers0 = []rune("123456789")
 var numbers = []rune("0123456789")
 
 func randNum(n int) int32 {
@@ -546,5 +547,6 @@ func randNum(n int) int32 {
 	for i := range b {
 		b[i] = numbers[rand.Intn(len(numbers))]
 	}
+	b[0] = numbers0[rand.Intn(len(numbers0))]
 	return atoi(string(b))
 }

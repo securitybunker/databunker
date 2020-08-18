@@ -65,7 +65,7 @@ func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (str
 }
 
 func (dbobj dbcon) generateTempLoginCode(userTOKEN string) int32 {
-	rnd := randNum(4)
+	rnd := randNum(6)
 	fmt.Printf("random: %d\n", rnd)
 	bdoc := bson.M{}
 	bdoc["tempcode"] = rnd
