@@ -108,6 +108,8 @@ if (conf["custom_css_link"]) {
                     var data = JSON.parse(xhr0.responseText);
                     if (data.status == "ok" && data.result && data.result == "request-created") {
                         showAlert("Admin request created to approve your app data changes.");
+                    } else if (data.status == "ok" && data.result && data.result == "request-exists") {
+                        showAlert("Similar request already exists for Admin approval.");
                     }
                 } else if (xhr0.status > 400 && xhr0.status < 500) {
                     document.location = "/";

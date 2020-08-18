@@ -125,6 +125,8 @@ if (conf["custom_css_link"]) {
                     var data = JSON.parse(xhr.responseText);
                     if (data.status == "ok" && data.result && data.result == "request-created") {
                         showAlert("Admin request created to withdraw your consent.");
+                    } else if (data.status == "ok" && data.result && data.result == "request-exists") {
+                        showAlert("Similar request already exists for Admin approval.");
                     } else {
                         document.location.reload();
                     }

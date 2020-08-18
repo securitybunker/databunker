@@ -120,7 +120,6 @@ if (conf["custom_css_link"]) {
                 forgetMeDo();
                 confirmModal.modal('hide');
             });
-
             confirmModal.modal('show');
         }
         function forgetMeDo(brief) {
@@ -133,6 +132,8 @@ if (conf["custom_css_link"]) {
                     var data = JSON.parse(xhr.responseText);
                     if (data.status == "ok" && data.result && data.result == "request-created") {
                         showAlert("Admin request created to cancel your account.");
+                    } else if (data.status == "ok" && data.result && data.result == "request-exists") {
+                        showAlert("Similar request already exists for Admin approval.");
                     } else {
                         bunker_logout();
                     }
@@ -157,6 +158,8 @@ if (conf["custom_css_link"]) {
                     var data = JSON.parse(xhr0.responseText);
                     if (data.status == "ok" && data.result && data.result == "request-created") {
                         showAlert("Admin request created to approve changes in your profile.");
+                    } else if (data.status == "ok" && data.result && data.result == "request-exists") {
+                        showAlert("Similar request already exists for Admin approval.");
                     }
                 } else if (xhr0.status === 403) {
                     document.location = "/";
