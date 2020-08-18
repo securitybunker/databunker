@@ -24,7 +24,7 @@ type requestEvent struct {
 	Reason       string `json:"reason"`
 }
 
-func (dbobj dbcon) saveUserRequest(action string, token string, app string, brief string, change []byte) (string, error) {
+func (dbobj dbcon) saveUserRequest(action string, token string, app string, brief string, change []byte) (string, string, error) {
 	now := int32(time.Now().Unix())
 	bdoc := bson.M{}
 	bdoc["token"] = token
@@ -39,7 +39,7 @@ func (dbobj dbcon) saveUserRequest(action string, token string, app string, brie
 	record, err := dbobj.store.LookupRecord(storage.TblName.Requests, bdoc)
 	if record != nil {
 		fmt.Printf("This record already exists.\n")
-                return record["rtoken"].(string), nil
+                return record["rtoken"].(string), "request-exists", nil
         }
 	rtoken, _ := uuid.GenerateUUID()
 	bdoc["when"] = now
@@ -48,12 +48,12 @@ func (dbobj dbcon) saveUserRequest(action string, token string, app string, brie
 	if change != nil {
 		encodedStr, err := dbobj.userEncrypt(token, change)
 		if err != nil {
-			return "", err
+			return "", "", err
 		}
 		bdoc["change"] = encodedStr
 	}
 	_, err = dbobj.store.CreateRecord(storage.TblName.Requests, &bdoc)
-	return rtoken, err
+	return rtoken, "request-created", err
 }
 
 func (dbobj dbcon) getRequests(status string, offset int32, limit int32) ([]byte, int64, error) {

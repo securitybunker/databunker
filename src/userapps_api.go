@@ -117,14 +117,14 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 			}
 		}
 	}
-	rtoken, err := e.db.saveUserRequest("change-app-data", userTOKEN, appName, "", jsonData)
+	rtoken, rstatus, err := e.db.saveUserRequest("change-app-data", userTOKEN, appName, "", jsonData)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
-	fmt.Fprintf(w, `{"status":"ok","result":"request-created","rtoken":"%s"}`, rtoken)
+	fmt.Fprintf(w, `{"status":"ok","result":"%s","rtoken":"%s"}`, rstatus, rtoken)
 }
 
 func (e mainEnv) userappList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

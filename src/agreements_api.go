@@ -220,14 +220,14 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	}
 
 	if authResult == "login" && selfService == false {
-		rtoken, err := e.db.saveUserRequest("agreement-withdraw", userTOKEN, "", brief, nil)
+		rtoken, rstatus, err := e.db.saveUserRequest("agreement-withdraw", userTOKEN, "", brief, nil)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
-		fmt.Fprintf(w, `{"status":"ok","result":"request-created","rtoken":"%s"}`, rtoken)
+		fmt.Fprintf(w, `{"status":"ok","result":"%s","rtoken":"%s"}`, rstatus, rtoken)
 		return
 	}
 	switch mode {
