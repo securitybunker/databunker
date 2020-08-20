@@ -138,6 +138,15 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ev
 	if err != nil {
 		return nil, nil, false, err
 	}
+	var raw2 map[string]interface{}
+        err = json.Unmarshal(decrypted, &raw2)
+        if err != nil {
+		return nil, nil, false, err
+        }
+	oldEmail := ""
+        if _, ok := raw2["email"]; ok {
+          oldEmail = normalizeEmail(raw2["email"].(string))
+        }
 	// merge
 	fmt.Printf("old json: %s\n", decrypted)
 	fmt.Printf("json patch: %s\n", jsonDataPatch)
@@ -157,6 +166,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ev
 	// create new user record
 	bdoc := bson.M{}
 	keys := []string{"login", "email", "phone"}
+	newEmail := ""
 	for _, idx := range keys {
 		//fmt.Printf("Checking %s\n", idx)
 		actionCode := 1
@@ -167,6 +177,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ev
 			if len(newIdxFinalValue) > 0 {
 				if idx == "email" {
 					newIdxFinalValue = normalizeEmail(newIdxFinalValue)
+					newEmail = newIdxFinalValue
 				} else if idx == "phone" {
 					newIdxFinalValue = normalizePhone(newIdxFinalValue, conf.Sms.DefaultCountry)
 				}
@@ -218,6 +229,9 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ev
 	result, err := dbobj.store.UpdateRecord2(storage.TblName.Users, "token", userTOKEN, "md5", sig, &bdoc, &bdel)
 	if err != nil {
 		return nil, nil, false, err
+	}
+	if oldEmail != newEmail && len(oldEmail) > 0 && len(newEmail) > 0 {
+		dbobj.GlobalUserChangeEmail(oldEmail, newEmail)
 	}
 	if event != nil {
 		event.Before = encData0

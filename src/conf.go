@@ -66,3 +66,7 @@ func (e mainEnv) pluginUserLookup(email string) {
 	// not implemented
 }
 
+func (dbobj dbcon) GlobalUserChangeEmail(oldEmail string, newEmail string) {
+        // not implemented
+}
+
