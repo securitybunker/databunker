@@ -44,7 +44,7 @@ func (event auditEvent) submit(db *dbcon) {
 	bdoc["atoken"] = atoken
 	bdoc["when"] = event.When
 	if len(event.Who) > 0 {
-		bdoc["who"] = event.Who
+		bdoc["who"], _ = basicStringEncrypt(event.Who, db.masterKey, db.GetCode())
 	}
 	if len(event.Mode) > 0 {
 		bdoc["mode"] = event.Mode
@@ -53,7 +53,7 @@ func (event auditEvent) submit(db *dbcon) {
 		bdoc["identity"] = event.Identity
 	}
 	if len(event.Record) > 0 {
-		bdoc["record"] = event.Record
+		bdoc["record"], _ = basicStringEncrypt(event.Record, db.masterKey, db.GetCode())
 	}
 	if len(event.App) > 0 {
 		bdoc["app"] = event.App
@@ -90,6 +90,7 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 	if err != nil {
 		return nil, 0, err
 	}
+	code := dbobj.GetCode()
 	for _, element := range records {
 		element["more"] = false
 		if _, ok := element["before"]; ok {
@@ -103,6 +104,12 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 		if _, ok := element["debug"]; ok {
 			element["more"] = true
 			element["debug"] = ""
+		}
+		if _, ok := element["record"]; ok {
+			element["record"], _ = basicStringDecrypt(element["record"].(string), dbobj.masterKey, code)
+		}
+		if _, ok := element["who"]; ok {
+			element["who"], _ = basicStringDecrypt(element["who"].(string), dbobj.masterKey, code)
 		}
 		results = append(results, element)
 	}
@@ -126,6 +133,7 @@ func (dbobj dbcon) getAdminAuditEvents(offset int32, limit int32) ([]byte, int64
         if err != nil {
                 return nil, 0, err
         }
+	code := dbobj.GetCode()
         for _, element := range records {
                 element["more"] = false
                 if _, ok := element["before"]; ok {
@@ -139,6 +147,12 @@ func (dbobj dbcon) getAdminAuditEvents(offset int32, limit int32) ([]byte, int64
                 if _, ok := element["debug"]; ok {
                         element["more"] = true
                         element["debug"] = ""
+                }
+                if _, ok := element["record"]; ok {
+                        element["record"], _ = basicStringDecrypt(element["record"].(string), dbobj.masterKey, code)
+                }
+                if _, ok := element["who"]; ok {
+                        element["who"], _ = basicStringDecrypt(element["who"].(string), dbobj.masterKey, code)
                 }
                 results = append(results, element)
         }

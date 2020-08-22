@@ -70,3 +70,7 @@ func (dbobj dbcon) GlobalUserChangeEmail(oldEmail string, newEmail string) {
         // not implemented
 }
 
+func (dbobj dbcon) GetCode() []byte {
+    code := dbobj.hash[4:12]
+    return code
+}
