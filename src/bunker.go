@@ -237,6 +237,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 				w.Header().Set("Content-Type", "text/css")
 			} else if strings.HasSuffix(r.URL.Path, ".js") {
 				w.Header().Set("Content-Type", "text/javascript")
+			} else if strings.HasSuffix(r.URL.Path, ".svg") {
+				w.Header().Set("Content-Type", "image/svg+xml")
 			}
 			w.WriteHeader(200)
 			w.Write([]byte(data))
