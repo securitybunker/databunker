@@ -33,7 +33,7 @@ func sendCodeByEmail(code int32, address string, cfg Config) {
 	*/
 	Dest := []string{address}
 	Subject := "Access Code"
-	bodyMessage := "Data bunker access code is " + strconv.Itoa(int((code)))
+	bodyMessage := "Access code is " + strconv.Itoa(int((code)))
 	msg := "From: " + cfg.SMTP.Sender + "\n" +
 		"To: " + strings.Join(Dest, ",") + "\n" +
 		"Subject: " + Subject + "\n" + bodyMessage
