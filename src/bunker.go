@@ -153,11 +153,25 @@ func (e mainEnv) backupDB(w http.ResponseWriter, r *http.Request, ps httprouter.
 	e.db.store.BackupDB(w)
 }
 
+func (e mainEnv) checkStatus(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	err := e.db.store.Ping()
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte("error"))
+	} else {
+		w.WriteHeader(200)
+		w.Write([]byte("OK"))
+	}
+}
+
 // setupRouter() setup HTTP Router object.
 func (e mainEnv) setupRouter() *httprouter.Router {
 	box := packr.NewBox("../ui")
 
 	router := httprouter.New()
+
+	router.GET("/v1/status", e.checkStatus)
+	router.GET("/status", e.checkStatus)
 
 	router.GET("/v1/sys/backup", e.backupDB)
 

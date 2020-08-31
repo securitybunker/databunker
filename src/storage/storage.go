@@ -174,6 +174,11 @@ func InitDB(filepath *string) (DBStorage, error){
 	return dbobj, nil
 }
 
+
+func (dbobj DBStorage) Ping() error {
+        return dbobj.db.Ping()
+}
+
 // CloseDB function closes the open database
 func (dbobj DBStorage) CloseDB() {
 	dbobj.db.Close()
