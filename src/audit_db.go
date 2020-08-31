@@ -78,7 +78,8 @@ func (event auditEvent) submit(db *dbcon) {
 }
 
 func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) ([]byte, int64, error) {
-	count, err := dbobj.store.CountRecords(storage.TblName.Audit, "record", userTOKEN)
+	userTOKENEnc, _ := basicStringEncrypt(userTOKEN, dbobj.masterKey, dbobj.GetCode())
+	count, err := dbobj.store.CountRecords(storage.TblName.Audit, "record", userTOKENEnc)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -86,7 +87,7 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 		return []byte("[]"), 0, err
 	}
 	var results []bson.M
-	records, err := dbobj.store.GetList(storage.TblName.Audit, "record", userTOKEN, offset, limit, "when")
+	records, err := dbobj.store.GetList(storage.TblName.Audit, "record", userTOKENEnc, offset, limit, "when")
 	if err != nil {
 		return nil, 0, err
 	}
@@ -105,12 +106,10 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 			element["more"] = true
 			element["debug"] = ""
 		}
-		if _, ok := element["record"]; ok {
-			element["record"], _ = basicStringDecrypt(element["record"].(string), dbobj.masterKey, code)
-		}
 		if _, ok := element["who"]; ok {
 			element["who"], _ = basicStringDecrypt(element["who"].(string), dbobj.masterKey, code)
 		}
+		element["record"] = userTOKEN
 		results = append(results, element)
 	}
 	resultJSON, err := json.Marshal(records)
@@ -191,10 +190,11 @@ func (dbobj dbcon) getAuditEvent(atoken string) (string, []byte, error) {
 	if _, ok := record["record"]; !ok {
 		return userTOKEN, nil, errors.New("not found")
 	}
-	userTOKEN = record["record"].(string)
-	if len(userTOKEN) == 0 {
+	userTOKENEnc := record["record"].(string)
+	if len(userTOKENEnc) == 0 {
 		return userTOKEN, nil, errors.New("empty token")
 	}
+	userTOKEN, _ = basicStringDecrypt(userTOKENEnc, dbobj.masterKey, dbobj.GetCode())
 	if len(before) > 0 {
 		before2, after2, _ := dbobj.userDecrypt2(userTOKEN, before, after)
 		log.Printf("before: %s", before2)
