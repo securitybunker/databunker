@@ -58,7 +58,7 @@ func (e mainEnv) globalUserDelete(userTOKEN string) {
         // not implemented
 }
 
-func (e mainEnv) pluginUserDelete(pluginid, userTOKEN) {
+func (e mainEnv) pluginUserDelete(pluginid string, userTOKEN string) {
 	// not implemented
 }
 
