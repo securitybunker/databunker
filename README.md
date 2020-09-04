@@ -133,9 +133,9 @@ consult with an attorney specializing in privacy.**
 
 ---
 
-# Data Bunker use cases
+# Databunker use cases
 
-Detaild information can be found: https://databunker.org/use-case/
+Detailed information can be found at: https://databunker.org/use-case/
 
 ## Personal information tokenization and storage
 
