@@ -118,11 +118,6 @@ Your customer can log in to his personal account at Data Bunker and view and **e
 **NOTE**: You will need to provide your customers with a way to extract data from other internal databases.
 
 
-## Data minimization and GDPR Scope reduction
-
-When you clean up your databases from personal records (PII) and use the Data Bunker token instead, you are minimizing the scope of personal information stored in other systems. In addition, whensharing your customers' data with 3rd parties, Data Bunker provides you with the purposefully built, time-bound **"shareable identity"**.
-
-
 ## Integrity and confidentiality
 
 **All personal data is encrypted**. An audit log is written for all operations with personal records.
@@ -140,119 +135,25 @@ consult with an attorney specializing in privacy.**
 
 # Data Bunker use cases
 
+Detaild information can be found: https://databunker.org/use-case/
+
 ## Personal information tokenization and storage
 
-Customer information, or PII, received in HTML POST key/value format of or JSON format is serialized, encrypted
-with a 32 byte key and saved in database. You will get a customer token to use in internal databases. Afterwords,
-you can query the Data Bunker service to receive personal information, saving audit trail.
+## Critical data segregation
 
-![picture](images/create-user-token-flow.png)
-
-## Application data separation
-
-When creating application, I suppose you do not want to mix your customer data with data from other applications.
-In addition to personal information record, Data Bunker provides you a way to store your app customer information in a
-specific type of record for that. So, you can retrieve only your app' customer personal information. For example you
-can store customer shipping information in an additional app table.
-
-![picture](images/create-user-app-record.png)
-
-## Audit of all operations with personal records
-
-Data Bunker saves audit events on all API operation. For example, new personal record added or changed; personal information
-record retrieved, etc...
-
-By providing Audit of events, in relation to personal data, provides response to GDRP Article 15 requirement:
-*Right of access by the data subject*.
-
-Special features:
-
-* Personal information in audit event is encrypted.
-* Customer can view only his own records.
-
-Each audit record consists of:
-
-* Date and time
-* Operation title
-* Operation status
-* Operation description
-* Change before and after if applicable
-
+## Trace customer profile changes and access
 
 ## GDPR compliant logging : Web and mobile app session data storage
 
-Web or mobile application session data is very similar. They contain customer IP address, browser information,
-web server headers, logged-in customer info, etc... Many systems, including popular webservers, like Nginx, Apache
-simply store this information in logs. This information, according to GDPR is considered personal identifiable
-information and must be secured and controlled.
+## Temporary customer/app/session identity for 3rd party services
 
-So, you can not save customer ip or browser information in logs now. Insead, Data Bunker will generate you a special token to
-save in logs. Data Bunker provides you an API to retrieve this info out of Data Bunker without additional password
-for a limited time as in GDPR. For example one month.
-
-![picture](images/create-user-session-flow.png)
-
-
-## Shareable customer/app/session identity for 3rd parties
-
-When sharing data with 3rd party services like web analytics, logging, intelligence, etc... sometimes we need to
-share customer id, for example, customer original IP address or email address. All these pieces of information
-are considred customer identifiable information and must be minimized when sending to 3rd paty systems.
-
-***Do not share your customer user name, IP, emails, etc... because they look nice in reports!***
-
-According to GDPR: *The personal data should be adequate, relevant and **limited to what is necessary** for the
-purposes for which they are processed.*
-
-Our system can generate you time-limited, temporary, shareable identity token that you can share with 3rd
-parties as a record identity. This identity, can link back to the customer personal record or customer app record
-or to specific customer session.
-
-Optionally, Data Bunker can incorporate partner name in identity so, you track this identity usage.
-
-Your partner can retrieve this information and only specific fields during this specific timeframe.
-Afterward, access will be blocked.
-
+## Data minimization and GDPR Scope reduction
 
 ## Consent management, i.e. withdawal
 
-According to GDPR, if you want to send your customer SMS using 3rd party gateway,
-you must show to your customer a detailed notification message that you will send
-his phone number to a specific SMS gateway company and the customer needs to confirm this operation.
+## Simplify user login
 
-You need to store these confirmations and Data Bunker can do it for you.
-
-Consent must be freely given, specific, informed and unambiguous. From GDPR, Article 7, item 3:
-
-* **The data subject shall have the right to withdraw his or her consent at any time.**
-* **It shall be as easy to withdraw as to give consent.**
-
-In Data Bunker:
-
-* Your customers can log in to his Data Bunker account and view all consents he gave.
-* Customer can also discharge consents and we will send you a notification message.
-* Removing consent for a customer is as easy as granting it in the first place.
-
-
-## Custom application signup and sign-in
-
-When implementing signup and sign-in in your customer-facing applications, we recommend you to
-store all signup records in the Data Bunker database. We support 3 types of indexes, index
-by login name, index by email address and index by phone number. So you can easily implement
-login logic into your solution with the helpof Databunker API.
-
-Index by email and index by phone allow us to give your customers passwordless access to the
-Databunker privacy portal. We send your customer a one-time login code by SMS or email to
-give them access to thier account at Data Bunker.
-
-
-## Self-service vs DPO approval
-
-**Customer** operations like change of personal records like name, email, or application information change,
-consent withdrawal or forget-me request can be automatically saved in the Databunker database or
-Admin/DPO request will be created instead. This can help with organizations with the DPO to approve user requests.
-You can configure what operations can be self-service or what operations require Admin / DPO approval.
-For more info, check Data Bunker configuration file.
+## GDPR user request workflow
 
 ---
 
