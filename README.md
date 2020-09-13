@@ -4,7 +4,7 @@
 
 [![Slack](https://img.shields.io/badge/slack-join%20chat%20%E2%86%92-e01563.svg)](https://join.slack.com/t/paranoidguy/shared_invite/enQtODc2OTE1NjYyODM1LTI0MmM2ZmYwZDI0MzExMjJmOGQyMTY4Y2UzOTQ0ZDIwOTZjMmRkZDZkY2I3MzE1OWE3ZWVmNTY4MjIwMzNhZTQ)
 
-Project **demo** is available at: [https://demo.paranoidguy.com/](https://demo.paranoidguy.com/) . Please add a **star** if you like our project.
+Project **demo** is available at: [https://demo.databunker.org/](https://demo.databunker.org/) . Please add a **star** if you like our project.
 
 We live in a world where our privacy of information is nonexistent, the EU has been working to remediate this fallacy with GDPR, and the US (California) follows with a first sparrow called CCPA.
 
@@ -29,7 +29,7 @@ Other documents: [API LIST](API.md), [INSTALLATION](INSTALLATION.md)
 
 ## Demo
 
-Project demo is available at: [https://demo.paranoidguy.com/](https://demo.paranoidguy.com/)
+Project demo is available at: [https://demo.databunker.org/](https://demo.databunker.org/)
 
 You can see management for **Natural person** (**data subject**) account access:
 
