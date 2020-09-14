@@ -42,7 +42,7 @@ func (dbobj dbcon) createRootXtoken(customRootXtoken string) (string, error) {
 	bdoc["xtoken"] = hashString(dbobj.hash, rootToken)
 	bdoc["type"] = "root"
 	bdoc["token"] = ""
-	_, err = dbobj.store.CreateRecord(storage.TblName.Xtokens, bdoc)
+	_, err = dbobj.store.CreateRecord(storage.TblName.Xtokens, &bdoc)
 	if err != nil {
 		return rootToken, err
 	}
@@ -68,7 +68,7 @@ func (dbobj dbcon) generateUserLoginXtoken(userTOKEN string) (string, string, er
 	bdoc["xtoken"] = hashedToken
 	bdoc["type"] = "login"
 	bdoc["endtime"] = expired
-	_, err = dbobj.store.CreateRecord(storage.TblName.Xtokens, bdoc)
+	_, err = dbobj.store.CreateRecord(storage.TblName.Xtokens, &bdoc)
 	return tokenUUID, hashedToken, err
 }
 

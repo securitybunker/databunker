@@ -56,7 +56,7 @@ func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (str
 		event.Record = userTOKEN
 	}
 	//fmt.Println("creating new user")
-	_, err = dbobj.store.CreateRecord(storage.TblName.Users, bdoc)
+	_, err = dbobj.store.CreateRecord(storage.TblName.Users, &bdoc)
 	if err != nil {
 		fmt.Printf("error in create!\n")
 		return "", err
