@@ -58,7 +58,7 @@ func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, expiration 
 	if len(session) > 0 {
 		bdoc["session"] = session
 	}
-	_, err = dbobj.store.CreateRecord(storage.TblName.Sharedrecords, bdoc)
+	_, err = dbobj.store.CreateRecord(storage.TblName.Sharedrecords, &bdoc)
 	if err != nil {
 		return "", err
 	}

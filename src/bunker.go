@@ -29,7 +29,7 @@ import (
 )
 
 type dbcon struct {
-	store     storage.DBStorage
+	store     storage.BackendDB
 	masterKey []byte
 	hash      []byte
 }
@@ -135,11 +135,11 @@ func prometheusHandler() http.Handler {
 
 // metrics API call
 func (e mainEnv) metrics(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	fmt.Printf("/metrics\n")
+	log.Printf("/metrics\n")
 	//w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
-	//fmt.Fprintf(w, `{"status":"ok","apps":%q}`, result)
-	//fmt.Fprintf(w, "hello")
+	//log.Fprintf(w, `{"status":"ok","apps":%q}`, result)
+	//log.Fprintf(w, "hello")
 	//promhttp.Handler().ServeHTTP(w, r)
 	prometheusHandler().ServeHTTP(w, r)
 }
@@ -501,8 +501,8 @@ func main() {
 	}
 	masterKey, masterKeyErr := masterkeyGet(masterKeyPtr)
 	if masterKeyErr != nil {
-		fmt.Printf("Error: %s", masterKeyErr)
-        os.Exit(0)
+		log.Printf("Error: %s", masterKeyErr)
+		os.Exit(0)
 	}
 	store, _ := storage.OpenDB(dbPtr)
 	store.InitUserApps()
@@ -510,7 +510,6 @@ func main() {
 	db := &dbcon{store, masterKey, hash[:]}
 	e := mainEnv{db, cfg, make(chan struct{})}
 	e.dbCleanup()
-	fmt.Printf("host %s\n", cfg.Server.Host+":"+cfg.Server.Port)
 	router := e.setupRouter()
 	router = e.setupConfRouter(router)
 	srv := &http.Server{Addr: cfg.Server.Host + ":" + cfg.Server.Port, Handler: logRequest(router)}
@@ -520,7 +519,7 @@ func main() {
 	// Waiting for SIGINT (pkill -2)
 	go func() {
 		<-stop
-		fmt.Println("Closing app...")
+		log.Println("Closing app...")
 		close(e.stopChan)
 		time.Sleep(1)
 		srv.Shutdown(context.TODO())

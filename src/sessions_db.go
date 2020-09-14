@@ -40,7 +40,7 @@ func (dbobj dbcon) createSessionRecord(userTOKEN string, expiration string, data
 	bdoc["endtime"] = endtime
 	bdoc["when"] = now
 	bdoc["data"] = encodedStr
-	_, err = dbobj.store.CreateRecord(storage.TblName.Sessions, bdoc)
+	_, err = dbobj.store.CreateRecord(storage.TblName.Sessions, &bdoc)
 	if err != nil {
 		return "", err
 	}
