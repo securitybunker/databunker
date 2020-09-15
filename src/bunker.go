@@ -395,13 +395,13 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 			fmt.Printf("Failed to parse master key: %s", err)
 			os.Exit(0)
 		}
-		fmt.Printf("Master key: ****\n\n", masterKey)
+		fmt.Printf("Master key: ****\n\n")
 	} else {
 		masterKey, err = generateMasterKey()
 		if err != nil {
 			fmt.Printf("Failed to generate master key: %s", err)
 			os.Exit(0)
-        }
+        	}
 		fmt.Printf("Master key: %x\n\n", masterKey)
 	}
 	hash := md5.Sum(masterKey)
@@ -477,8 +477,12 @@ func main() {
         customRootToken = *rootTokenKeyPtr
 	}
 	if *initPtr || *demoPtr {
-		db, _, _ := setupDB(dbPtr, masterKeyPtr, customRootToken)
-		db.store.CloseDB()
+		if storage.DBExists(dbPtr) == true {
+			fmt.Printf("\nDatabase is alredy initialized.\n\n")
+		} else {
+			db, _, _ := setupDB(dbPtr, masterKeyPtr, customRootToken)
+			db.store.CloseDB()
+		}
 		os.Exit(0)
 	}
 	if storage.DBExists(dbPtr) == false {
