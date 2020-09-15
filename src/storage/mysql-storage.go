@@ -68,8 +68,10 @@ func (dbobj MySQLDB) DBExists(dbname *string) bool {
 	dbobj2 := MySQLDB{db}
 	record, err := dbobj2.GetRecord2(TblName.Xtokens, "token", "", "type", "root")
 	if record == nil || err != nil {
+		dbobj2.CloseDB()
 		return false
 	}
+	dbobj2.CloseDB()
 	return true
 }
 

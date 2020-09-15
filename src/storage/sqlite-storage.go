@@ -41,6 +41,21 @@ func (dbobj SQLiteDB) DBExists(filepath *string) bool {
 	if _, err := os.Stat(dbfile); os.IsNotExist(err) {
 		return false
 	}
+	db, err := sql.Open("sqlite3", "file:"+dbfile+"?_journal_mode=WAL")
+	if err != nil {
+		return false
+	}
+	err = db.Ping()
+	if err != nil {
+                return false
+        }
+	dbobj2 := SQLiteDB{db}
+        record, err := dbobj2.GetRecord2(TblName.Xtokens, "token", "", "type", "root")
+        if record == nil || err != nil {
+		dbobj2.CloseDB()
+                return false
+        }
+	dbobj2.CloseDB()
 	return true
 }
 
