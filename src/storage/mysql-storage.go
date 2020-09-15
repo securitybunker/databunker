@@ -1082,8 +1082,8 @@ func (dbobj MySQLDB) initSessions() error {
 		`data TEXT,`+
 		`endtime int,`+
 		"`when` int);",
-		`CREATE INDEX sessions_token ON sessions (token(36));`,
-		`CREATE INDEX sessions_session ON sessions (session(36));`}
+		`CREATE INDEX sessions_a_token ON sessions (token(36));`,
+		`CREATE INDEX sessions_a_session ON sessions (session(36));`}
 	return dbobj.execQueries(queries)
 }
 
