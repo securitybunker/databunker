@@ -112,6 +112,7 @@ func (dbobj *MySQLDB) OpenDB(dbname *string) error {
 	err = db.Ping()
 	if err != nil {
 		log.Fatalf("Error on opening database connection: %s", err.Error())
+		return err
 	}
 	dbobj.db = db
 	// load all table names
@@ -947,9 +948,9 @@ func (dbobj MySQLDB) initUsers() error {
 		`tempcode int,`+
 		`data TEXT);`,
 		`CREATE UNIQUE INDEX users_token ON users (token(36));`,
-		`CREATE INDEX users_login ON users (loginidx(255));`,
-		`CREATE INDEX users_email ON users (emailidx(255));`,
-		`CREATE INDEX users_phone ON users (phoneidx(255));`}
+		`CREATE INDEX users_login ON users (loginidx(36));`,
+		`CREATE INDEX users_email ON users (emailidx(36));`,
+		`CREATE INDEX users_phone ON users (phoneidx(36));`}
 	return dbobj.execQueries(queries)
 }
 
@@ -1032,7 +1033,7 @@ func (dbobj MySQLDB) initProcessingactivities() error {
 		`legalbasis TINYTEXT,`+
 		`applicableto TINYTEXT,`+
 		`creationtime int);`,
-		`CREATE INDEX processingactivities_activity ON processingactivities (activity(30));`}
+		`CREATE INDEX processingactivities_activity ON processingactivities (activity(36));`}
 	return dbobj.execQueries(queries)
 }
 
@@ -1067,7 +1068,7 @@ func (dbobj MySQLDB) initAgreements() error {
 		`creationtime int,`+
 		`starttime int,`+
 		`endtime int,`+
-		`"when" int);`,
+		"`when` int);",
 		`CREATE INDEX agreements_token ON agreements (token(36));`,
 		`CREATE INDEX agreements_brief ON agreements (brief(36));`}
 	return dbobj.execQueries(queries)
