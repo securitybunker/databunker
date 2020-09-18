@@ -137,115 +137,18 @@ consult with an attorney specializing in privacy.**
 
 Detailed information can be found at: https://databunker.org/use-case/
 
-## Personal information tokenization and storage
-
-## Critical data segregation
-
-## Trace customer profile changes and access
-
-## GDPR compliant logging : Web and mobile app session data storage
-
-## Temporary customer/app/session identity for 3rd party services
-
-## Data minimization and GDPR Scope reduction
-
-## Consent management, i.e. withdawal
-
-## Simplify user login
-
-## GDPR user request workflow
+* Personal information tokenization and storage
+* Critical data segregation
+* Trace customer profile changes and access
+* GDPR compliant logging : Web and mobile app session data storage
+* Temporary customer/app/session identity for 3rd party services
+* Data minimization and GDPR Scope reduction
+* Consent management, i.e. withdawal
+* Simplify user login
+* GDPR user request workflow
 
 ---
 
-# Questions
-
-## How do I search for all orders from a guy named John?
-
-Data bunker supports customer record lookup by **login name** or **email address** or **phone number** or **token value**.
-So, if you have one of these values, you can do the customer record lookup (using Data Bunker API) and get customer token.
-After that you can find customer' orders from the **orders table**.
-
-## How to backup Data Bunker database?
-
-We have a special API call for that. You can run the following command to dump database in SQL format:
-
-```
-curl -s http://localhost:3000/v1/sys/backup -H "X-Bunker-Token: $TOKEN" -o backup.sql
-```
-
-## Does your product multi-master solution?
-
-Multi-master solution or basically multiple instances of the databunker service is supported in **Data Bunker
-Enterprise version** running on AWS cloud. The product is using AWS Aurora PostgreSQL database at the backend.
-
-Open source version is using local **sqlite3** database that does not supports replication. You can easily backup it
-using API call and restore. We are using sqlite3 as as it provides zero effort from customer to start using
-our product.
-
-## Can my DBA tune database performance characteristics?
-
-Almost all Data Bunker requests are using database level indexes when performing API calls.
-We would love your DBA to check product database schema for improvements. If we are missing something let us know.
-We are using **sqlite3** in open source version and **Aurora PostgreSQL** in enterprive version. You can easily backup
-sqlite3 database and view it's structure.
-
-## What is the difference between tokenization solution XXX and Data Bunker?
-
-Most of commercial tokenization solutions are used to tokenize one specific record, for example customer name or 
-customer email, etc... These distinct records are not linked to one customer record. In our solution, we tokenize the 
-whole customer record with all the details, that gives us many additional capabilities. So, in our system, the
-**end customer** (**Natural person** or **data subject**) can "login" into his profile, change record or
-manage his consents, or ask for **forget me**. In addition we provide many APIs to help with GDPR requirements.
-
-## Why Open Source?
-
-We are a big fan of the open-source movement. After a lot of thoughts and consultations,
-the main Data Bunker product will be open source.
-
-We are doing this to boost the adoption of a **privacy enabled world**.
-
-Enterprise version will be closed source.
-
-## What is considered PII or what information is recomended to store in Data Bunker?
-
-Following is a partial list.
-
-| PII                           | PII                       |
-| ----------------------------- | ------------------------- |
-| * Name                        | * RFID                    |
-| * Address                     | * Contacts                |
-| * IP address                  | * Genetic info            |
-| * Cookie data                 | * Passport data           |
-| * Banking info                | * Driving license         |
-| * Financial data              | * Mobile device ID        |
-| * Browsing history            | * Personal ID number      |
-| * Political opinion           | * Ethnic information      |
-| * Sexual orientation          | * Health / medical data   |
-| * Social Security Number      | * Etc...                  |
-
-
-# Technology stack?
-
-We use golang/go to build the whole project, with 80% automatic test coverage. Open source version comes with internal
-database (**sqlite3**) and Web UI as one executable file to make the project easy to deploy.
-
-## Does the product has encryption in motion and encryption in storage?
-
-All access to Data Bunker API is done using HTTPS SSL certificate. All records that have customer personal information
-are encrypted or securely hashed in the databases. All customer records are encrypted with a 32 byte key comprizing of
-**System Master key** (24 bytes, stored in memory, not on disk) and **customer record key** (8 bytes, stored on disk).
-The **System Master key** is kept in RAM and is never stored to disk. Enterprise version supports **Master key split**. 
-
-## Is databunker is end-user facing?
-
-Yes. The end-user, according to GDPR must have control over the PII data. The user can change the personal data, give 
-or withdraw consent, request forget-me. All user requests can be self - service (automatic) or with DPO / Admin approval.
-
-## Is databunker is a wrapper for exisitng MySQL/PostgreSQL/SQL Server database?
-
-This product is not a wrapper for existing database. It is a special database used to save personal informatin records
-in a compliant way. The service provides a REST API to store and update user records in JSON format; and customer
-facing web ui to perform user data requests.
  
 ## Data Bunker internal tables
 
@@ -258,55 +161,10 @@ Detailed use case for each table is covered bellow.
 
 ---
 
-# Enterprise features (not an open source version)
-
-## PosgreSQL backend
-
-The Databunker open source works with a local database, while enterprise version works with PostgreSQL.
-For example, AWS Autora PostgreSQL. The last one of Enterprise grade and is available in AWS cloud.
-
-## Master key split
-
-Upon initial start, the **Enterprise version** generates a secret master key and 5 keys out of it.
-These 5 keys are generated using Shamir's Secret Sharing algorithm. Combining 3 of any of the keys,
-ejects original master key and that can be used to decrypt all records.
-
-The Master key is kept in RAM and is never stored to disk. You will need to provide 3 kits to unlock the application.
-It is possible to save these keys in the AWS secret store and other vault services.
-
-## Advanced role management, ACL
-
-By default, all access to Data Bunker is done with one root token or with **Time-limited access tokens**
-that allow to read data from specific customer record only.
-
-For more granular control, Data Bunker supports the notion of custom roles. For example, you can create a role
-to view all records or another role to add and change any customer records; view sessions, view all audit events, etc...
-
-After you define a role, the system allow you to generate access token for this role (you will need to have root token
-for all these operations).
-
-Data Bunker have an API for all these operations.
-
-## Support Hashicorp Vault
-
-Hashicorp Vault, is a great piece of new generation of security product, has a notion of session accounts/passwords.
-Hashicorp Vault can store root access token to Paranoid Guy Data Bunker, and when your application wants to open
-session and access Data Bunker, it will talk with Bunker to issue a temp token with specified role.
-When your application session is closed with Data Bunker, Hashicorp Vault will connect to Data Bunker and revoke access token.
-
-This architecture is done to minimize the chance that if the attacker breakes into your application server,
-he will not get a full controll over the Data Bunker service as root token will not be saved in your
-application server.
-
-This is all done with the help of custom plugin we build for Hashicorp Vault.
-
-Hashicorp plugin support is in BETTA stage. Contact us for more info.
-
-
 # Contact us
 
 For any questions, you can talk with us at: office@paranoidguy.com
 
 ---
 
-Other documents: [API LIST](API.md), [INSTALLATION](INSTALLATION.md)
+Other documents: [API LIST](https://documenter.getpostman.com/view/11310294/Szmcbz32), [INSTALLATION](https://databunker.org/doc/install/)
