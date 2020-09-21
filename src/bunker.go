@@ -264,13 +264,13 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 		w.Write([]byte("url not found"))
 	})
 	router.GlobalOPTIONS = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Access-Control-Request-Method") != "" {
-			// Set CORS headers
-			header := w.Header()
-			header.Set("Access-Control-Allow-Methods", "OPTIONS GET POST PUT DELETE")
-			//header.Set("Access-Control-Allow-Origin", "*")
-			header.Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-Bunker-Token");
-		}
+		//if r.Header.Get("Access-Control-Request-Method") != "" {
+		// Set CORS headers
+		header := w.Header()
+		header.Set("Access-Control-Allow-Methods", "POST, PUT, DELETE")
+		header.Set("Access-Control-Allow-Origin", "*")
+		header.Set("Access-Control-Allow-Headers", "Accept,  Content-Type, Content-Length, Accept-Encoding, X-Bunker-Token");
+		//}
 		// Adjust status code to 204
 		w.WriteHeader(http.StatusNoContent)
 	})
@@ -401,7 +401,7 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 		if err != nil {
 			fmt.Printf("Failed to generate master key: %s", err)
 			os.Exit(0)
-        	}
+		}
 		fmt.Printf("Master key: %x\n\n", masterKey)
 	}
 	hash := md5.Sum(masterKey)
@@ -409,7 +409,8 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 	store, err := storage.InitDB(dbPtr)
 	if err != nil {
 		//log.Panic("error %s", err.Error())
-		log.Fatalf("db init error %s", err.Error())
+		log.Fatalf("Databunker failed to init database, error %s\n\n", err.Error())
+		os.Exit(0)
 	}
 	db := &dbcon{store, masterKey, hash[:]}
 	rootToken, err := db.createRootXtoken(customRootToken)
