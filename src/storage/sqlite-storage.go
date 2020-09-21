@@ -142,12 +142,10 @@ func (dbobj *SQLiteDB) InitDB(filepath *string) error {
 	log.Printf("Init Databunker db file is: %s\n", dbfile)
 	db, err := sql.Open("sqlite3", "file:"+dbfile+"?_journal_mode=WAL")
 	if err != nil {
-		log.Fatalf("Failed to open databunker.db file: %s", err)
 		return err
 	}
 	err = db.Ping()
 	if err != nil {
-		log.Fatalf("Error on opening database connection: %s", err.Error())
 		return err
 	}
 	dbobj.db = db

@@ -145,12 +145,10 @@ func (dbobj *MySQLDB) InitDB(dbname *string) error {
 	connectionString := dbobj.getConnectionString(dbname)
 	db, err := sql.Open("mysql", connectionString)
 	if err != nil {
-		log.Fatalf("Failed to open databunker.db file: %s", err)
 		return err
 	}
 	err = db.Ping()
 	if err != nil {
-		log.Fatalf("Error on opening database connection: %s", err.Error())
 		return err
 	}
 	dbobj.db = db
