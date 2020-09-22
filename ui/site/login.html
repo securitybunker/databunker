@@ -36,7 +36,7 @@ if (conf["custom_css_link"]) {
 		<script>
 		conf = loadUIConfiguration();
 		if (conf["LogoLink"]) {
-		  document.write("<center><div class='col-6'><img class='logo img-responsive' src='"+conf["LogoLink"]+"'></div></center>" );
+			document.write("<center><div class='col-6'><a href='/'><img class='logo img-responsive' src='"+conf["LogoLink"]+"'></a></div></center>" );
 		}
 		</script>
         <div class="row">
@@ -49,14 +49,10 @@ if (conf["custom_css_link"]) {
                     <div class="form-group">
                         <div class="peers ai-c jc-sb fxw-nw">
                             <div class="peer">
-                                <!--
-                                <div class="checkbox checkbox-circle checkbox-info peers ai-c">
-                                    <input type="checkbox" id="inputCall1" name="inputCheckboxesCall" class="peer">
-                                    <label for="inputCall1" class="peers peer-greed js-sb ai-c">
-                                        <span class="peer peer-greed">Remember Me</span></label></div>
-                                    -->
                             </div>
-                            <div class="peer"><button id="submitbtn" class="btn btn-primary">Enter</button></div>
+                            <div class="peer">
+				    <a href='/' class="btn btn-secondary">Cancel</a>&nbsp;&nbsp;
+				    <button id="submitbtn" class="btn btn-primary">Enter</button></div>
                         </div>
                     </div>
                 </form>
