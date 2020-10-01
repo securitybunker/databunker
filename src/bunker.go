@@ -418,6 +418,12 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 		//log.Panic("error %s", err.Error())
 		fmt.Printf("error %s", err.Error())
 	}
+	db.createLegalBasis("core-send-email-on-login", "", "login", "Send email on login",
+	    "Confirm to allow sending access code using 3rd party email gateway", "consent",
+	    "This consent is required to give you the service.", "active", true, true);
+	db.createLegalBasis("core-send-sms-on-login", "", "login", "Send SMS on login",
+            "Confirm to allow sending access code using 3rd party SMS gateway", "consent",
+            "This consent is required to give you the service.", "active", true, true);
 	fmt.Printf("\nAPI Root token: %s\n\n", rootToken)
 	return db, rootToken, err
 }

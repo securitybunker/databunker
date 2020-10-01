@@ -18,29 +18,19 @@ RESULT=`curl -s $DATABUNKER/v1/lbasis/send-sms -XPOST \
    -d '{"module":"signup","fulldesc":"full","shortdesc":"short","requiredmsg":"required","usercontrol":false,"requiredflag":true}'`
 echo "Create legal basis entity: $RESULT"
 
-RESULT=`curl -s $DATABUNKER/v1/lbasis/send-sms-on-login -XPOST \
-   -H "X-Bunker-Token: $XTOKEN"  -H "Content-Type: application/json" \
-   -d '{"module":"signup","fulldesc":"full","shortdesc":"short","requiredmsg":"required","usercontrol":false,"requiredflag":true}'`
-echo "Create legal basis entity 2: $RESULT"
-
-RESULT=`curl -s $DATABUNKER/v1/lbasis/send-email-on-login -XPOST \
-   -H "X-Bunker-Token: $XTOKEN"  -H "Content-Type: application/json" \
-   -d '{"module":"signup","fulldesc":"full","shortdesc":"short","requiredmsg":"required","usercontrol":false,"requiredflag":true}'`
-echo "Create legal basis entity 3: $RESULT"
-
 RESULT=`curl -s $DATABUNKER/v1/pactivity/share-data-with-sms-provider/blah -XPOST \
    -H "X-Bunker-Token: $XTOKEN"`
 echo "Tryingto link fake legal basis to processing activity: $RESULT"
 
-RESULT=`curl -s $DATABUNKER/v1/pactivity/share-data-with-sms-provider/send-sms-on-login -XPOST \
+RESULT=`curl -s $DATABUNKER/v1/pactivity/share-data-with-sms-provider/core-send-sms-on-login -XPOST \
    -H "X-Bunker-Token: $XTOKEN"`
 echo "Linking existing legal basis 2 to processing activity: $RESULT"
 
-RESULT=`curl -s $DATABUNKER/v1/pactivity/share-data-with-sms-provider/send-sms-on-login -XPOST \
+RESULT=`curl -s $DATABUNKER/v1/pactivity/share-data-with-sms-provider/core-send-sms-on-login -XPOST \
    -H "X-Bunker-Token: $XTOKEN"`
 echo "Linking again existing legal basis 2 to processing activity: $RESULT"
 
-RESULT=`curl -s $DATABUNKER/v1/pactivity/share-data-with-sms-provider/send-email-on-login -XPOST \
+RESULT=`curl -s $DATABUNKER/v1/pactivity/share-data-with-sms-provider/core-send-email-on-login -XPOST \
    -H "X-Bunker-Token: $XTOKEN"`
 echo "Linking existing legal basis 3 to processing activity: $RESULT"
 
@@ -61,12 +51,12 @@ echo "Get a list of legal basis objects: $RESULT"
 RESULT=`curl -s $DATABUNKER/v1/lbasis/send-sms -XDELETE -H "X-Bunker-Token: $XTOKEN"`
 echo "Deleting legal basis object: $RESULT"
 
-RESULT=`curl -s $DATABUNKER/v1/agreement/send-sms-on-login/email/test@paranoidguy.com -XPOST \
+RESULT=`curl -s $DATABUNKER/v1/agreement/core-send-sms-on-login/email/test@paranoidguy.com -XPOST \
    -H "X-Bunker-Token: $XTOKEN"  -H "Content-Type: application/json" \
    -d '{"lawfulbasis":"contract"}'`
 echo "Giving consent for legal basis obj 2: $RESULT"
 
-RESULT=`curl -s $DATABUNKER/v1/agreement/send-sms-on-login -XDELETE -H "X-Bunker-Token: $XTOKEN"`
+RESULT=`curl -s $DATABUNKER/v1/agreement/core-send-sms-on-login -XDELETE -H "X-Bunker-Token: $XTOKEN"`
 echo "Revoking legal basis object 2: $RESULT"
 
 RESULT=`curl -s $DATABUNKER/v1/agreement/contract-approval/email/test@paranoidguy.com -XPOST \
@@ -74,7 +64,7 @@ RESULT=`curl -s $DATABUNKER/v1/agreement/contract-approval/email/test@paranoidgu
    -d '{"lawfulbasis":"contract"}'`
 echo "Giving consent for fake legal basis: $RESULT"
 
-RESULT=`curl -s $DATABUNKER/v1/agreement/send-sms-on-login/email/test@paranoidguy.com -XDELETE -H "X-Bunker-Token: $XTOKEN"`
+RESULT=`curl -s $DATABUNKER/v1/agreement/core-send-sms-on-login/email/test@paranoidguy.com -XDELETE -H "X-Bunker-Token: $XTOKEN"`
 echo "Withdraw legal basis 2 consent: $RESULT"
 
 echo "Creating user."
@@ -132,11 +122,11 @@ RESULT=`curl -s $DATABUNKER/v1/agreement/send-sms/token/$TOKEN -XPOST \
    -H "X-Bunker-Token: $XTOKEN" -d "expiration=30s"`
 echo "Enable consent send-sms for user by token: $RESULT"
 
-RESULT=`curl -s $DATABUNKER/v1/agreement/send-sms-on-login/email/test@paranoidguy.com -XPOST \
+RESULT=`curl -s $DATABUNKER/v1/agreement/core-send-sms-on-login/email/test@paranoidguy.com -XPOST \
    -H "X-Bunker-Token: $XTOKEN"`
 echo "Enable consent send-sms for user by email: $RESULT"
 
-RESULT=`curl -s $DATABUNKER/v1/agreement/send-sms-on-login/phone/4444 -XDELETE \
+RESULT=`curl -s $DATABUNKER/v1/agreement/core-send-sms-on-login/phone/4444 -XDELETE \
    -H "X-Bunker-Token: $XTOKEN"`
 echo "Withdraw consent send-sms for user by phone: $RESULT"
 
