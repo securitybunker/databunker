@@ -155,6 +155,8 @@ Detailed information can be found at: https://databunker.org/use-case/
 
 For any questions, you can talk with us at: office@paranoidguy.com
 
+Join the project slack channel to talk with developers: [https://paranoidguy.slack.com/](https://join.slack.com/t/paranoidguy/shared_invite/enQtODc2OTE1NjYyODM1LTI0MmM2ZmYwZDI0MzExMjJmOGQyMTY4Y2UzOTQ0ZDIwOTZjMmRkZDZkY2I3MzE1OWE3ZWVmNTY4MjIwMzNhZTQ)
+
 ---
 
 Other documents: [API LIST](https://documenter.getpostman.com/view/11310294/Szmcbz32), [INSTALLATION](https://databunker.org/doc/install/)
