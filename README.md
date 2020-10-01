@@ -149,18 +149,6 @@ Detailed information can be found at: https://databunker.org/use-case/
 
 ---
 
- 
-## Data Bunker internal tables
-
-Information inside Data Bunker is saved in multiple tables in encrypted format. Here is a diagram of tables.
-
-Detailed use case for each table is covered bellow.
-
-
-![picture](images/data-bunker-tables.png)
-
----
-
 # Contact us
 
 For any questions, you can talk with us at: office@paranoidguy.com
