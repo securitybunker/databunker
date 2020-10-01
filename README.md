@@ -1,3 +1,5 @@
+![Databunker solution](images/databunker-solution.png)
+
 # Databunker
 
 **Databunker is a Personally Identifiable Information (PII) Data Storage Service built to Comply with GDPR and CCPA Privacy Requirements.**
