@@ -151,14 +151,14 @@ Detailed information can be found at: https://databunker.org/use-case/
 
 ---
 
+# Databunker quick start guide
+
+Follow this [article](https://databunker.org/doc/start/).
+
+---
+
 # Contact us
 
 For any questions, you can talk with us at: office@paranoidguy.com
 
 Join the project slack channel to talk with developers: [https://paranoidguy.slack.com/](https://join.slack.com/t/paranoidguy/shared_invite/enQtODc2OTE1NjYyODM1LTI0MmM2ZmYwZDI0MzExMjJmOGQyMTY4Y2UzOTQ0ZDIwOTZjMmRkZDZkY2I3MzE1OWE3ZWVmNTY4MjIwMzNhZTQ)
-
----
-
-# Databunker quick start guide
-
-Follow this [article](https://databunker.org/doc/start/).
