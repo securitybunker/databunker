@@ -227,7 +227,7 @@ if (conf["custom_css_link"]) {
             } else if (kkk == "Email" && key.indexOf('@') > 0) {
                 window.localStorage.setItem('login', key);
                 var xhr0 = new XMLHttpRequest();
-                xhr0.open('POST', "/v1/agreement/send-email-on-login/email/" + encodeURI(key) + "");
+                xhr0.open('POST', "/v1/agreement/core-send-email-on-login/email/" + encodeURI(key) + "");
                 xhr0.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
                 xhr0.onload = function () {
                     if (xhr0.status === 200) {
@@ -254,7 +254,7 @@ if (conf["custom_css_link"]) {
             } else if (kkk == "Phone") {
                 window.localStorage.setItem('login', key);
                 var xhr0 = new XMLHttpRequest();
-                xhr0.open('POST', "/v1/agreement/send-sms-on-login/phone/" + encodeURI(key) + "");
+                xhr0.open('POST', "/v1/agreement/core-send-sms-on-login/phone/" + encodeURI(key) + "");
                 xhr0.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
                 xhr0.onload = function () {
                     if (xhr0.status === 200) {
