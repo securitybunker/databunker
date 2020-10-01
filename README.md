@@ -159,4 +159,6 @@ Join the project slack channel to talk with developers: [https://paranoidguy.sla
 
 ---
 
-Other documents: [API LIST](https://documenter.getpostman.com/view/11310294/Szmcbz32), [INSTALLATION](https://databunker.org/doc/install/)
+# Databunker quick start guide
+
+Follow this [article](https://databunker.org/doc/start/).
