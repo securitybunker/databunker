@@ -135,3 +135,22 @@ function getUserStartPage() {
   return userMenu[0].file;
 }
 
+function showSuccess(msg) {
+  const st = document.getElementById("status-message");
+  if (st) {
+    st.innerHTML = `<div class="alert alert-primary" id="success-alert">`+
+      `<button type="button" class="close" data-dismiss="alert">x</button>`+
+      `<strong>Success! </strong> `+msg+`</div>`;
+    $("#success-alert").fadeTo(2000, 500).fadeOut(500);
+  }
+}
+
+function showError(msg) {
+  const st = document.getElementById("status-message");
+  if (st) {
+    st.innerHTML = `<div class="alert alert-warning" id="error-alert">`+
+      `<button type="button" class="close" data-dismiss="alert">x</button>`+
+      `<strong>Error! </strong> `+msg+`</div>`;
+    $("#success-alert").fadeTo(2000, 500).fadeOut(500);
+  }
+}
