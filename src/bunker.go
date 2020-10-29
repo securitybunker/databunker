@@ -3,6 +3,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/md5"
 	"encoding/hex"
@@ -226,6 +227,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/audit/list/:token", e.getAuditEvents)
 	router.GET("/v1/audit/get/:atoken", e.getAuditEvent)
 
+	router.GET("/v1/captcha/:code", e.showCaptcha)
+
 	router.GET("/", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		data, err := box.Find("index.html")
 		if err != nil {
@@ -234,7 +237,13 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 			w.WriteHeader(404)
 		} else {
 			w.WriteHeader(200)
-			w.Write([]byte(data))
+			captcha, err := generateCaptcha()
+                        if err != nil {
+                          w.WriteHeader(501)
+                        } else {
+			  data2 := bytes.ReplaceAll(data, []byte("%CAPTCHAURL%"), []byte(captcha))
+			  w.Write(data2)
+		        }
 		}
 	})
 	router.GET("/site/*filepath", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -521,6 +530,7 @@ func main() {
 	db := &dbcon{store, masterKey, hash[:]}
 	e := mainEnv{db, cfg, make(chan struct{})}
 	e.dbCleanup()
+	initCaptcha(hash)
 	router := e.setupRouter()
 	router = e.setupConfRouter(router)
 	srv := &http.Server{Addr: cfg.Server.Host + ":" + cfg.Server.Port, Handler: logRequest(router)}
