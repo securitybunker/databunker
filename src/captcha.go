@@ -10,12 +10,11 @@ import (
   "image/png"
   "crypto/aes"
   "crypto/cipher"
-  "encoding/base64"
+  "encoding/hex"
   "github.com/julienschmidt/httprouter"
   "github.com/gobuffalo/packr"
   "github.com/afocus/captcha"
 )
-
 
 var (
   comic []byte
@@ -23,19 +22,8 @@ var (
   regexCaptcha = regexp.MustCompile("^([a-zA-Z0-9]+):([0-9]+)$")
 )
 
-func (e mainEnv) genCaptcha(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-  code, err := generateCaptcha()
-  if err != nil {
-    returnError(w, r, err.Error(), 405, err, nil)
-    return
-  }
-  finalJSON := fmt.Sprintf(`{"status":"ok","code":"%s"}`, code)
-  w.Header().Set("Content-Type", "application/json; charset=utf-8")
-  w.WriteHeader(200)
-  w.Write([]byte(finalJSON))
-}
-
 func (e mainEnv) showCaptcha(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+  log.Printf("Starting showCaptcha fn")
   code := ps.ByName("code")
   if len(code) == 0 {
     err := errors.New("Bad code")
@@ -93,7 +81,7 @@ func generateCaptcha() (string, error) {
     return "", err
   }
   ciphertext := aesgcm.Seal(nil, nonce, []byte(plaintext), nil)
-  result := base64.StdEncoding.EncodeToString(ciphertext)
+  result := hex.EncodeToString(ciphertext)
   log.Printf("Encoded captcha: %s", result)
   //log.Printf("ciphertext : %s", result)
   return result, nil
@@ -103,7 +91,7 @@ func decryptCaptcha(data string) (string, error) {
   if len(data) > 100 {
     return "", errors.New("Ciphertext too long")
   }
-  ciphertext, err := base64.StdEncoding.DecodeString(data)
+  ciphertext, err := hex.DecodeString(data)
   if err != nil {
     return "", err
   }

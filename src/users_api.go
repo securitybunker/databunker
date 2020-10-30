@@ -292,11 +292,20 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 }
 
 func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	captcha := ps.ByName("captcha")
+	code := ps.ByName("code")
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
 	event := audit("user prelogin by "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
+        code0, err := decryptCaptcha(captcha)
+        if err != nil || code0 != code {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(200)
+		fmt.Fprintf(w, `{"status":"error","result":"captcha-error"}`)
+		return
+        }
 	if mode != "phone" && mode != "email" {
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
