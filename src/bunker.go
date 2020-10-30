@@ -181,7 +181,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.DELETE("/v1/user/:mode/:address", e.userDelete)
 	router.PUT("/v1/user/:mode/:address", e.userChange)
 
-	router.GET("/v1/prelogin/:mode/:address", e.userPrelogin)
+	router.GET("/v1/prelogin/:mode/:address/:code/:captcha", e.userPrelogin)
 	router.GET("/v1/login/:mode/:address/:tmp", e.userLogin)
 
 	router.POST("/v1/sharedrecord/token/:token", e.newSharedRecord)
