@@ -64,7 +64,7 @@ func initCaptcha(h [16]byte) {
 
 func generateCaptcha() (string, error) {
   code := randNum(6)
-  log.Printf("Generate captcha code: %d", code)
+  //log.Printf("Generate captcha code: %d", code)
   now := int32(time.Now().Unix())
   s := fmt.Sprintf("%d:%d", code, now)
   plaintext := []byte(s)
@@ -82,7 +82,7 @@ func generateCaptcha() (string, error) {
   }
   ciphertext := aesgcm.Seal(nil, nonce, []byte(plaintext), nil)
   result := hex.EncodeToString(ciphertext)
-  log.Printf("Encoded captcha: %s", result)
+  //log.Printf("Encoded captcha: %s", result)
   //log.Printf("ciphertext : %s", result)
   return result, nil
 }
