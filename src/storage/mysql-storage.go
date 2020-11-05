@@ -816,18 +816,14 @@ func (dbobj MySQLDB) getListDo(q string, values []interface{}) ([]bson.M, error)
 	}
 	//fmt.Printf("names: %s\n", columnNames)
 	if err := rows.Err(); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	var results []bson.M
 	//pointers := make([]interface{}, len(columnNames))
 	//rows.Next()
 	for rows.Next() {
 		recBson := bson.M{}
-		//fmt.Println("parsing result line")
 		columnPointers := make([]interface{}, len(columnNames))
-		//for i, _ := range columnNames {
-		//		columnPointers[i] = new(interface{})
-		//}
 		columns := make([]interface{}, len(columnNames))
 		for idx := range columns {
 			columnPointers[idx] = &columns[idx]
