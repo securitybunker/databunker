@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -113,6 +114,10 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 	appName := ""
 	brief := ""
 	change := ""
+	action := ""
+	if value, ok := requestInfo["action"]; ok {
+		action = value.(string)
+	}
 	if value, ok := requestInfo["token"]; ok {
 		userTOKEN = value.(string)
 		event.Record = userTOKEN
@@ -134,6 +139,9 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 	if value, ok := requestInfo["brief"]; ok {
 		brief = value.(string)
+	}
+	if strings.HasPrefix(action, "plugin") {
+		brief = ""
 	}
 	if len(appName) > 0 {
 		resultJSON, err = e.db.getUserApp(userTOKEN, appName)
