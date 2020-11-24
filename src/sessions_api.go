@@ -53,14 +53,14 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 		userTOKEN = userBson["token"].(string)
 		event.Record = userTOKEN
 	}
-	session, err := e.db.createSessionRecord(session, userTOKEN, expiration, parsedData.jsonData)
+	session, err = e.db.createSessionRecord(session, userTOKEN, expiration, parsedData.jsonData)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
-	fmt.Fprintf(w, `{"status":"ok","session":"%s"}`, sessionID)
+	fmt.Fprintf(w, `{"status":"ok","session":"%s"}`, session)
 	return
 }
 
