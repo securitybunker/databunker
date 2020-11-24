@@ -221,8 +221,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 
 	router.GET("/v1/session/:session", e.getSession)
 	router.POST("/v1/session/:session", e.createSession)
-	router.POST("/v1/session/:mode/:address", e.newUserSession)
-	router.GET("/v1/session/:mode/:address", e.getUserSessions)
+	//router.POST("/v1/sessions/:mode/:address", e.newUserSession)
+	router.GET("/v1/sessions/:mode/:address", e.getUserSessions)
 
 	router.GET("/v1/metrics", e.metrics)
 
