@@ -523,9 +523,10 @@ func getJSONPost(r *http.Request, defaultCountry string) (userJSON, error) {
 	if value, ok := records["phone"]; ok {
 		result.phoneIdx = normalizePhone(getIndexString(value), defaultCountry)
 	}
-
+	if value, ok := records["token"]; ok {
+		result.token = value.(string)
+	}
 	result.jsonData, err = json.Marshal(records)
-
 	return result, err
 }
 

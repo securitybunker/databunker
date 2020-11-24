@@ -1059,6 +1059,7 @@ func (dbobj SQLiteDB) initSessions() error {
 	queries := []string{`CREATE TABLE IF NOT EXISTS sessions (
 				  token STRING,
 				  session STRING,
+				  key STRING,
 				  data TEXT,
 				  endtime int,
 				  ` + "`when` int);",
