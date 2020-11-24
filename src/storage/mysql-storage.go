@@ -161,7 +161,6 @@ func (dbobj *MySQLDB) InitDB(dbname *string) error {
 	dbobj.initProcessingactivities()
 	dbobj.initLegalbasis()
 	dbobj.initAgreements()
-	dbobj.initSessions()
 	return nil
 }
 
