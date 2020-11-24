@@ -142,23 +142,28 @@ RESULT=`curl -s $DATABUNKER/v1/agreement/send-sms \
    -H "X-Bunker-Token: $XTOKEN"`
 echo "View all users with send-sms consent on: $RESULT"
 
-RESULT=`curl -s $DATABUNKER/v1/session/token/$TOKEN -XPOST \
-   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json" \
-   -d '{"clientip":"1.1.1.1","x-forwarded-for":"2.2.2.2"}'`
-echo "Create session 1: $RESULT"
+SESSION="84493d20-2ea5-11eb-86f0-2e04ce962524"
 
-SESSION=`echo $RESULT | jq ".session" | tr -d '"'`
-echo $SESSION
-
-RESULT=`curl -s $DATABUNKER/v1/session/email/test@paranoidguy.com -XPOST \
+RESULT=`curl -s $DATABUNKER/v1/session/$SESSION -XPOST \
    -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json" \
    -d '{"clientip":"1.1.1.1","x-forwarded-for":"2.2.2.2","info":"email"}'`
 echo "Create session 2: $RESULT"
 
-RESULT=`curl -s $DATABUNKER/v1/session/session/$SESSION \
+RESULT=`curl -s $DATABUNKER/v1/session/$SESSION \
    -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
 echo "Get session 1: $RESULT"
 
-RESULT=`curl -s $DATABUNKER/v1/session/phone/4444 \
+RESULT=`curl -s $DATABUNKER/v1/sessions/phone/4444 \
    -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
 echo "Get sessions: $RESULT"
+
+RESULT=`curl -s $DATABUNKER/v1/session/$SESSION -XPOST \
+   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json" \
+   -d '{"clientip":"1.1.1.1","x-forwarded-for":"2.2.2.2","info":"email","phone":"4444"}'`
+echo "Create session 2: $RESULT"
+
+RESULT=`curl -s $DATABUNKER/v1/sessions/phone/4444 \
+   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
+echo "Get sessions: $RESULT"
+
+
