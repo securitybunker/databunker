@@ -106,7 +106,7 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 		if len(recordInfo.appName) > 0 {
 			resultJSON, err = e.db.getUserApp(recordInfo.token, recordInfo.appName)
 		} else if len(recordInfo.session) > 0 {
-			_, resultJSON, _, err = e.db.getUserSession(recordInfo.session)
+			_, resultJSON, _, err = e.db.getSession(recordInfo.session)
 		} else {
 			resultJSON, err = e.db.getUser(recordInfo.token)
 		}

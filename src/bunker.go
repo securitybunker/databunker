@@ -109,6 +109,7 @@ type userJSON struct {
 	loginIdx string
 	emailIdx string
 	phoneIdx string
+	token    string
 }
 
 type tokenAuthResult struct {
@@ -218,7 +219,9 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/userapp/token/:token", e.userappList)
 	router.GET("/v1/userapps", e.appList)
 
-	router.POST("/v1/session/:mode/:address", e.newSession)
+	router.GET("/v1/session/:session", e.getSession)
+	router.POST("/v1/session/:session", e.createSession)
+	router.POST("/v1/session/:mode/:address", e.newUserSession)
 	router.GET("/v1/session/:mode/:address", e.getUserSessions)
 
 	router.GET("/v1/metrics", e.metrics)

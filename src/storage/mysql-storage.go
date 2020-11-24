@@ -1075,6 +1075,7 @@ func (dbobj MySQLDB) initSessions() error {
 		`CREATE TABLE IF NOT EXISTS sessions (`+
 		`token TINYTEXT,`+
 		`session TINYTEXT,`+
+		"`key` TINYTEXT,"+
 		`data TEXT,`+
 		`endtime int,`+
 		"`when` int);",
