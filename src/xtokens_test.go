@@ -52,8 +52,8 @@ func helpCancelUserRequest(rtoken string) (map[string]interface{}, error) {
 }
 
 func TestUserLoginDelete(t *testing.T) {
-	email := "test@paranoidguy.com"
-	jsonData := `{"email":"test@paranoidguy.com","phone":"22346622","fname":"Yuli","lname":"Str","tz":"323xxxxx","password":"123456","address":"Y-d habanim 7","city":"Petah-Tiqva","btest":true,"numtest":123,"testnul":null}`
+	email := "test@securitybunker.io"
+	jsonData := `{"email":"test@securitybunker.io","phone":"22346622","fname":"Yuli","lname":"Str","tz":"323xxxxx","password":"123456","address":"Y-d habanim 7","city":"Petah-Tiqva","btest":true,"numtest":123,"testnul":null}`
 	raw, err := helpCreateUser(jsonData)
 	if err != nil {
 		t.Fatalf("error: %s", err)
