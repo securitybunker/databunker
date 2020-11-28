@@ -1,8 +1,8 @@
-module github.com/paranoidguy/databunker/src
+module github.com/securitybunker/databunker/src
 
 go 1.13
 
-replace github.com/paranoidguy/databunker/src/storage => ./storage
+replace github.com/securitybunker/databunker/src/storage => ./storage
 
 require (
 	github.com/evanphx/json-patch v4.5.0+incompatible
@@ -12,8 +12,8 @@ require (
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
-	github.com/paranoidguy/databunker/src/storage v0.0.0
-	github.com/paranoidguy/jsonschema v0.2.1-0.20200613191419-2e32bc4eae60
+	github.com/securitybunker/databunker/src/storage v0.0.0
+	github.com/securitybunker/jsonschema v0.2.1-0.20200613191419-2e32bc4eae60
 	github.com/prometheus/client_golang v1.4.1
 	github.com/qri-io/jsonpointer v0.1.1
 	github.com/schollz/sqlite3dump v1.2.4 // indirect

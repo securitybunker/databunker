@@ -8,7 +8,7 @@ import (
 	"time"
 
 	uuid "github.com/hashicorp/go-uuid"
-	"github.com/paranoidguy/databunker/src/storage"
+	"github.com/securitybunker/databunker/src/storage"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
