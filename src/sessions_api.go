@@ -61,7 +61,24 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","session":"%s"}`, session)
-	return
+}
+
+func (e mainEnv) deleteSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+        session := ps.ByName("session")
+        event := audit("delete session", session, "session", session)
+        defer func() { event.submit(e.db) }()
+        if enforceUUID(w, session, event) == false {
+                //returnError(w, r, "bad session format", nil, event)
+                return
+        }
+        authResult := e.enforceAdmin(w, r)
+        if authResult == "" {
+                return
+        }
+	e.db.deleteSession(session)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+        w.WriteHeader(200)
+        fmt.Fprintf(w, `{"status":"ok"}`)
 }
 
 func (e mainEnv) newUserSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
