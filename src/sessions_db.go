@@ -109,3 +109,9 @@ func (dbobj dbcon) getUserSessionsByToken(userTOKEN string, offset int32, limit 
 
 	return results, count, err
 }
+
+func (dbobj dbcon) deleteSession(sessionUUID string) (bool, error) {
+	dbobj.store.DeleteRecord(storage.TblName.Sessions, "session", sessionUUID)
+	return true, nil
+}
+
