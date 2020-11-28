@@ -15,7 +15,7 @@ func sendCodeByEmail(code int32, address string, cfg Config) {
 		}
 		defer c.Close()
 		// Set the sender and recipient.
-		c.Mail("bot@paranoidguy.com")
+		c.Mail("bot@securitybunker.io")
 		c.Rcpt(address)
 		// Send the email body.
 		wc, err := c.Data()

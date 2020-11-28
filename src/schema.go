@@ -11,7 +11,7 @@ import (
   "strings"
   "strconv"
 
-  "github.com/paranoidguy/jsonschema"
+  "github.com/securitybunker/jsonschema"
   jsonpatch "github.com/evanphx/json-patch"
   jptr "github.com/qri-io/jsonpointer"
 )

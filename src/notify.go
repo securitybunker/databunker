@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/paranoidguy/databunker/src/autocontext"
+	"github.com/securitybunker/databunker/src/autocontext"
 )
 
 func notifyBadLogin(notifyURL string, mode string, address string) {

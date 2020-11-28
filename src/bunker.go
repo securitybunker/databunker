@@ -1,5 +1,5 @@
 // Package main - Personal Identifiable Information (PII) database.
-// For more info check https://paranoidguy.com
+// For more info check https://databunker.org/
 package main
 
 import (
@@ -22,8 +22,8 @@ import (
 	"github.com/gobuffalo/packr"
 	"github.com/julienschmidt/httprouter"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/paranoidguy/databunker/src/autocontext"
-	"github.com/paranoidguy/databunker/src/storage"
+	"github.com/securitybunker/databunker/src/autocontext"
+	"github.com/securitybunker/databunker/src/storage"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	yaml "gopkg.in/yaml.v2"
