@@ -41,7 +41,7 @@ Code: 4444
 ```
 
 ```
-Email: test@paranoidguy.com
+Email: test@securitybunker.io
 Code: 4444
 ```
 
