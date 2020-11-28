@@ -19,10 +19,10 @@ Web UI files will be fetched from ui/ directory.
 
 ## Build container
 
-It will generate "paranoidguy/databunker" container and save it locally.
+It will generate "securitybunker/databunker" container and save it locally.
 
 ```
-docker build -t paranoidguy/databunker:latest .
+docker build -t securitybunker/databunker:latest .
 ```
 
 ## Push container
@@ -31,7 +31,7 @@ docker build -t paranoidguy/databunker:latest .
 
 ```
 docker login
-docker push paranoidguy/databunker:latest
+docker push securitybunker/databunker:latest
 ```
 
 

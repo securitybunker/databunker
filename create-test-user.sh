@@ -51,7 +51,7 @@ echo "Get a list of legal basis objects: $RESULT"
 RESULT=`curl -s $DATABUNKER/v1/lbasis/send-sms -XDELETE -H "X-Bunker-Token: $XTOKEN"`
 echo "Deleting legal basis object: $RESULT"
 
-RESULT=`curl -s $DATABUNKER/v1/agreement/core-send-sms-on-login/email/test@paranoidguy.com -XPOST \
+RESULT=`curl -s $DATABUNKER/v1/agreement/core-send-sms-on-login/email/test@securitybunker.io -XPOST \
    -H "X-Bunker-Token: $XTOKEN"  -H "Content-Type: application/json" \
    -d '{"lawfulbasis":"contract"}'`
 echo "Giving consent for legal basis obj 2: $RESULT"
@@ -59,22 +59,22 @@ echo "Giving consent for legal basis obj 2: $RESULT"
 RESULT=`curl -s $DATABUNKER/v1/agreement/core-send-sms-on-login -XDELETE -H "X-Bunker-Token: $XTOKEN"`
 echo "Revoking legal basis object 2: $RESULT"
 
-RESULT=`curl -s $DATABUNKER/v1/agreement/contract-approval/email/test@paranoidguy.com -XPOST \
+RESULT=`curl -s $DATABUNKER/v1/agreement/contract-approval/email/test@securitybunker.io -XPOST \
    -H "X-Bunker-Token: $XTOKEN"  -H "Content-Type: application/json" \
    -d '{"lawfulbasis":"contract"}'`
 echo "Giving consent for fake legal basis: $RESULT"
 
-RESULT=`curl -s $DATABUNKER/v1/agreement/core-send-sms-on-login/email/test@paranoidguy.com -XDELETE -H "X-Bunker-Token: $XTOKEN"`
+RESULT=`curl -s $DATABUNKER/v1/agreement/core-send-sms-on-login/email/test@securitybunker.io -XDELETE -H "X-Bunker-Token: $XTOKEN"`
 echo "Withdraw legal basis 2 consent: $RESULT"
 
 echo "Creating user."
 RESULT=`curl -s $DATABUNKER/v1/user \
   -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json" \
-  -d '{"fname":"Test","lname":"Account","email":"test@paranoidguy.com","phone":"4444","passportid":"123456789","status":"prospect"}'`
+  -d '{"fname":"Test","lname":"Account","email":"test@securitybunker.io","phone":"4444","passportid":"123456789","status":"prospect"}'`
 STATUS=`echo $RESULT | jq ".status" | tr -d '"'`
 if [ "$STATUS" = "error" ]; then
   echo "Error to create user, trying to lookup by email. Result: $RESULT"
-  RESULT=`curl -s $DATABUNKER/v1/user/email/test@paranoidguy.com -H "X-Bunker-Token: $XTOKEN"`
+  RESULT=`curl -s $DATABUNKER/v1/user/email/test@securitybunker.io -H "X-Bunker-Token: $XTOKEN"`
   echo "Result: $RESULT"
   STATUS=`echo $RESULT | jq ".status" | tr -d '"'`
 fi
@@ -122,7 +122,7 @@ RESULT=`curl -s $DATABUNKER/v1/agreement/send-sms/token/$TOKEN -XPOST \
    -H "X-Bunker-Token: $XTOKEN" -d "expiration=30s"`
 echo "Enable consent send-sms for user by token: $RESULT"
 
-RESULT=`curl -s $DATABUNKER/v1/agreement/core-send-sms-on-login/email/test@paranoidguy.com -XPOST \
+RESULT=`curl -s $DATABUNKER/v1/agreement/core-send-sms-on-login/email/test@securitybunker.io -XPOST \
    -H "X-Bunker-Token: $XTOKEN"`
 echo "Enable consent send-sms for user by email: $RESULT"
 

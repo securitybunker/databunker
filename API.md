@@ -247,7 +247,7 @@ Additional parameter is **expiration** specifies TTL for this session record.
 ### Example:
 
 ```
-curl -s http://localhost:3000/v1/session/email/test@paranoidguy.com -XPOST \
+curl -s http://localhost:3000/v1/session/email/test@securitybunker.io -XPOST \
    -H "X-Bunker-Token: "$DATABUNKER_APIKEY -H "Content-Type: application/json" \
    -d '{"expiration":"3d","clientip":"1.1.1.1","x-forwarded-for":"2.2.2.2"}'`
 {"status":"ok","session":"7a77ffad-2010-4e47-abbe-bcd04509f784"}
@@ -350,7 +350,7 @@ When consent is expired, the status value is changed to **expired**.
 Create consent by posting JSON:
 
 ```
-curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/send-sms -XPOST \
+curl -s http://localhost:3000/v1/consent/email/test@securitybunker.io/send-sms -XPOST \
   -H "X-Bunker-Token: $XTOKEN" \
   -H "Content-Type: application/json" \
   -d '{"mesasge":"Optional long text here."}'
@@ -360,7 +360,7 @@ curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/send-sms -XP
 Create consent by POSTing user key/value fiels as POST fields:
 
 ```
-curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/send-sms -XPOST \
+curl -s http://localhost:3000/v1/consent/email/test@securitybunker.io/send-sms -XPOST \
   -H "X-Bunker-Token: $XTOKEN"
   -d 'mesasge=optional+text'
 {"status":"ok"}
@@ -380,7 +380,7 @@ This API is used to withdraw user consent.
 Withdraw consent:
 
 ```
-curl -s http://localhost:3000/v1/consent/email/test@paranoidguy.com/send-sms -XDELETE \
+curl -s http://localhost:3000/v1/consent/email/test@securitybunker.io/send-sms -XDELETE \
   -H "X-Bunker-Token: $XTOKEN"
 {"status":"ok"}
 ```
@@ -399,10 +399,10 @@ Fetch by user email:
 
 ```
 curl --header "X-Bunker-Token: $XTOKEN" -XGET \
-   https://localhost:3000/v1/consent/email/test@paranoidguy.com
+   https://localhost:3000/v1/consent/email/test@securitybunker.io
 {"status":"ok","total":2,"rows":[
    {"brief":"send-email-mailgun-on-login","message":"send-email-mailgun-on-login","status":"accept",
-   "token":"254d2abf-e927-bdcf-9cb2-f43c3cb7a8fa","mode":"email","when":1576154130,"who":"test@paranoidguy.com"},
+   "token":"254d2abf-e927-bdcf-9cb2-f43c3cb7a8fa","mode":"email","when":1576154130,"who":"test@securitybunker.io"},
    {"brief":"send-sms-twilio-on-login","message":"send-sms-twilio-on-login","status":"accept",
    "token":"254d2abf-e927-bdcf-9cb2-f43c3cb7a8fa","mode":"phone","when":1576174683,"who":"4444"}]}
 ```

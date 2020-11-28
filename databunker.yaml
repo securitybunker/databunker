@@ -58,7 +58,7 @@ server:
 smtp:
   # You need to get SMTP server to send out email notification for example to allow user login.
   # You can look for a email service company offering SMTP services. You can pick from here:
-  # https://paranoidguy.com/blog/european-saas-companies/
+  # https://privacybunker.io/blog/european-cloud-saas-vendors/
   server: "email-smtp-server.com"
   port: 587
   user: "user@your-company.com"
@@ -67,9 +67,9 @@ smtp:
 ui:
   logo_link: "https://logosbynick.com/wp-content/uploads/2018/03/final-logo-example.png"
   company_title: "Your company here"
-  company_link: "https://paranoidguy.com/"
+  company_link: "https://privacybunker.io/"
   term_of_service_title: "Your Terms of service link"
-  term_of_service_link: "https://paranoidguy.com/"
+  term_of_service_link: "https://privacybunker.io/"
   privacy_policy_title: "Your Privacy Policy link"
-  privacy_policy_link: "https://paranoidguy.com/"
+  privacy_policy_link: "https://privacybunker.io/"
   custom_css_link: ""
