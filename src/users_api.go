@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/paranoidguy/databunker/src/storage"
+	"github.com/securitybunker/databunker/src/storage"
 )
 
 func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -318,7 +318,7 @@ func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprou
 	if userBson != nil {
 		userTOKEN := userBson["token"].(string)
 		event.Record = userTOKEN
-		if address == "4444" || address == "test@paranoidguy.com" {
+		if address == "4444" || address == "test@securitybunker.io" {
 			// check if it is demo account.
 			// the address is always 4444
 			// no need to send any notifications

@@ -1,5 +1,5 @@
 {
-"$id": "https://paranoidguy.com/schema/",
+"$id": "https://privacybunker.io/schema/",
 "$comment" : "user record",
 "title": "user",
 "description": "user record",
