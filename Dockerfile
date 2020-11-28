@@ -16,15 +16,15 @@ RUN go get -u github.com/mattn/go-sqlite3
 RUN go get -u github.com/schollz/sqlite3dump
 RUN go get -u github.com/evanphx/json-patch
 RUN go get -u github.com/julienschmidt/httprouter
-WORKDIR $GOPATH/src/paranoidguy/databunker/src/
-COPY . $GOPATH/src/paranoidguy/databunker/
+WORKDIR $GOPATH/src/securitybunker/databunker/src/
+COPY . $GOPATH/src/securitybunker/databunker/
 # Fetch dependencies.
 # Using go get.
 RUN go get -d -v
 # prepare web to go with packr
 RUN packr
 # debug
-RUN find $GOPATH/src/paranoidguy/databunker/
+RUN find $GOPATH/src/securitybunker/databunker/
 # Build the binary.
 RUN go build -o /go/bin/databunker
 # clean packr
