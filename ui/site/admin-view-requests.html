@@ -80,10 +80,27 @@
     var modalPopup;
 
     function approveRequest(request) {
+        var title0 = "Specify a reason";
+        var form = `<form><div class="form-group row">
+          <label for="reason" class="col-sm-3 col-form-label">Reason</label>
+          <div class="col-sm-9"><textarea class="form-control" id="reason" rows="2"></textarea>
+          </div></div></form>`;
+        var btn = `<button type="submit" class="btn btn-primary" id="submitButton">Approve</button>`;
+        var modal = showForm(title0, form, btn);
+        modal.find('#submitButton').click(function (event) {
+	  modal.modal('hide');
+          var reason = modal.find('#reason').val();
+          approveRequestDo(request, reason);
+        });
+    }
+
+    function approveRequestDo(request, reason) {
+      var msg = {};
+      msg["reason"] = reason;
       var xhr = new XMLHttpRequest();
       xhr.open('POST', "/v1/request/" + request);
       xhr.setRequestHeader("X-Bunker-Token", xtoken)
-      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      xhr.setRequestHeader('Content-type', 'application/json');
       xhr.onload = function () {
         if (xhr.status === 200) {
           document.location.reload();
@@ -92,7 +109,7 @@
           document.location = "/";
         }
       }
-      xhr.send();
+      xhr0.send(JSON.stringify(msg));
     }
 
     function cancelRequest(request) {
@@ -121,7 +138,6 @@
         if (xhr0.status === 200) {
           var data = JSON.parse(xhr0.responseText);
           if (data.status == "ok") {
-		  	//console.log("aaaa", data)
             var d = JSON.stringify(data, null, 4);
             setTimeout(function () {
               if (data["original"] && data["change"]) {
@@ -131,8 +147,8 @@
 			   '</div>';
                 $('#drilldown').html(code);
                 jdd.compare(data["original"], data["change"]);
-	          } else {
-	            $('#drilldown').html('<pre><code class="json">' + d + '</code></pre>');
+              } else {
+                $('#drilldown').html('<pre><code class="json">' + d + '</code></pre>');
                 document.querySelectorAll('pre code').forEach((block) => {
                   hljs.highlightBlock(block);
                 });
@@ -179,8 +195,6 @@
 
     $(function () {
       showAdminMenu();
-      //$('#msg').text("Loading data")
-      //token = "faa006da-475e-45c6-a4a1-6586dce8b8d2";
       $('#table').bootstrapTable({
         /*data: mydata */
         url: "/v1/requests",
@@ -205,6 +219,9 @@
       });
     });
   </script>
+<style>
+textarea {min-height:auto;}
+</style>
 </head>
 
 <body>
