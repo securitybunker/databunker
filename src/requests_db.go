@@ -39,8 +39,8 @@ func (dbobj dbcon) saveUserRequest(action string, token string, app string, brie
 	record, err := dbobj.store.LookupRecord(storage.TblName.Requests, bdoc)
 	if record != nil {
 		fmt.Printf("This record already exists.\n")
-                return record["rtoken"].(string), "request-exists", nil
-        }
+		return record["rtoken"].(string), "request-exists", nil
+	}
 	rtoken, _ := uuid.GenerateUUID()
 	bdoc["when"] = now
 	bdoc["rtoken"] = rtoken
@@ -142,8 +142,10 @@ func (dbobj dbcon) getRequest(rtoken string) (bson.M, error) {
 }
 
 func (dbobj dbcon) updateRequestStatus(rtoken string, status string, reason string) {
+	now := int32(time.Now().Unix())
 	bdoc := bson.M{}
 	bdoc["status"] = status
+	bdoc["when"] = now
 	if len(reason) > 0 {
 		bdoc["reason"] = reason
 	}

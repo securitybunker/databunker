@@ -70,7 +70,6 @@ func (e mainEnv) getCustomUserRequests(w http.ResponseWriter, r *http.Request, p
 	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
-	
 	var offset int32
 	var limit int32 = 10
 	args := r.URL.Query()
@@ -191,6 +190,12 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 	if authResult == "" {
 		return
 	}
+	records, err := getJSONPostData(r)
+	if err != nil {
+		returnError(w, r, "failed to decode request body", 405, err, event)
+		return
+	}
+	reason := getStringValue(records, "reason");
 	requestInfo, err := e.db.getRequest(request)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
@@ -262,10 +267,10 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		lastmodifiedby := "admin"
 		e.db.withdrawAgreement(userTOKEN, brief, mode, userTOKEN, lastmodifiedby)
 	} else if action == "plugin-delete" {
-                pluginid := requestInfo["brief"].(string)
-                e.pluginUserDelete(pluginid, userTOKEN)
-        }
-	e.db.updateRequestStatus(request, "approved", "")
+		pluginid := requestInfo["brief"].(string)
+		e.pluginUserDelete(pluginid, userTOKEN)
+	}
+	e.db.updateRequestStatus(request, "approved", reason)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","result":"done"}`)
