@@ -463,7 +463,7 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
                         return nil, err
                 }
 	} else {
-		log.Printf("Ignoring wrong content type: %s", cType)
+		log.Printf("Ignore wrong content type: %s", cType)
 		max_str_len := 200
 		if len(body) < max_str_len {
 			max_str_len = len(body)
