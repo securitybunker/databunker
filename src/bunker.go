@@ -86,7 +86,11 @@ type Config struct {
 	UI struct {
 		LogoLink           string `yaml:"logo_link"`
 		CompanyTitle       string `yaml:"company_title"`
+		CompanyVAT         string `yaml:"company_vat"`
+		CompanyCity        string `yaml:"company_city"`
 		CompanyLink        string `yaml:"company_link"`
+		CompanyCountry     string `yaml:"company_country"`
+		CompanyAddress     string `yaml:"company_address"`
 		TermOfServiceTitle string `yaml:"term_of_service_title"`
 		TermOfServiceLink  string `yaml:"term_of_service_link"`
 		PrivacyPolicyTitle string `yaml:"privacy_policy_title"`
