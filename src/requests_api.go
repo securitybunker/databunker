@@ -284,6 +284,12 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 	if enforceUUID(w, request, event) == false {
 		return
 	}
+	records, err := getJSONPostData(r)
+	if err != nil {
+		returnError(w, r, "failed to decode request body", 405, err, event)
+		return
+	}
+	reason := getStringValue(records, "reason");
 	requestInfo, err := e.db.getRequest(request)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
@@ -315,8 +321,7 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 		returnError(w, r, "not found", 405, err, event)
 		return
 	}
-	reason := ""
-	if authResult == "login" {
+	if len(reason) == 0 && authResult == "login" {
 		reason = "user operation"
 	}
 	e.db.updateRequestStatus(request, "canceled", reason)
