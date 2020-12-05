@@ -85,7 +85,11 @@
           <label for="reason" class="col-sm-3 col-form-label">Reason</label>
           <div class="col-sm-9"><textarea class="form-control" id="reason" rows="2"></textarea>
           </div></div></form>`;
-        var btn = `<button type="submit" class="btn btn-primary" id="submitButton">Approve</button>`;
+	var bTitle = 'Approve';
+	if (action == "cancel") {
+          bTitle = 'Reject';
+	}
+        var btn = `<button type="submit" class="btn btn-primary" id="submitButton">`+bTitle+`</button>`;
         var modal = showForm(title0, form, btn);
         modal.find('#submitButton').click(function (event) {
 	  modal.modal('hide');
