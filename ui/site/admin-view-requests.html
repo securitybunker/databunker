@@ -64,22 +64,22 @@
       var links = '<a href=\'javascript:displayRequest(\"' + rtoken +
         '\");\'>view</a>&nbsp;|&nbsp;';
       if (row["action"] == "forget-me") {
-        links += '<a href=\'javascript:approveRequest(\"' + rtoken +
+        links += '<a href=\'javascript:enquireReason(\"approve\",\"' + rtoken +
           '\");\'>approve & delete</a>&nbsp;|&nbsp;';
       } else if (row["action"] == "consent-withdraw") {
-        links += '<a href=\'javascript:approveRequest(\"' + rtoken +
+        links += '<a href=\'javascript:enquireReason(\"approve\",\"' + rtoken +
           '\");\'>approve & withdraw</a>&nbsp;|&nbsp;';
       } else {
-        links += '<a href=\'javascript:approveRequest(\"' + rtoken +
+        links += '<a href=\'javascript:enquireReason(\"approve\",\"' + rtoken +
           '\");\'>approve</a>&nbsp;|&nbsp;';
       }
-      links += '<a href=\'javascript:cancelRequest(\"' + rtoken +
+      links += '<a href=\'javascript:enquireReason(\"cancel\",\"' + rtoken +
           '\");\'>reject</a>';
       return links;
     }
     var modalPopup;
 
-    function approveRequest(request) {
+    function enquireReason(action, request) {
         var title0 = "Specify a reason";
         var form = `<form><div class="form-group row">
           <label for="reason" class="col-sm-3 col-form-label">Reason</label>
@@ -90,11 +90,15 @@
         modal.find('#submitButton').click(function (event) {
 	  modal.modal('hide');
           var reason = modal.find('#reason').val();
-          approveRequestDo(request, reason);
+          if (action == "cancel") {
+            cancelRequest(request, reason);
+	  } else {
+            approveRequest(request, reason);
+	  }
         });
     }
 
-    function approveRequestDo(request, reason) {
+    function approveRequest(request, reason) {
       var msg = {};
       msg["reason"] = reason;
       var xhr = new XMLHttpRequest();
@@ -109,14 +113,16 @@
           document.location = "/";
         }
       }
-      xhr0.send(JSON.stringify(msg));
+      xhr.send(JSON.stringify(msg));
     }
 
-    function cancelRequest(request) {
+    function cancelRequest(request, reason) {
+      var msg = {};
+      msg["reason"] = reason;
       var xhr = new XMLHttpRequest();
       xhr.open('DELETE', "/v1/request/" + request);
-      xhr.setRequestHeader("X-Bunker-Token", xtoken)
-      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      xhr.setRequestHeader("X-Bunker-Token", xtoken);
+      xhr.setRequestHeader('Content-type', 'application/json');
       xhr.onload = function () {
         if (xhr.status === 200) {
           document.location.reload();
@@ -125,7 +131,7 @@
           document.location = "/";
         }
       }
-      xhr.send();
+      xhr.send(JSON.stringify(msg));
     }
 
     function displayRequest(rtoken) {
