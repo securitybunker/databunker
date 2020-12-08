@@ -90,13 +90,13 @@ func (dbobj dbcon) generateDemoLoginCode(userTOKEN string) int32 {
 
 func (dbobj dbcon) validateUserRecordChange(oldUserJSON []byte, jsonDataPatch []byte, userTOKEN string, authResult string) (bool, error) {
 	// prepare merge
-	fmt.Printf("old json: %s\n", oldUserJSON)
-	fmt.Printf("json patch: %s\n", jsonDataPatch)
+	//fmt.Printf("old json: %s\n", oldUserJSON)
+	//fmt.Printf("json patch: %s\n", jsonDataPatch)
 	newJSON, err := jsonpatch.MergePatch(oldUserJSON, jsonDataPatch)
 	if err != nil {
 		return false, err
 	}
-	fmt.Printf("result: %s\n", newJSON)
+	//fmt.Printf("result: %s\n", newJSON)
 	return validateUserRecordChange(oldUserJSON, newJSON, authResult)
 }
 
@@ -148,13 +148,13 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ev
           oldEmail = normalizeEmail(raw2["email"].(string))
         }
 	// merge
-	fmt.Printf("old json: %s\n", decrypted)
-	fmt.Printf("json patch: %s\n", jsonDataPatch)
+	//fmt.Printf("old json: %s\n", decrypted)
+	//fmt.Printf("json patch: %s\n", jsonDataPatch)
 	newJSON, err := jsonpatch.MergePatch(decrypted, jsonDataPatch)
 	if err != nil {
 		return nil, nil, false, err
 	}
-	fmt.Printf("result: %s\n", newJSON)
+	//fmt.Printf("result: %s\n", newJSON)
 
 	var raw map[string]interface{}
 	err = json.Unmarshal(newJSON, &raw)
