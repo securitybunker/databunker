@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
+	//"log"
 	"time"
 
 	uuid "github.com/hashicorp/go-uuid"
@@ -197,8 +197,8 @@ func (dbobj dbcon) getAuditEvent(atoken string) (string, []byte, error) {
 	userTOKEN, _ = basicStringDecrypt(userTOKENEnc, dbobj.masterKey, dbobj.GetCode())
 	if len(before) > 0 {
 		before2, after2, _ := dbobj.userDecrypt2(userTOKEN, before, after)
-		log.Printf("before: %s", before2)
-		log.Printf("after: %s", after2)
+		//log.Printf("before: %s", before2)
+		//log.Printf("after: %s", after2)
 		record["before"] = before2
 		record["after"] = after2
 		if len(debug) == 0 {
@@ -210,7 +210,7 @@ func (dbobj dbcon) getAuditEvent(atoken string) (string, []byte, error) {
 	}
 	if len(after) > 0 {
 		after2, _ := dbobj.userDecrypt(userTOKEN, after)
-		log.Printf("after: %s", after2)
+		//log.Printf("after: %s", after2)
 		record["after"] = after2
 		result := fmt.Sprintf(`{"after":%s,"debug":"%s"}`, after2, debug)
 		return userTOKEN, []byte(result), nil
