@@ -68,7 +68,6 @@ if (conf["custom_css_link"]) {
                 var data = JSON.parse(xhr.responseText);
                 if (data.status == "ok") {
                     //$('#msg').text("Access xtoken value: " + xtoken + " user: " + token)
-                    console.log(data)
                     var index;
                     for (index = 0; index < data.rows.length; ++index) {
                         var row = data.rows[index];
