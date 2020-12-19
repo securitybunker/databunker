@@ -27,7 +27,7 @@ data and the equipment used for the processing.*
 #### Diagram of Solution with Paranoid Guy Data Bunker
 ![picture](images/new-style-solution.png)
 
-Other documents: [API LIST](API.md), [INSTALLATION](INSTALLATION.md)
+Other documents: [INSTALLATION](INSTALLATION.md)
 
 ## Demo
 
@@ -48,6 +48,13 @@ Code: 4444
 Demo Admin access token: ```DEMO```
 
 ---
+
+## Working example with Node.js
+
+Full working example implementing Databunker, Passport.js, and Magic.link is available here:
+
+https://github.com/securitybunker/hello-nodejs-passport-js-magic-link-databunker
+
 
 # This project resolves most** of the GDPR requirements for you including:
 
