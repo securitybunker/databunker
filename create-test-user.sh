@@ -15,7 +15,7 @@ echo "Create processing activity entity: $RESULT"
 
 RESULT=`curl -s $DATABUNKER/v1/lbasis/send-sms -XPOST \
    -H "X-Bunker-Token: $XTOKEN"  -H "Content-Type: application/json" \
-   -d '{"module":"signup-page","fulldesc":"full","shortdesc":"short","requiredmsg":"required","usercontrol":false,"requiredflag":true}'`
+   -d '{"module":"login-page","fulldesc":"full","shortdesc":"short","requiredmsg":"required","usercontrol":false,"requiredflag":true}'`
 echo "Create legal basis entity: $RESULT"
 
 RESULT=`curl -s $DATABUNKER/v1/pactivity/share-data-with-sms-provider/blah -XPOST \
