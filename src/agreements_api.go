@@ -208,7 +208,10 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 			lastmodifiedby = value.(string)
 		}
 	}
-	selfService := lbasis["usercontrol"].(bool)
+	selfService := false
+	if value, ok := lbasis["usercontrol"]; ok {
+		selfService = value.(bool)
+	}
 	if selfService == false {
 		// user can change consent only for briefs defined in self-service
 		if len(authResult) == 0 {
