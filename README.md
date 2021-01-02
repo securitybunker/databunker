@@ -53,7 +53,7 @@ Demo Admin access token: ```DEMO```
 
 Full working example implementing Databunker, Passport.js, and Magic.link is available here:
 
-https://github.com/securitybunker/hello-nodejs-passport-js-magic-link-databunker
+https://github.com/securitybunker/databunker-nodejs-example
 
 ## Production systems.
 
