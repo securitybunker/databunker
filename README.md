@@ -155,15 +155,19 @@ consult with an attorney specializing in privacy.**
 Detailed information can be found at https://databunker.org/use-case/
 
 * Personal information tokenization and storage
+* Pseudonymized user identity for cross-border information transfer
+* Personal information consolidation
 * Critical data segregation
 * Trace customer profile changes and access
-* GDPR compliant logging: Web and mobile app session data storage
 * Temporary customer/app/session identity for 3rd party services
 * Data minimization and GDPR Scope reduction
 * Consent management, i.e. withdrawal
-* Simplify user login
-* GDPR user request workflow
-
+* Encrypted session storage
+* GDPR compliant logging
+* DPO friendly service
+* User privacy portal
+* Passport.js support
+ 
 ---
 
 # Databunker quick start guide
