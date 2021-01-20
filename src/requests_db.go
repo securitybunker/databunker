@@ -24,7 +24,7 @@ type requestEvent struct {
 	Reason       string `json:"reason"`
 }
 
-func (dbobj dbcon) saveUserRequest(action string, token string, app string, brief string, change []byte) (string, string, error) {
+func (dbobj dbcon) saveUserRequest(action string, token string, app string, brief string, change []byte, cfg Config) (string, string, error) {
 	now := int32(time.Now().Unix())
 	bdoc := bson.M{}
 	bdoc["token"] = token
@@ -53,6 +53,12 @@ func (dbobj dbcon) saveUserRequest(action string, token string, app string, brie
 		bdoc["change"] = encodedStr
 	}
 	_, err = dbobj.store.CreateRecord(storage.TblName.Requests, &bdoc)
+	if err != nil {
+		adminEmail := dbobj.GetTenantAdmin(cfg)
+		if len(adminEmail) > 0 {
+			go adminEmailAlert(action, adminEmail, cfg)
+		}
+	}
 	return rtoken, "request-created", err
 }
 

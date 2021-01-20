@@ -202,7 +202,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	if authResult == "login" {
 		event.Title = "user change-profile request"
 		if e.conf.SelfService.UserRecordChange == false || adminRecordChanged == true {
-			rtoken, rstatus, err := e.db.saveUserRequest("change-profile", userTOKEN, "", "", parsedData.jsonData)
+			rtoken, rstatus, err := e.db.saveUserRequest("change-profile", userTOKEN, "", "", parsedData.jsonData, e.conf)
 			if err != nil {
 				returnError(w, r, "internal error", 405, err, event)
 				return
@@ -266,7 +266,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	if authResult == "login" {
 		event.Title = "user forget-me request"
 		if e.conf.SelfService.ForgetMe == false {
-			rtoken, rstatus, err := e.db.saveUserRequest("forget-me", userTOKEN, "", "", nil)
+			rtoken, rstatus, err := e.db.saveUserRequest("forget-me", userTOKEN, "", "", nil, e.conf)
 			if err != nil {
 				returnError(w, r, "internal error", 405, err, event)
 				return

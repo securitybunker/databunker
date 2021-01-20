@@ -58,6 +58,10 @@ func (e mainEnv) globalUserDelete(userTOKEN string) {
         // not implemented
 }
 
+func (dbobj dbcon) GetTenantAdmin(cfg Config) string {
+       return cfg.Generic.AdminEmail
+}
+
 func (e mainEnv) pluginUserDelete(pluginid string, userTOKEN string) {
 	// not implemented
 }
