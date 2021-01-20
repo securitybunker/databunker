@@ -117,7 +117,7 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 			}
 		}
 	}
-	rtoken, rstatus, err := e.db.saveUserRequest("change-app-data", userTOKEN, appName, "", jsonData)
+	rtoken, rstatus, err := e.db.saveUserRequest("change-app-data", userTOKEN, appName, "", jsonData, e.conf)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return

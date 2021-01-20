@@ -223,7 +223,7 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	}
 
 	if authResult == "login" && selfService == false {
-		rtoken, rstatus, err := e.db.saveUserRequest("agreement-withdraw", userTOKEN, "", brief, nil)
+		rtoken, rstatus, err := e.db.saveUserRequest("agreement-withdraw", userTOKEN, "", brief, nil, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
