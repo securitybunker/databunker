@@ -85,22 +85,22 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	starttime := int32(0)
 	expiration := int32(0)
 	if value, ok := records["agreementmethod"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+		if reflect.TypeOf(value).Kind() == reflect.String {
 			agreementmethod = value.(string)
 		}
 	}
 	if value, ok := records["referencecode"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+		if reflect.TypeOf(value).Kind() == reflect.String {
 			referencecode = value.(string)
 		}
 	}
 	if value, ok := records["lastmodifiedby"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+		if reflect.TypeOf(value).Kind() == reflect.String {
 			lastmodifiedby = value.(string)
 		}
 	}
 	if value, ok := records["status"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+		if reflect.TypeOf(value).Kind() == reflect.String {
 			status = normalizeConsentStatus(value.(string))
 		}
 	}
@@ -204,13 +204,20 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	}
 	lastmodifiedby := ""
 	if value, ok := records["lastmodifiedby"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
+		if reflect.TypeOf(value).Kind() == reflect.String {
 			lastmodifiedby = value.(string)
 		}
 	}
 	selfService := false
 	if value, ok := lbasis["usercontrol"]; ok {
-		selfService = value.(bool)
+		if reflect.TypeOf(value).Kind() == reflect.Bool {
+			selfService = value.(bool)
+		} else {
+			num := value.(int32)
+			if num > 0 {
+				selfService = true
+			}
+		}
 	}
 	if selfService == false {
 		// user can change consent only for briefs defined in self-service
