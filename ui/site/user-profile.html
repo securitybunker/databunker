@@ -160,7 +160,7 @@ if (conf["custom_css_link"]) {
                     } else if (data.status == "ok" && data.result && data.result == "request-exists") {
                         showAlert("Similar request already exists for Admin approval.");
 		    } else {
-			showSuccess('Record saved');
+			showSuccess('Record saved.');
 		    }
                 } else if (xhr0.status === 403) {
                     document.location = "/";
