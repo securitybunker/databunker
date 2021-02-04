@@ -60,7 +60,7 @@ if (conf["custom_css_link"]) {
                         <button onclick="return forgetme();" class="btn btn-warning">Forget me</button>
                     </div>
                 </div>
-                <p id="msg">Click on a field to edit, when finished click Save.</p>
+                <p id="msg">Click on a field to edit. When done click on "Save".</p>
 		<div id='status-message'></div>
                 <div id="jsoneditor" style="width:100%;height:300px;overflow:auto;"></div>
                 <pre id="data"></pre>
@@ -92,7 +92,7 @@ if (conf["custom_css_link"]) {
         var editor;
         function forgetme() {
             var heading = "Confirm action";
-            var question = "Are you sure? This can not be undone.";
+            var question = "Are you sure? This operation can not be undone.";
             var cancelButtonTxt = "Close popup";
             var okButtonTxt = "Forget me!";
             var confirmModal =
@@ -131,7 +131,7 @@ if (conf["custom_css_link"]) {
                 if (xhr.status === 200) {
                     var data = JSON.parse(xhr.responseText);
                     if (data.status == "ok" && data.result && data.result == "request-created") {
-                        showAlert("Admin request created to cancel your account.");
+                        showAlert("Admin request created to remove your account.");
                     } else if (data.status == "ok" && data.result && data.result == "request-exists") {
                         showAlert("Similar request already exists for Admin approval.");
                     } else {
