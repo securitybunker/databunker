@@ -50,11 +50,21 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
     if value, ok := records["usercontrol"]; ok {
         if reflect.TypeOf(value).Kind() == reflect.Bool {
             usercontrol = value.(bool)
+        } else {
+            num := value.(int32)
+            if num > 0 {
+                usercontrol = true
+            }
         }
     }
     if value, ok := records["requiredflag"]; ok {
         if reflect.TypeOf(value).Kind() == reflect.Bool {
             requiredflag = value.(bool)
+        } else {
+            num := value.(int32)
+            if num > 0 {
+                requiredflag = true
+            }
         }
     }
     e.db.createLegalBasis(brief, newbrief, module, shortdesc, fulldesc, basistype, requiredmsg, status, usercontrol, requiredflag)
