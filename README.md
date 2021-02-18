@@ -180,4 +180,4 @@ Follow this [article](https://databunker.org/doc/start/).
 
 For any questions, you can talk with us at office@securitybunker.io
 
-Join the project slack channel to talk with developers: [https://paranoidguy.slack.com/](https://join.slack.com/t/paranoidguy/shared_invite/enQtODc2OTE1NjYyODM1LTI0MmM2ZmYwZDI0MzExMjJmOGQyMTY4Y2UzOTQ0ZDIwOTZjMmRkZDZkY2I3MzE1OWE3ZWVmNTY4MjIwMzNhZTQ)
+Join the project slack channel to talk with developers: [https://databunker.slack.com/](https://join.slack.com/t/databunker/shared_invite/zt-b6ukxzw3-JCxv8NJDESL40haM45RNIA)
