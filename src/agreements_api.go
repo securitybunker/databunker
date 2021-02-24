@@ -78,31 +78,14 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 		w.Write([]byte(`{"status":"ok"}`))
 	}()
 
-	status := "yes"
-	agreementmethod := ""
-	referencecode := ""
-	lastmodifiedby := ""
 	starttime := int32(0)
 	expiration := int32(0)
-	if value, ok := records["agreementmethod"]; ok {
-		if reflect.TypeOf(value).Kind() == reflect.String {
-			agreementmethod = value.(string)
-		}
-	}
-	if value, ok := records["referencecode"]; ok {
-		if reflect.TypeOf(value).Kind() == reflect.String {
-			referencecode = value.(string)
-		}
-	}
-	if value, ok := records["lastmodifiedby"]; ok {
-		if reflect.TypeOf(value).Kind() == reflect.String {
-			lastmodifiedby = value.(string)
-		}
-	}
-	if value, ok := records["status"]; ok {
-		if reflect.TypeOf(value).Kind() == reflect.String {
-			status = normalizeConsentStatus(value.(string))
-		}
+	referencecode := getStringValue(records["referencecode"])
+	lastmodifiedby := getStringValue(records["lastmodifiedby"])
+	agreementmethod := getStringValue(records["agreementmethod"])
+	status := normalizeConsentStatus(getStringValue(records["status"]))
+	if len(status) == 0 {
+		status = "yes"
 	}
 	if value, ok := records["expiration"]; ok {
 		switch records["expiration"].(type) {
@@ -202,12 +185,7 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	lastmodifiedby := ""
-	if value, ok := records["lastmodifiedby"]; ok {
-		if reflect.TypeOf(value).Kind() == reflect.String {
-			lastmodifiedby = value.(string)
-		}
-	}
+	lastmodifiedby := getStringValue(records["lastmodifiedby"])
 	selfService := false
 	if value, ok := lbasis["usercontrol"]; ok {
 		if reflect.TypeOf(value).Kind() == reflect.Bool {

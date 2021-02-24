@@ -25,27 +25,23 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
         returnError(w, r, "failed to decode request body", 405, err, nil)
         return
     }
-    newbrief := getStringValue(records, "brief")
+    newbrief := getStringValue(records["brief"])
     if len(newbrief) > 0 && newbrief != brief {
       if isValidBrief(newbrief) == false {
         returnError(w, r, "bad brief format", 405, nil, nil)
         return
       }
     }
-    status := "active";
-    module := getStringValue(records, "module")
-    fulldesc := getStringValue(records, "fulldesc")
-    shortdesc := getStringValue(records, "shortdesc")
-    basistype := getStringValue(records, "basistype")
-    requiredmsg := getStringValue(records, "requiredmsg")
+    status := getStringValue(records["status"])
+    module := getStringValue(records["module"])
+    fulldesc := getStringValue(records["fulldesc"])
+    shortdesc := getStringValue(records["shortdesc"])
+    basistype := getStringValue(records["basistype"])
+    requiredmsg := getStringValue(records["requiredmsg"])
     usercontrol := false
     requiredflag := false
-    if value, ok := records["status"]; ok {
-        if reflect.TypeOf(value) == reflect.TypeOf("string") {
-            if value.(string) == "disabled" {
-                status = value.(string)
-            }
-        }
+    if status != "disabled" {
+      status = "active"
     }
     if value, ok := records["usercontrol"]; ok {
         if reflect.TypeOf(value).Kind() == reflect.Bool {

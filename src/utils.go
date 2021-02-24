@@ -57,16 +57,16 @@ func getMeta(r *http.Request) string {
 }
 */
 
-func getStringValue(records map[string]interface{}, key string) string {
-	if value, ok := records[key]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-                        return strings.TrimSpace(value.(string))
-		}
-		log.Printf("getStringValue unknown type %s", key)
-	} else {
-		log.Printf("getStringValue not found %s", key)
+func getStringValue(r interface{}) string {
+	if r == nil {
+		return ""
 	}
-
+	switch r.(type) {
+		case string:
+			return strings.TrimSpace(r.(string))
+		case []uint8:
+			return strings.TrimSpace(string(r.([]uint8)))
+	}
 	return ""
 }
 
