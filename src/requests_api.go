@@ -109,36 +109,18 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 	var resultJSON []byte
-	userTOKEN := ""
-	appName := ""
-	brief := ""
-	change := ""
-	action := ""
-	if value, ok := requestInfo["action"]; ok {
-		action = value.(string)
-	}
-	if value, ok := requestInfo["token"]; ok {
-		userTOKEN = value.(string)
+	action := getStringValue(requestInfo["action"])
+	userTOKEN := getStringValue(requestInfo["token"])
+	if len(userTOKEN) != 0 {
 		event.Record = userTOKEN
 	}
 	authResult := e.enforceAuth(w, r, event)
 	if authResult == "" {
 		return
 	}
-	if value, ok := requestInfo["change"]; ok {
-		switch value.(type) {
-		case string:
-			change = value.(string)
-		case []uint8:
-			change = string(value.([]uint8))
-		}
-	}
-	if value, ok := requestInfo["app"]; ok {
-		appName = value.(string)
-	}
-	if value, ok := requestInfo["brief"]; ok {
-		brief = value.(string)
-	}
+	change := getStringValue(requestInfo["change"])
+	appName := getStringValue(requestInfo["app"])
+	brief := getStringValue(requestInfo["brief"])
 	if strings.HasPrefix(action, "plugin") {
 		brief = ""
 	}
@@ -195,7 +177,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	reason := getStringValue(records, "reason");
+	reason := getStringValue(records["reason"]);
 	requestInfo, err := e.db.getRequest(request)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
@@ -205,17 +187,14 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		returnError(w, r, "not found", 405, err, event)
 		return
 	}
-	userTOKEN := ""
-	action := ""
-	if value, ok := requestInfo["action"]; ok {
-		action = value.(string)
-	}
-	if value, ok := requestInfo["token"]; ok {
-		userTOKEN = value.(string)
+	userTOKEN := getStringValue(requestInfo["token"])
+	if len(userTOKEN) != 0 {
 		event.Record = userTOKEN
 	}
-	if requestInfo["status"].(string) != "open" {
-		returnError(w, r, "wrong status: " + requestInfo["status"].(string), 405, err, event)
+	action := getStringValue(requestInfo["action"])
+	status := getStringValue(requestInfo["status"])
+	if status != "open" {
+		returnError(w, r, "wrong status: " + status, 405, err, event)
 		return
 	}
 	resultJSON, err := e.db.getUser(userTOKEN)
@@ -289,7 +268,7 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	reason := getStringValue(records, "reason");
+	reason := getStringValue(records["reason"]);
 	requestInfo, err := e.db.getRequest(request)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
@@ -299,9 +278,8 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 		returnError(w, r, "not found", 405, err, event)
 		return
 	}
-	userTOKEN := ""
-	if value, ok := requestInfo["token"]; ok {
-		userTOKEN = value.(string)
+	userTOKEN := getStringValue(requestInfo["token"])
+	if len(userTOKEN) != 0 {
 		event.Record = userTOKEN
 	}
 	authResult := e.enforceAuth(w, r, event)
