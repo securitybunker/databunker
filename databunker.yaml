@@ -20,8 +20,8 @@ notification:
 policy:
   # max time to store records, untill they are deleted
   max_audit_retention_period: "6m"
-  max_session_retention_period: "3m"
-  max_shareable_record_retention_period: "3m"
+  max_session_retention_period: "1h"
+  max_shareable_record_retention_period: "1m"
 ssl:
   # ssl configuration
   ssl_certificate: "/databunker/certs/server.cer"
