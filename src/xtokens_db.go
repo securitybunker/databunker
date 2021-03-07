@@ -89,7 +89,7 @@ func (dbobj dbcon) checkUserAuthXToken(xtokenUUID string) (tokenAuthResult, erro
 		return result, errors.New("failed to authenticate")
 	}
 	tokenType := record["type"].(string)
-	fmt.Printf("token type: %s\n", tokenType)
+	fmt.Printf("xtoken type: %s\n", tokenType)
 	if tokenType == "root" {
 		// we have this admin user
 		rootXTOKEN = xtokenHashed
