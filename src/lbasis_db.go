@@ -118,8 +118,8 @@ func (dbobj dbcon) getLegalBasisCookieConf() ([]byte, []byte, int, error) {
 			}
 		}
 	}
-	fmt.Printf("cookies %v\n", cookies)
-	fmt.Printf("results %v\n", results)
+	//fmt.Printf("cookies %v\n", cookies)
+	//fmt.Printf("results %v\n", results)
 	if count == 0 {
 		return []byte("[]"), []byte("[]"), 0, err
 	}
