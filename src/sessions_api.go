@@ -126,8 +126,7 @@ func (e mainEnv) newUserSession(w http.ResponseWriter, r *http.Request, ps httpr
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			expiration = setExpiration(e.conf.Policy.MaxSessionRetentionPeriod, value.(string))
 		} else {
-			returnError(w, r, "failed to parse expiration field", 405, err, event)
-			return
+			// ignore bad expiration format
 		}
 	}
 	jsonData, err := json.Marshal(records)
