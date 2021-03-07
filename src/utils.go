@@ -323,7 +323,7 @@ func returnError(w http.ResponseWriter, r *http.Request, message string, code in
 	fmt.Printf("%d %s %s\n", code, r.Method, r.URL.Path)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
-	fmt.Fprintf(w, `{"status":%q,"message":%q}`, "error", message)
+	fmt.Fprintf(w, `{"status":"error","message":%q}`, message)
 	if event != nil {
 		event.Status = "error"
 		event.Msg = message
