@@ -100,28 +100,30 @@ func (dbobj dbcon) validateUserRecordChange(oldUserJSON []byte, jsonDataPatch []
 	return validateUserRecordChange(oldUserJSON, newJSON, authResult)
 }
 
-func (dbobj dbcon) updateUserRecord(jsonDataPatch []byte, userTOKEN string, event *auditEvent, conf Config) ([]byte, []byte, bool, error) {
-	var err error
-	for x := 0; x < 10; x++ {
-		oldJSON, newJSON, lookupErr, err := dbobj.updateUserRecordDo(jsonDataPatch, userTOKEN, event, conf)
-		if lookupErr == true {
-			return oldJSON, newJSON, lookupErr, err
-		}
-		if err == nil {
-			return oldJSON, newJSON, lookupErr, nil
-		}
-		fmt.Printf("Trying to update user again: %s\n", userTOKEN)
-	}
-	return nil, nil, false, err
+func (dbobj dbcon) updateUserRecord(jsonDataPatch []byte, userTOKEN string, userBSON bson.M, event *auditEvent, conf Config) ([]byte, []byte, bool, error) {
+  oldJSON, newJSON, lookupErr, err := dbobj.updateUserRecordDo(jsonDataPatch, userTOKEN, userBSON, event, conf)
+  if lookupErr == true {
+    return oldJSON, newJSON, lookupErr, err
+  }
+  if err == nil {
+    return oldJSON, newJSON, lookupErr, nil
+  }
+  // load one more time user BSON structure
+  userBSON2, err := dbobj.lookupUserRecord(userTOKEN)
+  if userBSON2 == nil || err != nil {
+    return nil, nil, true, err
+  }
+  oldJSON, newJSON, lookupErr, err = dbobj.updateUserRecordDo(jsonDataPatch, userTOKEN, userBSON2, event, conf)
+  if lookupErr == true {
+    return oldJSON, newJSON, lookupErr, err
+  }
+  if err == nil {
+    return oldJSON, newJSON, lookupErr, nil
+  }
+  return nil, nil, false, err
 }
 
-func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, event *auditEvent, conf Config) ([]byte, []byte, bool, error) {
-	//_, err = collection.InsertOne(context.TODO(), bson.M{"name": "The Go Language2", "genre": "Coding", "authorId": "4"})
-	oldUserBson, err := dbobj.lookupUserRecord(userTOKEN)
-	if oldUserBson == nil || err != nil {
-		// not found
-		return nil, nil, true, errors.New("not found")
-	}
+func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, oldUserBson bson.M, event *auditEvent, conf Config) ([]byte, []byte, bool, error) {
 
 	// get user key
 	userKey := oldUserBson["key"].(string)
@@ -264,19 +266,50 @@ func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string, 
 	return dbobj.store.GetRecord(storage.TblName.Users, indexName+"idx", idxStringHashHex)
 }
 
-func (dbobj dbcon) getUser(userTOKEN string) ([]byte, error) {
+func (dbobj dbcon) getUserJson(userTOKEN string) ([]byte, error) {
+        userBson, err := dbobj.lookupUserRecord(userTOKEN)
+        if userBson == nil || err != nil {
+                // not found
+                return nil, err
+        }
+        if _, ok := userBson["key"]; !ok {
+                return []byte("{}"), nil
+        }
+        userKey := userBson["key"].(string)
+        recordKey, err := base64.StdEncoding.DecodeString(userKey)
+        if err != nil {
+                return nil, err
+        }
+        var decrypted []byte
+        if _, ok := userBson["data"]; ok {
+                encData0 := userBson["data"].(string)
+                if len(encData0) > 0 {
+                        encData, err := base64.StdEncoding.DecodeString(encData0)
+                        if err != nil {
+                                return nil, err
+                        }
+                        decrypted, err = decrypt(dbobj.masterKey, recordKey, encData)
+                        if err != nil {
+                                return nil, err
+                        }
+                }
+        }
+        return decrypted, err
+}
+
+func (dbobj dbcon) getUser(userTOKEN string) ([]byte, bson.M, error) {
 	userBson, err := dbobj.lookupUserRecord(userTOKEN)
 	if userBson == nil || err != nil {
 		// not found
-		return nil, err
+		return nil, nil, err
 	}
 	if _, ok := userBson["key"]; !ok {
-		return []byte("{}"), nil
+		return []byte("{}"), userBson, nil
 	}
 	userKey := userBson["key"].(string)
 	recordKey, err := base64.StdEncoding.DecodeString(userKey)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	var decrypted []byte
 	if _, ok := userBson["data"]; ok {
@@ -284,27 +317,55 @@ func (dbobj dbcon) getUser(userTOKEN string) ([]byte, error) {
 		if len(encData0) > 0 {
 			encData, err := base64.StdEncoding.DecodeString(encData0)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			decrypted, err = decrypt(dbobj.masterKey, recordKey, encData)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 		}
 	}
-	return decrypted, err
+	return decrypted, userBson, err
 }
 
-func (dbobj dbcon) getUserIndex(indexValue string, indexName string, conf Config) ([]byte, string, error) {
+func (dbobj dbcon) getUserJsonByIndex(indexValue string, indexName string, conf Config) ([]byte, string, error) {
+        userBson, err := dbobj.lookupUserRecordByIndex(indexName, indexValue, conf)
+        if userBson == nil || err != nil {
+                return nil, "", err
+        }
+        // decrypt record
+        userKey := userBson["key"].(string)
+        recordKey, err := base64.StdEncoding.DecodeString(userKey)
+        if err != nil {
+                return nil, "", err
+        }
+        var decrypted []byte
+        if _, ok := userBson["data"]; ok {
+                encData0 := userBson["data"].(string)
+                if len(encData0) > 0 {
+                        encData, err := base64.StdEncoding.DecodeString(encData0)
+                        if err != nil {
+                                return nil, "", err
+                        }
+                        decrypted, err = decrypt(dbobj.masterKey, recordKey, encData)
+                        if err != nil {
+                                return nil, "", err
+                        }
+                }
+        }
+        return decrypted, userBson["token"].(string), err
+}
+
+func (dbobj dbcon) getUserByIndex(indexValue string, indexName string, conf Config) ([]byte, string, bson.M, error) {
 	userBson, err := dbobj.lookupUserRecordByIndex(indexName, indexValue, conf)
 	if userBson == nil || err != nil {
-		return nil, "", err
+		return nil, "", nil, err
 	}
 	// decrypt record
 	userKey := userBson["key"].(string)
 	recordKey, err := base64.StdEncoding.DecodeString(userKey)
 	if err != nil {
-		return nil, "", err
+		return nil, "", nil, err
 	}
 	var decrypted []byte
 	if _, ok := userBson["data"]; ok {
@@ -312,15 +373,15 @@ func (dbobj dbcon) getUserIndex(indexValue string, indexName string, conf Config
 		if len(encData0) > 0 {
 			encData, err := base64.StdEncoding.DecodeString(encData0)
 			if err != nil {
-				return nil, "", err
+				return nil, "", nil, err
 			}
 			decrypted, err = decrypt(dbobj.masterKey, recordKey, encData)
 			if err != nil {
-				return nil, "", err
+				return nil, "", nil, err
 			}
 		}
 	}
-	return decrypted, userBson["token"].(string), err
+	return decrypted, userBson["token"].(string), userBson, err
 }
 
 func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string) (bool, error) {

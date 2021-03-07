@@ -7,6 +7,7 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/securitybunker/databunker/src/storage"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -120,10 +121,10 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		if enforceUUID(w, address, event) == false {
 			return
 		}
-		resultJSON, err = e.db.getUser(address)
+		resultJSON, err = e.db.getUserJson(address)
 		userTOKEN = address
 	} else {
-		resultJSON, userTOKEN, err = e.db.getUserIndex(address, mode, e.conf)
+		resultJSON, userTOKEN, err = e.db.getUserJsonByIndex(address, mode, e.conf)
 		event.Record = userTOKEN
 	}
 	if err != nil {
@@ -169,20 +170,21 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 
 	userTOKEN := ""
 	var userJSON []byte
+	var userBSON bson.M
 	if mode == "token" {
 		if enforceUUID(w, address, event) == false {
 			return
 		}
 		userTOKEN = address
-		userJSON, err = e.db.getUser(address)
+		userJSON, userBSON, err = e.db.getUser(address)
 	} else {
-		userJSON, userTOKEN, err = e.db.getUserIndex(address, mode, e.conf)
+		userJSON, userTOKEN, userBSON, err = e.db.getUserByIndex(address, mode, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
 		}
 		if userJSON == nil {
-			returnError(w, r, "record not found", 405, nil, event)
+			returnError(w, r, "user record not found", 405, nil, event)
 			return
 		}
 		event.Record = userTOKEN
@@ -213,7 +215,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 	}
-	oldJSON, newJSON, lookupErr, err := e.db.updateUserRecord(parsedData.jsonData, userTOKEN, event, e.conf)
+	oldJSON, newJSON, lookupErr, err := e.db.updateUserRecord(parsedData.jsonData, userTOKEN, userBSON, event, e.conf)
 	if lookupErr {
 		returnError(w, r, "record not found", 405, errors.New("record not found"), event)
 		return
@@ -245,9 +247,9 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 		if enforceUUID(w, address, event) == false {
 			return
 		}
-		resultJSON, err = e.db.getUser(address)
+		resultJSON, err = e.db.getUserJson(address)
 	} else {
-		resultJSON, userTOKEN, err = e.db.getUserIndex(address, mode, e.conf)
+		resultJSON, userTOKEN, err = e.db.getUserJsonByIndex(address, mode, e.conf)
 		event.Record = userTOKEN
 	}
 	if err != nil {

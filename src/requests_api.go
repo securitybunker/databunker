@@ -129,7 +129,7 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 	} else if len(brief) > 0 {
 		resultJSON, err = e.db.viewAgreementRecord(userTOKEN, brief)
 	} else {
-		resultJSON, err = e.db.getUser(userTOKEN)
+		resultJSON, err = e.db.getUserJson(userTOKEN)
 	}
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
@@ -197,18 +197,18 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		returnError(w, r, "wrong status: " + status, 405, err, event)
 		return
 	}
-	resultJSON, err := e.db.getUser(userTOKEN)
+	userJSON, userBSON, err := e.db.getUser(userTOKEN)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
-	if resultJSON == nil {
+	if userJSON == nil {
 		returnError(w, r, "not found", 405, err, event)
 		return
 	}
 	if action == "forget-me" {
 		e.globalUserDelete(userTOKEN)
-		result, err := e.db.deleteUserRecord(resultJSON, userTOKEN)
+		result, err := e.db.deleteUserRecord(userJSON, userTOKEN)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
@@ -219,9 +219,9 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 			event.Msg = "failed to delete"
 		}
 		notifyURL := e.conf.Notification.NotificationURL
-		notifyForgetMe(notifyURL, resultJSON, "token", userTOKEN)
+		notifyForgetMe(notifyURL, userJSON, "token", userTOKEN)
 	} else if action == "change-profile" {
-		oldJSON, newJSON, lookupErr, err := e.db.updateUserRecord(requestInfo["change"].([]uint8), userTOKEN, event, e.conf)
+		oldJSON, newJSON, lookupErr, err := e.db.updateUserRecord(requestInfo["change"].([]uint8), userTOKEN, userBSON, event, e.conf)
 		if lookupErr {
 			returnError(w, r, "internal error", 405, errors.New("not found"), event)
 			return
@@ -290,7 +290,7 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 		returnError(w, r, "wrong status: " + requestInfo["status"].(string), 405, err, event)
 		return
 	}
-	resultJSON, err := e.db.getUser(userTOKEN)
+	resultJSON, err := e.db.getUserJson(userTOKEN)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return

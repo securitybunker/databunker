@@ -108,7 +108,7 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 		} else if len(recordInfo.session) > 0 {
 			_, resultJSON, _, err = e.db.getSession(recordInfo.session)
 		} else {
-			resultJSON, err = e.db.getUser(recordInfo.token)
+			resultJSON, err = e.db.getUserJson(recordInfo.token)
 		}
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
