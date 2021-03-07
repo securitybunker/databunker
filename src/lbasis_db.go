@@ -127,7 +127,7 @@ func (dbobj dbcon) getLegalBasisCookieConf() ([]byte, []byte, int, error) {
 	records0, err := dbobj.store.GetList0(storage.TblName.Processingactivities, 0, 0, "")
 	for _, record := range records0 {
 		if record["legalbasis"] != nil && record["script"] != nil && len(record["script"].(string)) > 0 {
-			fmt.Printf("checking processingactivity record %v\n", record)
+			//fmt.Printf("checking processingactivity record %v\n", record)
 			var found []string
 			briefs := strings.Split(record["legalbasis"].(string), ",")
 			if len(briefs) > 0 {
@@ -141,7 +141,7 @@ func (dbobj dbcon) getLegalBasisCookieConf() ([]byte, []byte, int, error) {
 				bdoc := bson.M{}
 				bdoc["script"]= record["script"]
 				bdoc["briefs"] = found;
-				fmt.Println("appending bdoc script")
+				//fmt.Println("appending bdoc script")
 				scripts = append(scripts, bdoc)
 			}
 		}
@@ -150,7 +150,7 @@ func (dbobj dbcon) getLegalBasisCookieConf() ([]byte, []byte, int, error) {
 	if err != nil {
 		return nil, nil, 0, err
 	}
-	fmt.Println("going to marshal scripts")
+	//fmt.Println("going to marshal scripts")
 	scriptsJSON, err := json.Marshal(scripts)
 	if err != nil {
 		return resultJSON, []byte("[]"), 0, err
