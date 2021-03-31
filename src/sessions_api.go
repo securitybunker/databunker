@@ -14,8 +14,10 @@ import (
 
 func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	session := ps.ByName("session")
-	event := audit("create session", session, "session", session)
-	defer func() { event.submit(e.db) }()
+	var event *auditEvent
+	defer func() {
+		if event != nil { event.submit(e.db) }
+	}()
 	if enforceUUID(w, session, event) == false {
 		//returnError(w, r, "bad session format", nil, event)
 		return
@@ -50,6 +52,7 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 	userTOKEN := ""
 	if userBson != nil {
+		event = audit("create session", session, "session", session)
 		userTOKEN = userBson["token"].(string)
 		event.Record = userTOKEN
 	}
@@ -206,15 +209,17 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 
 func (e mainEnv) getSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	session := ps.ByName("session")
-	event := audit("get session", session, "session", session)
-	defer func() { event.submit(e.db) }()
-
+	var event *auditEvent
+	defer func() {
+		if event != nil { event.submit(e.db) }
+	}()
 	when, record, userTOKEN, err := e.db.getSession(session)
 	if err != nil {
 		returnError(w, r, err.Error(), 405, err, event)
 		return
 	}
 	if len(userTOKEN) > 0 {
+		event = audit("get session", session, "session", session)
 		event.Record = userTOKEN
 	}
 	if e.enforceAuth(w, r, event) == "" {
