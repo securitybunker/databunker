@@ -49,18 +49,30 @@ Demo Admin access token: ```DEMO```
 
 ---
 
-## Working example with Node.js
+## Node.js Examples
 
-Full working example implementing Databunker, Passport.js, and Magic.link is available here:
+1. Node.js example implementing passwordless login using Databunker:
+https://github.com/securitybunker/databunker-nodejs-passwordless-login
 
+2. Node.js example with Passport.js, Magic.Link and Databunker:
 https://github.com/securitybunker/databunker-nodejs-example
 
-## Production systems.
+3. Secure Session Storage for Node.js apps:
+https://databunker.org/use-case/secure-session-storage/#databunker-support-for-nodejs
+
+## Node.JS modules
+
+1. `@databunker/store` from https://github.com/securitybunker/databunker-store
+
+2. `@databunker/session-store` from https://github.com/securitybunker/databunker-session-store
+
+
+## Production deployments
 
 * Backend at https://privacybunker.io/
 * Backend at https://bitbaza.io/ - under development
 
-Send us a note if you are running Databunker.
+Send us a note if you are running Databunker in production.
 
 
 # This project resolves most** of the GDPR requirements for you including:
