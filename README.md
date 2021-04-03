@@ -182,6 +182,16 @@ Detailed information can be found at https://databunker.org/use-case/
  
 ---
 
+# External blogs and articles covering Databunker
+
+1. https://dbweekly.com/issues/348
+2. https://www.freecodecamp.org/news/how-to-stay-gdpr-compliant-with-access-logs/
+3. https://databunker.org/
+
+If you published an article about Databunker send us a link at yuli@privacybunker.io
+
+---
+
 # Databunker quick start guide
 
 Follow this [article](https://databunker.org/doc/start/).
@@ -190,6 +200,6 @@ Follow this [article](https://databunker.org/doc/start/).
 
 # Contact us
 
-For any questions, you can talk with us at office@securitybunker.io
+If you have any questions, you can contact me at yuli@privacybunker.io
 
 Join the project slack channel to talk with developers: [https://databunker.slack.com/](https://join.slack.com/t/databunker/shared_invite/zt-b6ukxzw3-JCxv8NJDESL40haM45RNIA)
