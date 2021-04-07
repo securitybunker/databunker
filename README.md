@@ -172,19 +172,18 @@ consult with an attorney specializing in privacy.**
 
 Detailed information can be found at https://databunker.org/use-case/
 
-* Personal information tokenization and storage
-* Pseudonymized user identity for cross-border information transfer
-* Personal information consolidation
-* Critical data segregation
-* Trace customer profile changes and access
-* Temporary customer/app/session identity for 3rd party services
-* Data minimization and GDPR Scope reduction
+* Personal information tokenization and storage https://databunker.org/use-case/customer-profile-storage-tokenization/
+* Pseudonymized user identity for cross-border information transfer https://databunker.org/use-case/schrems-ii-compliance/
+* Critical data segregation https://databunker.org/use-case/critical-data-segregation/
+* Personal Data minimization https://databunker.org/use-case/data-minimization/
+* Trace customer profile changes and access https://databunker.org/use-case/trace-profile-access-change/
+* Temporary customer/app/session identity for 3rd party services https://databunker.org/use-case/temporary-record-identity/
+* Encrypted session storage https://databunker.org/use-case/secure-session-storage/
+* GDPR compliant logging https://databunker.org/use-case/gdpr-compliant-logging/ 
+* User privacy portal https://databunker.org/use-case/user-privacy-controls/
 * Consent management, i.e. withdrawal
-* Encrypted session storage
-* GDPR compliant logging
-* DPO friendly service
-* User privacy portal
 * Passport.js support
+* DPO friendly service
  
 ---
 
