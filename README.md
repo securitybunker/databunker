@@ -187,12 +187,13 @@ Detailed information can be found at https://databunker.org/use-case/
  
 ---
 
-# External blogs or articles that talk about Databunker
+# External blogs. articles, or services that talk about Databunker
 
 1. https://dbweekly.com/issues/348
 2. https://www.freecodecamp.org/news/how-to-stay-gdpr-compliant-with-access-logs/
 3. https://databunker.org/
 4. https://news.ycombinator.com/item?id=26690279
+5. https://stackshare.io/databunker
 
 If you published an article about Databunker send us a link at yuli@privacybunker.io
 
