@@ -92,10 +92,8 @@ need to consult with an attorney specializing in privacy.
 
 ## Right of access
 
-Databunker extracts **customer email**, **customer phone** values out of the customers' personal records granting
-**passwordless** access for the customer into their Databunker personal account.
-This is done by generating a random access key that Databunker sends to your customer by email or by SMS.
-Your customer can signin into Databunker, view information saved by Databunker and make changes with compliance with a company' policy.
+Databunker extracts **customer email**, **customer phone** values out of the customers' personal records. It gives your customer **passwordless** access to his data stored under his account. This is done by generating a random access key send by email or by SMS. Your customer can sign in into Databunker, view information stored by Databunker, and make changes in compliance with a company's policy.
+
 
 <p float="middle">
   <img align="top" style="vertical-align: top;" src="images/ui-login-form.png" alt="login form" />
@@ -105,19 +103,20 @@ Your customer can signin into Databunker, view information saved by Databunker a
 
 ## Right to restrict processing / Consent withdrawal
 
-Databunker can manage all of the customer's consents. A customer can **Withdraw consent/restrict processing** in his personal
-account at Databunker. For example, to block newsletter service. Your backend site can work with Databunker using our API to add, 
-or cancel consents and a callback operation will be fired when a customer's action takes place.
+Databunker can manage all of the customer's consents and agreements in one place. Your customer can **withdraw consent** and as a result **restrict processing** in his personal portal at Databunker. For example, your customer can block newsletter service. Your backend system can use Databunker as a collection of all agreements collected using the Databunker API.
 
 ![Consent management](images/ui-consent-management.png)
 ![Consent withdrawal](images/ui-consent-withdrawal.png)
 
 **NOTE**: Data bunker can call your backend script on a consent withdrawal (callback). You will have to handle these requests and remove
-the customer records from other 3rd party processing companies. For example: web recording services, email gateways, etc...
+the customer records from other 3rd party processing companies. For example web recording services, email gateways, etc...
 
 ## Privacy by design
 
-This product, from the architecture level and down to code was built to comply with strict privacy laws such as GDPR and CCPA. Deploying this project can make your architecture **privacy by design** compliant.
+This product, from the architecture level and down to code was built to comply with strict privacy laws such as GDPR and CCPA. Deploying this project can make your architecture **privacy by design** compliant. For more info, check out the following article:
+
+https://databunker.org/use-case/privacy-by-design-default/
+
 
 ## Transparency and Accountability principle
 
