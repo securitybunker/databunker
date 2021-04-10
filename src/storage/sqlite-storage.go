@@ -483,7 +483,7 @@ func (dbobj SQLiteDB) GetRecord2(t Tbl, keyName string, keyValue string,
 }
 
 func (dbobj SQLiteDB) getRecordInTableDo(q string, values []interface{}) (bson.M, error) {
-	fmt.Printf("query: %s\n", q)
+	//fmt.Printf("query: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
 	if err != nil {
