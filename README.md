@@ -141,15 +141,15 @@ logs, files, etc...
 
 ## Right to rectification/ Data Accuracy
 
-Your customer can log in to his personal account at Data Bunker and change his records, for example, **change his Name**.
-Databunker can fire a callback operation with customer's details when a customer action takes place.
+Your customer can sign in to his personal account at Databunker and change his records, for example, **change his name**.
+Databunker can fire a callback operation with customer's details when a customer operation takes place.
 
 ![Change profile](images/ui-profile-edit-and-save.png)
 
 
 ## Right to data portability
 
-Your customer can log in to his personal account at Data Bunker and view and **extract all his records stored at Data Bunker.**
+Your customer can sign in to his personal account at Databunker and view and **extract all his records stored at Databunker.**
 
 **NOTE**: You will need to provide your customers with a way to extract data from other internal databases.
 
@@ -157,9 +157,9 @@ Your customer can log in to his personal account at Data Bunker and view and **e
 ## Integrity and confidentiality
 
 **All personal data is encrypted**. An audit log is written for all operations with personal records.
-All-access to Data Bunker API is done using an **HTTPS SSL certificate**. Enterprise version supports Shamir's Secret Sharing
+Any request using Databunker API is done with **HTTPS SSL certificate**. The enterprise version supports Shamir's Secret Sharing
 algorithm to split the master key into a number of keys. A number of keys (that can be saved in different hands in the
-organization) are required to bring up the system.
+organization) are required to bring the system up.
 
 
 ## NOTE
