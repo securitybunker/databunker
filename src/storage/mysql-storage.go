@@ -320,7 +320,7 @@ func (dbobj MySQLDB) CreateRecordInTable(tbl string, data interface{}) (int, err
 		}
 	}
 	q := "insert into " + tbl + " (" + fields + ") values (" + valuesInQ + ")"
-	fmt.Printf("q: %s\n", q)
+	//fmt.Printf("q: %s\n", q)
 	//fmt.Printf("values: %s\n", values...)
 	tx, err := dbobj.db.Begin()
 	if err != nil {
@@ -348,7 +348,7 @@ func (dbobj MySQLDB) CreateRecord(t Tbl, data interface{}) (int, error) {
 func (dbobj MySQLDB) CountRecords0(t Tbl) (int64, error) {
         tbl := GetTable(t)
         q := "select count(*) from " + tbl
-        fmt.Printf("q: %s\n", q)
+        //fmt.Printf("q: %s\n", q)
 
         tx, err := dbobj.db.Begin()
         if err != nil {
@@ -371,7 +371,7 @@ func (dbobj MySQLDB) CountRecords0(t Tbl) (int64, error) {
 func (dbobj MySQLDB) CountRecords(t Tbl, keyName string, keyValue string) (int64, error) {
 	tbl := GetTable(t)
 	q := "select count(*) from " + tbl + " WHERE " + dbobj.escapeName(keyName) + "=?"
-	fmt.Printf("q: %s\n", q)
+	//fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
 	if err != nil {
@@ -424,7 +424,7 @@ func (dbobj MySQLDB) UpdateRecordInTable2(table string, keyName string,
 func (dbobj MySQLDB) updateRecordInTableDo(table string, filter string, bdoc *bson.M, bdel *bson.M) (int64, error) {
 	op, values := dbobj.decodeForUpdate(bdoc, bdel)
 	q := "update " + table + " SET " + op + " WHERE " + filter
-	fmt.Printf("q: %s\n", q)
+	//fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
 	if err != nil {
@@ -745,7 +745,7 @@ func (dbobj MySQLDB) GetUniqueList(t Tbl, keyName string) ([]bson.M, error) {
 	table := GetTable(t)
 	keyName = dbobj.escapeName(keyName)
 	q := "select distinct " + keyName + " from " + table + " ORDER BY " + keyName
-	fmt.Printf("q: %s\n", q)
+	//fmt.Printf("q: %s\n", q)
 	values := make([]interface{}, 0)
 	return dbobj.getListDo(q, values)
 }
@@ -767,7 +767,7 @@ func (dbobj MySQLDB) GetList0(t Tbl, start int32, limit int32, orderField string
 	} else if limit > 0 {
 		q = q + " LIMIT " + strconv.FormatInt(int64(limit), 10)
 	}
-	fmt.Printf("q: %s\n", q)
+	//fmt.Printf("q: %s\n", q)
 	values := make([]interface{}, 0)
 	return dbobj.getListDo(q, values)
 }
@@ -788,7 +788,7 @@ func (dbobj MySQLDB) GetList(t Tbl, keyName string, keyValue string, start int32
 	} else if limit > 0 {
 		q = q + " LIMIT " + strconv.FormatInt(int64(limit), 10)
 	}
-	fmt.Printf("q: %s\n", q)
+	//fmt.Printf("q: %s\n", q)
 	values := make([]interface{}, 0)
 	values = append(values, keyValue)
 	return dbobj.getListDo(q, values)

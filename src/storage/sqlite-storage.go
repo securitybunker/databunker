@@ -341,7 +341,7 @@ func (dbobj SQLiteDB) CreateRecord(t Tbl, data interface{}) (int, error) {
 func (dbobj SQLiteDB) CountRecords0(t Tbl) (int64, error) {
 	tbl := GetTable(t)
 	q := "select count(*) from " + tbl
-	fmt.Printf("q: %s\n", q)
+	//fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
 	if err != nil {
@@ -365,7 +365,7 @@ func (dbobj SQLiteDB) CountRecords0(t Tbl) (int64, error) {
 func (dbobj SQLiteDB) CountRecords(t Tbl, keyName string, keyValue string) (int64, error) {
         tbl := GetTable(t)
         q := "select count(*) from " + tbl + " WHERE " + dbobj.escapeName(keyName) + "=$1"
-        fmt.Printf("q: %s\n", q)
+        //fmt.Printf("q: %s\n", q)
 
         tx, err := dbobj.db.Begin()
         if err != nil {
@@ -418,7 +418,7 @@ func (dbobj SQLiteDB) UpdateRecordInTable2(table string, keyName string,
 func (dbobj SQLiteDB) updateRecordInTableDo(table string, filter string, bdoc *bson.M, bdel *bson.M) (int64, error) {
 	op, values := dbobj.decodeForUpdate(bdoc, bdel)
 	q := "update " + table + " SET " + op + " WHERE " + filter
-	fmt.Printf("q: %s\n", q)
+	//fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
 	if err != nil {
@@ -736,7 +736,7 @@ func (dbobj SQLiteDB) GetUniqueList(t Tbl, keyName string) ([]bson.M, error) {
 	table := GetTable(t)
 	keyName = dbobj.escapeName(keyName)
 	q := "select distinct " + keyName + " from " + table + " ORDER BY " + keyName
-	fmt.Printf("q: %s\n", q)
+	//fmt.Printf("q: %s\n", q)
 	values := make([]interface{}, 0)
 	return dbobj.getListDo(q, values)
 }
@@ -758,7 +758,7 @@ func (dbobj SQLiteDB) GetList0(t Tbl, start int32, limit int32, orderField strin
 	} else if limit > 0 {
 		q = q + " LIMIT " + strconv.FormatInt(int64(limit), 10)
 	}
-	fmt.Printf("q: %s\n", q)
+	//fmt.Printf("q: %s\n", q)
 	values := make([]interface{}, 0)
 	return dbobj.getListDo(q, values)
 }
@@ -780,7 +780,7 @@ func (dbobj SQLiteDB) GetList(t Tbl, keyName string, keyValue string, start int3
 	} else if limit > 0 {
 		q = q + " LIMIT " + strconv.FormatInt(int64(limit), 10)
 	}
-	fmt.Printf("q: %s\n", q)
+	//fmt.Printf("q: %s\n", q)
 	values := make([]interface{}, 0)
 	values = append(values, keyValue)
 	return dbobj.getListDo(q, values)
