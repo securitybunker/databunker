@@ -32,7 +32,7 @@ func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (str
 		return "", err
 	}
 	encodedStr := base64.StdEncoding.EncodeToString(encoded)
-	fmt.Printf("data %s %s\n", parsedData.jsonData, encodedStr)
+	//fmt.Printf("data %s %s\n", parsedData.jsonData, encodedStr)
 	bdoc["key"] = base64.StdEncoding.EncodeToString(recordKey)
 	bdoc["data"] = encodedStr
 	//it is ok to use md5 here, it is only for data sanity
@@ -262,7 +262,7 @@ func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string, 
 		return nil, nil
 	}
 	idxStringHashHex := hashString(dbobj.hash, indexValue)
-	fmt.Printf("loading by %s, value: %s\n", indexName, indexValue)
+	//fmt.Printf("loading by %s, value: %s\n", indexName, indexValue)
 	return dbobj.store.GetRecord(storage.TblName.Users, indexName+"idx", idxStringHashHex)
 }
 
