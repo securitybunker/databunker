@@ -489,7 +489,7 @@ func (dbobj MySQLDB) GetRecord2(t Tbl, keyName string, keyValue string,
 }
 
 func (dbobj MySQLDB) getRecordInTableDo(q string, values []interface{}) (bson.M, error) {
-	fmt.Printf("query: %s\n", q)
+	//fmt.Printf("query: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
 	if err != nil {
