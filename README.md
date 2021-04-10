@@ -16,10 +16,12 @@ Project **demo** is available at: [https://demo.databunker.org/](https://demo.da
 
 We live in a world where the privacy of our information is nonexistent. The EU has been working to remediate this fallacy with GDPR, and the US (California) follows with a first sparrow called CCPA.
 
-Data Bunker Project is intended to ease the acceptance of GDPR and CCPA regulations while giving organizations an easy to implement API's, secure Database to store PII, and privacy portal. This will give all of us, the real data owners, control of our data, and allow us to know who is using our data, what is he doing with it, and have the freedom to decide if we agree to that or not.
+Databunker Project is intended to ease the acceptance of GDPR and CCPA. It gives organizations an easy-to-implement API's, secure Database to store PII, and privacy portal.
 
-This project, when deployed correctly, replaces all the customer's personal records (PII) scattered in the organization's different
-internal databases and log files with a single, randomly generated token managed by the Data Bunker service.
+Databunker gives all of us, the real data owners, control of our data. Databunker allows us to know who is using our data, what is happening with our personal data and gives us the freedom to decide if we agree to that or not.
+
+Databunker, when deployed correctly, replaces all the customer's personal records (PII) scattered in the organization's different
+internal databases and log files with a single randomly generated token managed by the Databunker service.
 
 By deploying this project and moving all personal information to one place, you will comply with the following
 GDPR statement: *Personal data should be processed in a manner that ensures appropriate security and 
@@ -93,7 +95,7 @@ need to consult with an attorney specializing in privacy.
 Databunker extracts **customer email**, **customer phone** values out of the customers' personal records granting
 **passwordless** access for the customer into their Databunker personal account.
 This is done by generating a random access key that Databunker sends to your customer by email or by SMS.
-Your customer can login and view all the information collected and saved by Databunker in connection to his profile.
+Your customer can signin into Databunker, view information saved by Databunker and make changes with compliance with a company' policy.
 
 <p float="middle">
   <img align="top" style="vertical-align: top;" src="images/ui-login-form.png" alt="login form" />
