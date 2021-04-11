@@ -32,7 +32,7 @@ data and the equipment used for the processing.*
 
 ![picture](images/old-style-solution.png)
 
-#### Diagram of Solution with Paranoid Guy Data Bunker
+#### Diagram of Solution with Databunker
 ![picture](images/new-style-solution.png)
 
 Other documents: [INSTALLATION](INSTALLATION.md)
@@ -73,6 +73,10 @@ https://databunker.org/use-case/secure-session-storage/#databunker-support-for-n
 1. `@databunker/store` from https://github.com/securitybunker/databunker-store
 
 2. `@databunker/session-store` from https://github.com/securitybunker/databunker-session-store
+
+## Databunker benchmark results:
+
+https://databunker.org/doc/benchmark/
 
 
 ## Production deployments
