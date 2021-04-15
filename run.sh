@@ -16,11 +16,13 @@ if [ ! -f /databunker/data/databunker.db ]; then
     exit
   fi
   DATABUNKER_ROOTTOKEN=`/bin/busybox awk '/API Root token:/ {print $4}' /tmp/init.txt`
-  DATABUNKER_MASTERKEY=`/bin/busybox awk '/Master key:/ {print $3}' /tmp/init.txt`
+  DATABUNKER_MASTERKEY2=`/bin/busybox awk '/Master key:/ {print $3}' /tmp/init.txt`
   echo "DATABUNKER_ROOTTOKEN $DATABUNKER_ROOTTOKEN"
-  echo "DATABUNKER_MASTERKEY $DATABUNKER_MASTERKEY"
+  echo "DATABUNKER_MASTERKEY $DATABUNKER_MASTERKEY2"
   /bin/busybox rm -rf /tmp/init.txt
-  export DATABUNKER_MASTERKEY=$DATABUNKER_MASTERKEY
+  if [ -z "$DATABUNKER_MASTERKEY" ]; then
+    export DATABUNKER_MASTERKEY=$DATABUNKER_MASTERKEY2
+  fi
 fi
 if [ -z "$DATABUNKER_MASTERKEY" ]; then
   echo "DATABUNKER_MASTERKEY environment value is empty"
