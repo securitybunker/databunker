@@ -5,3 +5,4 @@ databunker.yaml
 bql.db
 go.sum
 .*
+data/*

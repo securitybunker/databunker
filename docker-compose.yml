@@ -1,0 +1,33 @@
+# run generate-env-files.sh to generate all key material, including root tocken.
+version: '3'
+services:
+  mysql:
+    image: mysql/mysql-server
+    env_file:
+      - .env/mysql-root.env
+      - .env/mysql.env
+    restart: unless-stopped
+    volumes:
+      - ./data:/var/lib/mysql
+  # this container's job is to initialize MySQL database. It should run just 1 time.
+  databunker-init:
+    #build: .
+    image: securitybunker/databunker:latest
+    env_file:
+      - .env/databunker.env
+      - .env/databunker-root.env
+    depends_on:
+      - mysql
+    entrypoint: /bin/sh
+    command: -c "/bin/busybox sleep 20 ; /databunker/bin/databunker -init -db databunkerdb"
+  databunker:
+    #build: .
+    image: securitybunker/databunker:latest
+    restart: unless-stopped
+    env_file:
+      - .env/databunker.env
+    entrypoint: /databunker/bin/databunker -db databunkerdb -conf /databunker/conf/databunker.yaml
+    depends_on:
+      - mysql
+    ports:
+      - 3000:3000

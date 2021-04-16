@@ -3,3 +3,5 @@ databunker.db*
 databunker
 .*
 *.md
+.env
+data/*
