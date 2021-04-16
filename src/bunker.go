@@ -406,7 +406,7 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 	fmt.Printf("\nDatabunker init\n\n")
 	var masterKey []byte
 	var err error
-	if masterkeyProvided(masterKeyPtr) == true {
+	if variableProvided("DATABUNKER_MASTERKEY", masterKeyPtr) == true {
 		masterKey, err = masterkeyGet(masterKeyPtr)
 		if err != nil {
 			fmt.Printf("Failed to parse master key: %s", err)
@@ -445,11 +445,11 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 	return db, rootToken, err
 }
 
-func masterkeyProvided(masterKeyPtr *string) bool {
+func variableProvided(vname string, masterKeyPtr *string) bool {
 	if masterKeyPtr != nil && len(*masterKeyPtr) > 0 {
 		return true
 	}
-	if len(os.Getenv("DATABUNKER_MASTERKEY")) > 0 {
+	if len(os.Getenv(vname)) > 0 {
 		return true
 	}
 	return false
@@ -496,9 +496,13 @@ func main() {
 	readEnv(&cfg)
 	customRootToken := ""
 	if *demoPtr {
-        customRootToken = "DEMO"
-	} else if rootTokenKeyPtr != nil && len(*rootTokenKeyPtr) > 0 {
-        customRootToken = *rootTokenKeyPtr
+          customRootToken = "DEMO"
+	} else if variableProvided("DATABUNKER_ROOTTOKEN", rootTokenKeyPtr) == true {
+		if rootTokenKeyPtr != nil && len(*rootTokenKeyPtr) > 0 {
+			customRootToken = *rootTokenKeyPtr
+		} else {
+			customRootToken = os.Getenv("DATABUNKER_ROOTTOKEN")
+		}
 	}
 	if *initPtr || *demoPtr {
 		if storage.DBExists(dbPtr) == true {
