@@ -265,7 +265,7 @@ func (e mainEnv) agreementRevokeAll(w http.ResponseWriter, r *http.Request, ps h
 func (e mainEnv) agreementUserReport(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
-	event := audit("privacy seetings for "+mode, address, mode, address)
+	event := audit("privacy agreements for "+mode, address, mode, address)
 	defer func() { event.submit(e.db) }()
 
 	if validateMode(mode) == false {
@@ -309,8 +309,14 @@ func (e mainEnv) agreementUserReport(w http.ResponseWriter, r *http.Request, ps 
 	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
-
-	resultJSON, numRecords, err := e.db.listAgreementRecords(userTOKEN)
+	var resultJSON []byte
+	var numRecords int
+	var err error
+	if len(userTOKEN) > 0 {
+		resultJSON, numRecords, err = e.db.listAgreementRecords(userTOKEN)
+	} else{
+		resultJSON, numRecords, err = e.db.listAgreementRecordsByIdentity(address)
+	}
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
