@@ -82,7 +82,7 @@ https://databunker.org/doc/benchmark/
 ## Production deployments
 
 * Backend at https://privacybunker.io/
-* Backend at https://bitbaza.io/ - under development
+* Backend at https://bitbaza.io/
 
 Send us a note if you are running Databunker in production.
 
