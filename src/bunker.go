@@ -113,6 +113,7 @@ type userJSON struct {
 	loginIdx string
 	emailIdx string
 	phoneIdx string
+	customIdx string
 	token    string
 }
 
