@@ -939,13 +939,15 @@ func (dbobj MySQLDB) initUsers() error {
 		`loginidx TINYTEXT,`+
 		`emailidx TINYTEXT,`+
 		`phoneidx TINYTEXT,`+
+		`customidx TINYTEXT,`+
 		`tempcodeexp int,`+
 		`tempcode int,`+
 		`data TEXT);`,
 		`CREATE UNIQUE INDEX users_token ON users (token(36));`,
 		`CREATE INDEX users_login ON users (loginidx(36));`,
 		`CREATE INDEX users_email ON users (emailidx(36));`,
-		`CREATE INDEX users_phone ON users (phoneidx(36));`}
+		`CREATE INDEX users_phone ON users (phoneidx(36));`,
+		`CREATE INDEX users_custom ON users (customidx(36));`}
 	return dbobj.execQueries(queries)
 }
 

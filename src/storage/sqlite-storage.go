@@ -929,7 +929,7 @@ func (dbobj SQLiteDB) initUsers() error {
 			  loginidx STRING,
 			  emailidx STRING,
 			  phoneidx STRING,
-			  rofields STRING,
+			  customidx STRING,
 			  tempcodeexp int,
 			  tempcode int,
 			  data TEXT
@@ -937,7 +937,8 @@ func (dbobj SQLiteDB) initUsers() error {
 		`CREATE INDEX users_token ON users (token);`,
 		`CREATE INDEX users_login ON users (loginidx);`,
 		`CREATE INDEX users_email ON users (emailidx);`,
-		`CREATE INDEX users_phone ON users (phoneidx);`}
+		`CREATE INDEX users_phone ON users (phoneidx);`,
+		`CREATE INDEX users_custom ON users (customidx);`}
 	return dbobj.execQueries(queries)
 }
 

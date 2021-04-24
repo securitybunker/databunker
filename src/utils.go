@@ -12,7 +12,6 @@ import (
 	"mime"
 	"net/http"
 	"net/url"
-	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -151,6 +150,9 @@ func validateMode(index string) bool {
 		return true
 	}
 	if index == "login" {
+		return true
+	}
+	if index == "custom" {
 		return true
 	}
 	return false
@@ -475,34 +477,22 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 }
 
 func getIndexString(val interface{}) string {
-	if reflect.TypeOf(val) == reflect.TypeOf(nil) {
-		return ""
-	}
-	myType := reflect.TypeOf(val).Kind()
-	newIdxValue := ""
-	if myType == reflect.String {
-		newIdxValue = val.(string)
-	}
-	if myType == reflect.Int {
-		newIdxValue = strconv.Itoa(val.(int))
-	}
-	if myType == reflect.Float64 {
-		newIdxValue = strconv.Itoa(int(val.(float64)))
-	}
-	return strings.TrimSpace(newIdxValue)
-}
-
-/*
-func getIndexValue(indexName string, val interface{}) (string) {
-	indexValue = getIndexString(val)
-        if indexName == "email" {
-                indexValue = normalizeEmail(indexValue)
-        } else if indexName == "phone" {
-                indexValue = normalizePhone(indexValue, conf.Sms.DefaultCountry)
+	switch val.(type) {
+		case nil:
+			return ""
+		case string:
+			return strings.TrimSpace(val.(string))
+		case []uint8:
+			return strings.TrimSpace(string(val.([]uint8)))
+		case int:
+			return strconv.Itoa(val.(int))
+		case int64:
+			return fmt.Sprintf("%v", val.(int64))
+		case float64:
+			return strconv.Itoa(int(val.(float64)))
         }
-	return indexValue
+	return ""
 }
-*/
 
 func getJSONPost(r *http.Request, defaultCountry string) (userJSON, error) {
 	var result userJSON
@@ -522,6 +512,9 @@ func getJSONPost(r *http.Request, defaultCountry string) (userJSON, error) {
 	}
 	if value, ok := records["phone"]; ok {
 		result.phoneIdx = normalizePhone(getIndexString(value), defaultCountry)
+	}
+	if value, ok := records["custom"]; ok {
+		result.customIdx = getIndexString(value)
 	}
 	if value, ok := records["token"]; ok {
 		result.token = value.(string)

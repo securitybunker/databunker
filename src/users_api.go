@@ -70,6 +70,17 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 			return
 		}
 	}
+	if len(parsedData.customIdx) > 0 {
+		otherUserBson, err := e.db.lookupUserRecordByIndex("custom", parsedData.customIdx, e.conf)
+		if err != nil {
+			returnError(w, r, "internal error", 405, err, event)
+			return
+		}
+		if otherUserBson != nil {
+			returnError(w, r, "duplicate index: custom", 405, nil, event)
+			return
+		}
+	}
 	userTOKEN, err := e.db.createUserRecord(parsedData, event)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)

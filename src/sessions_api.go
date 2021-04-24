@@ -43,6 +43,8 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 		userBson, err = e.db.lookupUserRecordByIndex("email", parsedData.emailIdx, e.conf)
 	} else if len(parsedData.phoneIdx) > 0 {
 		userBson, err = e.db.lookupUserRecordByIndex("phone", parsedData.phoneIdx, e.conf)
+	} else if len(parsedData.customIdx) > 0 {
+		userBson, err = e.db.lookupUserRecordByIndex("custom", parsedData.customIdx, e.conf)
 	} else if len(parsedData.token) > 0 {
 		userBson, err = e.db.lookupUserRecord(parsedData.token)
 	}

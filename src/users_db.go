@@ -51,6 +51,9 @@ func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (str
 	if len(parsedData.phoneIdx) > 0 {
 		bdoc["phoneidx"] = hashString(dbobj.hash, parsedData.phoneIdx)
 	}
+	if len(parsedData.customIdx) > 0 {
+		bdoc["customidx"] = hashString(dbobj.hash, parsedData.customIdx)
+	}
 	if event != nil {
 		event.After = encodedStr
 		event.Record = userTOKEN
@@ -167,7 +170,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 	sig := oldUserBson["md5"].(string)
 	// create new user record
 	bdoc := bson.M{}
-	keys := []string{"login", "email", "phone"}
+	keys := []string{"login", "email", "phone", "custom"}
 	newEmail := ""
 	for _, idx := range keys {
 		//fmt.Printf("Checking %s\n", idx)
@@ -453,6 +456,7 @@ func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string) (bool, er
 		bdel["loginidx"] = ""
 		bdel["emailidx"] = ""
 		bdel["phoneidx"] = ""
+		bdel["customidx"] = ""
 	}
 	result, err := dbobj.store.CleanupRecord(storage.TblName.Users, "token", userTOKEN, bdel)
 	if err != nil {
