@@ -338,6 +338,7 @@ func (e mainEnv) dbCleanupDo() {
 	}
 	notifyURL := e.conf.Notification.NotificationURL
 	e.db.expireAgreementRecords(notifyURL)
+	e.expUsers()
 }
 
 func (e mainEnv) dbCleanup() {
