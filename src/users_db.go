@@ -69,7 +69,7 @@ func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (str
 
 func (dbobj dbcon) initiateUserExpiration(userTOKEN string, expiration string, status string, expToken string) error {
 	bdoc := bson.M{}
-	bdoc["expiration"] = expiration
+	bdoc["endtime"] = expiration
 	bdoc["expstatus"] = status
 	bdoc["exptoken"] = expToken
 	_, err := dbobj.store.UpdateRecord(storage.TblName.Users, "token", userTOKEN, &bdoc)

@@ -932,7 +932,7 @@ func (dbobj SQLiteDB) initUsers() error {
 			  customidx STRING,
 			  expstatus STRING,
 			  exptoken STRING,
-			  expdate int,
+			  endtime int,
 			  tempcodeexp int,
 			  tempcode int,
 			  data TEXT
@@ -942,7 +942,7 @@ func (dbobj SQLiteDB) initUsers() error {
 		`CREATE INDEX users_email ON users (emailidx);`,
 		`CREATE INDEX users_phone ON users (phoneidx);`,
 		`CREATE INDEX users_custom ON users (customidx);`,
-		`CREATE INDEX users_expdate ON users (expdate);`,
+		`CREATE INDEX users_endtime ON users (endtime);`,
 		`CREATE INDEX users_exptoken ON users (exptoken);`}
 	return dbobj.execQueries(queries)
 }
