@@ -67,6 +67,22 @@ func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (str
 	return userTOKEN, nil
 }
 
+func (dbobj dbcon) initiateUserExpiration(userTOKEN string, expiration string, status string, expToken string) error {
+	bdoc := bson.M{}
+	bdoc["expiration"] = expiration
+	bdoc["expstatus"] = status
+	bdoc["exptoken"] = expToken
+	_, err := dbobj.store.UpdateRecord(storage.TblName.Users, "token", userTOKEN, &bdoc)
+	return err
+}
+
+func (dbobj dbcon) updateUserExpStatus(userTOKEN string, status string) error {
+	bdoc := bson.M{}
+	bdoc["expstatus"] = status
+	_, err := dbobj.store.UpdateRecord(storage.TblName.Users, "token", userTOKEN, &bdoc)
+	return err
+}
+
 func (dbobj dbcon) generateTempLoginCode(userTOKEN string) int32 {
 	rnd := randNum(6)
 	fmt.Printf("random: %d\n", rnd)
@@ -263,6 +279,9 @@ func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string, 
 	}
 	if len(indexValue) == 0 {
 		return nil, nil
+	}
+	if indexName == "exptoken" {
+		return dbobj.store.GetRecord(storage.TblName.Users, "exptoken", indexValue)
 	}
 	idxStringHashHex := hashString(dbobj.hash, indexValue)
 	//fmt.Printf("loading by %s, value: %s\n", indexName, indexValue)

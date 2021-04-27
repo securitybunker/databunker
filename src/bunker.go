@@ -53,9 +53,10 @@ type Config struct {
 		MagicSyncToken  string `yaml:"magic_sync_token"`
 	}
 	Policy struct {
-		MaxAuditRetentionPeriod           string `yaml:"max_audit_retention_period"`
-		MaxSessionRetentionPeriod         string `yaml:"max_session_retention_period"`
-		MaxShareableRecordRetentionPeriod string `yaml:"max_shareable_record_retention_period"`
+		MaxUserRetentionPeriod            string `yaml:"max_user_retention_period" default:"1m"`
+		MaxAuditRetentionPeriod           string `yaml:"max_audit_retention_period" default:"12m"`
+		MaxSessionRetentionPeriod         string `yaml:"max_session_retention_period" default:"1h"`
+		MaxShareableRecordRetentionPeriod string `yaml:"max_shareable_record_retention_period" default:"1m"`
 	}
 	Ssl struct {
 		SslCertificate    string `yaml:"ssl_certificate", envconfig:"SSL_CERTIFICATE"`
@@ -189,6 +190,12 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 
 	router.GET("/v1/prelogin/:mode/:address/:code/:captcha", e.userPrelogin)
 	router.GET("/v1/login/:mode/:address/:tmp", e.userLogin)
+
+	router.GET("/v1/exp/retain/:exptoken", e.expRetainData)
+	router.GET("/v1/exp/delete/:exptoken", e.expDeleteData)
+	router.GET("/v1/exp/status/:mode/:address", e.expGetStatus)
+	router.POST("/v1/exp/initiate/:mode/:address", e.expInitiate)
+	router.DELETE("/v1/exp/cancel/:mode/:address", e.expCancel)
 
 	router.POST("/v1/sharedrecord/token/:token", e.newSharedRecord)
 	router.GET("/v1/get/:record", e.getRecord)

@@ -940,6 +940,9 @@ func (dbobj MySQLDB) initUsers() error {
 		`emailidx TINYTEXT,`+
 		`phoneidx TINYTEXT,`+
 		`customidx TINYTEXT,`+
+		`expstatus TINYTEXT,`+
+		`exptoken TINYTEXT,`+
+		`expdate int,`+
 		`tempcodeexp int,`+
 		`tempcode int,`+
 		`data TEXT);`,
@@ -947,7 +950,9 @@ func (dbobj MySQLDB) initUsers() error {
 		`CREATE INDEX users_login ON users (loginidx(36));`,
 		`CREATE INDEX users_email ON users (emailidx(36));`,
 		`CREATE INDEX users_phone ON users (phoneidx(36));`,
-		`CREATE INDEX users_custom ON users (customidx(36));`}
+		`CREATE INDEX users_custom ON users (customidx(36));`,
+		`CREATE INDEX users_expdate ON users (expdate);`,
+		`CREATE INDEX users_exptoken ON users (exptoken(36));`}
 	return dbobj.execQueries(queries)
 }
 
