@@ -69,6 +69,16 @@ func getStringValue(r interface{}) string {
 	return ""
 }
 
+func getIntValue(r interface{}) int {
+	switch r.(type) {
+		case int:
+			return r.(int)
+		case int32:
+			return int(r.(int32))
+	}
+	return 0
+}
+
 func getInt64Value(records map[string]interface{}, key string) int64 {
 	if value, ok := records[key]; ok {
 		switch value.(type) {

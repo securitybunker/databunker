@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"reflect"
 	"strings"
 	uuid "github.com/hashicorp/go-uuid"
 	"github.com/julienschmidt/httprouter"
@@ -117,7 +116,6 @@ func (e mainEnv) newUserSession(w http.ResponseWriter, r *http.Request, ps httpr
 	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
-	expiration := e.conf.Policy.MaxSessionRetentionPeriod
 	records, err := getJSONPostData(r)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
@@ -127,13 +125,8 @@ func (e mainEnv) newUserSession(w http.ResponseWriter, r *http.Request, ps httpr
 		returnError(w, r, "empty body", 405, nil, event)
 		return
 	}
-	if value, ok := records["expiration"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			expiration = setExpiration(e.conf.Policy.MaxSessionRetentionPeriod, value.(string))
-		} else {
-			// ignore bad expiration format
-		}
-	}
+	expirationStr := getStringValue(records["expiration"])
+	expiration := setExpiration(e.conf.Policy.MaxSessionRetentionPeriod, expirationStr)
 	jsonData, err := json.Marshal(records)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)

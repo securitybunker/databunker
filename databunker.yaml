@@ -19,6 +19,7 @@ notification:
   notification_url: "https://httpbin.org/post"
 policy:
   # max time to store records, untill they are deleted
+  max_user_retention_period: "3m"
   max_audit_retention_period: "6m"
   max_session_retention_period: "1h"
   max_shareable_record_retention_period: "1m"
