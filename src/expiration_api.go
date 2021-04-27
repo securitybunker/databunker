@@ -5,9 +5,23 @@ import (
 	"net/http"
 
 	uuid "github.com/hashicorp/go-uuid"
+	"github.com/securitybunker/databunker/src/storage"
 	"github.com/julienschmidt/httprouter"
 	"go.mongodb.org/mongo-driver/bson"
 )
+
+func (e mainEnv) expUsers() error {
+	records, err := e.db.store.GetExpiring(storage.TblName.Users, "expstatus", "wait")
+	for _, rec := range records {
+		userTOKEN := rec["token"].(string)
+		resultJSON, _ := e.db.getUserJson(userTOKEN)
+		if resultJSON != nil {
+			e.globalUserDelete(userTOKEN)
+			e.db.deleteUserRecord(resultJSON, userTOKEN)
+		}
+	}
+	return err
+}
 
 func (e mainEnv) expGetStatus(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var err error
