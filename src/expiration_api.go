@@ -37,10 +37,10 @@ func (e mainEnv) expGetStatus(w http.ResponseWriter, r *http.Request, ps httprou
 		returnError(w, r, "internal error", 405, nil, event)
 		return
 	}
-	expirationDate := getIntValue(userBson["expdate"])
+	expirationDate := getIntValue(userBson["endtime"])
 	expirationStatus := getStringValue(userBson["expstatus"])
 	expirationToken := getStringValue(userBson["exptoken"])
-	finalJSON := fmt.Sprintf(`{"status":"ok","expdate":%d,"expstatus":"%s","exptoken":"%s"}`,
+	finalJSON := fmt.Sprintf(`{"status":"ok","exptime":%d,"expstatus":"%s","exptoken":"%s"}`,
 		expirationDate, expirationStatus, expirationToken)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
