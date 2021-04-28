@@ -20,7 +20,7 @@ services:
       - mysql
     entrypoint: /bin/sh
     # at first, this docker will wait for MySQL init to be ready.
-    command: -c "/bin/busybox sleep 20 ; /databunker/bin/databunker -init -db databunkerdb"
+    command: -c "/bin/busybox sleep 25 ; /databunker/bin/databunker -init -db databunkerdb"
   databunker:
     #build: .
     image: securitybunker/databunker:latest
