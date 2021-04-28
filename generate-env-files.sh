@@ -1,5 +1,7 @@
 #!/bin/sh
 
+mkdir data
+chmod 777 data
 mkdir -p .env
 
 echo 'generating .env/mysql-root.env'
