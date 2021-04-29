@@ -63,7 +63,7 @@ func Clean(r *http.Request) {
 
 // getRequestAddress this function extracts *http.Request address from the go-lang stacktrace string.
 func getRequestAddress() (string, error) {
-	trace := make([]byte, 2048)
+	trace := make([]byte, 10240)
 	count := runtime.Stack(trace, false)
 	//fmt.Printf("Stack of %d bytes: %s\n", count, trace)
 	match := regexServeHTTP.FindStringSubmatch(string(trace[0:count]))
