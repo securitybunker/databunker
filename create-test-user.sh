@@ -74,7 +74,7 @@ RESULT=`curl -s $DATABUNKER/v1/user \
 STATUS=`echo $RESULT | jq ".status" | tr -d '"'`
 if [ "$STATUS" = "error" ]; then
   echo "Error to create user, trying to lookup by email. Result: $RESULT"
-  RESULT=`curl -s $DATABUNKER/v1/user/email/test@securitybunker.io -H "X-Bunker-Token: $XTOKEN"`
+  RESULT=`curl -s $DATABUNKER/v1/user/phone/4444 -H "X-Bunker-Token: $XTOKEN"`
   echo "Result: $RESULT"
   STATUS=`echo $RESULT | jq ".status" | tr -d '"'`
 fi
@@ -166,4 +166,11 @@ RESULT=`curl -s $DATABUNKER/v1/sessions/phone/4444 \
    -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json"`
 echo "Get sessions: $RESULT"
 
+echo "Creating user."
+RESULT=`curl -s $DATABUNKER/v1/user \
+  -H "X-Bunker-Token: $XTOKEN" -H "Content-Type: application/json" \
+  -d '{"test":"custtom-test","custom":"alex"}'`
+
+RESULT=`curl -s $DATABUNKER/v1/user/custom/alex -H "X-Bunker-Token: $XTOKEN"`
+echo "Result: $RESULT"
 
