@@ -72,7 +72,7 @@ func getRequestAddress() (string, error) {
 		fmt.Printf("*** STACK ***\n%s\n", trace)
 		return "", errors.New("Failed to find *http.Request address")
 	}
-	if count > 2048 {
+	if count > 3072 {
 		fmt.Println("Stack frame too large, check for bugs")
 		fmt.Printf("*** STACK ***\n%s\n", trace)
 	}
