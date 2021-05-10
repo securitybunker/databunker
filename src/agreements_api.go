@@ -15,7 +15,6 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	mode := ps.ByName("mode")
 	event := audit("agreement accept for "+brief, address, mode, address)
 	defer func() { event.submit(e.db) }()
-
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
@@ -71,21 +70,16 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-
-	defer func() {
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		w.Write([]byte(`{"status":"ok"}`))
-	}()
-
 	starttime := int32(0)
 	expiration := int32(0)
 	referencecode := getStringValue(records["referencecode"])
 	lastmodifiedby := getStringValue(records["lastmodifiedby"])
 	agreementmethod := getStringValue(records["agreementmethod"])
-	status := normalizeConsentStatus(getStringValue(records["status"]))
+	status := getStringValue(records["status"])
 	if len(status) == 0 {
 		status = "yes"
+	} else {
+		status = normalizeConsentStatus(status)
 	}
 	if value, ok := records["expiration"]; ok {
 		switch records["expiration"].(type) {
@@ -109,6 +103,7 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	case "phone":
 		address = normalizePhone(address, e.conf.Sms.DefaultCountry)
 	}
+	fmt.Printf("Processing agreement, status: %s\n", status)
 	e.db.acceptAgreement(userTOKEN, mode, address, brief, status, agreementmethod,
 		referencecode, lastmodifiedby, starttime, expiration)
 	/*
@@ -122,6 +117,9 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 		}
 	}
 	*/
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	w.Write([]byte(`{"status":"ok"}`))
 }
 
 func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
