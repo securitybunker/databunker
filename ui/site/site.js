@@ -174,3 +174,25 @@ function loadAgreements(method, address, cb) {
   }
   xhr1.send();
 }
+
+function acceptAgreement(method, address, brief, options, cb) {
+  var xhr1 = new XMLHttpRequest();
+  var params = '';
+  if (options) {
+    params = JSON.stringify(options);
+  }
+  xhr1.open('POST', "/v1/agreement/" + brief + "/" + method + "/" + address);
+  xhr1.setRequestHeader("X-Bunker-Token", xtoken)
+  xhr1.setRequestHeader('Content-type', 'application/json');
+  xhr1.onload = function() {
+    if (xhr1.status === 200) {
+      var data = JSON.parse(xhr1.responseText);
+      if (cb) {
+        cb(data);
+      }
+    } else if (xhr1.status > 400 && xhr1.status < 500) {
+      document.location = "/";
+    }
+  }
+  xhr1.send(params);
+}
