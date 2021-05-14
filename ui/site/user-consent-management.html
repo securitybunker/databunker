@@ -23,10 +23,122 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 <script>
+var xtoken = window.localStorage.getItem('xtoken');
+var token = window.localStorage.getItem('token');
 conf = loadUIConfiguration();
 if (conf["custom_css_link"]) {
   document.write("<link rel='stylesheet' type='text/css' href='" + conf["custom_css_link"] +"' />");
 }
+function confirmWithdrawal(brief) {
+  var heading = "Confirm Consent Withdrawal";
+  var question = "Are you sure?";
+  var cancelButtonTxt = "Close popup";
+  var okButtonTxt = "Withdraw";
+  var confirmModal =
+    $('<div class="modal fade" role="dialog"><div class="modal-dialog" role="document"><div class="modal-content">' +
+      '<div class="modal-header">' +
+      '<h5 class="modal-title">' + heading + '</h5>' +
+      '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+      '<span aria-hidden="true">&times;</span></button>' +
+      '</div>' +
+      '<div class="modal-body">' +
+      '<p>' + question + '</p>' +
+      '</div>' +
+      '<div class="modal-footer">' +
+      '<a href="#" class="btn" data-dismiss="modal">' +
+      cancelButtonTxt +
+      '</a>' +
+      '<a href="#" id="okButton" class="btn btn-primary">' +
+      okButtonTxt +
+      '</a>' +
+      '</div>' +
+      '</div></div></div>');
+
+  confirmModal.find('#okButton').click(function(event) {
+    //callback();
+    withdrawConsent(brief);
+    confirmModal.modal('hide');
+  });
+  confirmModal.modal('show');
+}
+
+function withdrawConsent(brief) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('DELETE', "/v1/agreement/" + brief + "/token/" + token);
+  xhr.setRequestHeader("X-Bunker-Token", xtoken)
+  xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      var data = JSON.parse(xhr.responseText);
+      if (data.status == "ok" && data.result && data.result == "request-created") {
+        showAlert("Admin request created to withdraw your consent.");
+      } else if (data.status == "ok" && data.result && data.result == "request-exists") {
+        showAlert("Similar request already exists for Admin approval.");
+      } else {
+        document.location.reload();
+      }
+    } else if (xhr.status > 400 && xhr.status < 500) {
+      document.location = "/";
+    }
+  }
+  xhr.send();
+}
+
+function acceptConsent(brief) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', "/v1/agreement/" + brief + "/token/" + token);
+  xhr.setRequestHeader("X-Bunker-Token", xtoken)
+  xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      document.location.reload();
+    } else if (xhr.status > 400 && xhr.status < 500) {
+      document.location = "/";
+    }
+  }
+  xhr.send();
+}
+
+function prepareRow(row) {
+  var msg = row.brief;
+  if (!row.message) {
+    msg = row.brief;
+  }
+  var start = '<div class="row mb-3">';
+  var now = Math.floor(Date.now() / 1000);
+  var d = '<div class="col-3">Created: ' + dateFormat(row.creationtime) + '<br/>';
+  if (row.when != row.creationtime) {
+    d = d + 'Last updated: ' + dateFormat(row.when) + '<br/>';
+  }
+  if (row.starttime > now) {
+    d = d + 'Will start at: ' + dateFormat(row.starttime) + '</br/>';
+  }
+  if (row.endtime > now) {
+    d = d + 'Will expire at: ' + dateFormat(row.endtime) + '</br/>';
+  } else if (row.endtime > 0) {
+    d = d + 'Expired at: ' + dateFormat(row.endtime) + '</br/>';
+  }
+  d = d + '</div>';
+  var info = '<div class="col-6"><strong>Consent: ' + msg + '</strong><br/>';
+  info = info + '<small>Last identity: ' + row.who + ' (' + row.mode + ')</small><br/>';
+  info = info + '<small>Lawful basis: ' + row.lawfulbasis + ' (' + row.consentmethod + ')</small><br/>';
+  if (row.referencecode) {
+    info = info + '<small>Reference method: ' + row.referencecode + '</small><br/>';
+  }
+  if (row.freetext) {
+    info = info + '<small>Additional info: ' + row.freetext + '</small><br/>';
+  }
+  info = info + '</div>'
+  var withdraw = "<a href=\"javascript:confirmWithdrawal('" + row.brief + "');\">Withdraw</a>";
+  var accept = "<a href=\"javascript:acceptConsent('" + row.brief + "');\">Give</a>";
+  var op = withdraw;
+  if (row.status != 'yes') {
+    op = accept;
+  }
+  var status = '<div class="col-3"><center>Consent Given: ' + row.status + '</br>' + op + '</center></div>'
+  return start + d + info + status + '</div>';
+}
+
 </script>
 </head>
 
@@ -55,129 +167,19 @@ if (conf["custom_css_link"]) {
         </div>
 	    <script>displayFooterLinks();</script>
     </div>
-    <script>
-        var xtoken = window.localStorage.getItem('xtoken');
-        var token = window.localStorage.getItem('token');
-        loadAgreements("token", token, function(data) {
-                if (data.status == "ok") {
-                    //$('#msg').text("Access xtoken value: " + xtoken + " user: " + token)
-                    var index;
-                    for (index = 0; index < data.rows.length; ++index) {
-                        var row = data.rows[index];
-                        //console.log("row", row)
-                        $('#data').append(prepareRow(row));
-                        //fetchApp(token, xtoken, app);
-                    }
-                }
-       });
-        function confirmWithdrawal(brief) {
-            var heading = "Confirm Consent Withdrawal";
-            var question = "Are you sure?";
-            var cancelButtonTxt = "Close popup";
-            var okButtonTxt = "Withdraw";
-            var confirmModal =
-                $('<div class="modal fade" role="dialog"><div class="modal-dialog" role="document"><div class="modal-content">' +
-                    '<div class="modal-header">' +
-                    '<h5 class="modal-title">' + heading + '</h5>' +
-                    '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
-                    '<span aria-hidden="true">&times;</span></button>' +
-                    '</div>' +
-                    '<div class="modal-body">' +
-                    '<p>' + question + '</p>' +
-                    '</div>' +
-                    '<div class="modal-footer">' +
-                    '<a href="#" class="btn" data-dismiss="modal">' +
-                    cancelButtonTxt +
-                    '</a>' +
-                    '<a href="#" id="okButton" class="btn btn-primary">' +
-                    okButtonTxt +
-                    '</a>' +
-                    '</div>' +
-                    '</div></div></div>');
-
-            confirmModal.find('#okButton').click(function (event) {
-                //callback();
-                withdrawConsent(brief);
-                confirmModal.modal('hide');
-            });
-
-            confirmModal.modal('show');
-        }
-        function withdrawConsent(brief) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('DELETE', "/v1/agreement/" + brief +"/token/" + token);
-            xhr.setRequestHeader("X-Bunker-Token", xtoken)
-            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    var data = JSON.parse(xhr.responseText);
-                    if (data.status == "ok" && data.result && data.result == "request-created") {
-                        showAlert("Admin request created to withdraw your consent.");
-                    } else if (data.status == "ok" && data.result && data.result == "request-exists") {
-                        showAlert("Similar request already exists for Admin approval.");
-                    } else {
-                        document.location.reload();
-                    }
-                } else if (xhr.status > 400 && xhr.status < 500) {
-                    document.location = "/";
-                }
-            }
-            xhr.send();
-        }
-        function acceptConsent(brief) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', "/v1/agreement/" + brief +"/token/" + token);
-            xhr.setRequestHeader("X-Bunker-Token", xtoken)
-            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    document.location.reload();
-                } else if (xhr.status > 400 && xhr.status < 500) {
-                    document.location = "/";
-                }
-            }
-            xhr.send();
-        }
-        function prepareRow(row) {
-            var msg = row.brief;
-            if (!row.message) {
-                msg = row.brief;
-            }
-            var start = '<div class="row mb-3">';
-            var now = Math.floor(Date.now() / 1000);
-            var d = '<div class="col-3">Created: ' + dateFormat(row.creationtime) + '<br/>';
-            if (row.when != row.creationtime) {
-                d = d + 'Last updated: ' + dateFormat(row.when) + '<br/>';
-            }
-            if (row.starttime > now) {
-                d = d + 'Will start at: ' + dateFormat(row.starttime) + '</br/>';
-            }
-            if (row.endtime > now) {
-                d = d + 'Will expire at: ' + dateFormat(row.endtime) + '</br/>';
-            } else if (row.endtime > 0) {
-                d = d + 'Expired at: ' + dateFormat(row.endtime) + '</br/>';
-            }
-            d = d + '</div>';
-            var info = '<div class="col-6"><strong>Consent: ' + msg + '</strong><br/>';
-            info = info + '<small>Last identity: ' + row.who + ' (' + row.mode + ')</small><br/>';
-            info = info + '<small>Lawful basis: ' + row.lawfulbasis + ' (' + row.consentmethod + ')</small><br/>';
-            if (row.referencecode) {
-                info = info + '<small>Reference method: ' + row.referencecode + '</small><br/>';
-            }
-            if (row.freetext) {
-                info = info + '<small>Additional info: ' + row.freetext + '</small><br/>';
-            }
-            info = info + '</div>'
-            var withdraw = "<a href=\"javascript:confirmWithdrawal('" + row.brief + "');\">Withdraw</a>";
-            var accept = "<a href=\"javascript:acceptConsent('" + row.brief + "');\">Give</a>";
-            var op = withdraw;
-            if (row.status != 'yes') {
-                op = accept;
-            }
-            var status = '<div class="col-3"><center>Consent Given: ' + row.status + '</br>' + op + '</center></div>'
-            return start + d + info + status + '</div>';
-        }
-    </script>
 </body>
-
+<script>
+loadAgreements("token", token, function(data) {
+  if (data.status == "ok") {
+    //$('#msg').text("Access xtoken value: " + xtoken + " user: " + token)
+    var index;
+    for (index = 0; index < data.rows.length; ++index) {
+      var row = data.rows[index];
+      //console.log("row", row)
+      $('#data').append(prepareRow(row));
+      //fetchApp(token, xtoken, app);
+    }
+  }
+});
+</script>
 </html>
