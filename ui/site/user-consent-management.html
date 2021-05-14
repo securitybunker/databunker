@@ -58,14 +58,7 @@ if (conf["custom_css_link"]) {
     <script>
         var xtoken = window.localStorage.getItem('xtoken');
         var token = window.localStorage.getItem('token');
-
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', "/v1/agreement/token/" + token);
-        xhr.setRequestHeader("X-Bunker-Token", xtoken)
-        xhr.setRequestHeader('Content-type', 'application/json');
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                var data = JSON.parse(xhr.responseText);
+        loadAgreements("token", token, function(data) {
                 if (data.status == "ok") {
                     //$('#msg').text("Access xtoken value: " + xtoken + " user: " + token)
                     var index;
@@ -76,11 +69,7 @@ if (conf["custom_css_link"]) {
                         //fetchApp(token, xtoken, app);
                     }
                 }
-            } else if (xhr.status > 400 && xhr.status < 500) {
-                document.location = "/";
-            }
-        }
-        xhr.send();
+       });
         function confirmWithdrawal(brief) {
             var heading = "Confirm Consent Withdrawal";
             var question = "Are you sure?";
