@@ -85,18 +85,9 @@ function withdrawConsent(brief) {
 }
 
 function acceptConsent(brief) {
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', "/v1/agreement/" + brief + "/token/" + token);
-  xhr.setRequestHeader("X-Bunker-Token", xtoken)
-  xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  xhr.onload = function() {
-    if (xhr.status === 200) {
-      document.location.reload();
-    } else if (xhr.status > 400 && xhr.status < 500) {
-      document.location = "/";
-    }
-  }
-  xhr.send();
+  acceptAgreement('token', token, brief, '', function(data) {
+    document.location.reload();
+  });
 }
 
 function prepareRow(row) {
