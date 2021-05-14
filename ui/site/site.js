@@ -154,3 +154,23 @@ function showError(msg) {
     $("#success-alert").fadeTo(2000, 500).fadeOut(500);
   }
 }
+
+function loadAgreements(method, address, cb) {
+  var xhr1 = new XMLHttpRequest();
+  xhr1.open('GET', "/v1/agreement/" + method + "/" + address);
+  xhr1.setRequestHeader("X-Bunker-Token", xtoken)
+  xhr1.setRequestHeader('Content-type', 'application/json');
+  xhr1.onload = function () {
+    if (xhr1.status === 200) {
+      var data = JSON.parse(xhr1.responseText);
+      if (cb) {
+        cb(data);
+      } else {
+        console.log("loadAgreements cb is empty")
+      }
+    } else if (xhr1.status > 400 && xhr1.status < 404) {
+      document.location = "/";
+    }
+  }
+  xhr1.send();
+}
