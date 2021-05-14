@@ -190,7 +190,8 @@ function acceptAgreement(method, address, brief, options, cb) {
       if (cb) {
         cb(data);
       }
-    } else if (xhr1.status > 400 && xhr1.status < 500) {
+      return
+    } else if (xhr1.status === 401) {
       document.location = "/";
     }
   }
