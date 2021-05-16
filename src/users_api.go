@@ -190,15 +190,15 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		userJSON, userBSON, err = e.db.getUser(address)
 	} else {
 		userJSON, userTOKEN, userBSON, err = e.db.getUserByIndex(address, mode, e.conf)
-		if err != nil {
-			returnError(w, r, "internal error", 405, err, event)
-			return
-		}
-		if userJSON == nil {
-			returnError(w, r, "user record not found", 405, nil, event)
-			return
-		}
 		event.Record = userTOKEN
+	}
+	if err != nil {
+		returnError(w, r, "internal error", 405, err, event)
+		return
+	}
+	if userJSON == nil {
+		returnError(w, r, "user record not found", 405, nil, event)
+		return
 	}
 	authResult := e.enforceAuth(w, r, event)
 	if authResult == "" {
