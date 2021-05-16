@@ -85,7 +85,7 @@ func helpConfigurationDump(token string) ([]byte, error) {
 func init() {
 	fmt.Printf("**INIT*TEST*CODE***\n")
 	testDBFile := storage.CreateTestDB()
-	db, myRootToken, err := setupDB(&testDBFile)
+	db, myRootToken, err := setupDB(&testDBFile, nil, "DEMO")
 	if err != nil {
 		//log.Panic("error %s", err.Error())
 		fmt.Printf("error %s", err.Error())
@@ -94,9 +94,8 @@ func init() {
 	db.store.InitUserApps()
 	var cfg2 Config
 	cfile := "../databunker.yaml"
-	readFile(&cfg2, &cfile)
+	readConfFile(&cfg2, &cfile)
 	var cfg Config
-	cfg.Sms.TwilioToken = "ttoken"
 	cfg.SelfService.AppRecordChange = []string{"testapp", "super"}
 	cfg.Generic.CreateUserWithoutAccessToken = true
 	cfg.Policy.MaxAuditRetentionPeriod = "1m"

@@ -107,9 +107,6 @@ func TestSMS(t *testing.T) {
 	client := server.Client()
 	domain := server.URL
 	var cfg Config
-	cfg.Sms.TwilioToken = "ttoken"
-	cfg.Sms.TwilioAccount = "taccount"
-	cfg.Sms.TwilioFrom = "from1234"
 	sendCodeByPhoneDo(domain, client, 1234, "4444", cfg)
 }
 
