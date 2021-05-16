@@ -25,6 +25,7 @@ func helpServe0(request *http.Request) ([]byte, error) {
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, request)
 	if rr.Code != 200 {
+		fmt.Printf("[%d] %s%s\n", rr.Code, request.Host, request.URL.Path)
 		return rr.Body.Bytes(), fmt.Errorf("wrong status: %d", rr.Code)
 	}
 	//fmt.Printf("Got: %s\n", rr.Body.Bytes())
@@ -85,7 +86,7 @@ func helpConfigurationDump(token string) ([]byte, error) {
 func init() {
 	fmt.Printf("**INIT*TEST*CODE***\n")
 	testDBFile := storage.CreateTestDB()
-	db, myRootToken, err := setupDB(&testDBFile, nil, "DEMO")
+	db, myRootToken, err := setupDB(&testDBFile, nil, "")
 	if err != nil {
 		//log.Panic("error %s", err.Error())
 		fmt.Printf("error %s", err.Error())
@@ -98,7 +99,6 @@ func init() {
 	var cfg Config
 	cfg.SelfService.AppRecordChange = []string{"testapp", "super"}
 	cfg.Generic.CreateUserWithoutAccessToken = true
-	cfg.Policy.MaxAuditRetentionPeriod = "1m"
 	e := mainEnv{db, cfg, make(chan struct{})}
 	rootToken2, err := e.db.getRootXtoken()
 	if err != nil {
@@ -106,6 +106,7 @@ func init() {
 	}
 	fmt.Printf("Hashed root token: %s\n", rootToken2)
 	router = e.setupRouter()
+	router = e.setupConfRouter(router)
 	//test1 := &testEnv{e, rootToken, router}
 	e.dbCleanupDo()
 	fmt.Printf("**INIT*DONE***\n")
