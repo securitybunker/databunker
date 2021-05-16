@@ -43,15 +43,15 @@ func helpGetAllUsersByBrief(brief string) (map[string]interface{}, error) {
 	return helpServe(request)
 }
 
-func helpGetAllBriefs() (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/consents"
+func helpGetLBasis() (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/lbasis"
 	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
 }
 
 func TestCreateWithdrawConsent(t *testing.T) {
-	raw, _ := helpGetAllBriefs()
+	raw, _ := helpGetLBasis()
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get all brief codes")
 	}
@@ -133,7 +133,7 @@ func TestCreateWithdrawConsent(t *testing.T) {
 	if raw["total"].(float64) != 3 {
 		t.Fatalf("Wrong number of consents")
 	}
-	raw, _ = helpGetAllBriefs()
+	raw, _ = helpGetLBasis()
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get all briefs")
 	}
