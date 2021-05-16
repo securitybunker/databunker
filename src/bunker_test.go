@@ -24,8 +24,8 @@ func helpServe0(request *http.Request) ([]byte, error) {
 	request.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, request)
+	fmt.Printf("[%d] %s%s\n", rr.Code, request.Host, request.URL.Path)
 	if rr.Code != 200 {
-		fmt.Printf("[%d] %s%s\n", rr.Code, request.Host, request.URL.Path)
 		return rr.Body.Bytes(), fmt.Errorf("wrong status: %d", rr.Code)
 	}
 	//fmt.Printf("Got: %s\n", rr.Body.Bytes())
@@ -36,6 +36,7 @@ func helpServe(request *http.Request) (map[string]interface{}, error) {
 	request.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, request)
+	fmt.Printf("[%d] %s%s\n", rr.Code, request.Host, request.URL.Path)
 	fmt.Printf("Got: %s\n", rr.Body.Bytes())
 	var raw map[string]interface{}
 	if rr.Body.Bytes()[0] == '{' {
@@ -51,6 +52,7 @@ func helpServe2(request *http.Request) (map[string]interface{}, error) {
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, request)
+	fmt.Printf("[%d] %s%s\n", rr.Code, request.Host, request.URL.Path)
 	fmt.Printf("Got: %s\n", rr.Body.Bytes())
 	var raw map[string]interface{}
 	if rr.Body.Bytes()[0] == '{' {
