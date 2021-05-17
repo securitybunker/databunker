@@ -201,6 +201,7 @@ Detailed information can be found at https://databunker.org/use-case/
 5. https://stackshare.io/databunker
 6. https://hackernoon.com/data-leak-prevention-with-databunker-xnn33u9
 7. https://anchor.fm/techandmain/episodes/Huawei--Microsoft-and-DataBunker--Yuli-Stremovsky-evl385
+8. https://github.com/expressjs/session
 
 If you published an article about Databunker send us a link at yuli@privacybunker.io
 
