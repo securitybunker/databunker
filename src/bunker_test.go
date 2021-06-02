@@ -28,7 +28,7 @@ func helpServe0(request *http.Request) ([]byte, error) {
 	if rr.Code != 200 {
 		return rr.Body.Bytes(), fmt.Errorf("wrong status: %d", rr.Code)
 	}
-	//fmt.Printf("Got: %s\n", rr.Body.Bytes())
+	//fmt.Printf("Response: %s\n", rr.Body.Bytes())
 	return rr.Body.Bytes(), nil
 }
 
@@ -37,7 +37,7 @@ func helpServe(request *http.Request) (map[string]interface{}, error) {
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, request)
 	fmt.Printf("[%d] %s%s\n", rr.Code, request.Host, request.URL.Path)
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
+	fmt.Printf("Response: %s\n", rr.Body.Bytes())
 	var raw map[string]interface{}
 	if rr.Body.Bytes()[0] == '{' {
 		json.Unmarshal(rr.Body.Bytes(), &raw)
@@ -53,7 +53,7 @@ func helpServe2(request *http.Request) (map[string]interface{}, error) {
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, request)
 	fmt.Printf("[%d] %s%s\n", rr.Code, request.Host, request.URL.Path)
-	fmt.Printf("Got: %s\n", rr.Body.Bytes())
+	fmt.Printf("Response: %s\n", rr.Body.Bytes())
 	var raw map[string]interface{}
 	if rr.Body.Bytes()[0] == '{' {
 		json.Unmarshal(rr.Body.Bytes(), &raw)

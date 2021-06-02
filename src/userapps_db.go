@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
+	"log"
 	"strings"
 
 	jsonpatch "github.com/evanphx/json-patch"
@@ -31,7 +31,7 @@ func (dbobj dbcon) deleteUserApp(userTOKEN string, appName string) {
 }
 
 func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, appName string, event *auditEvent) (string, error) {
-	fmt.Printf("createAppRecord app is : %s\n", appName)
+	log.Printf("Going to create app record: %s\n", appName)
 	encodedStr, err := dbobj.userEncrypt(userTOKEN, jsonData)
 	if err != nil {
 		return userTOKEN, err
@@ -94,15 +94,14 @@ func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appNa
 	if err != nil {
 		return userTOKEN, err
 	}
-
 	// merge
-	fmt.Printf("old json: %s\n", decrypted)
-	fmt.Printf("json patch: %s\n", jsonDataPatch)
+	//fmt.Printf("old json: %s\n", decrypted)
+	//fmt.Printf("json patch: %s\n", jsonDataPatch)
 	newJSON, err := jsonpatch.MergePatch(decrypted, jsonDataPatch)
 	if err != nil {
 		return userTOKEN, err
 	}
-	fmt.Printf("result: %s\n", newJSON)
+	//fmt.Printf("result: %s\n", newJSON)
 	bdoc := bson.M{}
 	encoded, err := encrypt(dbobj.masterKey, recordKey, newJSON)
 	if err != nil {
@@ -117,7 +116,6 @@ func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appNa
 
 	// here I add md5 of the original record to filter
 	// to make sure this record was not change by other thread
-	fmt.Println("update user app")
 	result, err := dbobj.store.UpdateRecordInTable2("app_"+appName, "token", userTOKEN, "md5", sig, &bdoc, nil)
 	if err != nil {
 		return userTOKEN, err
@@ -159,7 +157,6 @@ func (dbobj dbcon) listUserApps(userTOKEN string) ([]byte, error) {
 			}
 		}
 	}
-	fmt.Printf("returning: %s\n", result)
 	if len(result) == 0 {
 		return []byte("[]"), nil
 	}

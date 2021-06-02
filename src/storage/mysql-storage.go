@@ -498,7 +498,6 @@ func (dbobj MySQLDB) getRecordInTableDo(q string, values []interface{}) (bson.M,
 	defer tx.Rollback()
 	rows, err := tx.Query(q, values...)
 	if err == sql.ErrNoRows {
-		fmt.Println("nothing found")
 		return nil, nil
 	} else if err != nil {
 		return nil, err
@@ -560,13 +559,11 @@ func (dbobj MySQLDB) getRecordInTableDo(q string, values []interface{}) (bson.M,
 	}
 	err = rows.Close()
 	if err == sql.ErrNoRows {
-		fmt.Println("nothing found2")
 		return nil, nil
 	} else if err != nil {
 		return nil, err
 	}
 	if len(recBson) == 0 {
-		fmt.Println("no result!!!")
 		return nil, nil
 	}
 	tx.Commit()
@@ -802,7 +799,6 @@ func (dbobj MySQLDB) getListDo(q string, values []interface{}) ([]bson.M, error)
 	defer tx.Rollback()
 	rows, err := tx.Query(q, values...)
 	if err == sql.ErrNoRows {
-		fmt.Println("nothing found")
 		return nil, nil
 	} else if err != nil {
 		return nil, err
@@ -830,7 +826,6 @@ func (dbobj MySQLDB) getListDo(q string, values []interface{}) ([]bson.M, error)
 
 		err = rows.Scan(columnPointers...)
 		if err == sql.ErrNoRows {
-			fmt.Println("nothing found")
 			return nil, nil
 		}
 		if err != nil {
@@ -857,13 +852,11 @@ func (dbobj MySQLDB) getListDo(q string, values []interface{}) ([]bson.M, error)
 	}
 	err = rows.Close()
 	if err == sql.ErrNoRows {
-		fmt.Println("nothing found2")
 		return nil, nil
 	} else if err != nil {
 		return nil, err
 	}
 	if len(results) == 0 {
-		fmt.Println("no result!!!")
 		return nil, nil
 	}
 	tx.Commit()
@@ -912,7 +905,7 @@ func (dbobj MySQLDB) execQueries(queries []string) error {
 func (dbobj MySQLDB) IndexNewApp(appName string) {
 	if contains(allTables, appName) == false {
 		// it is a new app, create an index
-		fmt.Printf("This is a new app, creating table & index for: %s\n", appName)
+		log.Printf("This is a new app, creating table & index for: %s\n", appName)
 		queries := []string{
 			`CREATE TABLE IF NOT EXISTS ` + appName + ` (`+
 			`token TINYTEXT,`+

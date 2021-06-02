@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	uuid "github.com/hashicorp/go-uuid"
@@ -79,7 +78,7 @@ func (dbobj dbcon) checkUserAuthXToken(xtokenUUID string) (tokenAuthResult, erro
 	}
 	xtokenHashed := hashString(dbobj.hash, xtokenUUID)
 	if len(rootXTOKEN) > 0 && rootXTOKEN == xtokenHashed {
-		//fmt.Println("It is a root token")
+		//log.Println("It is a root token")
 		result.ttype = "root"
 		result.name = "root"
 		return result, nil
@@ -89,7 +88,7 @@ func (dbobj dbcon) checkUserAuthXToken(xtokenUUID string) (tokenAuthResult, erro
 		return result, errors.New("failed to authenticate")
 	}
 	tokenType := record["type"].(string)
-	fmt.Printf("xtoken type: %s\n", tokenType)
+	//log.Printf("xtoken type: %s\n", tokenType)
 	if tokenType == "root" {
 		// we have this admin user
 		rootXTOKEN = xtokenHashed
