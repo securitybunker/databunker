@@ -124,7 +124,7 @@ func (dbobj *SQLiteDB) OpenDB(filepath *string) error {
 		knownApps = append(knownApps, t)
 	}
 	tx.Commit()
-	fmt.Printf("tables: %s\n", knownApps)
+	log.Printf("List of tables: %s\n", knownApps)
 	return nil
 }
 
@@ -179,7 +179,7 @@ func (dbobj SQLiteDB) BackupDB(w http.ResponseWriter) {
 	err := sqlite3dump.DumpDB(dbobj.db, w)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Printf("error in backup: %s", err)
+		log.Printf("error in backup: %s", err)
 	}
 }
 
@@ -231,7 +231,7 @@ func (dbobj SQLiteDB) decodeFieldsValues(data interface{}) (string, []interface{
 			values = append(values, val)
 		}
 	default:
-		fmt.Printf("XXXXXX wrong type: %T\n", t)
+		log.Printf("XXXXXX wrong type: %T\n", t)
 	}
 	return fields, values
 }
@@ -258,7 +258,7 @@ func (dbobj SQLiteDB) decodeForCleanup(data interface{}) string {
 			}
 		}
 	default:
-		fmt.Printf("decodeForCleanup: wrong type: %s\n", t)
+		log.Printf("decodeForCleanup: wrong type: %s\n", t)
 	}
 
 	return fields
@@ -313,7 +313,7 @@ func (dbobj SQLiteDB) CreateRecordInTable(tbl string, data interface{}) (int, er
 		}
 	}
 	q := "insert into " + tbl + " (" + fields + ") values (" + valuesInQ + ")"
-	fmt.Printf("q: %s\n", q)
+	//fmt.Printf("q: %s\n", q)
 	//fmt.Printf("values: %s\n", values...)
 	tx, err := dbobj.db.Begin()
 	if err != nil {
@@ -492,7 +492,7 @@ func (dbobj SQLiteDB) getRecordInTableDo(q string, values []interface{}) (bson.M
 	defer tx.Rollback()
 	rows, err := tx.Query(q, values...)
 	if err == sql.ErrNoRows {
-		fmt.Println("nothing found")
+		log.Println("nothing found")
 		return nil, nil
 	} else if err != nil {
 		return nil, err
@@ -520,12 +520,10 @@ func (dbobj SQLiteDB) getRecordInTableDo(q string, values []interface{}) (bson.M
 	}
 	err = rows.Scan(columnPointers...)
 	if err == sql.ErrNoRows {
-		fmt.Println("returning empty result")
 		return nil, nil
 	}
 	if err != nil {
 		if strings.Contains(err.Error(), "Rows are closed") {
-			fmt.Println("returning empty result")
 			return nil, nil
 		}
 		return nil, err
@@ -545,18 +543,16 @@ func (dbobj SQLiteDB) getRecordInTableDo(q string, values []interface{}) (bson.M
 		case nil:
 			//fmt.Printf("is nil, not interesting\n")
 		default:
-			fmt.Printf("field: %s - %s, unknown: %s - %T\n", colName, columns[i], t, t)
+			log.Printf("field: %s - %s, unknown: %s - %T\n", colName, columns[i], t, t)
 		}
 	}
 	err = rows.Close()
 	if err == sql.ErrNoRows {
-		fmt.Println("nothing found2")
 		return nil, nil
 	} else if err != nil {
 		return nil, err
 	}
 	if len(recBson) == 0 {
-		fmt.Println("no result!!!")
 		return nil, nil
 	}
 	tx.Commit()
@@ -572,7 +568,7 @@ func (dbobj SQLiteDB) DeleteRecord(t Tbl, keyName string, keyValue string) (int6
 // DeleteRecordInTable deletes record in database
 func (dbobj SQLiteDB) DeleteRecordInTable(table string, keyName string, keyValue string) (int64, error) {
 	q := "delete from " + table + " WHERE " + dbobj.escapeName(keyName) + "=$1"
-	fmt.Printf("q: %s\n", q)
+	log.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
 	if err != nil {
@@ -599,7 +595,7 @@ func (dbobj SQLiteDB) DeleteRecord2(t Tbl, keyName string, keyValue string, keyN
 func (dbobj SQLiteDB) deleteRecordInTable2(table string, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
 	q := "delete from " + table + " WHERE " + dbobj.escapeName(keyName) + "=$1 AND " +
 		dbobj.escapeName(keyName2) + "=$2"
-	fmt.Printf("q: %s\n", q)
+	log.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
 	if err != nil {
@@ -654,7 +650,7 @@ func (dbobj SQLiteDB) DeleteExpired0(t Tbl, expt int32) (int64, error) {
 	table := GetTable(t)
 	now := int32(time.Now().Unix())
 	q := fmt.Sprintf("delete from %s WHERE `when`>0 AND `when`<%d", table, now-expt)
-	fmt.Printf("q: %s\n", q)
+	log.Printf("q: %s\n", q)
 	tx, err := dbobj.db.Begin()
 	if err != nil {
 		return 0, err
@@ -677,7 +673,7 @@ func (dbobj SQLiteDB) DeleteExpired0(t Tbl, expt int32) (int64, error) {
 func (dbobj SQLiteDB) DeleteExpired(t Tbl, keyName string, keyValue string) (int64, error) {
 	table := GetTable(t)
 	q := "delete from " + table + " WHERE endtime>0 AND endtime<$1 AND " + dbobj.escapeName(keyName) + "=$2"
-	fmt.Printf("q: %s\n", q)
+	log.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
 	if err != nil {
@@ -701,7 +697,7 @@ func (dbobj SQLiteDB) CleanupRecord(t Tbl, keyName string, keyValue string, data
 	tbl := GetTable(t)
 	cleanup := dbobj.decodeForCleanup(data)
 	q := "update " + tbl + " SET " + cleanup + " WHERE " + dbobj.escapeName(keyName) + "=$1"
-	fmt.Printf("q: %s\n", q)
+	log.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
 	if err != nil {
@@ -725,7 +721,7 @@ func (dbobj SQLiteDB) GetExpiring(t Tbl, keyName string, keyValue string) ([]bso
 	now := int32(time.Now().Unix())
 	q := fmt.Sprintf("select * from %s WHERE endtime>0 AND endtime<%d AND %s=$1",
 			table, now, dbobj.escapeName(keyName))
-	fmt.Printf("q: %s\n", q)
+	//fmt.Printf("q: %s\n", q)
 	values := make([]interface{}, 0)
 	values = append(values, keyValue)
 	return dbobj.getListDo(q, values)
@@ -794,7 +790,7 @@ func (dbobj SQLiteDB) getListDo(q string, values []interface{}) ([]bson.M, error
 	defer tx.Rollback()
 	rows, err := tx.Query(q, values...)
 	if err == sql.ErrNoRows {
-		fmt.Println("nothing found")
+		log.Println("nothing found")
 		return nil, nil
 	} else if err != nil {
 		return nil, err
@@ -826,11 +822,9 @@ func (dbobj SQLiteDB) getListDo(q string, values []interface{}) ([]bson.M, error
 
 		err = rows.Scan(columnPointers...)
 		if err == sql.ErrNoRows {
-			fmt.Println("nothing found")
 			return nil, nil
 		}
 		if err != nil {
-			fmt.Printf("nothing found: %s\n", err)
 			return nil, nil
 		}
 		for i, colName := range columnNames {
@@ -846,20 +840,18 @@ func (dbobj SQLiteDB) getListDo(q string, values []interface{}) ([]bson.M, error
 			case nil:
 				//fmt.Printf("is nil, not interesting\n")
 			default:
-				fmt.Printf("field: %s - %s, unknown: %s - %T\n", colName, columns[i], t, t)
+				log.Printf("field: %s - %s, unknown: %s - %T\n", colName, columns[i], t, t)
 			}
 		}
 		results = append(results, recBson)
 	}
 	err = rows.Close()
 	if err == sql.ErrNoRows {
-		fmt.Println("nothing found2")
 		return nil, nil
 	} else if err != nil {
 		return nil, err
 	}
 	if len(results) == 0 {
-		fmt.Println("no result!!!")
 		return nil, nil
 	}
 	tx.Commit()
@@ -904,7 +896,7 @@ func (dbobj SQLiteDB) execQueries(queries []string) error {
 func (dbobj SQLiteDB) IndexNewApp(appName string) {
 	if contains(knownApps, appName) == false {
 		// it is a new app, create an index
-		fmt.Printf("This is a new app, creating table & index for: %s\n", appName)
+		log.Printf("This is a new app, creating table & index for: %s\n", appName)
 		queries := []string{"CREATE TABLE IF NOT EXISTS " + appName + ` (
 			token STRING,
 			md5 STRING,
