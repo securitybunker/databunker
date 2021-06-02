@@ -10,14 +10,16 @@ import (
 )
 
 func helpUserLogin(mode string, address string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/login/" + mode + "/" + address
+	captcha, _ := generateCaptcha()
+	code, _ := decryptCaptcha(captcha)
+	url := "http://localhost:3000/v1/prelogin/" + mode + "/" + address + "/" + code + "/" + captcha
 	request := httptest.NewRequest("GET", url, nil)
 	//request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
 }
 
 func helpUserLoginEnter(mode string, address string, code string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/enter/" + mode + "/" + address + "/" + code
+	url := "http://localhost:3000/v1/login/" + mode + "/" + address + "/" + code
 	request := httptest.NewRequest("GET", url, nil)
 	//request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
