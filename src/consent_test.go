@@ -29,8 +29,8 @@ func helpGetUserConsent(mode string, address string, brief string) (map[string]i
 	return helpServe(request)
 }
 
-func helpGetAllUserConsents(mode string, address string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/consent/" + mode + "/" + address
+func helpGetAllUserAgreements(mode string, address string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/agreement/" + mode + "/" + address
 	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
@@ -55,7 +55,7 @@ func TestCreateWithdrawConsent(t *testing.T) {
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get all brief codes")
 	}
-	raw, _ = helpGetAllUserConsents("email", "moshe@moshe-int.com")
+	raw, _ = helpGetAllUserAgreements("email", "moshe@moshe-int.com")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get user consents")
 	}
@@ -71,7 +71,7 @@ func TestCreateWithdrawConsent(t *testing.T) {
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to accept on consent")
 	}
-	raw, _ = helpGetAllUserConsents("email", "moshe@moshe-int.com")
+	raw, _ = helpGetAllUserAgreements("email", "moshe@moshe-int.com")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get user consents")
 	}
@@ -87,14 +87,14 @@ func TestCreateWithdrawConsent(t *testing.T) {
 		t.Fatalf("Failed to create user")
 	}
 	userTOKEN := raw["token"].(string)
-	raw, _ = helpGetAllUserConsents("email", "moshe@moshe-int.com")
+	raw, _ = helpGetAllUserAgreements("email", "moshe@moshe-int.com")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get user consents")
 	}
 	if raw["total"].(float64) != 1 {
 		t.Fatalf("Wrong number of user consents")
 	}
-	raw, _ = helpGetAllUserConsents("token", userTOKEN)
+	raw, _ = helpGetAllUserAgreements("token", userTOKEN)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get user consents")
 	}
@@ -126,7 +126,7 @@ func TestCreateWithdrawConsent(t *testing.T) {
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to withdraw consent")
 	}
-	raw, _ = helpGetAllUserConsents("email", "moshe@moshe-int.com")
+	raw, _ = helpGetAllUserAgreements("email", "moshe@moshe-int.com")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get user consents")
 	}
@@ -267,19 +267,19 @@ func TestWithdrawConsentBadUser(t *testing.T) {
 
 func TestGetAllUserConsentsFake(t *testing.T) {
 	userTOKEN, _ := uuid.GenerateUUID()
-	raw, _ := helpGetAllUserConsents("token", userTOKEN)
+	raw, _ := helpGetAllUserAgreements("token", userTOKEN)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to get all user consents")
 	}
-	raw, _ = helpGetAllUserConsents("faketoken", userTOKEN)
+	raw, _ = helpGetAllUserAgreements("faketoken", userTOKEN)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to get all user consents")
 	}
-	raw, _ = helpGetAllUserConsents("login", userTOKEN)
+	raw, _ = helpGetAllUserAgreements("login", userTOKEN)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to get all user consents")
 	}
-	raw, _ = helpGetAllUserConsents("token", "faketoken")
+	raw, _ = helpGetAllUserAgreements("token", "faketoken")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to get all user consents")
 	}
