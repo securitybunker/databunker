@@ -109,19 +109,19 @@ func TestCreateFakeUserSession(t *testing.T) {
 	data := `{"expiration":"1d","cookie":"12345"}`
 	raw, _ := helpCreateSession("token", userTOKEN, data)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to create session for fake user")
+		t.Fatalf("Should fail to create session for fake user")
 	}
 	raw, _ = helpCreateSession("token", "faketoken", data)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to create session for fake user")
+		t.Fatalf("Should fail to create session for fake user")
 	}
 	raw, _ = helpCreateSession("faketoken", userTOKEN, data)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to create session for fake user")
+		t.Fatalf("Should fail to create session for fake user")
 	}
 	raw, _ = helpCreateSession("email", "fakemail23@fake.com", data)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to create session for fake user")
+		t.Fatalf("Should fail to create session for fake user")
 	}
 }
 
