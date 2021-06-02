@@ -284,9 +284,9 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 		}
 	})
 	router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("url not found"))
+		w.Write([]byte(`{"status":"error", "message":"url not found"}`))
 	})
 	router.GlobalOPTIONS = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//if r.Header.Get("Access-Control-Request-Method") != "" {
