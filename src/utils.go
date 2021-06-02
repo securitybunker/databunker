@@ -412,7 +412,7 @@ func (e mainEnv) enforceAdmin(w http.ResponseWriter, r *http.Request) string {
 
 func enforceUUID(w http.ResponseWriter, uuidCode string, event *auditEvent) bool {
 	if isValidUUID(uuidCode) == false {
-		fmt.Printf("405 bad uuid in : %s\n", uuidCode)
+		//fmt.Printf("405 bad uuid in : %s\n", uuidCode)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(405)
 		fmt.Fprintf(w, `{"status":"error","message":"bad uuid"}`)

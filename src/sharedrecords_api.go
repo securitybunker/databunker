@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"reflect"
 	"strings"
@@ -101,7 +102,7 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 	if len(recordInfo.token) > 0 {
 		event.Record = recordInfo.token
 		event.App = recordInfo.appName
-		fmt.Printf("displaying fields: %s, user token: %s\n", recordInfo.fields, recordInfo.token)
+		log.Printf("field to display: %s, user token: %s\n", recordInfo.fields, recordInfo.token)
 
 		if len(recordInfo.appName) > 0 {
 			resultJSON, err = e.db.getUserApp(recordInfo.token, recordInfo.appName)
@@ -118,7 +119,7 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 			returnError(w, r, "not found", 405, err, event)
 			return
 		}
-		fmt.Printf("Full json: %s\n", resultJSON)
+		log.Printf("Full json: %s\n", resultJSON)
 		if len(recordInfo.fields) > 0 {
 			raw := make(map[string]interface{})
 			//var newJSON json
@@ -157,6 +158,6 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 		str = fmt.Sprintf(`{"status":"ok","data":%s}`, resultJSON)
 	}
 
-	fmt.Printf("result: %s\n", str)
+	log.Printf("result: %s\n", str)
 	w.Write([]byte(str))
 }

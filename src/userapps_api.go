@@ -205,7 +205,6 @@ func (e mainEnv) userappDelete(w http.ResponseWriter, r *http.Request, ps httpro
 }
 
 func (e mainEnv) appList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	fmt.Printf("/APPLIST\n")
 	if e.enforceAuth(w, r, nil) == "" {
 		return
 	}

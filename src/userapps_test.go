@@ -92,23 +92,23 @@ func TestCreateUserUpdateAppBadData(t *testing.T) {
 	}
 	raw, _ = helpUpdateUserApp(userTOKEN, appName, "a:b")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to update userapp")
+		t.Fatalf("Should fail to update userapp")
 	}
 	raw, _ = helpUpdateUserApp(userTOKEN, appName, "{}")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to update userapp")
+		t.Fatalf("Should fail to update userapp")
 	}
 	raw, _ = helpUpdateUserApp(userTOKEN, "app!123", `{"a":"b"}`)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to update userapp")
+		t.Fatalf("Should fail to update userapp")
 	}
 	raw, _ = helpUpdateUserApp(userTOKEN, "fakeapp", `{"a":"b"}`)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to update userapp")
+		t.Fatalf("Should fail to update userapp")
 	}
 	raw, _ = helpUpdateUserApp("faketoken", appName, `{"a":"b"}`)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should failed to update userapp")
+		t.Fatalf("Should fail to update userapp")
 	}
 	raw, _ = helpUpdateUserApp(userTOKEN, appName, `{"a":"b"}`)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
@@ -145,6 +145,10 @@ func TestCreateUserAppResetData(t *testing.T) {
 	raw, _ = helpGetUserApp(userTOKEN, appName)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get app detailes for user")
+	}
+	data := raw["data"].(map[string]interface{})
+	if len(data) != 0 {
+		t.Fatalf("Expected empty data")
 	}
 }
 
