@@ -194,7 +194,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 		newIdxFinalValue := ""
 		if newIdxValue, ok3 := raw[idx]; ok3 {
 			newIdxFinalValue = getIndexString(newIdxValue)
-			fmt.Println("newIdxFinalValue0", newIdxFinalValue)
+			//fmt.Println("newIdxFinalValue0", newIdxFinalValue)
 			if len(newIdxFinalValue) > 0 {
 				if idx == "email" {
 					newIdxFinalValue = normalizeEmail(newIdxFinalValue)
@@ -203,19 +203,19 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 					newIdxFinalValue = normalizePhone(newIdxFinalValue, conf.Sms.DefaultCountry)
 				}
 			}
-			fmt.Println("newIdxFinalValue", newIdxFinalValue)
+			//fmt.Println("newIdxFinalValue", newIdxFinalValue)
 		}
 		if idxOldValue, ok := oldUserBson[idx+"idx"]; ok {
 			if len(newIdxFinalValue) > 0 && len(idxOldValue.(string)) >= 0 {
 				idxStringHashHex := hashString(dbobj.hash, newIdxFinalValue)
 				if idxStringHashHex == idxOldValue.(string) {
-					fmt.Println("index value NOT changed!")
+					//fmt.Println("index value NOT changed!")
 					actionCode = 0
 				} else {
-					fmt.Println("index value changed!")
+					//fmt.Println("index value changed!")
 				}
-			} else {
-				fmt.Println("old or new is empty")
+			//} else {
+			//	fmt.Println("old or new is empty")
 			}
 		}
 		if len(newIdxFinalValue) > 0 && actionCode == 1 {
