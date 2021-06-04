@@ -9,7 +9,7 @@ import (
 	uuid "github.com/hashicorp/go-uuid"
 )
 
-func helpUserLogin(mode string, address string) (map[string]interface{}, error) {
+func helpUserPrelogin(mode string, address string) (map[string]interface{}, error) {
 	captcha, _ := generateCaptcha()
 	code, _ := decryptCaptcha(captcha)
 	url := "http://localhost:3000/v1/prelogin/" + mode + "/" + address + "/" + code + "/" + captcha
@@ -18,7 +18,7 @@ func helpUserLogin(mode string, address string) (map[string]interface{}, error) 
 	return helpServe(request)
 }
 
-func helpUserLoginEnter(mode string, address string, code string) (map[string]interface{}, error) {
+func helpUserLogin(mode string, address string, code string) (map[string]interface{}, error) {
 	url := "http://localhost:3000/v1/login/" + mode + "/" + address + "/" + code
 	request := httptest.NewRequest("GET", url, nil)
 	//request.Header.Set("X-Bunker-Token", rootToken)
@@ -76,7 +76,7 @@ func TestUserLoginDelete(t *testing.T) {
 		}
 	}
 	userTOKEN := raw["token"].(string)
-	raw, _ = helpUserLogin("email", email)
+	raw, _ = helpUserPrelogin("email", email)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to create user login: %s", raw["message"].(string))
 	}
@@ -90,7 +90,7 @@ func TestUserLoginDelete(t *testing.T) {
 			tmpCode = userBson["tempcode"].(int32)
 		}
 	*/
-	raw, _ = helpUserLoginEnter("email", email, "4444") //strconv.Itoa(int(tmpCode)))
+	raw, _ = helpUserLogin("email", email, "4444") //strconv.Itoa(int(tmpCode)))
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to create user login: %s", raw["message"].(string))
 	}
@@ -206,37 +206,37 @@ func TestBadLogin(t *testing.T) {
 		t.Fatalf("Failed to create user")
 	}
 	//userTOKEN := raw["token"].(string)
-	raw, _ = helpUserLogin("login", "user10")
+	raw, _ = helpUserPrelogin("login", "user10")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to login user")
 	}
-	raw, _ = helpUserLogin("email", "user10@user10.com")
+	raw, _ = helpUserPrelogin("email", "user10@user10.com")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Fail to login user")
 	}
-	raw, _ = helpUserLogin("phone", "8855667788")
+	raw, _ = helpUserPrelogin("phone", "8855667788")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Fail to login user")
 	}
-	raw, _ = helpUserLoginEnter("login", "user10", "abc1234")
+	raw, _ = helpUserLogin("login", "user10", "abc1234")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to login user")
 	}
-	raw, _ = helpUserLoginEnter("email", "user10@user10.com", "abc1234")
+	raw, _ = helpUserLogin("email", "user10@user10.com", "abc1234")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to login user")
+	}
+}
+
+func TestFakePrelogin(t *testing.T) {
+	raw, _ := helpUserPrelogin("email", "user-fake-11@userfake11.com")
+	if _, ok := raw["status"]; !ok || raw["status"].(string) == "ok" {
+		t.Fatalf("Should fail for not-existing users")
 	}
 }
 
 func TestFakeLogin(t *testing.T) {
-	raw, _ := helpUserLogin("email", "user-fake-11@userfake11.com")
-	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
-		t.Fatalf("Should be ok for not-existing users")
-	}
-}
-
-func TestFakeLoginEnter(t *testing.T) {
-	raw, _ := helpUserLoginEnter("email", "user-fake-11@userfake11.com", "abc1234")
+	raw, _ := helpUserLogin("email", "user-fake-11@userfake11.com", "abc1234")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to login enter")
 	}
