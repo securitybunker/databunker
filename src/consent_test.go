@@ -8,15 +8,15 @@ import (
 	uuid "github.com/hashicorp/go-uuid"
 )
 
-func helpAcceptConsent(mode string, address string, brief string, dataJSON string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/consent/" + mode + "/" + address + "/" + brief
+func helpAcceptAgreement(mode string, address string, brief string, dataJSON string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/agreement/" + brief + "/" + mode + "/" + address
 	request := httptest.NewRequest("POST", url, strings.NewReader(dataJSON))
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
 }
 
-func helpWithdrawConsent(mode string, address string, brief string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/consent/" + mode + "/" + address + "/" + brief
+func helpWithdrawAgreement(mode string, address string, brief string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/agreement/" + brief + "/" + mode + "/" + address
 	request := httptest.NewRequest("DELETE", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
@@ -50,6 +50,13 @@ func helpGetLBasis() (map[string]interface{}, error) {
 	return helpServe(request)
 }
 
+func helpCreateLBasis(brief string, dataJSON string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/lbasis/" + brief
+	request := httptest.NewRequest("POST", url, strings.NewReader(dataJSON))
+	request.Header.Set("X-Bunker-Token", rootToken)
+	return helpServe(request)
+}
+
 func TestCreateWithdrawConsent(t *testing.T) {
 	raw, _ := helpGetLBasis()
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
@@ -63,11 +70,11 @@ func TestCreateWithdrawConsent(t *testing.T) {
 		t.Fatalf("Wrong number of user consents")
 	}
 	brief := "test1"
-	raw, _ = helpAcceptConsent("email", "moshe@moshe-int.com", "test0", `{"expiration":"10m","starttime":0}`)
+	raw, _ = helpAcceptAgreement("email", "moshe@moshe-int.com", "test0", `{"expiration":"10m","starttime":0}`)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to accept on consent")
 	}
-	raw, _ = helpAcceptConsent("phone", "12345678", "test0", "")
+	raw, _ = helpAcceptAgreement("phone", "12345678", "test0", "")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to accept on consent")
 	}
@@ -98,11 +105,11 @@ func TestCreateWithdrawConsent(t *testing.T) {
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get user consents")
 	}
-	raw, _ = helpAcceptConsent("token", userTOKEN, brief, "")
+	raw, _ = helpAcceptAgreement("token", userTOKEN, brief, "")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to accept on consent")
 	}
-	raw, _ = helpAcceptConsent("email", "moshe@moshe-int.com", "contract-accept", "")
+	raw, _ = helpAcceptAgreement("email", "moshe@moshe-int.com", "contract-accept", "")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to accept on consent: contract-accept")
 	}
@@ -118,11 +125,11 @@ func TestCreateWithdrawConsent(t *testing.T) {
 	if record["brief"].(string) != brief {
 		t.Fatalf("Wrong consent brief value")
 	}
-	raw, _ = helpWithdrawConsent("email", "moshe@moshe-int.com", brief)
+	raw, _ = helpWithdrawAgreement("email", "moshe@moshe-int.com", brief)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to withdraw consent")
 	}
-	raw, _ = helpWithdrawConsent("token", userTOKEN, brief)
+	raw, _ = helpWithdrawAgreement("token", userTOKEN, brief)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to withdraw consent")
 	}
@@ -207,7 +214,7 @@ func TestGetFakeUserConsents(t *testing.T) {
 }
 
 func TestAcceptConsentEmail(t *testing.T) {
-	raw, _ := helpAcceptConsent("email", "aaa@bb.com", "brief", "")
+	raw, _ := helpAcceptAgreement("email", "aaa@bb.com", "brief", "")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to accept consent")
 	}
@@ -215,27 +222,27 @@ func TestAcceptConsentEmail(t *testing.T) {
 
 func TestAcceptConsentFakeUser(t *testing.T) {
 	userTOKEN, _ := uuid.GenerateUUID()
-	raw, _ := helpAcceptConsent("token", userTOKEN, "brief", "")
+	raw, _ := helpAcceptAgreement("token", userTOKEN, "brief", "")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to accept consent")
 	}
-	raw, _ = helpAcceptConsent("fakemode", "aaa@bb.com", "brief", "")
+	raw, _ = helpAcceptAgreement("fakemode", "aaa@bb.com", "brief", "")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to accept consent")
 	}
-	raw, _ = helpAcceptConsent("email", "aaa@bb.com", "br$ief", "")
+	raw, _ = helpAcceptAgreement("email", "aaa@bb.com", "br$ief", "")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to accept consent")
 	}
-	raw, _ = helpAcceptConsent("token", "faketoken", "brief", "")
+	raw, _ = helpAcceptAgreement("token", "faketoken", "brief", "")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to accept consent")
 	}
-	raw, _ = helpAcceptConsent("login", "blahblah", "brief", "")
+	raw, _ = helpAcceptAgreement("login", "blahblah", "brief", "")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to accept consent")
 	}
-	raw, _ = helpAcceptConsent("phone", "112234889966", "brief", "a=b")
+	raw, _ = helpAcceptAgreement("phone", "112234889966", "brief", "a=b")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to accept on consent")
 	}
@@ -243,23 +250,23 @@ func TestAcceptConsentFakeUser(t *testing.T) {
 
 func TestWithdrawConsentBadUser(t *testing.T) {
 	userTOKEN, _ := uuid.GenerateUUID()
-	raw, _ := helpWithdrawConsent("token", userTOKEN, "brief")
+	raw, _ := helpWithdrawAgreement("token", userTOKEN, "brief")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to accept consent")
 	}
-	raw, _ = helpWithdrawConsent("token", "badtoken", "brief")
+	raw, _ = helpWithdrawAgreement("token", "badtoken", "brief")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to accept consent")
 	}
-	raw, _ = helpWithdrawConsent("fakemode", "aaa@bb.com", "brief")
+	raw, _ = helpWithdrawAgreement("fakemode", "aaa@bb.com", "brief")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to accept consent")
 	}
-	raw, _ = helpWithdrawConsent("login", "blahblah", "brief")
+	raw, _ = helpWithdrawAgreement("login", "blahblah", "brief")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to accept consent")
 	}
-	raw, _ = helpWithdrawConsent("email", "aaa@bb.com", "bri$ef")
+	raw, _ = helpWithdrawAgreement("email", "aaa@bb.com", "bri$ef")
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Should fail to accept consent")
 	}

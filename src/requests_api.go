@@ -32,7 +32,6 @@ func (e mainEnv) getUserRequests(w http.ResponseWriter, r *http.Request, ps http
 		returnError(w, r, "internal error", 405, err, nil)
 		return
 	}
-	fmt.Printf("Total count of user requests: %d\n", counter)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, counter, resultJSON)

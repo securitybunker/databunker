@@ -54,9 +54,16 @@ func helpCancelUserRequest(rtoken string) (map[string]interface{}, error) {
 }
 
 func TestUserLoginDelete(t *testing.T) {
+	raw, err := helpCreateLBasis("contract1", `{"basistype":"contract","usercontrol":false}`)
+	if err != nil {
+                t.Fatalf("error: %s", err)
+        }
+        if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+                t.Fatalf("Failed to create lbasis")
+        }
 	email := "test@securitybunker.io"
 	jsonData := `{"email":"test@securitybunker.io","phone":"22346622","fname":"Yuli","lname":"Str","tz":"323xxxxx","password":"123456","address":"Y-d habanim 7","city":"Petah-Tiqva","btest":true,"numtest":123,"testnul":null}`
-	raw, err := helpCreateUser(jsonData)
+	raw, err = helpCreateUser(jsonData)
 	if err != nil {
 		t.Fatalf("error: %s", err)
 	}
@@ -91,16 +98,14 @@ func TestUserLoginDelete(t *testing.T) {
 	fmt.Printf("User login *** xtoken: %s\n", xtoken)
 	oldRootToken := rootToken
 	rootToken = xtoken
-	raw, _ = helpAcceptConsent("token", userTOKEN, "contract", "")
+	raw, _ = helpAcceptAgreement("token", userTOKEN, "contract1", "")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to accept on consent")
 	}
-	raw, _ = helpWithdrawConsent("token", userTOKEN, "contract")
+	raw, _ = helpWithdrawAgreement("token", userTOKEN, "contract1")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to accept on consent")
 	}
-	helpAcceptConsent("token", userTOKEN, "contract2", "")
-	helpWithdrawConsent("token", userTOKEN, "contract2")
 	raw, _ = helpChangeUser("token", userTOKEN, `{"login":null}`)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to update user")
@@ -141,7 +146,7 @@ func TestUserLoginDelete(t *testing.T) {
 	rootToken = oldRootToken
 	// get user requests
 	raw, _ = helpGetUserRequests()
-	if raw["total"].(float64) != 5 {
+	if raw["total"].(float64) != 4 {
 		t.Fatalf("Wrong number of user requests for admin to approve/reject/s\n")
 	}
 	records := raw["rows"].([]interface{})
@@ -164,7 +169,7 @@ func TestUserLoginDelete(t *testing.T) {
 		}
 		if action == "consent-withdraw" {
 			brief := records0["brief"].(string)
-			if brief == "contract" {
+			if brief == "contract1" {
 				helpApproveUserRequest(rtoken)
 			} else {
 				helpCancelUserRequest(rtoken)
@@ -180,7 +185,10 @@ func TestUserLoginDelete(t *testing.T) {
 		}
 	}
 	helpApproveUserRequest(rtoken0)
-
+        raw, _ = helpGetUserRequests()
+        if raw["total"].(float64) != 0 {
+                t.Fatalf("Wrong number of user requests for admin to approve/reject/s\n")
+        }
 	// user should be deleted now
 	raw10, _ := helpGetUserAppList(userTOKEN)
 	if len(raw10["apps"].([]interface{})) != 0 {
