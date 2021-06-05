@@ -11,7 +11,7 @@ import (
 	uuid "github.com/hashicorp/go-uuid"
 )
 
-func Test_UUID(t *testing.T) {
+func TestUtilUUID(t *testing.T) {
 	for id := 1; id < 11; id++ {
 		recordUUID, err := uuid.GenerateUUID()
 		t.Logf("Checking[%d]: %s\n", id, recordUUID)
@@ -23,7 +23,7 @@ func Test_UUID(t *testing.T) {
 	}
 }
 
-func Test_AppNames(t *testing.T) {
+func TestUtilAppNames(t *testing.T) {
 	goodApps := []string{"penn", "teller", "a123", "good_app"}
 	for _, value := range goodApps {
 		if isValidApp(value) == false {
@@ -38,7 +38,7 @@ func Test_AppNames(t *testing.T) {
 	}
 }
 
-func Test_stringPatternMatch(t *testing.T) {
+func TestUtilStringPatternMatch(t *testing.T) {
 	goodJsons := []map[string]interface{}{
 		{"pattern": "*", "name": "tom", "result": true},
 		{"pattern": "aa", "name": "tom", "result": false},
@@ -56,9 +56,11 @@ func Test_stringPatternMatch(t *testing.T) {
 	}
 }
 
-func Test_getJSONPost(t *testing.T) {
+func TestUtilGetJSONPost(t *testing.T) {
 	goodJsons := []string{
 		`{"login":"abc","name": "tom", "pass": "mylittlepony", "admin": true}`,
+		`{"login":1,"name": "tom", "pass": "mylittlepony", "admin": true}`,
+		`{"login":123,"name": "tom", "pass": "mylittlepony", "admin": true}`,
 		`{"login":"1234","name": "tom", "pass": "mylittlepony", "admin": true}`,
 	}
 	for _, value := range goodJsons {
@@ -75,7 +77,6 @@ func Test_getJSONPost(t *testing.T) {
 
 	badJsons := []string{
 		`{"login":true,"name": "tom", "pass": "mylittlepony", "admin": true}`,
-		`{"login":1,"name": "tom", "pass": "mylittlepony", "admin": true}`,
 		`{"login":null,"name": "tom", "pass": "mylittlepony", "admin": true}`,
 	}
 	for _, value := range badJsons {
@@ -91,7 +92,7 @@ func Test_getJSONPost(t *testing.T) {
 	}
 }
 
-func TestSMS(t *testing.T) {
+func TestUtilSMS(t *testing.T) {
 	server := httptest.NewServer(logRequest(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(200)
@@ -110,7 +111,7 @@ func TestSMS(t *testing.T) {
 	sendCodeByPhoneDo(domain, client, 1234, "4444", cfg)
 }
 
-func TestNotifyConsentChange(t *testing.T) {
+func TestUtilNotifyConsentChange(t *testing.T) {
 	q := make(chan string)
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		rw.Header().Set("Content-Type", "application/json")
@@ -133,7 +134,7 @@ func TestNotifyConsentChange(t *testing.T) {
 	}
 }
 
-func TestNotifyProfileNew(t *testing.T) {
+func TestUtilNotifyProfileNew(t *testing.T) {
 	q := make(chan string)
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		rw.Header().Set("Content-Type", "application/json")
@@ -157,7 +158,7 @@ func TestNotifyProfileNew(t *testing.T) {
 	}
 }
 
-func TestNotifyForgetMe(t *testing.T) {
+func TestUtilNotifyForgetMe(t *testing.T) {
 	q := make(chan string)
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		rw.Header().Set("Content-Type", "application/json")
@@ -181,7 +182,7 @@ func TestNotifyForgetMe(t *testing.T) {
 	}
 }
 
-func TestNotifyProfileChange(t *testing.T) {
+func TestUtilNotifyProfileChange(t *testing.T) {
 	q := make(chan string)
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		rw.Header().Set("Content-Type", "application/json")
