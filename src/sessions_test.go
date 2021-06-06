@@ -9,22 +9,22 @@ import (
 	uuid "github.com/hashicorp/go-uuid"
 )
 
-func helpCreateSession(mode string, address string, dataJSON string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/session/" + mode + "/" + address
+func helpCreateSession(sid string, dataJSON string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/session/" + sid
 	request := httptest.NewRequest("POST", url, strings.NewReader(dataJSON))
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
 }
 
 func helpGetSession(recordTOKEN string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/session/session/" + recordTOKEN
+	url := "http://localhost:3000/v1/session/" + recordTOKEN
 	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
 }
 
 func helpGetUserSessions(mode string, address string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/session/" + mode + "/" + address
+	url := "http://localhost:3000/v1/sessions/" + mode + "/" + address
 	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
@@ -48,7 +48,8 @@ func TestCreateSessionRecord(t *testing.T) {
 	}
 	userTOKEN := raw["token"].(string)
 	data := `{"expiration":"1m","cookie":"abcdefg"}`
-	raw, _ = helpCreateSession("token", userTOKEN, data)
+	sid, _ := uuid.GenerateUUID()
+	raw, _ = helpCreateSession(sid, data)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("failed to create session")
 	}
@@ -65,7 +66,8 @@ func TestCreateSessionRecord(t *testing.T) {
 		t.Fatalf("wrong number of sessions")
 	}
 	data2 := `{"expiration":"1m","cookie":"abcdefg2"}`
-	raw, _ = helpCreateSession("token", userTOKEN, data2)
+	sid2, _ := uuid.GenerateUUID()
+	raw, _ = helpCreateSession(sid2, data2)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("failed to create session")
 	}
@@ -89,7 +91,8 @@ func TestCreateSessionAndSharedRecord(t *testing.T) {
 	}
 	userTOKEN := raw["token"].(string)
 	data := `{"expiration":"1m","cookie":"abcdefg","secret":"value"}`
-	raw, _ = helpCreateSession("token", userTOKEN, data)
+	sid, _ := uuid.GenerateUUID()
+	raw, _ = helpCreateSession(sid, data)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("failed to create session")
 	}
@@ -105,23 +108,11 @@ func TestCreateSessionAndSharedRecord(t *testing.T) {
 }
 
 func TestCreateFakeUserSession(t *testing.T) {
-	userTOKEN, _ := uuid.GenerateUUID()
 	data := `{"expiration":"1d","cookie":"12345"}`
-	raw, _ := helpCreateSession("token", userTOKEN, data)
-	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should fail to create session for fake user")
-	}
-	raw, _ = helpCreateSession("token", "faketoken", data)
-	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should fail to create session for fake user")
-	}
-	raw, _ = helpCreateSession("faketoken", userTOKEN, data)
-	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should fail to create session for fake user")
-	}
-	raw, _ = helpCreateSession("email", "fakemail23@fake.com", data)
-	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
-		t.Fatalf("Should fail to create session for fake user")
+	sid, _ := uuid.GenerateUUID()
+	raw, _ := helpCreateSession(sid, data)
+	if _, ok := raw["status"]; ok && raw["status"].(string) != "ok" {
+		t.Fatalf("Should fail to create session")
 	}
 }
 
