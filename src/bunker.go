@@ -216,10 +216,11 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.POST("/v1/lbasis/:brief", e.createLegalBasis)
 	router.DELETE("/v1/lbasis/:brief", e.deleteLegalBasis)
 
-	router.GET("/v1/agreement/:mode/:address", e.agreementUserReport)
+	router.GET("/v1/agreement/:brief/:mode/:address", e.getUserAgreement)
 	router.POST("/v1/agreement/:brief/:mode/:address", e.agreementAccept)
 	router.DELETE("/v1/agreement/:brief", e.agreementRevokeAll)
 	router.DELETE("/v1/agreement/:brief/:mode/:address", e.agreementWithdraw)
+	router.GET("/v1/agreements/:mode/:address", e.getUserAgreements)
 
 	//router.GET("/v1/consent/:mode/:address", e.consentAllUserRecords)
 	//router.GET("/v1/consent/:mode/:address/:brief", e.consentUserRecord)
@@ -391,6 +392,7 @@ var HealthCheckerCounter = 0
 
 func logRequest(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		//log.Printf("Set host %s\n", r.Host)
 		autocontext.Set(r, "host", r.Host)
 		w2 := NewCustomResponseWriter(w)
 		w2.Header().Set("Access-Control-Allow-Origin", "*")

@@ -260,7 +260,7 @@ func (e mainEnv) agreementRevokeAll(w http.ResponseWriter, r *http.Request, ps h
 	w.Write([]byte(`{"status":"ok"}`))
 }
 
-func (e mainEnv) agreementUserReport(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) getUserAgreements(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
 	event := audit("privacy agreements for "+mode, address, mode, address)
@@ -323,6 +323,82 @@ func (e mainEnv) agreementUserReport(w http.ResponseWriter, r *http.Request, ps 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, numRecords, resultJSON)
+	w.Write([]byte(str))
+}
+
+func (e mainEnv) getUserAgreement(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	address := ps.ByName("address")
+	brief := ps.ByName("brief")
+	mode := ps.ByName("mode")
+	event := audit("privacy agreements for "+mode, address, mode, address)
+	defer func() { event.submit(e.db) }()
+
+	if validateMode(mode) == false {
+		returnError(w, r, "bad mode", 405, nil, event)
+		return
+	}
+	brief = normalizeBrief(brief)
+	if isValidBrief(brief) == false {
+		returnError(w, r, "bad brief format", 405, nil, event)
+		return
+	}
+	exists, err := e.db.checkLegalBasis(brief)
+	if err != nil {
+		returnError(w, r, "internal error", 405, err, event)
+		return
+	}
+	if exists == false {
+		returnError(w, r, "not found", 404, nil, event)
+	}
+	userTOKEN := ""
+	if mode == "token" {
+		if enforceUUID(w, address, event) == false {
+			return
+		}
+		userBson, _ := e.db.lookupUserRecord(address)
+		if userBson == nil {
+			returnError(w, r, "internal error", 405, nil, event)
+			return
+		}
+		if e.enforceAuth(w, r, event) == "" {
+			return
+		}
+		userTOKEN = address
+	} else {
+		// TODO: decode url in code!
+		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		if userBson != nil {
+			userTOKEN = userBson["token"].(string)
+			event.Record = userTOKEN
+			if e.enforceAuth(w, r, event) == "" {
+				return
+			}
+		} else {
+			if mode == "login" {
+				returnError(w, r, "internal error", 405, nil, event)
+				return
+			}
+			// else user not found - we allow to save consent for unlinked users!
+		}
+	}
+	// make sure that user is logged in here, unless he wants to cancel emails
+	if e.enforceAuth(w, r, event) == "" {
+		return
+	}
+	var resultJSON []byte
+	resultJSON, err = e.db.viewAgreementRecord(userTOKEN, brief)
+	if err != nil {
+		returnError(w, r, "internal error", 405, err, event)
+		return
+	}
+	if resultJSON == nil {
+		returnError(w, r, "not found", 405, err, event)
+		return
+	}
+	//fmt.Printf("Total count of rows: %d\n", numRecords)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	str := fmt.Sprintf(`{"status":"ok","data":%s}`, resultJSON)
 	w.Write([]byte(str))
 }
 
