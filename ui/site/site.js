@@ -157,7 +157,7 @@ function showError(msg) {
 
 function loadAgreements(method, address, cb) {
   var xhr1 = new XMLHttpRequest();
-  xhr1.open('GET', "/v1/agreement/" + method + "/" + address);
+  xhr1.open('GET', "/v1/agreements/" + method + "/" + address);
   xhr1.setRequestHeader("X-Bunker-Token", xtoken)
   xhr1.setRequestHeader('Content-type', 'application/json');
   xhr1.onload = function () {
