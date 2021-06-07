@@ -25,7 +25,7 @@ func (dbobj dbcon) createRootXtoken(customRootXtoken string) (string, error) {
 		return "", err
 	}
 	if len(rootToken) > 0 {
-		return "already-initalized", nil
+		return "already-initialized", nil
 	}
 	rootToken, err = uuid.GenerateUUID()
 	if err != nil {

@@ -341,9 +341,9 @@ func returnError(w http.ResponseWriter, r *http.Request, message string, code in
 		event.Msg = message
 		if err != nil {
 			event.Debug = err.Error()
-			log.Printf("Generate error reponse: %s, Error: %s\n", message, err.Error())
+			log.Printf("Generate error response: %s, Error: %s\n", message, err.Error())
 		} else {
-			log.Printf("Generate error reponse: %s\n", message)
+			log.Printf("Generate error response: %s\n", message)
 		}
 	}
 	//http.Error(w, http.StatusText(405), 405)
