@@ -22,10 +22,10 @@ import (
 	"github.com/gobuffalo/packr"
 	"github.com/julienschmidt/httprouter"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/securitybunker/databunker/src/autocontext"
-	"github.com/securitybunker/databunker/src/storage"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/securitybunker/databunker/src/autocontext"
+	"github.com/securitybunker/databunker/src/storage"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -110,12 +110,12 @@ type mainEnv struct {
 
 // userJSON used to parse user POST
 type userJSON struct {
-	jsonData []byte
-	loginIdx string
-	emailIdx string
-	phoneIdx string
+	jsonData  []byte
+	loginIdx  string
+	emailIdx  string
+	phoneIdx  string
 	customIdx string
-	token    string
+	token     string
 }
 
 type tokenAuthResult struct {
@@ -255,12 +255,12 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 		} else {
 			w.WriteHeader(200)
 			captcha, err := generateCaptcha()
-                        if err != nil {
-                          w.WriteHeader(501)
-                        } else {
-			  data2 := bytes.ReplaceAll(data, []byte("%CAPTCHAURL%"), []byte(captcha))
-			  w.Write(data2)
-		        }
+			if err != nil {
+				w.WriteHeader(501)
+			} else {
+				data2 := bytes.ReplaceAll(data, []byte("%CAPTCHAURL%"), []byte(captcha))
+				w.Write(data2)
+			}
 		}
 	})
 	router.GET("/site/*filepath", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -295,7 +295,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 		header := w.Header()
 		header.Set("Access-Control-Allow-Methods", "POST, PUT, DELETE")
 		header.Set("Access-Control-Allow-Origin", "*")
-		header.Set("Access-Control-Allow-Headers", "Accept,  Content-Type, Content-Length, Accept-Encoding, X-Bunker-Token");
+		header.Set("Access-Control-Allow-Headers", "Accept,  Content-Type, Content-Length, Accept-Encoding, X-Bunker-Token")
 		//}
 		// Adjust status code to 204
 		w.WriteHeader(http.StatusNoContent)
@@ -402,7 +402,7 @@ func logRequest(handler http.Handler) http.Handler {
 			if HealthCheckerCounter == 0 {
 				log.Printf("%d %s %s skiping %s\n", w2.Code, r.Method, r.URL, r.Header.Get("User-Agent"))
 				HealthCheckerCounter = 1
-			} else if (HealthCheckerCounter == 100) {
+			} else if HealthCheckerCounter == 100 {
 				HealthCheckerCounter = 0
 			} else {
 				HealthCheckerCounter = HealthCheckerCounter + 1
@@ -446,13 +446,13 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 		//log.Panic("error %s", err.Error())
 		fmt.Printf("error %s", err.Error())
 	}
-	log.Println("Creating default entities: core-send-email-on-login and core-send-sms-on-login");
+	log.Println("Creating default entities: core-send-email-on-login and core-send-sms-on-login")
 	db.createLegalBasis("core-send-email-on-login", "", "login", "Send email on login",
-	    "Confirm to allow sending access code using 3rd party email gateway", "consent",
-	    "This consent is required to give you our service.", "active", true, true);
+		"Confirm to allow sending access code using 3rd party email gateway", "consent",
+		"This consent is required to give you our service.", "active", true, true)
 	db.createLegalBasis("core-send-sms-on-login", "", "login", "Send SMS on login",
-            "Confirm to allow sending access code using 3rd party SMS gateway", "consent",
-            "This consent is required to give you our service.", "active", true, true);
+		"Confirm to allow sending access code using 3rd party SMS gateway", "consent",
+		"This consent is required to give you our service.", "active", true, true)
 	fmt.Printf("\nAPI Root token: %s\n\n", rootToken)
 	return db, rootToken, err
 }
@@ -475,8 +475,8 @@ func masterkeyGet(masterKeyPtr *string) ([]byte, error) {
 		masterKeyStr = os.Getenv("DATABUNKER_MASTERKEY")
 	}
 	if len(masterKeyStr) == 0 {
-                return nil, errors.New("Master key environment variable/parameter is missing")
-        }
+		return nil, errors.New("Master key environment variable/parameter is missing")
+	}
 	if len(masterKeyStr) != 48 {
 		return nil, errors.New("Master key length is wrong")
 	}
@@ -508,7 +508,7 @@ func main() {
 	readEnv(&cfg)
 	customRootToken := ""
 	if *demoPtr {
-          customRootToken = "DEMO"
+		customRootToken = "DEMO"
 	} else if variableProvided("DATABUNKER_ROOTTOKEN", rootTokenKeyPtr) == true {
 		if rootTokenKeyPtr != nil && len(*rootTokenKeyPtr) > 0 {
 			customRootToken = *rootTokenKeyPtr

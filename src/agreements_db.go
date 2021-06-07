@@ -114,7 +114,6 @@ func (dbobj dbcon) withdrawAgreement(userTOKEN string, brief string, mode string
 	return nil
 }
 
-
 func (dbobj dbcon) listAgreementRecords(userTOKEN string) ([]byte, int, error) {
 	records, err := dbobj.store.GetList(storage.TblName.Agreements, "token", userTOKEN, 0, 0, "")
 	if err != nil {
@@ -133,22 +132,21 @@ func (dbobj dbcon) listAgreementRecords(userTOKEN string) ([]byte, int, error) {
 }
 
 func (dbobj dbcon) listAgreementRecordsByIdentity(identity string) ([]byte, int, error) {
-        records, err := dbobj.store.GetList(storage.TblName.Agreements, "who", identity, 0, 0, "")
-        if err != nil {
-                return nil, 0, err
-        }
-        count := len(records)
-        if count == 0 {
-                return []byte("[]"), 0, err
-        }
-        resultJSON, err := json.Marshal(records)
-        if err != nil {
-                return nil, 0, err
-        }
-        //fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
-        return resultJSON, count, nil
+	records, err := dbobj.store.GetList(storage.TblName.Agreements, "who", identity, 0, 0, "")
+	if err != nil {
+		return nil, 0, err
+	}
+	count := len(records)
+	if count == 0 {
+		return []byte("[]"), 0, err
+	}
+	resultJSON, err := json.Marshal(records)
+	if err != nil {
+		return nil, 0, err
+	}
+	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
+	return resultJSON, count, nil
 }
-
 
 func (dbobj dbcon) viewAgreementRecord(userTOKEN string, brief string) ([]byte, error) {
 	record, err := dbobj.store.GetRecord2(storage.TblName.Agreements, "token", userTOKEN, "brief", brief)

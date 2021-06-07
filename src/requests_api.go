@@ -3,8 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
-	"strings"
 	"net/http"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 	"go.mongodb.org/mongo-driver/bson"
@@ -176,7 +176,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	reason := getStringValue(records["reason"]);
+	reason := getStringValue(records["reason"])
 	requestInfo, err := e.db.getRequest(request)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
@@ -193,7 +193,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 	action := getStringValue(requestInfo["action"])
 	status := getStringValue(requestInfo["status"])
 	if status != "open" {
-		returnError(w, r, "wrong status: " + status, 405, err, event)
+		returnError(w, r, "wrong status: "+status, 405, err, event)
 		return
 	}
 	userJSON, userBSON, err := e.db.getUser(userTOKEN)
@@ -267,7 +267,7 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	reason := getStringValue(records["reason"]);
+	reason := getStringValue(records["reason"])
 	requestInfo, err := e.db.getRequest(request)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
@@ -286,7 +286,7 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 		return
 	}
 	if requestInfo["status"].(string) != "open" {
-		returnError(w, r, "wrong status: " + requestInfo["status"].(string), 405, err, event)
+		returnError(w, r, "wrong status: "+requestInfo["status"].(string), 405, err, event)
 		return
 	}
 	resultJSON, err := e.db.getUserJson(userTOKEN)

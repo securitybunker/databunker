@@ -11,24 +11,24 @@ import (
 )
 
 type legalBasis struct {
-	Brief         string `json:"brief" structs:"brief"`
-	Status        string `json:"status" structs:"status"`
-	Module        string `json:"module,omitempty" structs:"module,omitempty"`
-	Shortdesc     string `json:"shortdesc,omitempty" structs:"shortdesc,omitempty"`
-	Fulldesc      string `json:"fulldesc,omitempty" structs:"fulldesc,omitempty"`
-	Basistype     string `json:"basistype,omitempty" structs:"basistype"`
-	Requiredmsg   string `json:"requiredmsg,omitempty" structs:"requiredmsg,omitempty"`
-	Usercontrol   bool   `json:"usercontrol" structs:"usercontrol"`
-	Requiredflag  bool   `json:"requiredflag" structs:"requiredflag"`
-	Creationtime  int32  `json:"creationtime" structs:"creationtime"`
+	Brief        string `json:"brief" structs:"brief"`
+	Status       string `json:"status" structs:"status"`
+	Module       string `json:"module,omitempty" structs:"module,omitempty"`
+	Shortdesc    string `json:"shortdesc,omitempty" structs:"shortdesc,omitempty"`
+	Fulldesc     string `json:"fulldesc,omitempty" structs:"fulldesc,omitempty"`
+	Basistype    string `json:"basistype,omitempty" structs:"basistype"`
+	Requiredmsg  string `json:"requiredmsg,omitempty" structs:"requiredmsg,omitempty"`
+	Usercontrol  bool   `json:"usercontrol" structs:"usercontrol"`
+	Requiredflag bool   `json:"requiredflag" structs:"requiredflag"`
+	Creationtime int32  `json:"creationtime" structs:"creationtime"`
 }
 
-func (dbobj dbcon) createLegalBasis(brief string, newbrief string, module string, shortdesc string, 
-    fulldesc string, basistype string, requiredmsg string, status string,
+func (dbobj dbcon) createLegalBasis(brief string, newbrief string, module string, shortdesc string,
+	fulldesc string, basistype string, requiredmsg string, status string,
 	usercontrol bool, requiredflag bool) (bool, error) {
 	bdoc := bson.M{}
 	bdoc["basistype"] = basistype
-	bdoc["module"] = module	
+	bdoc["module"] = module
 	bdoc["shortdesc"] = shortdesc
 	bdoc["fulldesc"] = fulldesc
 	if requiredflag == true {
@@ -36,7 +36,7 @@ func (dbobj dbcon) createLegalBasis(brief string, newbrief string, module string
 	} else {
 		bdoc["requiredmsg"] = ""
 	}
-	bdoc["status"] = status;
+	bdoc["status"] = status
 	bdoc["usercontrol"] = usercontrol
 	bdoc["requiredflag"] = requiredflag
 	raw, err := dbobj.store.GetRecord(storage.TblName.Legalbasis, "brief", brief)
@@ -46,7 +46,7 @@ func (dbobj dbcon) createLegalBasis(brief string, newbrief string, module string
 	}
 	if raw != nil {
 		if len(newbrief) > 0 && newbrief != brief {
-			bdoc["brief"] = newbrief;
+			bdoc["brief"] = newbrief
 		}
 		dbobj.store.UpdateRecord(storage.TblName.Legalbasis, "brief", brief, &bdoc)
 		return true, nil
@@ -77,14 +77,13 @@ func (dbobj dbcon) deleteLegalBasis(brief string) (bool, error) {
 	bdoc := bson.M{}
 	now := int32(time.Now().Unix())
 	bdoc["when"] = now
-	bdoc["status"] = "revoked"	
+	bdoc["status"] = "revoked"
 	dbobj.store.UpdateRecord2(storage.TblName.Agreements, "brief", brief, "status", "yes", &bdoc, nil)
 	bdoc2 := bson.M{}
 	bdoc2["status"] = "deleted"
 	dbobj.store.UpdateRecord(storage.TblName.Legalbasis, "brief", brief, &bdoc2)
 	return true, nil
 }
-
 
 func (dbobj dbcon) revokeLegalBasis(brief string) (bool, error) {
 	// look up for user with this legal basis
@@ -98,7 +97,7 @@ func (dbobj dbcon) revokeLegalBasis(brief string) (bool, error) {
 }
 
 func (dbobj dbcon) getLegalBasisCookieConf() ([]byte, []byte, int, error) {
-	records, err := dbobj.store.GetList(storage.TblName.Legalbasis, "status", "active", 0,0, "requiredflag")
+	records, err := dbobj.store.GetList(storage.TblName.Legalbasis, "status", "active", 0, 0, "requiredflag")
 	if err != nil {
 		return nil, nil, 0, err
 	}
@@ -139,8 +138,8 @@ func (dbobj dbcon) getLegalBasisCookieConf() ([]byte, []byte, int, error) {
 			}
 			if len(found) > 0 {
 				bdoc := bson.M{}
-				bdoc["script"]= record["script"]
-				bdoc["briefs"] = found;
+				bdoc["script"] = record["script"]
+				bdoc["briefs"] = found
 				//fmt.Println("appending bdoc script")
 				scripts = append(scripts, bdoc)
 			}

@@ -72,15 +72,15 @@ func (dbobj dbcon) getSession(sessionUUID string) (int32, []byte, string, error)
 	recordKey0 := record["key"].(string)
 	recordKey, err := base64.StdEncoding.DecodeString(recordKey0)
 	if err != nil {
-	        return 0, nil, "", err
+		return 0, nil, "", err
 	}
 	encData, err := base64.StdEncoding.DecodeString(encData0)
 	if err != nil {
-	        return 0, nil, "", err
+		return 0, nil, "", err
 	}
 	decrypted, err := decrypt(dbobj.masterKey, recordKey, encData)
 	if err != nil {
-	        return 0, nil, "", err
+		return 0, nil, "", err
 	}
 	return when, decrypted, userTOKEN, err
 }
@@ -114,4 +114,3 @@ func (dbobj dbcon) deleteSession(sessionUUID string) (bool, error) {
 	dbobj.store.DeleteRecord(storage.TblName.Sessions, "session", sessionUUID)
 	return true, nil
 }
-

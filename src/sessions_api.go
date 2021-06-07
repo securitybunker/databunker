@@ -3,19 +3,21 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"strings"
 	uuid "github.com/hashicorp/go-uuid"
 	"github.com/julienschmidt/httprouter"
 	"github.com/securitybunker/databunker/src/storage"
 	"go.mongodb.org/mongo-driver/bson"
+	"net/http"
+	"strings"
 )
 
 func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	session := ps.ByName("session")
 	var event *auditEvent
 	defer func() {
-		if event != nil { event.submit(e.db) }
+		if event != nil {
+			event.submit(e.db)
+		}
 	}()
 	if enforceUUID(w, session, event) == false {
 		//returnError(w, r, "bad session format", nil, event)
@@ -68,21 +70,21 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 }
 
 func (e mainEnv) deleteSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-        session := ps.ByName("session")
-        event := audit("delete session", session, "session", session)
-        defer func() { event.submit(e.db) }()
-        if enforceUUID(w, session, event) == false {
-                //returnError(w, r, "bad session format", nil, event)
-                return
-        }
-        authResult := e.enforceAdmin(w, r)
-        if authResult == "" {
-                return
-        }
+	session := ps.ByName("session")
+	event := audit("delete session", session, "session", session)
+	defer func() { event.submit(e.db) }()
+	if enforceUUID(w, session, event) == false {
+		//returnError(w, r, "bad session format", nil, event)
+		return
+	}
+	authResult := e.enforceAdmin(w, r)
+	if authResult == "" {
+		return
+	}
 	e.db.deleteSession(session)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-        w.WriteHeader(200)
-        fmt.Fprintf(w, `{"status":"ok"}`)
+	w.WriteHeader(200)
+	fmt.Fprintf(w, `{"status":"ok"}`)
 }
 
 func (e mainEnv) newUserSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -206,7 +208,9 @@ func (e mainEnv) getSession(w http.ResponseWriter, r *http.Request, ps httproute
 	session := ps.ByName("session")
 	var event *auditEvent
 	defer func() {
-		if event != nil { event.submit(e.db) }
+		if event != nil {
+			event.submit(e.db)
+		}
 	}()
 	when, record, userTOKEN, err := e.db.getSession(session)
 	if err != nil {

@@ -20,7 +20,7 @@ func sendCodeByPhoneDo(domain string, client *http.Client, code int32, address s
 		log.Printf("SMS gateway provider URL is missing")
 		return
 	}
-	msg := "Databunker code "+strconv.Itoa(int(code))
+	msg := "Databunker code " + strconv.Itoa(int(code))
 	finalUrl := cfg.Sms.Url
 	finalUrl = strings.ReplaceAll(finalUrl, "_PHONE_", url.QueryEscape(address))
 	finalUrl = strings.ReplaceAll(finalUrl, "_FROM_", url.QueryEscape(cfg.Sms.From))

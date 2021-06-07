@@ -61,20 +61,20 @@ func getStringValue(r interface{}) string {
 		return ""
 	}
 	switch r.(type) {
-		case string:
-			return strings.TrimSpace(r.(string))
-		case []uint8:
-			return strings.TrimSpace(string(r.([]uint8)))
+	case string:
+		return strings.TrimSpace(r.(string))
+	case []uint8:
+		return strings.TrimSpace(string(r.([]uint8)))
 	}
 	return ""
 }
 
 func getIntValue(r interface{}) int {
 	switch r.(type) {
-		case int:
-			return r.(int)
-		case int32:
-			return int(r.(int32))
+	case int:
+		return r.(int)
+	case int32:
+		return int(r.(int32))
 	}
 	return 0
 }
@@ -469,11 +469,11 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 			return nil, err
 		}
 	} else if strings.HasPrefix(cType, "application/xml") {
-                err = json.Unmarshal(body, &records)
-                if err != nil {
-                        log.Printf("Error in xml/json decode %s", err)
-                        return nil, err
-                }
+		err = json.Unmarshal(body, &records)
+		if err != nil {
+			log.Printf("Error in xml/json decode %s", err)
+			return nil, err
+		}
 	} else {
 		log.Printf("Ignore wrong content type: %s", cType)
 		maxStrLen := 200
@@ -488,19 +488,19 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 
 func getIndexString(val interface{}) string {
 	switch val.(type) {
-		case nil:
-			return ""
-		case string:
-			return strings.TrimSpace(val.(string))
-		case []uint8:
-			return strings.TrimSpace(string(val.([]uint8)))
-		case int:
-			return strconv.Itoa(val.(int))
-		case int64:
-			return fmt.Sprintf("%v", val.(int64))
-		case float64:
-			return strconv.Itoa(int(val.(float64)))
-        }
+	case nil:
+		return ""
+	case string:
+		return strings.TrimSpace(val.(string))
+	case []uint8:
+		return strings.TrimSpace(string(val.([]uint8)))
+	case int:
+		return strconv.Itoa(val.(int))
+	case int64:
+		return fmt.Sprintf("%v", val.(int64))
+	case float64:
+		return strconv.Itoa(int(val.(float64)))
+	}
 	return ""
 }
 

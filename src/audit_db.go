@@ -120,48 +120,47 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 }
 
 func (dbobj dbcon) getAdminAuditEvents(offset int32, limit int32) ([]byte, int64, error) {
-        count, err := dbobj.store.CountRecords0(storage.TblName.Audit)
-        if err != nil {
-                return nil, 0, err
-        }
-        if count == 0 {
-                return []byte("[]"), 0, err
-        }
-        var results []bson.M
-        records, err := dbobj.store.GetList0(storage.TblName.Audit, offset, limit, "when")
-        if err != nil {
-                return nil, 0, err
-        }
+	count, err := dbobj.store.CountRecords0(storage.TblName.Audit)
+	if err != nil {
+		return nil, 0, err
+	}
+	if count == 0 {
+		return []byte("[]"), 0, err
+	}
+	var results []bson.M
+	records, err := dbobj.store.GetList0(storage.TblName.Audit, offset, limit, "when")
+	if err != nil {
+		return nil, 0, err
+	}
 	code := dbobj.GetCode()
-        for _, element := range records {
-                element["more"] = false
-                if _, ok := element["before"]; ok {
-                        element["more"] = true
-                        element["before"] = ""
-                }
-                if _, ok := element["after"]; ok {
-                        element["more"] = true
-                        element["after"] = ""
-                }
-                if _, ok := element["debug"]; ok {
-                        element["more"] = true
-                        element["debug"] = ""
-                }
-                if _, ok := element["record"]; ok {
-                        element["record"], _ = basicStringDecrypt(element["record"].(string), dbobj.masterKey, code)
-                }
-                if _, ok := element["who"]; ok {
-                        element["who"], _ = basicStringDecrypt(element["who"].(string), dbobj.masterKey, code)
-                }
-                results = append(results, element)
-        }
-        resultJSON, err := json.Marshal(records)
-        if err != nil {
-                return nil, 0, err
-        }
-        return resultJSON, count, nil
+	for _, element := range records {
+		element["more"] = false
+		if _, ok := element["before"]; ok {
+			element["more"] = true
+			element["before"] = ""
+		}
+		if _, ok := element["after"]; ok {
+			element["more"] = true
+			element["after"] = ""
+		}
+		if _, ok := element["debug"]; ok {
+			element["more"] = true
+			element["debug"] = ""
+		}
+		if _, ok := element["record"]; ok {
+			element["record"], _ = basicStringDecrypt(element["record"].(string), dbobj.masterKey, code)
+		}
+		if _, ok := element["who"]; ok {
+			element["who"], _ = basicStringDecrypt(element["who"].(string), dbobj.masterKey, code)
+		}
+		results = append(results, element)
+	}
+	resultJSON, err := json.Marshal(records)
+	if err != nil {
+		return nil, 0, err
+	}
+	return resultJSON, count, nil
 }
-
 
 func (dbobj dbcon) getAuditEvent(atoken string) (string, []byte, error) {
 	//var results []*auditEvent
