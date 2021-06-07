@@ -41,30 +41,29 @@ func (e mainEnv) getAuditEvents(w http.ResponseWriter, r *http.Request, ps httpr
 
 func (e mainEnv) getAdminAuditEvents(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	authResult := e.enforceAdmin(w, r)
-        if authResult == "" {
-                return
-        }
-        var offset int32
-        var limit int32 = 10
-        args := r.URL.Query()
-        if value, ok := args["offset"]; ok {
-                offset = atoi(value[0])
-        }
-        if value, ok := args["limit"]; ok {
-                limit = atoi(value[0])
-        }
-        resultJSON, counter, err := e.db.getAdminAuditEvents(offset, limit)
-        if err != nil {
-                returnError(w, r, "internal error", 405, err, nil)
-                return
-        }
-        //fmt.Printf("Total count of events: %d\n", counter)
-        w.Header().Set("Content-Type", "application/json; charset=utf-8")
-        w.WriteHeader(200)
-        str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, counter, resultJSON)
-        w.Write([]byte(str))
+	if authResult == "" {
+		return
+	}
+	var offset int32
+	var limit int32 = 10
+	args := r.URL.Query()
+	if value, ok := args["offset"]; ok {
+		offset = atoi(value[0])
+	}
+	if value, ok := args["limit"]; ok {
+		limit = atoi(value[0])
+	}
+	resultJSON, counter, err := e.db.getAdminAuditEvents(offset, limit)
+	if err != nil {
+		returnError(w, r, "internal error", 405, err, nil)
+		return
+	}
+	//fmt.Printf("Total count of events: %d\n", counter)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, counter, resultJSON)
+	w.Write([]byte(str))
 }
-
 
 func (e mainEnv) getAuditEvent(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	atoken := ps.ByName("atoken")

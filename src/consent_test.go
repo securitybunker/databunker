@@ -151,13 +151,13 @@ func TestConsentCreateWithdraw(t *testing.T) {
 		t.Fatalf("Wrong number of briefs")
 	}
 	/*
-	raw, _ = helpGetAllUsersByBrief(brief)
-	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
-		t.Fatalf("Failed to get user consents")
-	}
-	if raw["total"].(float64) != 1 {
-		t.Fatalf("Wrong number of briefs")
-	}
+		raw, _ = helpGetAllUsersByBrief(brief)
+		if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+			t.Fatalf("Failed to get user consents")
+		}
+		if raw["total"].(float64) != 1 {
+			t.Fatalf("Wrong number of briefs")
+		}
 	*/
 }
 

@@ -38,7 +38,7 @@ func (dbobj dbcon) createProcessingActivity(activity string, newactivity string,
 	}
 	if raw != nil {
 		if len(newactivity) > 0 && newactivity != activity {
-			bdoc["activity"] = newactivity;
+			bdoc["activity"] = newactivity
 		}
 		_, err = dbobj.store.UpdateRecord(storage.TblName.Processingactivities, "activity", activity, &bdoc)
 		return false, err

@@ -1,17 +1,17 @@
 package autocontext
 
 import (
-	"fmt"
 	"errors"
-	"regexp"
+	"fmt"
 	"net/http"
-	"sync"
+	"regexp"
 	"runtime"
+	"sync"
 )
 
 var (
-	contextMutex sync.Mutex
-	contextData  = make(map[string]map[string]interface{})
+	contextMutex   sync.Mutex
+	contextData    = make(map[string]map[string]interface{})
 	regexServeHTTP = regexp.MustCompile("\\.ServeHTTP\\(0x[a-fA-F0-9]+, 0x[a-fA-F0-9]+, 0x[a-fA-F0-9]+, (0x[a-fA-F0-9]+)\\)")
 )
 
@@ -37,7 +37,7 @@ func Get(r *http.Request, key string) interface{} {
 	return nil
 }
 
-// GetAuto ruturns value from current *http.Request context. It is automatically extracted from stacktrace. 
+// GetAuto ruturns value from current *http.Request context. It is automatically extracted from stacktrace.
 func GetAuto(key string) interface{} {
 	addr, err := getRequestAddress()
 	if err != nil {
@@ -79,4 +79,3 @@ func getRequestAddress() (string, error) {
 	//fmt.Printf("*** extracted address from stacktrace: %s\n", match[1])
 	return match[1], nil
 }
-

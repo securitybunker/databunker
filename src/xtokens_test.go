@@ -56,11 +56,11 @@ func helpCancelUserRequest(rtoken string) (map[string]interface{}, error) {
 func TestUserLoginDelete(t *testing.T) {
 	raw, err := helpCreateLBasis("contract1", `{"basistype":"contract","usercontrol":false}`)
 	if err != nil {
-                t.Fatalf("error: %s", err)
-        }
-        if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
-                t.Fatalf("Failed to create lbasis")
-        }
+		t.Fatalf("error: %s", err)
+	}
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to create lbasis")
+	}
 	email := "test@securitybunker.io"
 	jsonData := `{"email":"test@securitybunker.io","phone":"22346622","fname":"Yuli","lname":"Str","tz":"323xxxxx","password":"123456","address":"Y-d habanim 7","city":"Petah-Tiqva","btest":true,"numtest":123,"testnul":null}`
 	raw, err = helpCreateUser(jsonData)
@@ -185,10 +185,10 @@ func TestUserLoginDelete(t *testing.T) {
 		}
 	}
 	helpApproveUserRequest(rtoken0)
-        raw, _ = helpGetUserRequests()
-        if raw["total"].(float64) != 0 {
-                t.Fatalf("Wrong number of user requests for admin to approve/reject/s\n")
-        }
+	raw, _ = helpGetUserRequests()
+	if raw["total"].(float64) != 0 {
+		t.Fatalf("Wrong number of user requests for admin to approve/reject/s\n")
+	}
 	// user should be deleted now
 	raw10, _ := helpGetUserAppList(userTOKEN)
 	if len(raw10["apps"].([]interface{})) != 0 {

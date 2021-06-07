@@ -5,8 +5,8 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
-	"log"
 	"io"
+	"log"
 )
 
 // shamir secret split
@@ -78,45 +78,44 @@ func encrypt(masterKey []byte, userKey []byte, plaintext []byte) ([]byte, error)
 }
 
 func basicStringEncrypt(plaintext string, masterKey []byte, code []byte) (string, error) {
-    //log.Printf("Going to encrypt %s", plaintext)
-    nonce := []byte("$DataBunker$")
-    key := append(masterKey, code...)
-    block, err := aes.NewCipher(key)
-    if err != nil {
-      log.Printf("error in aes.NewCipher %s", err)
-      return "", err
-    }
-    aesgcm, err := cipher.NewGCM(block)
-    if err != nil {
-      log.Printf("error in cipher.NewGCM: %s", err)
-      return "", err
-    }
-    ciphertext := aesgcm.Seal(nil, nonce, []byte(plaintext), nil)
-    result := base64.StdEncoding.EncodeToString(ciphertext)
-    //log.Printf("ciphertext : %s", result)
-    return result, nil
+	//log.Printf("Going to encrypt %s", plaintext)
+	nonce := []byte("$DataBunker$")
+	key := append(masterKey, code...)
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		log.Printf("error in aes.NewCipher %s", err)
+		return "", err
+	}
+	aesgcm, err := cipher.NewGCM(block)
+	if err != nil {
+		log.Printf("error in cipher.NewGCM: %s", err)
+		return "", err
+	}
+	ciphertext := aesgcm.Seal(nil, nonce, []byte(plaintext), nil)
+	result := base64.StdEncoding.EncodeToString(ciphertext)
+	//log.Printf("ciphertext : %s", result)
+	return result, nil
 }
 
 func basicStringDecrypt(data string, masterKey []byte, code []byte) (string, error) {
-    ciphertext, err := base64.StdEncoding.DecodeString(data)
-    if err != nil {
-      return "", err
-    }
-    nonce := []byte("$DataBunker$")
-    key := append(masterKey, code...)
-    block, err := aes.NewCipher(key)
-    if err != nil {
-      return "", err
-    }
-    aesgcm, err := cipher.NewGCM(block)
-    if err != nil {
-      return "", err
-    }
-    plaintext, err := aesgcm.Open(nil, nonce, ciphertext, nil)
-    if err != nil {
-      return "", err
-    }
-    //log.Printf("decrypt result : %s", string(plaintext))
-    return string(plaintext), err
+	ciphertext, err := base64.StdEncoding.DecodeString(data)
+	if err != nil {
+		return "", err
+	}
+	nonce := []byte("$DataBunker$")
+	key := append(masterKey, code...)
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return "", err
+	}
+	aesgcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+	plaintext, err := aesgcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return "", err
+	}
+	//log.Printf("decrypt result : %s", string(plaintext))
+	return string(plaintext), err
 }
-

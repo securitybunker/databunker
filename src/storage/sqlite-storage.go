@@ -47,14 +47,14 @@ func (dbobj SQLiteDB) DBExists(filepath *string) bool {
 	}
 	err = db.Ping()
 	if err != nil {
-                return false
-        }
+		return false
+	}
 	dbobj2 := SQLiteDB{db}
-        record, err := dbobj2.GetRecord2(TblName.Xtokens, "token", "", "type", "root")
-        if record == nil || err != nil {
+	record, err := dbobj2.GetRecord2(TblName.Xtokens, "token", "", "type", "root")
+	if record == nil || err != nil {
 		dbobj2.CloseDB()
-                return false
-        }
+		return false
+	}
 	dbobj2.CloseDB()
 	return true
 }
@@ -162,9 +162,8 @@ func (dbobj *SQLiteDB) InitDB(filepath *string) error {
 	return nil
 }
 
-
 func (dbobj SQLiteDB) Ping() error {
-        return dbobj.db.Ping()
+	return dbobj.db.Ping()
 }
 
 // CloseDB function closes the open database
@@ -299,8 +298,8 @@ func (dbobj SQLiteDB) decodeForUpdate(bdoc *bson.M, bdel *bson.M) (string, []int
 }
 
 func (dbobj SQLiteDB) Exec(q string) error {
-        _, err := dbobj.db.Exec(q)
-        return err
+	_, err := dbobj.db.Exec(q)
+	return err
 }
 
 // CreateRecordInTable creates new record
@@ -363,26 +362,26 @@ func (dbobj SQLiteDB) CountRecords0(t Tbl) (int64, error) {
 
 // CountRecords returns number of records that match filter
 func (dbobj SQLiteDB) CountRecords(t Tbl, keyName string, keyValue string) (int64, error) {
-        tbl := GetTable(t)
-        q := "select count(*) from " + tbl + " WHERE " + dbobj.escapeName(keyName) + "=$1"
-        //fmt.Printf("q: %s\n", q)
+	tbl := GetTable(t)
+	q := "select count(*) from " + tbl + " WHERE " + dbobj.escapeName(keyName) + "=$1"
+	//fmt.Printf("q: %s\n", q)
 
-        tx, err := dbobj.db.Begin()
-        if err != nil {
-                return 0, err
-        }
-        defer tx.Rollback()
-        row := tx.QueryRow(q, keyValue)
-        // Columns
-        var count int
-        err = row.Scan(&count)
-        if err != nil {
-                return 0, err
-        }
-        if err = tx.Commit(); err != nil {
-                return 0, err
-        }
-        return int64(count), nil
+	tx, err := dbobj.db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+	row := tx.QueryRow(q, keyValue)
+	// Columns
+	var count int
+	err = row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	if err = tx.Commit(); err != nil {
+		return 0, err
+	}
+	return int64(count), nil
 }
 
 // UpdateRecord updates database record
@@ -720,7 +719,7 @@ func (dbobj SQLiteDB) GetExpiring(t Tbl, keyName string, keyValue string) ([]bso
 	table := GetTable(t)
 	now := int32(time.Now().Unix())
 	q := fmt.Sprintf("select * from %s WHERE endtime>0 AND endtime<%d AND %s=$1",
-			table, now, dbobj.escapeName(keyName))
+		table, now, dbobj.escapeName(keyName))
 	//fmt.Printf("q: %s\n", q)
 	values := make([]interface{}, 0)
 	values = append(values, keyValue)
@@ -1065,4 +1064,3 @@ func (dbobj SQLiteDB) initSessions() error {
 		`CREATE INDEX sessions_session ON sessions (session);`}
 	return dbobj.execQueries(queries)
 }
-

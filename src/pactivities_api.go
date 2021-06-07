@@ -109,7 +109,7 @@ func (e mainEnv) pactivityLink(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 	if exists == false {
 		returnError(w, r, "not found", 405, nil, nil)
-		return	
+		return
 	}
 	_, err = e.db.linkProcessingActivity(activity, brief)
 	if err != nil {

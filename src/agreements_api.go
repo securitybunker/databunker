@@ -49,7 +49,7 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 		userTOKEN = address
 	} else {
 		userBson, err := e.db.lookupUserRecordByIndex(mode, address, e.conf)
-                if err != nil {
+		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
 		}
@@ -83,10 +83,10 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	}
 	if value, ok := records["expiration"]; ok {
 		switch records["expiration"].(type) {
-			case string:
-				expiration, _ = parseExpiration(value.(string))
-			case float64:
-				expiration = int32(value.(float64))
+		case string:
+			expiration, _ = parseExpiration(value.(string))
+		case float64:
+			expiration = int32(value.(float64))
 		}
 	}
 	if value, ok := records["starttime"]; ok {
@@ -107,15 +107,15 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	e.db.acceptAgreement(userTOKEN, mode, address, brief, status, agreementmethod,
 		referencecode, lastmodifiedby, starttime, expiration)
 	/*
-	notifyURL := e.conf.Notification.NotificationURL
-	if newStatus == true && len(notifyURL) > 0 {
-		// change notificate on new record or if status change
-		if len(userTOKEN) > 0 {
-			notifyConsentChange(notifyURL, brief, status, "token", userTOKEN)
-		} else {
-			notifyConsentChange(notifyURL, brief, status, mode, address)
+		notifyURL := e.conf.Notification.NotificationURL
+		if newStatus == true && len(notifyURL) > 0 {
+			// change notificate on new record or if status change
+			if len(userTOKEN) > 0 {
+				notifyConsentChange(notifyURL, brief, status, "token", userTOKEN)
+			} else {
+				notifyConsentChange(notifyURL, brief, status, mode, address)
+			}
 		}
-	}
 	*/
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
@@ -146,7 +146,7 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	}
 	if lbasis == nil {
 		returnError(w, r, "not  found", 405, nil, event)
-		return	
+		return
 	}
 	userTOKEN := ""
 	authResult := ""
@@ -252,9 +252,9 @@ func (e mainEnv) agreementRevokeAll(w http.ResponseWriter, r *http.Request, ps h
 	}
 	if exists == false {
 		returnError(w, r, "not found", 405, nil, nil)
-		return	
+		return
 	}
-	e.db.revokeLegalBasis(brief);
+	e.db.revokeLegalBasis(brief)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"status":"ok"}`))
@@ -312,7 +312,7 @@ func (e mainEnv) getUserAgreements(w http.ResponseWriter, r *http.Request, ps ht
 	var err error
 	if len(userTOKEN) > 0 {
 		resultJSON, numRecords, err = e.db.listAgreementRecords(userTOKEN)
-	} else{
+	} else {
 		resultJSON, numRecords, err = e.db.listAgreementRecordsByIdentity(address)
 	}
 	if err != nil {

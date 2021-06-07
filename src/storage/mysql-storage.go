@@ -18,13 +18,12 @@ import (
 )
 
 var (
-	allTables   []string
+	allTables []string
 )
-
 
 // MySQL struct is used to store database object
 type MySQLDB struct {
-        db *sql.DB
+	db *sql.DB
 }
 
 func (dbobj MySQLDB) getConnectionString(dbname *string) string {
@@ -165,7 +164,7 @@ func (dbobj *MySQLDB) InitDB(dbname *string) error {
 }
 
 func (dbobj MySQLDB) Ping() error {
-        return dbobj.db.Ping()
+	return dbobj.db.Ping()
 }
 
 // CloseDB function closes the open database
@@ -346,25 +345,25 @@ func (dbobj MySQLDB) CreateRecord(t Tbl, data interface{}) (int, error) {
 
 // CountRecords0 returns number of records in table
 func (dbobj MySQLDB) CountRecords0(t Tbl) (int64, error) {
-        tbl := GetTable(t)
-        q := "select count(*) from " + tbl
-        //fmt.Printf("q: %s\n", q)
+	tbl := GetTable(t)
+	q := "select count(*) from " + tbl
+	//fmt.Printf("q: %s\n", q)
 
-        tx, err := dbobj.db.Begin()
-        if err != nil {
-                return 0, err
-        }
-        defer tx.Rollback()
-        row := tx.QueryRow(q)
-        var count int
-        err = row.Scan(&count)
-        if err != nil {
-                return 0, err
-        }
-        if err = tx.Commit(); err != nil {
-                return 0, err
-        }
-        return int64(count), nil
+	tx, err := dbobj.db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+	row := tx.QueryRow(q)
+	var count int
+	err = row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	if err = tx.Commit(); err != nil {
+		return 0, err
+	}
+	return int64(count), nil
 }
 
 // CountRecords returns number of records that match filter
@@ -444,19 +443,19 @@ func (dbobj MySQLDB) updateRecordInTableDo(table string, filter string, bdoc *bs
 
 // Lookup record by multiple fields
 func (dbobj MySQLDB) LookupRecord(t Tbl, row bson.M) (bson.M, error) {
-        table := GetTable(t)
-        q := "select * from " + table + " WHERE "
-        num := 1
-        values := make([]interface{}, 0)
-        for keyName, keyValue := range row {
-                q = q + dbobj.escapeName(keyName) + "=?"
-                if num < len(row) {
-                        q = q + " AND "
-                }
-                values = append(values, keyValue)
-                num = num + 1
-        }
-        return dbobj.getRecordInTableDo(q, values)
+	table := GetTable(t)
+	q := "select * from " + table + " WHERE "
+	num := 1
+	values := make([]interface{}, 0)
+	for keyName, keyValue := range row {
+		q = q + dbobj.escapeName(keyName) + "=?"
+		if num < len(row) {
+			q = q + " AND "
+		}
+		values = append(values, keyValue)
+		num = num + 1
+	}
+	return dbobj.getRecordInTableDo(q, values)
 }
 
 // GetRecord returns specific record from database
@@ -730,7 +729,7 @@ func (dbobj MySQLDB) GetExpiring(t Tbl, keyName string, keyValue string) ([]bson
 	table := GetTable(t)
 	now := int32(time.Now().Unix())
 	q := fmt.Sprintf("select * from %s WHERE endtime>0 AND endtime<%d AND %s=?",
-			table, now, dbobj.escapeName(keyName))
+		table, now, dbobj.escapeName(keyName))
 	fmt.Printf("q: %s\n", q)
 	values := make([]interface{}, 0)
 	values = append(values, keyValue)
@@ -907,13 +906,13 @@ func (dbobj MySQLDB) IndexNewApp(appName string) {
 		// it is a new app, create an index
 		log.Printf("This is a new app, creating table & index for: %s\n", appName)
 		queries := []string{
-			`CREATE TABLE IF NOT EXISTS ` + appName + ` (`+
-			`token TINYTEXT,`+
-			`md5 TINYTEXT,`+
-			`rofields TINYTEXT,`+
-			`data TEXT,`+
-			`status TINYTEXT,`+
-			"`when` int);",
+			`CREATE TABLE IF NOT EXISTS ` + appName + ` (` +
+				`token TINYTEXT,` +
+				`md5 TINYTEXT,` +
+				`rofields TINYTEXT,` +
+				`data TEXT,` +
+				`status TINYTEXT,` +
+				"`when` int);",
 			"CREATE UNIQUE INDEX " + appName + "_token ON " + appName + " (token(36));"}
 		err := dbobj.execQueries(queries)
 		if err == nil {
@@ -925,20 +924,20 @@ func (dbobj MySQLDB) IndexNewApp(appName string) {
 
 func (dbobj MySQLDB) initUsers() error {
 	queries := []string{
-		`CREATE TABLE IF NOT EXISTS users (`+
-		`token TINYTEXT,`+
-		"`key` TINYTEXT,"+
-		`md5 TINYTEXT,`+
-		`loginidx TINYTEXT,`+
-		`emailidx TINYTEXT,`+
-		`phoneidx TINYTEXT,`+
-		`customidx TINYTEXT,`+
-		`expstatus TINYTEXT,`+
-		`exptoken TINYTEXT,`+
-		`endtime int,`+
-		`tempcodeexp int,`+
-		`tempcode int,`+
-		`data TEXT);`,
+		`CREATE TABLE IF NOT EXISTS users (` +
+			`token TINYTEXT,` +
+			"`key` TINYTEXT," +
+			`md5 TINYTEXT,` +
+			`loginidx TINYTEXT,` +
+			`emailidx TINYTEXT,` +
+			`phoneidx TINYTEXT,` +
+			`customidx TINYTEXT,` +
+			`expstatus TINYTEXT,` +
+			`exptoken TINYTEXT,` +
+			`endtime int,` +
+			`tempcodeexp int,` +
+			`tempcode int,` +
+			`data TEXT);`,
 		`CREATE UNIQUE INDEX users_token ON users (token(36));`,
 		`CREATE INDEX users_login ON users (loginidx(36));`,
 		`CREATE INDEX users_email ON users (emailidx(36));`,
@@ -951,13 +950,13 @@ func (dbobj MySQLDB) initUsers() error {
 
 func (dbobj MySQLDB) initXTokens() error {
 	queries := []string{
-		`CREATE TABLE IF NOT EXISTS xtokens (`+
-		`xtoken TINYTEXT,`+
-		`token TINYTEXT,`+
-		`type TINYTEXT,`+
-		`app TINYTEXT,`+
-		`fields TINYTEXT,`+
-		`endtime int);`,
+		`CREATE TABLE IF NOT EXISTS xtokens (` +
+			`xtoken TINYTEXT,` +
+			`token TINYTEXT,` +
+			`type TINYTEXT,` +
+			`app TINYTEXT,` +
+			`fields TINYTEXT,` +
+			`endtime int);`,
 		`CREATE UNIQUE INDEX xtokens_xtoken ON xtokens (xtoken(36));`,
 		`CREATE INDEX xtokens_type ON xtokens (type(20));`}
 	return dbobj.execQueries(queries)
@@ -965,35 +964,35 @@ func (dbobj MySQLDB) initXTokens() error {
 
 func (dbobj MySQLDB) initSharedRecords() error {
 	queries := []string{
-		`CREATE TABLE IF NOT EXISTS sharedrecords (`+
-		`token TINYTEXT,`+
-		`record TINYTEXT,`+
-		`partner TINYTEXT,`+
-		`session TINYTEXT,`+
-		`app TINYTEXT,`+
-		`fields TINYTEXT,`+
-		`endtime int,`+
-		"`when` int);",
+		`CREATE TABLE IF NOT EXISTS sharedrecords (` +
+			`token TINYTEXT,` +
+			`record TINYTEXT,` +
+			`partner TINYTEXT,` +
+			`session TINYTEXT,` +
+			`app TINYTEXT,` +
+			`fields TINYTEXT,` +
+			`endtime int,` +
+			"`when` int);",
 		`CREATE INDEX sharedrecords_record ON sharedrecords (record(36));`}
 	return dbobj.execQueries(queries)
 }
 
 func (dbobj MySQLDB) initAudit() error {
 	queries := []string{
-		`CREATE TABLE IF NOT EXISTS audit (`+
-		`atoken TINYTEXT,`+
-		`identity TINYTEXT,`+
-		`record TINYTEXT,`+
-		`who TINYTEXT,`+
-		`mode TINYTEXT,`+
-		`app TINYTEXT,`+
-		`title TINYTEXT,`+
-		`status TINYTEXT,`+
-		`msg TINYTEXT,`+
-		`debug TINYTEXT,`+
-		"`before` TEXT,"+
-		`after TEXT,`+
-		"`when` int);",
+		`CREATE TABLE IF NOT EXISTS audit (` +
+			`atoken TINYTEXT,` +
+			`identity TINYTEXT,` +
+			`record TINYTEXT,` +
+			`who TINYTEXT,` +
+			`mode TINYTEXT,` +
+			`app TINYTEXT,` +
+			`title TINYTEXT,` +
+			`status TINYTEXT,` +
+			`msg TINYTEXT,` +
+			`debug TINYTEXT,` +
+			"`before` TEXT," +
+			`after TEXT,` +
+			"`when` int);",
 		`CREATE INDEX audit_atoken ON audit (atoken(36));`,
 		`CREATE INDEX audit_record ON audit (record(36));`}
 	return dbobj.execQueries(queries)
@@ -1001,17 +1000,17 @@ func (dbobj MySQLDB) initAudit() error {
 
 func (dbobj MySQLDB) initRequests() error {
 	queries := []string{
-		`CREATE TABLE IF NOT EXISTS requests (`+
-		`rtoken TINYTEXT,`+
-		`token TINYTEXT,`+
-		`app TINYTEXT,`+
-		`brief TINYTEXT,`+
-		`action TINYTEXT,`+
-		`status TINYTEXT,`+
-		"`change` TINYTEXT,"+
-		`reason TINYTEXT,`+
-		`creationtime int,`+
-		"`when` int);",
+		`CREATE TABLE IF NOT EXISTS requests (` +
+			`rtoken TINYTEXT,` +
+			`token TINYTEXT,` +
+			`app TINYTEXT,` +
+			`brief TINYTEXT,` +
+			`action TINYTEXT,` +
+			`status TINYTEXT,` +
+			"`change` TINYTEXT," +
+			`reason TINYTEXT,` +
+			`creationtime int,` +
+			"`when` int);",
 		`CREATE INDEX requests_rtoken ON requests (rtoken(36));`,
 		`CREATE INDEX requests_token ON requests (token(36));`,
 		`CREATE INDEX requests_status ON requests (status(20));`}
@@ -1020,50 +1019,50 @@ func (dbobj MySQLDB) initRequests() error {
 
 func (dbobj MySQLDB) initProcessingactivities() error {
 	queries := []string{
-		`CREATE TABLE IF NOT EXISTS processingactivities (`+
-		`activity TINYTEXT,`+
-		`title TINYTEXT,`+
-		`script TEXT,`+
-		`fulldesc TINYTEXT,`+
-		`legalbasis TINYTEXT,`+
-		`applicableto TINYTEXT,`+
-		`creationtime int);`,
+		`CREATE TABLE IF NOT EXISTS processingactivities (` +
+			`activity TINYTEXT,` +
+			`title TINYTEXT,` +
+			`script TEXT,` +
+			`fulldesc TINYTEXT,` +
+			`legalbasis TINYTEXT,` +
+			`applicableto TINYTEXT,` +
+			`creationtime int);`,
 		`CREATE INDEX processingactivities_activity ON processingactivities (activity(36));`}
 	return dbobj.execQueries(queries)
 }
 
 func (dbobj MySQLDB) initLegalbasis() error {
 	queries := []string{
-		`CREATE TABLE IF NOT EXISTS legalbasis (`+
-		`brief TINYTEXT,`+
-		`status TINYTEXT,`+
-		`module TINYTEXT,`+
-		`shortdesc TINYTEXT,`+
-		`fulldesc TEXT,`+
-		`basistype TINYTEXT,`+
-		`requiredmsg TINYTEXT,`+
-		`usercontrol BOOLEAN,`+
-		`requiredflag BOOLEAN,`+
-		`creationtime int);`,
+		`CREATE TABLE IF NOT EXISTS legalbasis (` +
+			`brief TINYTEXT,` +
+			`status TINYTEXT,` +
+			`module TINYTEXT,` +
+			`shortdesc TINYTEXT,` +
+			`fulldesc TEXT,` +
+			`basistype TINYTEXT,` +
+			`requiredmsg TINYTEXT,` +
+			`usercontrol BOOLEAN,` +
+			`requiredflag BOOLEAN,` +
+			`creationtime int);`,
 		`CREATE INDEX legalbasis_brief ON legalbasis (brief(36));`}
 	return dbobj.execQueries(queries)
 }
 
 func (dbobj MySQLDB) initAgreements() error {
 	queries := []string{
-		`CREATE TABLE IF NOT EXISTS agreements (`+
-		`who TINYTEXT,`+
-		`mode TINYTEXT,`+
-		`token TINYTEXT,`+
-		`brief TINYTEXT,`+
-		`status TINYTEXT,`+
-		`referencecode TINYTEXT,`+
-		`lastmodifiedby TINYTEXT,`+
-		`agreementmethod TINYTEXT,`+
-		`creationtime int,`+
-		`starttime int,`+
-		`endtime int,`+
-		"`when` int);",
+		`CREATE TABLE IF NOT EXISTS agreements (` +
+			`who TINYTEXT,` +
+			`mode TINYTEXT,` +
+			`token TINYTEXT,` +
+			`brief TINYTEXT,` +
+			`status TINYTEXT,` +
+			`referencecode TINYTEXT,` +
+			`lastmodifiedby TINYTEXT,` +
+			`agreementmethod TINYTEXT,` +
+			`creationtime int,` +
+			`starttime int,` +
+			`endtime int,` +
+			"`when` int);",
 		`CREATE INDEX agreements_token ON agreements (token(36));`,
 		`CREATE INDEX agreements_brief ON agreements (brief(36));`}
 	return dbobj.execQueries(queries)
@@ -1071,15 +1070,14 @@ func (dbobj MySQLDB) initAgreements() error {
 
 func (dbobj MySQLDB) initSessions() error {
 	queries := []string{
-		`CREATE TABLE IF NOT EXISTS sessions (`+
-		`token TINYTEXT,`+
-		`session TINYTEXT,`+
-		"`key` TINYTEXT,"+
-		`data TEXT,`+
-		`endtime int,`+
-		"`when` int);",
+		`CREATE TABLE IF NOT EXISTS sessions (` +
+			`token TINYTEXT,` +
+			`session TINYTEXT,` +
+			"`key` TINYTEXT," +
+			`data TEXT,` +
+			`endtime int,` +
+			"`when` int);",
 		`CREATE INDEX sessions_a_token ON sessions (token(36));`,
 		`CREATE INDEX sessions_a_session ON sessions (session(36));`}
 	return dbobj.execQueries(queries)
 }
-

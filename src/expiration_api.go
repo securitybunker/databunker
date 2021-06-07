@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	uuid "github.com/hashicorp/go-uuid"
-	"github.com/securitybunker/databunker/src/storage"
 	"github.com/julienschmidt/httprouter"
+	"github.com/securitybunker/databunker/src/storage"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -206,4 +206,3 @@ func (e mainEnv) expInitiate(w http.ResponseWriter, r *http.Request, ps httprout
 	w.WriteHeader(200)
 	w.Write([]byte(finalJSON))
 }
-
