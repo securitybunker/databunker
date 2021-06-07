@@ -419,7 +419,7 @@ func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string) (bool, er
 	//delete in audit
 	dbobj.store.DeleteRecord(storage.TblName.Audit, "record", userTOKEN)
 	dbobj.store.DeleteRecord(storage.TblName.Sessions, "token", userTOKEN)
-	
+
 	dataJSON, record := cleanupRecord(userJSON)
 	bdel := bson.M{}
 	if dataJSON != nil {
@@ -434,7 +434,7 @@ func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string) (bool, er
 		}
 		sig := oldUserBson["md5"].(string)
 		bdoc := bson.M{}
-		
+
 		if _, ok := record["email"]; ok {
 			fmt.Printf("Preservice email idx\n")
 			bdoc["emailidx"] = oldUserBson["emailidx"].(string)
@@ -468,15 +468,14 @@ func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string) (bool, er
 			return true, nil
 		}
 		return false, nil
-	} else {
-		// cleanup user record
-		bdel["data"] = ""
-		bdel["key"] = ""
-		bdel["loginidx"] = ""
-		bdel["emailidx"] = ""
-		bdel["phoneidx"] = ""
-		bdel["customidx"] = ""
 	}
+	// cleanup user record
+	bdel["data"] = ""
+	bdel["key"] = ""
+	bdel["loginidx"] = ""
+	bdel["emailidx"] = ""
+	bdel["phoneidx"] = ""
+	bdel["customidx"] = ""
 	result, err := dbobj.store.CleanupRecord(storage.TblName.Users, "token", userTOKEN, bdel)
 	if err != nil {
 		return false, err
