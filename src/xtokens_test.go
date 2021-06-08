@@ -146,7 +146,7 @@ func TestUserLoginDelete(t *testing.T) {
 	rootToken = oldRootToken
 	// get user requests
 	raw, _ = helpGetUserRequests()
-	if raw["total"].(float64) != 4 {
+	if raw["total"].(float64) != 3 {
 		t.Fatalf("Wrong number of user requests for admin to approve/reject/s\n")
 	}
 	records := raw["rows"].([]interface{})
