@@ -47,7 +47,7 @@ func TestCreateSessionRecord(t *testing.T) {
 		t.Fatalf("failed to create user")
 	}
 	userTOKEN := raw["token"].(string)
-	data := `{"expiration":"1m","cookie":"abcdefg"}`
+	data := `{"expiration":"1m","cookie":"abcdefg","login":"alex"}`
 	sid, _ := uuid.GenerateUUID()
 	raw, _ = helpCreateSession(sid, data)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
@@ -65,7 +65,7 @@ func TestCreateSessionRecord(t *testing.T) {
 	if raw["total"].(float64) != 1 {
 		t.Fatalf("wrong number of sessions")
 	}
-	data2 := `{"expiration":"1m","cookie":"abcdefg2"}`
+	data2 := `{"expiration":"1m","cookie":"abcdefg2","login":"alex"}`
 	sid2, _ := uuid.GenerateUUID()
 	raw, _ = helpCreateSession(sid2, data2)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
