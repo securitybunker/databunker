@@ -95,10 +95,9 @@ func init() {
 	}
 	rootToken = myRootToken
 	db.store.InitUserApps()
-	var cfg2 Config
-	cfile := "../databunker.yaml"
-	readConfFile(&cfg2, &cfile)
 	var cfg Config
+	cfile := "../databunker.yaml"
+	readConfFile(&cfg, &cfile)
 	cfg.SelfService.AppRecordChange = []string{"testapp", "super"}
 	cfg.Generic.CreateUserWithoutAccessToken = true
 	e := mainEnv{db, cfg, make(chan struct{})}
