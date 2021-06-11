@@ -97,9 +97,17 @@ func init() {
 	db.store.InitUserApps()
 	var cfg Config
 	cfile := "../databunker.yaml"
-	readConfFile(&cfg, &cfile)
+	err = readConfFile(&cfg, &cfile)
 	cfg.SelfService.AppRecordChange = []string{"testapp", "super"}
-	cfg.Generic.CreateUserWithoutAccessToken = true
+	if err != nil {
+		cfg.SelfService.ForgetMe = false
+		cfg.SelfService.UserRecordChange = true
+		cfg.Generic.CreateUserWithoutAccessToken = true
+		cfg.Policy.MaxUserRetentionPeriod = "1m"
+		cfg.Policy.MaxAuditRetentionPeriod = "12m"
+		cfg.Policy.MaxSessionRetentionPeriod = "1h"
+		cfg.Policy.MaxShareableRecordRetentionPeriod = "1m"
+	}
 	e := mainEnv{db, cfg, make(chan struct{})}
 	rootToken2, err := e.db.getRootXtoken()
 	if err != nil {
