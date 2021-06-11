@@ -194,7 +194,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/exp/retain/:exptoken", e.expRetainData)
 	router.GET("/v1/exp/delete/:exptoken", e.expDeleteData)
 	router.GET("/v1/exp/status/:mode/:address", e.expGetStatus)
-	router.POST("/v1/exp/initiate/:mode/:address", e.expInitiate)
+	router.POST("/v1/exp/start/:mode/:address", e.expStart)
 	router.DELETE("/v1/exp/cancel/:mode/:address", e.expCancel)
 
 	router.POST("/v1/sharedrecord/token/:token", e.newSharedRecord)
