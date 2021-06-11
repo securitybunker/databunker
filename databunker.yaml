@@ -3,9 +3,9 @@ generic:
   # allow to create user object without login
   create_user_without_access_token: true
 selfservice:
-  # specifies if admin/DPO is required to approve user deletion
+  # specifies if user can remove himself withour Admin/DPO approval (default false)
   forget_me: false
-  # specifies if admin/DPO is required to approve user profile change
+  # specifies if user can change his data without Admin/DPO approval (default false)
   user_record_change: true
   # specifies a list of app-data objects user can change without approval
   app_record_change: ["*"]

@@ -38,13 +38,13 @@ type dbcon struct {
 // Config is u	sed to store application configuration
 type Config struct {
 	Generic struct {
-		CreateUserWithoutAccessToken bool   `yaml:"create_user_without_access_token"`
+		CreateUserWithoutAccessToken bool   `yaml:"create_user_without_access_token" default:false`
 		UserRecordSchema             string `yaml:"user_record_schema"`
 		AdminEmail                   string `yaml:"admin_email"`
 	}
 	SelfService struct {
-		ForgetMe         bool     `yaml:"forget_me"`
-		UserRecordChange bool     `yaml:"user_record_change"`
+		ForgetMe         bool     `yaml:"forget_me" default:false`
+		UserRecordChange bool     `yaml:"user_record_change" default:false`
 		AppRecordChange  []string `yaml:"app_record_change"`
 	}
 	Notification struct {
