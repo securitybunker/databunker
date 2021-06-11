@@ -150,7 +150,7 @@ func (e mainEnv) expDeleteData(w http.ResponseWriter, r *http.Request, ps httpro
 	w.Write([]byte("OK"))
 }
 
-func (e mainEnv) expInitiate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) expStart(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var err error
 	address := ps.ByName("address")
 	mode := ps.ByName("mode")
@@ -188,6 +188,7 @@ func (e mainEnv) expInitiate(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 	expirationStr := getStringValue(records["expiration"])
 	expiration := setExpiration(e.conf.Policy.MaxUserRetentionPeriod, expirationStr)
+	endtime, _ := parseExpiration(expiration)
 	status := getStringValue(records["status"])
 	if len(status) == 0 {
 		status = "wait"
@@ -196,7 +197,7 @@ func (e mainEnv) expInitiate(w http.ResponseWriter, r *http.Request, ps httprout
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 	}
-	err = e.db.initiateUserExpiration(userTOKEN, expiration, status, expToken)
+	err = e.db.initiateUserExpiration(userTOKEN, endtime, status, expToken)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
