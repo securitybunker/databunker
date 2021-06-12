@@ -146,6 +146,7 @@ func (e mainEnv) expDeleteData(w http.ResponseWriter, r *http.Request, ps httpro
 		returnError(w, r, "internal error", 405, nil, event)
 		return
 	}
+	e.db.updateUserExpStatus(userTOKEN, "expired")
 	w.WriteHeader(200)
 	w.Write([]byte("OK"))
 }

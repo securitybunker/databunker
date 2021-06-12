@@ -78,6 +78,14 @@ func (dbobj dbcon) initiateUserExpiration(userTOKEN string, endtime int32, statu
 
 func (dbobj dbcon) updateUserExpStatus(userTOKEN string, status string) error {
 	bdoc := bson.M{}
+	if status == "retain" {
+		bdoc["endtime"] = 0
+		bdoc["exptoken"] = ""
+	} else if len(status) == 0 {
+		// cancel expiration
+		bdoc["endtime"] = 0
+		bdoc["exptoken"] = ""
+	}
 	bdoc["expstatus"] = status
 	_, err := dbobj.store.UpdateRecord(storage.TblName.Users, "token", userTOKEN, &bdoc)
 	return err
