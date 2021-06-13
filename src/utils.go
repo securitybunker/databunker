@@ -65,6 +65,8 @@ func getStringValue(r interface{}) string {
 		return strings.TrimSpace(r.(string))
 	case []uint8:
 		return strings.TrimSpace(string(r.([]uint8)))
+	case float64:
+                return strconv.Itoa(int(r.(float64)))
 	}
 	return ""
 }
@@ -252,7 +254,6 @@ func parseExpiration(expiration string) (int32, error) {
 	match := regexExpiration.FindStringSubmatch(expiration)
 	// expiration format: 10d, 10h, 10m, 10s
 	if len(match) == 2 {
-		fmt.Println("expiration only number")
 		return atoi(match[1]), nil
 	}
 	if len(match) != 3 {
@@ -262,7 +263,6 @@ func parseExpiration(expiration string) (int32, error) {
 	num := match[1]
 	format := match[2]
 	if len(format) == 0 {
-		fmt.Println("expiration only number2")
 		return atoi(num), nil
 	}
 	start := int32(time.Now().Unix())
