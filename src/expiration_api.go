@@ -18,6 +18,7 @@ func (e mainEnv) expUsers() error {
 		if resultJSON != nil {
 			e.globalUserDelete(userTOKEN)
 			e.db.deleteUserRecord(resultJSON, userTOKEN)
+			e.db.updateUserExpStatus(userTOKEN, "expired")
 		}
 	}
 	return err
