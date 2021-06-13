@@ -108,7 +108,7 @@ func init() {
 		cfg.Policy.MaxSessionRetentionPeriod = "1h"
 		cfg.Policy.MaxShareableRecordRetentionPeriod = "1m"
 	}
-	e := mainEnv{db, cfg, make(chan struct{})}
+	e = mainEnv{db, cfg, make(chan struct{})}
 	rootToken2, err := e.db.getRootXtoken()
 	if err != nil {
 		fmt.Printf("Failed to retrieve root token: %s\n", err)
