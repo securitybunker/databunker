@@ -105,14 +105,35 @@ function showForm(title, message, btn) {
 	return formModal;
 }
 
-function prepareMenu(menu) {
+function prepareDropdownMenu(menu) {
   const currentFile = document.location.pathname.split(/[\/]+/).pop();
   var code = '';
   for (index = 0; index < menu.length; ++index) {
     const name = menu[index]["name"];
     const file = menu[index]["file"];
     const style = (file == currentFile) ? ' active' : '';
-    code += '<a class="nav-item nav-link'+style+'" href="'+file+'">'+name+'</a>'+"\n";
+    code += '<a class="dropdown-item'+style+'" href="'+file+'">'+name+'</a>'+"\n";
+  }
+  return code;
+}
+
+function prepareMenu(menu) {
+  const currentFile = document.location.pathname.split(/[\/]+/).pop();
+  var code = '';
+  for (index = 0; index < menu.length; ++index) {
+    const name = menu[index]["name"];
+    if (menu[index]["dropdown"]) {
+      code += '<li class="nav-item dropdown">'+
+        '<a class="nav-link dropdown-toggle" href="#" id="dropdown-'+name+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+name+'</a>'+
+        '<div class="dropdown-menu" aria-labelledby="dropdown-'+name+'">'+
+        prepareDropdownMenu( menu[index]["dropdown"]) + '</div></li>';
+    } else {
+      const name = menu[index]["name"];
+      const file = menu[index]["file"];
+      const style = (file == currentFile) ? ' active' : '';
+      code += '<li class="nav-item">'+
+         '<a class="nav-item nav-link'+style+'" href="'+file+'">'+name+'</a></li>'+"\n";
+    }
   }
   return code;
 }
