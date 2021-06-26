@@ -108,7 +108,7 @@ function showForm(title, message, btn) {
 function prepareDropdownMenu(menu) {
   const currentFile = document.location.pathname.split(/[\/]+/).pop();
   var code = '';
-  for (index = 0; index < menu.length; ++index) {
+  for (var index = 0; index < menu.length; index++) {
     const name = menu[index]["name"];
     const file = menu[index]["file"];
     const style = (file == currentFile) ? ' active' : '';
@@ -120,7 +120,7 @@ function prepareDropdownMenu(menu) {
 function prepareMenu(menu) {
   const currentFile = document.location.pathname.split(/[\/]+/).pop();
   var code = '';
-  for (index = 0; index < menu.length; ++index) {
+  for (var index = 0; index < menu.length; index++) {
     const name = menu[index]["name"];
     if (menu[index]["dropdown"]) {
       code += '<li class="nav-item dropdown">'+
@@ -128,7 +128,6 @@ function prepareMenu(menu) {
         '<div class="dropdown-menu" aria-labelledby="dropdown-'+name+'">'+
         prepareDropdownMenu( menu[index]["dropdown"]) + '</div></li>';
     } else {
-      const name = menu[index]["name"];
       const file = menu[index]["file"];
       const style = (file == currentFile) ? ' active' : '';
       code += '<li class="nav-item">'+
@@ -139,7 +138,7 @@ function prepareMenu(menu) {
 }
 
 function showAdminMenu() {
-  code = prepareMenu(adminMenu);
+  const code = prepareMenu(adminMenu);
   const m = document.getElementById("admin-menu");
   if (m) {
     m.innerHTML = code;
@@ -148,7 +147,7 @@ function showAdminMenu() {
 }
 
 function showUserMenu() {
-  code = prepareMenu(userMenu);
+  const code = prepareMenu(userMenu);
   document.write(code);
 }
 
