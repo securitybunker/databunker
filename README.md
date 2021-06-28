@@ -19,7 +19,7 @@ Project **demo** is available at: [https://demo.databunker.org/](https://demo.da
 
 We live in a world where the privacy of our information is nonexistent. The EU has been working to remediate this fallacy with GDPR, and the US (California) follows with a first sparrow called CCPA.
 
-Databunker Project is intended to ease the acceptance of GDPR and CCPA. It gives organizations an easy-to-implement API's, secure Database to store PII, and privacy portal.
+Databunker project is intended to ease the acceptance of GDPR and CCPA. It gives organizations an easy-to-implement API's, secure Database to store PII, and privacy portal.
 
 Databunker gives all of us, the real data owners, control of our data. Databunker allows us to know who is using our data, what is happening with our personal data and gives us the freedom to decide if we agree to that or not.
 
@@ -44,19 +44,21 @@ Other documents: [INSTALLATION](INSTALLATION.md)
 
 Project demo is available at: [https://demo.databunker.org/](https://demo.databunker.org/)
 
-You can see management for **Natural person** (**data subject**) account access:
+You can access the demo UI using the following account credentials:
 
 ```
 Phone: 4444
-Code: 4444
+Captcha: type as displayed
+Access code: 4444
 ```
 
 ```
 Email: test@securitybunker.io
-Code: 4444
+Captcha: type as displayed
+Access code: 4444
 ```
 
-Demo Admin access token: ```DEMO```
+Demo root token: ```DEMO```
 
 ---
 
@@ -87,7 +89,7 @@ https://databunker.org/doc/benchmark/
 * Backend at https://privacybunker.io/
 * Backend at https://bitbaza.io/
 
-Send us a note if you are running Databunker in production.
+**Send us a note** if you are running Databunker in production mode.
 
 
 # This project resolves most** of the GDPR requirements for you including:
