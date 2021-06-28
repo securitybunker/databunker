@@ -19,7 +19,7 @@ Project **demo** is available at: [https://demo.databunker.org/](https://demo.da
 
 We live in a world where the privacy of our information is nonexistent. The EU has been working to remediate this fallacy with GDPR, and the US (California) follows with a first sparrow called CCPA.
 
-Databunker project is intended to ease the acceptance of GDPR and CCPA. It gives organizations an easy-to-implement API's, secure Database to store PII, and privacy portal.
+Databunker project is intended to ease the GDPR and CPRA compliance. It gives organizations easy-to-implement APIs and secure vault to store PII, and a privacy portal.
 
 Databunker gives all of us, the real data owners, control of our data. Databunker allows us to know who is using our data, what is happening with our personal data and gives us the freedom to decide if we agree to that or not.
 
@@ -222,6 +222,6 @@ Follow this [article](https://databunker.org/doc/start/).
 
 # Contact us
 
-If you have any questions, you can contact me at yuli@privacybunker.io
+If you have any questions, you can contact the development team at office@privacybunker.io
 
 Join the project slack channel to talk with developers: [https://databunker.slack.com/](https://join.slack.com/t/databunker/shared_invite/zt-b6ukxzw3-JCxv8NJDESL40haM45RNIA)
