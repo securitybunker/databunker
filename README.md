@@ -38,7 +38,9 @@ data and the equipment used for the processing.*
 #### Diagram of Solution with Databunker
 ![picture](images/new-style-solution.png)
 
-Other documents: [INSTALLATION](INSTALLATION.md)
+Getting started guide: https://databunker.org/doc/start/
+
+Databunker installation guide: https://databunker.org/doc/install/
 
 ## Demo
 
