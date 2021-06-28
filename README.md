@@ -15,7 +15,7 @@
  </p>
 </div>
 
-Project **demo** is available at: [https://demo.databunker.org/](https://demo.databunker.org/). Please add a **star** if you like our project.
+Project **demo** is available at: [https://demo.databunker.org/](https://demo.databunker.org/). Please add a ⭐**star** if you like our project.
 
 We live in a world where the privacy of our information is nonexistent. The EU has been working to remediate this fallacy with GDPR, and the US (California) follows with a first sparrow called CCPA.
 
