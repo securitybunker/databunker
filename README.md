@@ -31,6 +31,14 @@ GDPR statement: *Personal data should be processed in a manner that ensures appr
 confidentiality of the  personal data, including for preventing unauthorized access to or use of personal
 data and the equipment used for the processing.*
 
+## Does Databunker is basically CRUD / easy to DIY?
+
+Secure user record **CRUD** is just a part of the Databunker.
+
+When saving records in Databunker, Databunker knows to extract user email, phone, login identity, and custom identity and built a secure hashed-based index for quick user record lookup.
+
+In addition inn Databunker, you have a secure session storage API, temp shareable identities API, automatic record expiration and removal, compliance with pseudonymization, DPO management tool, user-accessible UI, and many more features.
+
 #### Diagram of old-style solution.
 
 ![picture](images/old-style-solution.png)
