@@ -4,12 +4,14 @@ package main
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"math/rand"
 	"net/http"
@@ -362,6 +364,7 @@ func (e mainEnv) dbCleanup() {
 // CustomResponseWriter struct is a custom wrapper for ResponseWriter
 type CustomResponseWriter struct {
 	w    http.ResponseWriter
+	gz   io.Writer
 	Code int
 }
 
@@ -369,6 +372,7 @@ type CustomResponseWriter struct {
 func NewCustomResponseWriter(ww http.ResponseWriter) *CustomResponseWriter {
 	return &CustomResponseWriter{
 		w:    ww,
+		gz:   nil,
 		Code: 0,
 	}
 }
@@ -379,6 +383,9 @@ func (w *CustomResponseWriter) Header() http.Header {
 }
 
 func (w *CustomResponseWriter) Write(b []byte) (int, error) {
+	if w.gz != nil {
+		return w.gz.Write(b)
+	}
 	return w.w.Write(b)
 }
 
@@ -390,12 +397,19 @@ func (w *CustomResponseWriter) WriteHeader(statusCode int) {
 
 var HealthCheckerCounter = 0
 
-func logRequest(handler http.Handler) http.Handler {
+func reqMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//log.Printf("Set host %s\n", r.Host)
 		autocontext.Set(r, "host", r.Host)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w2 := NewCustomResponseWriter(w)
-		w2.Header().Set("Access-Control-Allow-Origin", "*")
+		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+			w2.Header().Set("Vary", "Accept-Encoding")
+			w2.Header().Set("Content-Encoding", "gzip")
+			gz := gzip.NewWriter(w)
+			w2.gz = gz
+			defer gz.Close()
+		}
 		handler.ServeHTTP(w2, r)
 		autocontext.Clean(r)
 		if r.Header.Get("User-Agent") == "ELB-HealthChecker/2.0" && r.URL.RequestURI() == "/" && r.Method == "GET" {
@@ -557,7 +571,7 @@ func main() {
 	initCaptcha(hash)
 	router := e.setupRouter()
 	router = e.setupConfRouter(router)
-	srv := &http.Server{Addr: cfg.Server.Host + ":" + cfg.Server.Port, Handler: logRequest(router)}
+	srv := &http.Server{Addr: cfg.Server.Host + ":" + cfg.Server.Port, Handler: reqMiddleware(router)}
 
 	stop := make(chan os.Signal, 2)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
