@@ -86,25 +86,24 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
+	encPhoneIdx := ""
 	if len(parsedData.emailIdx) > 0 {
-		e.db.linkAgreementRecords(userTOKEN, "email", parsedData.emailIdx)
+		encEmailIdx := basicStringEncrypt(parsedData.emailIdx, e.db.masterKey, e.db.GetCode())
+		e.db.linkAgreementRecords(userTOKEN, encEmailIdx)
 	}
 	if len(parsedData.phoneIdx) > 0 {
-		e.db.linkAgreementRecords(userTOKEN, "phone", parsedData.phoneIdx)
+		encPhoneIdx = basicStringEncrypt(parsedData.phoneIdx, e.db.masterKey, e.db.GetCode())
+		e.db.linkAgreementRecords(userTOKEN, encPhoneIdx)
 	}
 	if len(parsedData.emailIdx) > 0 && len(parsedData.phoneIdx) > 0 {
 		// delete duplicate consent records for user
-		records, _ := e.db.store.GetList(storage.TblName.Agreements, "who", parsedData.emailIdx, 0, 0, "")
+		records, _ := e.db.store.GetList(storage.TblName.Agreements, "token", userTOKEN, 0, 0, "")
 		var briefCodes []string
 		for _, val := range records {
-			//fmt.Printf("adding brief code: %s\n", val["brief"].(string))
-			briefCodes = append(briefCodes, val["brief"].(string))
-		}
-		records, _ = e.db.store.GetList(storage.TblName.Agreements, "who", parsedData.phoneIdx, 0, 0, "")
-		for _, val := range records {
-			//fmt.Printf("XXX checking brief code for duplicates: %s\n", val["brief"].(string))
 			if contains(briefCodes, val["brief"].(string)) == true {
-				e.db.store.DeleteRecord2(storage.TblName.Agreements, "token", userTOKEN, "who", parsedData.phoneIdx)
+				e.db.store.DeleteRecord2(storage.TblName.Agreements, "token", userTOKEN, "who", encPhoneIdx)
+			} else {
+				briefCodes = append(briefCodes, val["brief"].(string))
 			}
 		}
 	}
