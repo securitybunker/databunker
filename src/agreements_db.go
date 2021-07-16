@@ -40,7 +40,7 @@ func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, identity strin
 	}
 	encIdentity := ""
 	if len(identity) > 0 {
-		encIdentity := basicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
+		encIdentity, _ := basicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
 	}
 	if len(userTOKEN) > 0 {
 		// first check if this agreement exists, then update
@@ -104,7 +104,7 @@ func (dbobj dbcon) withdrawAgreement(userTOKEN string, brief string, mode string
 	// update date, status
 	encIdentity := ""
 	if len(identity) > 0 {
-		encIdentity = basicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
+		encIdentity, _ = basicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
 	}
 	bdoc := bson.M{}
 	bdoc["when"] = now
@@ -149,7 +149,7 @@ func (dbobj dbcon) listAgreementRecords(userTOKEN string) ([]byte, int, error) {
 }
 
 func (dbobj dbcon) listAgreementRecordsByIdentity(identity string) ([]byte, int, error) {
-	encIdentity := basicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
+	encIdentity, _ := basicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
 	records, err := dbobj.store.GetList(storage.TblName.Agreements, "who", encIdentity, 0, 0, "")
 	if err != nil {
 		return nil, 0, err

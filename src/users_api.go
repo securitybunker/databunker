@@ -88,11 +88,11 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	}
 	encPhoneIdx := ""
 	if len(parsedData.emailIdx) > 0 {
-		encEmailIdx := basicStringEncrypt(parsedData.emailIdx, e.db.masterKey, e.db.GetCode())
+		encEmailIdx, _ := basicStringEncrypt(parsedData.emailIdx, e.db.masterKey, e.db.GetCode())
 		e.db.linkAgreementRecords(userTOKEN, encEmailIdx)
 	}
 	if len(parsedData.phoneIdx) > 0 {
-		encPhoneIdx = basicStringEncrypt(parsedData.phoneIdx, e.db.masterKey, e.db.GetCode())
+		encPhoneIdx, _ = basicStringEncrypt(parsedData.phoneIdx, e.db.masterKey, e.db.GetCode())
 		e.db.linkAgreementRecords(userTOKEN, encPhoneIdx)
 	}
 	if len(parsedData.emailIdx) > 0 && len(parsedData.phoneIdx) > 0 {
