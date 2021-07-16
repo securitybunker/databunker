@@ -25,7 +25,7 @@ type agreement struct {
 	Agreementmethod string `json:"agreementmethod,omitempty" structs:"agreementmethod"`
 }
 
-func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, usercode string, brief string,
+func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, identity string, brief string,
 	status string, agreementmethod string, referencecode string, lastmodifiedby string,
 	starttime int32, endtime int32) (bool, error) {
 	now := int32(time.Now().Unix())
@@ -54,13 +54,13 @@ func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, usercode strin
 			return false, nil
 		}
 	} else {
-		raw, err := dbobj.store.GetRecord2(storage.TblName.Agreements, "who", usercode, "brief", brief)
+		raw, err := dbobj.store.GetRecord2(storage.TblName.Agreements, "who", identity, "brief", brief)
 		if err != nil {
 			fmt.Printf("error to find:%s", err)
 			return false, err
 		}
 		if raw != nil {
-			dbobj.store.UpdateRecord2(storage.TblName.Agreements, "who", usercode, "brief", brief, &bdoc, nil)
+			dbobj.store.UpdateRecord2(storage.TblName.Agreements, "who", identity, "brief", brief, &bdoc, nil)
 			if status != raw["status"].(string) {
 				// status changed
 				return true, nil
@@ -70,7 +70,7 @@ func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, usercode strin
 	}
 	bdoc["brief"] = brief
 	bdoc["mode"] = mode
-	bdoc["who"] = usercode
+	bdoc["who"] = identity
 	bdoc["token"] = userTOKEN
 	bdoc["creationtime"] = now
 	if len(agreementmethod) > 0 {
@@ -88,20 +88,20 @@ func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, usercode strin
 }
 
 // link consent record to userToken
-func (dbobj dbcon) linkAgreementRecords(userTOKEN string, mode string, usercode string) error {
+func (dbobj dbcon) linkAgreementRecords(userTOKEN string, mode string, identity string) error {
 	bdoc := bson.M{}
 	bdoc["token"] = userTOKEN
-	_, err := dbobj.store.UpdateRecord2(storage.TblName.Agreements, "token", "", "who", usercode, &bdoc, nil)
+	_, err := dbobj.store.UpdateRecord2(storage.TblName.Agreements, "token", "", "who", identity, &bdoc, nil)
 	return err
 }
 
-func (dbobj dbcon) withdrawAgreement(userTOKEN string, brief string, mode string, usercode string, lastmodifiedby string) error {
+func (dbobj dbcon) withdrawAgreement(userTOKEN string, brief string, mode string, identity string, lastmodifiedby string) error {
 	now := int32(time.Now().Unix())
 	// update date, status
 	bdoc := bson.M{}
 	bdoc["when"] = now
 	bdoc["mode"] = mode
-	bdoc["who"] = usercode
+	bdoc["who"] = identity
 	bdoc["endtime"] = 0
 	bdoc["status"] = "no"
 	bdoc["lastmodifiedby"] = lastmodifiedby
@@ -109,7 +109,7 @@ func (dbobj dbcon) withdrawAgreement(userTOKEN string, brief string, mode string
 		fmt.Printf("%s %s\n", userTOKEN, brief)
 		dbobj.store.UpdateRecord2(storage.TblName.Agreements, "token", userTOKEN, "brief", brief, &bdoc, nil)
 	} else {
-		dbobj.store.UpdateRecord2(storage.TblName.Agreements, "who", usercode, "brief", brief, &bdoc, nil)
+		dbobj.store.UpdateRecord2(storage.TblName.Agreements, "who", identity, "brief", brief, &bdoc, nil)
 	}
 	return nil
 }
@@ -180,9 +180,9 @@ func (dbobj dbcon) expireAgreementRecords(notifyURL string) error {
 			dbobj.store.UpdateRecord2(storage.TblName.Agreements, "token", userTOKEN, "brief", brief, &bdoc, nil)
 			notifyConsentChange(notifyURL, brief, "expired", "token", userTOKEN)
 		} else {
-			usercode := rec["who"].(string)
-			dbobj.store.UpdateRecord2(storage.TblName.Agreements, "who", usercode, "brief", brief, &bdoc, nil)
-			notifyConsentChange(notifyURL, brief, "expired", rec["mode"].(string), usercode)
+			identity := rec["who"].(string)
+			dbobj.store.UpdateRecord2(storage.TblName.Agreements, "who", identity, "brief", brief, &bdoc, nil)
+			notifyConsentChange(notifyURL, brief, "expired", rec["mode"].(string), identity)
 		}
 
 	}
