@@ -9,8 +9,8 @@ import (
 	uuid "github.com/hashicorp/go-uuid"
 )
 
-func helpCreateSharedRecord(mode string, address string, dataJSON string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/sharedrecord/" + mode + "/" + address
+func helpCreateSharedRecord(mode string, identity string, dataJSON string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/sharedrecord/" + mode + "/" + identity
 	request := httptest.NewRequest("POST", url, strings.NewReader(dataJSON))
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)

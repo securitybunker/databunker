@@ -8,29 +8,29 @@ import (
 	uuid "github.com/hashicorp/go-uuid"
 )
 
-func helpAcceptAgreement(mode string, address string, brief string, dataJSON string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/agreement/" + brief + "/" + mode + "/" + address
+func helpAcceptAgreement(mode string, identity string, brief string, dataJSON string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/agreement/" + brief + "/" + mode + "/" + identity
 	request := httptest.NewRequest("POST", url, strings.NewReader(dataJSON))
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
 }
 
-func helpWithdrawAgreement(mode string, address string, brief string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/agreement/" + brief + "/" + mode + "/" + address
+func helpWithdrawAgreement(mode string, identity string, brief string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/agreement/" + brief + "/" + mode + "/" + identity
 	request := httptest.NewRequest("DELETE", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
 }
 
-func helpGetUserAgreement(mode string, address string, brief string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/agreement/" + brief + "/" + mode + "/" + address
+func helpGetUserAgreement(mode string, identity string, brief string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/agreement/" + brief + "/" + mode + "/" + identity
 	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
 }
 
-func helpGetAllUserAgreements(mode string, address string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/agreements/" + mode + "/" + address
+func helpGetAllUserAgreements(mode string, identity string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/agreements/" + mode + "/" + identity
 	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)

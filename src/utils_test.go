@@ -119,7 +119,7 @@ func TestUtilNotifyConsentChange(t *testing.T) {
 		defer req.Body.Close()
 		bodyBytes, _ := ioutil.ReadAll(req.Body)
 		fmt.Printf("body: %s\n", string(bodyBytes))
-		if string(bodyBytes) != `{"action":"consentchange","address":"user3@user3.com","brief":"brief","mode":"email","status":"no"}` {
+		if string(bodyBytes) != `{"action":"consentchange","identity":"user3@user3.com","brief":"brief","mode":"email","status":"no"}` {
 			q <- fmt.Sprintf("bad request in notifyConsentChange: %s", string(bodyBytes))
 		} else {
 			q <- "ok"
@@ -142,7 +142,7 @@ func TestUtilNotifyProfileNew(t *testing.T) {
 		defer req.Body.Close()
 		bodyBytes, _ := ioutil.ReadAll(req.Body)
 		fmt.Printf("body: %s\n", string(bodyBytes))
-		if string(bodyBytes) != `{"action":"profilenew","address":"user3@user3.com","mode":"email","profile":{"name":"alex"}}` {
+		if string(bodyBytes) != `{"action":"profilenew","identity":"user3@user3.com","mode":"email","profile":{"name":"alex"}}` {
 			q <- fmt.Sprintf("bad request in notifyConsentChange: %s", string(bodyBytes))
 		} else {
 			q <- "ok"
@@ -166,7 +166,7 @@ func TestUtilNotifyForgetMe(t *testing.T) {
 		defer req.Body.Close()
 		bodyBytes, _ := ioutil.ReadAll(req.Body)
 		fmt.Printf("body: %s\n", string(bodyBytes))
-		if string(bodyBytes) != `{"action":"forgetme","address":"user3@user3.com","mode":"email","profile":{"name":"alex"}}` {
+		if string(bodyBytes) != `{"action":"forgetme","identity":"user3@user3.com","mode":"email","profile":{"name":"alex"}}` {
 			q <- fmt.Sprintf("bad request in notifyConsentChange: %s", string(bodyBytes))
 		} else {
 			q <- "ok"
@@ -190,7 +190,7 @@ func TestUtilNotifyProfileChange(t *testing.T) {
 		defer req.Body.Close()
 		bodyBytes, _ := ioutil.ReadAll(req.Body)
 		fmt.Printf("body: %s\n", string(bodyBytes))
-		if string(bodyBytes) != `{"action":"profilechange","address":"user3@user3.com","mode":"email","old":{"name":"alex2"},"profile":{"name":"alex3"}}` {
+		if string(bodyBytes) != `{"action":"profilechange","identity":"user3@user3.com","mode":"email","old":{"name":"alex2"},"profile":{"name":"alex3"}}` {
 			q <- fmt.Sprintf("bad request in notifyConsentChange: %s", string(bodyBytes))
 		} else {
 			q <- "ok"

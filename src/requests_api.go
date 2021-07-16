@@ -39,24 +39,24 @@ func (e mainEnv) getUserRequests(w http.ResponseWriter, r *http.Request, ps http
 }
 
 func (e mainEnv) getCustomUserRequests(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	address := ps.ByName("address")
+	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit("get user privacy requests", address, mode, address)
+	event := audit("get user privacy requests", identity, mode, identity)
 	defer func() { event.submit(e.db) }()
 
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
-	userTOKEN := address
+	userTOKEN := identity
 	var userBson bson.M
 	if mode == "token" {
-		if enforceUUID(w, address, event) == false {
+		if enforceUUID(w, identity, event) == false {
 			return
 		}
-		userBson, _ = e.db.lookupUserRecord(address)
+		userBson, _ = e.db.lookupUserRecord(identity)
 	} else {
-		userBson, _ = e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		userBson, _ = e.db.lookupUserRecordByIndex(mode, identity, e.conf)
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 			event.Record = userTOKEN

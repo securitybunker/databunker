@@ -28,14 +28,14 @@ type auditEvent struct {
 	Atoken   string `json:"atoken"`
 }
 
-func audit(title string, record string, mode string, address string) *auditEvent {
+func audit(title string, record string, mode string, identity string) *auditEvent {
 	//fmt.Printf("/%s : %s\n", title, record)
-	return &auditEvent{Title: title, Mode: mode, Who: address, Record: record, Status: "ok", When: int32(time.Now().Unix())}
+	return &auditEvent{Title: title, Mode: mode, Who: identity, Record: record, Status: "ok", When: int32(time.Now().Unix())}
 }
 
-func auditApp(title string, record string, app string, mode string, address string) *auditEvent {
+func auditApp(title string, record string, app string, mode string, identity string) *auditEvent {
 	//fmt.Printf("/%s : %s : %s\n", title, app, record)
-	return &auditEvent{Title: title, Mode: mode, Who: address, Record: record, Status: "ok", When: int32(time.Now().Unix())}
+	return &auditEvent{Title: title, Mode: mode, Who: identity, Record: record, Status: "ok", When: int32(time.Now().Unix())}
 }
 
 func (event auditEvent) submit(db *dbcon) {

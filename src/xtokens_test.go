@@ -9,17 +9,17 @@ import (
 	uuid "github.com/hashicorp/go-uuid"
 )
 
-func helpUserPrelogin(mode string, address string) (map[string]interface{}, error) {
+func helpUserPrelogin(mode string, identity string) (map[string]interface{}, error) {
 	captcha, _ := generateCaptcha()
 	code, _ := decryptCaptcha(captcha)
-	url := "http://localhost:3000/v1/prelogin/" + mode + "/" + address + "/" + code + "/" + captcha
+	url := "http://localhost:3000/v1/prelogin/" + mode + "/" + identity + "/" + code + "/" + captcha
 	request := httptest.NewRequest("GET", url, nil)
 	//request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
 }
 
-func helpUserLogin(mode string, address string, code string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/login/" + mode + "/" + address + "/" + code
+func helpUserLogin(mode string, identity string, code string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/login/" + mode + "/" + identity + "/" + code
 	request := httptest.NewRequest("GET", url, nil)
 	//request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)

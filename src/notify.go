@@ -11,47 +11,47 @@ import (
 	"github.com/securitybunker/databunker/src/autocontext"
 )
 
-func notifyBadLogin(notifyURL string, mode string, address string) {
+func notifyBadLogin(notifyURL string, mode string, identity string) {
 	if len(notifyURL) == 0 {
 		return
 	}
-	requestBody := fmt.Sprintf(`{"action":"%s","address":"%s","mode":"%s"}`,
-		"badlogin", address, mode)
+	requestBody := fmt.Sprintf(`{"action":"%s","identity":"%s","mode":"%s"}`,
+		"badlogin", identity, mode)
 	host := autocontext.GetAuto("host")
 	go notify(notifyURL, host, []byte(requestBody))
 }
 
-func notifyProfileNew(notifyURL string, profile []byte, mode string, address string) {
+func notifyProfileNew(notifyURL string, profile []byte, mode string, identity string) {
 	if len(notifyURL) == 0 {
 		return
 	}
-	requestBody := fmt.Sprintf(`{"action":"%s","address":"%s","mode":"%s","profile":%s}`,
-		"profilenew", address, mode, profile)
+	requestBody := fmt.Sprintf(`{"action":"%s","identity":"%s","mode":"%s","profile":%s}`,
+		"profilenew", identity, mode, profile)
 	host := autocontext.GetAuto("host")
 	go notify(notifyURL, host, []byte(requestBody))
 }
 
-func notifyProfileChange(notifyURL string, old []byte, profile []byte, mode string, address string) {
+func notifyProfileChange(notifyURL string, old []byte, profile []byte, mode string, identity string) {
 	if len(notifyURL) == 0 {
 		return
 	}
-	requestBody := fmt.Sprintf(`{"action":"%s","address":"%s","mode":"%s","old":%s,"profile":%s}`,
-		"profilechange", address, mode, old, profile)
+	requestBody := fmt.Sprintf(`{"action":"%s","identity":"%s","mode":"%s","old":%s,"profile":%s}`,
+		"profilechange", identity, mode, old, profile)
 	host := autocontext.GetAuto("host")
 	go notify(notifyURL, host, []byte(requestBody))
 }
 
-func notifyForgetMe(notifyURL string, profile []byte, mode string, address string) {
+func notifyForgetMe(notifyURL string, profile []byte, mode string, identity string) {
 	if len(notifyURL) == 0 {
 		return
 	}
-	requestBody := fmt.Sprintf(`{"action":"%s","address":"%s","mode":"%s","profile":%s}`,
-		"forgetme", address, mode, profile)
+	requestBody := fmt.Sprintf(`{"action":"%s","identity":"%s","mode":"%s","profile":%s}`,
+		"forgetme", identity, mode, profile)
 	host := autocontext.GetAuto("host")
 	go notify(notifyURL, host, []byte(requestBody))
 }
 
-func notifyConsentChange(notifyURL string, brief string, status string, mode string, address string) {
+func notifyConsentChange(notifyURL string, brief string, status string, mode string, identity string) {
 	if len(notifyURL) == 0 {
 		return
 	}
@@ -60,7 +60,7 @@ func notifyConsentChange(notifyURL string, brief string, status string, mode str
 		"brief":   brief,
 		"status":  status,
 		"mode":    mode,
-		"address": address,
+		"identity": identity,
 	})
 	host := autocontext.GetAuto("host")
 	go notify(notifyURL, host, requestBody)

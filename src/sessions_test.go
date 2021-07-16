@@ -23,8 +23,8 @@ func helpGetSession(recordTOKEN string) (map[string]interface{}, error) {
 	return helpServe(request)
 }
 
-func helpGetUserSessions(mode string, address string) (map[string]interface{}, error) {
-	url := "http://localhost:3000/v1/sessions/" + mode + "/" + address
+func helpGetUserSessions(mode string, identity string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/sessions/" + mode + "/" + identity
 	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)

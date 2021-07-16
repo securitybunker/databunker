@@ -186,18 +186,18 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/sys/backup", e.backupDB)
 
 	router.POST("/v1/user", e.userNew)
-	router.GET("/v1/user/:mode/:address", e.userGet)
-	router.DELETE("/v1/user/:mode/:address", e.userDelete)
-	router.PUT("/v1/user/:mode/:address", e.userChange)
+	router.GET("/v1/user/:mode/:identity", e.userGet)
+	router.DELETE("/v1/user/:mode/:identity", e.userDelete)
+	router.PUT("/v1/user/:mode/:identity", e.userChange)
 
-	router.GET("/v1/prelogin/:mode/:address/:code/:captcha", e.userPrelogin)
-	router.GET("/v1/login/:mode/:address/:tmp", e.userLogin)
+	router.GET("/v1/prelogin/:mode/:identity/:code/:captcha", e.userPrelogin)
+	router.GET("/v1/login/:mode/:identity/:tmp", e.userLogin)
 
 	router.GET("/v1/exp/retain/:exptoken", e.expRetainData)
 	router.GET("/v1/exp/delete/:exptoken", e.expDeleteData)
-	router.GET("/v1/exp/status/:mode/:address", e.expGetStatus)
-	router.POST("/v1/exp/start/:mode/:address", e.expStart)
-	router.DELETE("/v1/exp/cancel/:mode/:address", e.expCancel)
+	router.GET("/v1/exp/status/:mode/:identity", e.expGetStatus)
+	router.POST("/v1/exp/start/:mode/:identity", e.expStart)
+	router.DELETE("/v1/exp/cancel/:mode/:identity", e.expCancel)
 
 	router.POST("/v1/sharedrecord/token/:token", e.newSharedRecord)
 	router.GET("/v1/get/:record", e.getRecord)
@@ -205,7 +205,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/request/:request", e.getUserRequest)
 	router.POST("/v1/request/:request", e.approveUserRequest)
 	router.DELETE("/v1/request/:request", e.cancelUserRequest)
-	router.GET("/v1/requests/:mode/:address", e.getCustomUserRequests)
+	router.GET("/v1/requests/:mode/:identity", e.getCustomUserRequests)
 	router.GET("/v1/requests", e.getUserRequests)
 
 	router.GET("/v1/pactivity", e.pactivityList)
@@ -218,14 +218,14 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.POST("/v1/lbasis/:brief", e.createLegalBasis)
 	router.DELETE("/v1/lbasis/:brief", e.deleteLegalBasis)
 
-	router.GET("/v1/agreement/:brief/:mode/:address", e.getUserAgreement)
-	router.POST("/v1/agreement/:brief/:mode/:address", e.agreementAccept)
+	router.GET("/v1/agreement/:brief/:mode/:identity", e.getUserAgreement)
+	router.POST("/v1/agreement/:brief/:mode/:identity", e.agreementAccept)
 	router.DELETE("/v1/agreement/:brief", e.agreementRevokeAll)
-	router.DELETE("/v1/agreement/:brief/:mode/:address", e.agreementWithdraw)
-	router.GET("/v1/agreements/:mode/:address", e.getUserAgreements)
+	router.DELETE("/v1/agreement/:brief/:mode/:identity", e.agreementWithdraw)
+	router.GET("/v1/agreements/:mode/:identity", e.getUserAgreements)
 
-	//router.GET("/v1/consent/:mode/:address", e.consentAllUserRecords)
-	//router.GET("/v1/consent/:mode/:address/:brief", e.consentUserRecord)
+	//router.GET("/v1/consent/:mode/:identity", e.consentAllUserRecords)
+	//router.GET("/v1/consent/:mode/:identity/:brief", e.consentUserRecord)
 
 	router.POST("/v1/userapp/token/:token/:appname", e.userappNew)
 	router.GET("/v1/userapp/token/:token/:appname", e.userappGet)
@@ -237,8 +237,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/session/:session", e.getSession)
 	router.POST("/v1/session/:session", e.createSession)
 	router.DELETE("/v1/session/:session", e.deleteSession)
-	//router.POST("/v1/sessions/:mode/:address", e.newUserSession)
-	router.GET("/v1/sessions/:mode/:address", e.getUserSessions)
+	//router.POST("/v1/sessions/:mode/:identity", e.newUserSession)
+	router.GET("/v1/sessions/:mode/:identity", e.getUserSessions)
 
 	router.GET("/v1/metrics", e.metrics)
 
