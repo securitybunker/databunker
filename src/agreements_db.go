@@ -40,7 +40,7 @@ func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, identity strin
 	}
 	encIdentity := ""
 	if len(identity) > 0 {
-		encIdentity, _ := basicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
+		encIdentity, _ = basicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
 	}
 	if len(userTOKEN) > 0 {
 		// first check if this agreement exists, then update
