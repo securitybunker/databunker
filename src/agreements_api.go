@@ -10,10 +10,10 @@ import (
 )
 
 func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	address := ps.ByName("address")
+	identity := ps.ByName("identity")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
-	event := audit("agreement accept for "+brief, address, mode, address)
+	event := audit("agreement accept for "+brief, identity, mode, identity)
 	defer func() { event.submit(e.db) }()
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
@@ -35,10 +35,10 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	}
 	userTOKEN := ""
 	if mode == "token" {
-		if enforceUUID(w, address, event) == false {
+		if enforceUUID(w, identity, event) == false {
 			return
 		}
-		userBson, err := e.db.lookupUserRecord(address)
+		userBson, err := e.db.lookupUserRecord(identity)
 		if err != nil || userBson == nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
@@ -46,9 +46,9 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 		if e.enforceAuth(w, r, event) == "" {
 			return
 		}
-		userTOKEN = address
+		userTOKEN = identity
 	} else {
-		userBson, err := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		userBson, err := e.db.lookupUserRecordByIndex(mode, identity, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
@@ -99,12 +99,12 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	}
 	switch mode {
 	case "email":
-		address = normalizeEmail(address)
+		identity = normalizeEmail(identity)
 	case "phone":
-		address = normalizePhone(address, e.conf.Sms.DefaultCountry)
+		identity = normalizePhone(identity, e.conf.Sms.DefaultCountry)
 	}
 	fmt.Printf("Processing agreement, status: %s\n", status)
-	e.db.acceptAgreement(userTOKEN, mode, address, brief, status, agreementmethod,
+	e.db.acceptAgreement(userTOKEN, mode, identity, brief, status, agreementmethod,
 		referencecode, lastmodifiedby, starttime, expiration)
 	/*
 		notifyURL := e.conf.Notification.NotificationURL
@@ -113,7 +113,7 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 			if len(userTOKEN) > 0 {
 				notifyConsentChange(notifyURL, brief, status, "token", userTOKEN)
 			} else {
-				notifyConsentChange(notifyURL, brief, status, mode, address)
+				notifyConsentChange(notifyURL, brief, status, mode, identity)
 			}
 		}
 	*/
@@ -123,10 +123,10 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 }
 
 func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	address := ps.ByName("address")
+	identity := ps.ByName("identity")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
-	event := audit("consent withdraw for "+brief, address, mode, address)
+	event := audit("consent withdraw for "+brief, identity, mode, identity)
 	defer func() { event.submit(e.db) }()
 
 	if validateMode(mode) == false {
@@ -151,10 +151,10 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	userTOKEN := ""
 	authResult := ""
 	if mode == "token" {
-		if enforceUUID(w, address, event) == false {
+		if enforceUUID(w, identity, event) == false {
 			return
 		}
-		userBson, _ := e.db.lookupUserRecord(address)
+		userBson, _ := e.db.lookupUserRecord(identity)
 		if userBson == nil {
 			returnError(w, r, "internal error", 405, nil, event)
 			return
@@ -163,10 +163,10 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 		if authResult == "" {
 			return
 		}
-		userTOKEN = address
+		userTOKEN = identity
 	} else {
 		// TODO: decode url in code!
-		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		userBson, _ := e.db.lookupUserRecordByIndex(mode, identity, e.conf)
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 			event.Record = userTOKEN
@@ -218,11 +218,11 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	}
 	switch mode {
 	case "email":
-		address = normalizeEmail(address)
+		identity = normalizeEmail(identity)
 	case "phone":
-		address = normalizePhone(address, e.conf.Sms.DefaultCountry)
+		identity = normalizePhone(identity, e.conf.Sms.DefaultCountry)
 	}
-	e.db.withdrawAgreement(userTOKEN, brief, mode, address, lastmodifiedby)
+	e.db.withdrawAgreement(userTOKEN, brief, mode, identity, lastmodifiedby)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"status":"ok"}`))
@@ -230,7 +230,7 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	if len(userTOKEN) > 0 {
 		notifyConsentChange(notifyURL, brief, "no", "token", userTOKEN)
 	} else {
-		notifyConsentChange(notifyURL, brief, "no", mode, address)
+		notifyConsentChange(notifyURL, brief, "no", mode, identity)
 	}
 }
 
@@ -261,9 +261,9 @@ func (e mainEnv) agreementRevokeAll(w http.ResponseWriter, r *http.Request, ps h
 }
 
 func (e mainEnv) getUserAgreements(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	address := ps.ByName("address")
+	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit("privacy agreements for "+mode, address, mode, address)
+	event := audit("privacy agreements for "+mode, identity, mode, identity)
 	defer func() { event.submit(e.db) }()
 
 	if validateMode(mode) == false {
@@ -273,10 +273,10 @@ func (e mainEnv) getUserAgreements(w http.ResponseWriter, r *http.Request, ps ht
 
 	userTOKEN := ""
 	if mode == "token" {
-		if enforceUUID(w, address, event) == false {
+		if enforceUUID(w, identity, event) == false {
 			return
 		}
-		userBson, _ := e.db.lookupUserRecord(address)
+		userBson, _ := e.db.lookupUserRecord(identity)
 		if userBson == nil {
 			returnError(w, r, "internal error", 405, nil, event)
 			return
@@ -284,10 +284,10 @@ func (e mainEnv) getUserAgreements(w http.ResponseWriter, r *http.Request, ps ht
 		if e.enforceAuth(w, r, event) == "" {
 			return
 		}
-		userTOKEN = address
+		userTOKEN = identity
 	} else {
 		// TODO: decode url in code!
-		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		userBson, _ := e.db.lookupUserRecordByIndex(mode, identity, e.conf)
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 			event.Record = userTOKEN
@@ -313,7 +313,7 @@ func (e mainEnv) getUserAgreements(w http.ResponseWriter, r *http.Request, ps ht
 	if len(userTOKEN) > 0 {
 		resultJSON, numRecords, err = e.db.listAgreementRecords(userTOKEN)
 	} else {
-		resultJSON, numRecords, err = e.db.listAgreementRecordsByIdentity(address)
+		resultJSON, numRecords, err = e.db.listAgreementRecordsByIdentity(identity)
 	}
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
@@ -327,10 +327,10 @@ func (e mainEnv) getUserAgreements(w http.ResponseWriter, r *http.Request, ps ht
 }
 
 func (e mainEnv) getUserAgreement(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	address := ps.ByName("address")
+	identity := ps.ByName("identity")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
-	event := audit("privacy agreements for "+mode, address, mode, address)
+	event := audit("privacy agreements for "+mode, identity, mode, identity)
 	defer func() { event.submit(e.db) }()
 
 	if validateMode(mode) == false {
@@ -352,10 +352,10 @@ func (e mainEnv) getUserAgreement(w http.ResponseWriter, r *http.Request, ps htt
 	}
 	userTOKEN := ""
 	if mode == "token" {
-		if enforceUUID(w, address, event) == false {
+		if enforceUUID(w, identity, event) == false {
 			return
 		}
-		userBson, _ := e.db.lookupUserRecord(address)
+		userBson, _ := e.db.lookupUserRecord(identity)
 		if userBson == nil {
 			returnError(w, r, "internal error", 405, nil, event)
 			return
@@ -363,10 +363,10 @@ func (e mainEnv) getUserAgreement(w http.ResponseWriter, r *http.Request, ps htt
 		if e.enforceAuth(w, r, event) == "" {
 			return
 		}
-		userTOKEN = address
+		userTOKEN = identity
 	} else {
 		// TODO: decode url in code!
-		userBson, _ := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		userBson, _ := e.db.lookupUserRecordByIndex(mode, identity, e.conf)
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 			event.Record = userTOKEN
@@ -404,10 +404,10 @@ func (e mainEnv) getUserAgreement(w http.ResponseWriter, r *http.Request, ps htt
 
 /*
 func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	address := ps.ByName("address")
+	identity := ps.ByName("identity")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
-	event := audit("consent record for "+brief, address, mode, address)
+	event := audit("consent record for "+brief, identity, mode, identity)
 	defer func() { event.submit(e.db) }()
 
 	if validateMode(mode) == false {
@@ -419,15 +419,15 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 		returnError(w, r, "bad brief format", 405, nil, event)
 		return
 	}
-	userTOKEN := address
+	userTOKEN := identity
 	var userBson bson.M
 	if mode == "token" {
-		if enforceUUID(w, address, event) == false {
+		if enforceUUID(w, identity, event) == false {
 			return
 		}
-		userBson, _ = e.db.lookupUserRecord(address)
+		userBson, _ = e.db.lookupUserRecord(identity)
 	} else {
-		userBson, _ = e.db.lookupUserRecordByIndex(mode, address, e.conf)
+		userBson, _ = e.db.lookupUserRecordByIndex(mode, identity, e.conf)
 		if userBson != nil {
 			userTOKEN = userBson["token"].(string)
 			event.Record = userTOKEN

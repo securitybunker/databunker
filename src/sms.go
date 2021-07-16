@@ -9,20 +9,20 @@ import (
 	"strings"
 )
 
-func sendCodeByPhone(code int32, address string, cfg Config) {
+func sendCodeByPhone(code int32, identity string, cfg Config) {
 	domain := "https://api.twilio.com"
 	client := &http.Client{}
-	sendCodeByPhoneDo(domain, client, code, address, cfg)
+	sendCodeByPhoneDo(domain, client, code, identity, cfg)
 }
 
-func sendCodeByPhoneDo(domain string, client *http.Client, code int32, address string, cfg Config) {
+func sendCodeByPhoneDo(domain string, client *http.Client, code int32, identity string, cfg Config) {
 	if len(cfg.Sms.Url) == 0 {
 		log.Printf("SMS gateway provider URL is missing")
 		return
 	}
 	msg := "Databunker code " + strconv.Itoa(int(code))
 	finalUrl := cfg.Sms.Url
-	finalUrl = strings.ReplaceAll(finalUrl, "_PHONE_", url.QueryEscape(address))
+	finalUrl = strings.ReplaceAll(finalUrl, "_PHONE_", url.QueryEscape(identity))
 	finalUrl = strings.ReplaceAll(finalUrl, "_FROM_", url.QueryEscape(cfg.Sms.From))
 	finalUrl = strings.ReplaceAll(finalUrl, "_TOKEN_", url.QueryEscape(cfg.Sms.Token))
 	finalUrl = strings.ReplaceAll(finalUrl, "_MSG_", url.QueryEscape(msg))
@@ -54,13 +54,13 @@ func sendCodeByPhoneDo(domain string, client *http.Client, code int32, address s
 	if cType == "json" || cType == "application/json" {
 		// no need to escape values when sending JSON
 		body = strings.ReplaceAll(body, "_FROM_", cfg.Sms.From)
-		body = strings.ReplaceAll(body, "_PHONE_", address)
+		body = strings.ReplaceAll(body, "_PHONE_", identity)
 		body = strings.ReplaceAll(body, "_TOKEN_", cfg.Sms.Token)
 		body = strings.ReplaceAll(body, "_MSG_", msg)
 		cType = "application/json"
 	} else {
 		body = strings.ReplaceAll(body, "_FROM_", url.QueryEscape(cfg.Sms.From))
-		body = strings.ReplaceAll(body, "_PHONE_", url.QueryEscape(address))
+		body = strings.ReplaceAll(body, "_PHONE_", url.QueryEscape(identity))
 		body = strings.ReplaceAll(body, "_TOKEN_", url.QueryEscape(cfg.Sms.Token))
 		body = strings.ReplaceAll(body, "_MSG_", url.QueryEscape(msg))
 		cType = "application/x-www-form-urlencoded"

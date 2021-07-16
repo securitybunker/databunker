@@ -118,9 +118,9 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var err error
 	var resultJSON []byte
-	address := ps.ByName("address")
+	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit("get user record by "+mode, address, mode, address)
+	event := audit("get user record by "+mode, identity, mode, identity)
 	defer func() { event.submit(e.db) }()
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
@@ -129,13 +129,13 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	userTOKEN := ""
 	authResult := ""
 	if mode == "token" {
-		if enforceUUID(w, address, event) == false {
+		if enforceUUID(w, identity, event) == false {
 			return
 		}
-		resultJSON, err = e.db.getUserJson(address)
-		userTOKEN = address
+		resultJSON, err = e.db.getUserJson(identity)
+		userTOKEN = identity
 	} else {
-		resultJSON, userTOKEN, err = e.db.getUserJsonByIndex(address, mode, e.conf)
+		resultJSON, userTOKEN, err = e.db.getUserJsonByIndex(identity, mode, e.conf)
 		event.Record = userTOKEN
 	}
 	if err != nil {
@@ -159,9 +159,9 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 }
 
 func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	address := ps.ByName("address")
+	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit("change user record by "+mode, address, mode, address)
+	event := audit("change user record by "+mode, identity, mode, identity)
 	defer func() { event.submit(e.db) }()
 
 	if validateMode(mode) == false {
@@ -183,13 +183,13 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	var userJSON []byte
 	var userBSON bson.M
 	if mode == "token" {
-		if enforceUUID(w, address, event) == false {
+		if enforceUUID(w, identity, event) == false {
 			return
 		}
-		userTOKEN = address
-		userJSON, userBSON, err = e.db.getUser(address)
+		userTOKEN = identity
+		userJSON, userBSON, err = e.db.getUser(identity)
 	} else {
-		userJSON, userTOKEN, userBSON, err = e.db.getUserByIndex(address, mode, e.conf)
+		userJSON, userTOKEN, userBSON, err = e.db.getUserByIndex(identity, mode, e.conf)
 		event.Record = userTOKEN
 	}
 	if err != nil {
@@ -242,9 +242,9 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 
 // user forgetme request comes here
 func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	address := ps.ByName("address")
+	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit("delete user record by "+mode, address, mode, address)
+	event := audit("delete user record by "+mode, identity, mode, identity)
 	defer func() { event.submit(e.db) }()
 
 	if validateMode(mode) == false {
@@ -253,14 +253,14 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	var err error
 	var resultJSON []byte
-	userTOKEN := address
+	userTOKEN := identity
 	if mode == "token" {
-		if enforceUUID(w, address, event) == false {
+		if enforceUUID(w, identity, event) == false {
 			return
 		}
-		resultJSON, err = e.db.getUserJson(address)
+		resultJSON, err = e.db.getUserJson(identity)
 	} else {
-		resultJSON, userTOKEN, err = e.db.getUserJsonByIndex(address, mode, e.conf)
+		resultJSON, userTOKEN, err = e.db.getUserJsonByIndex(identity, mode, e.conf)
 		event.Record = userTOKEN
 	}
 	if err != nil {
@@ -307,9 +307,9 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	captcha := ps.ByName("captcha")
 	code := ps.ByName("code")
-	address := ps.ByName("address")
+	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit("user prelogin by "+mode, address, mode, address)
+	event := audit("user prelogin by "+mode, identity, mode, identity)
 	defer func() { event.submit(e.db) }()
 
 	code0, err := decryptCaptcha(captcha)
@@ -323,7 +323,7 @@ func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprou
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
-	userBson, err := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+	userBson, err := e.db.lookupUserRecordByIndex(mode, identity, e.conf)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
@@ -331,24 +331,23 @@ func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprou
 	if userBson != nil {
 		userTOKEN := userBson["token"].(string)
 		event.Record = userTOKEN
-		if address == "4444" || address == "test@securitybunker.io" {
+		if identity == "4444" || identity == "test@securitybunker.io" {
 			// check if it is demo account.
-			// the address is always 4444
 			// no need to send any notifications
 			e.db.generateDemoLoginCode(userTOKEN)
 		} else {
 			rnd := e.db.generateTempLoginCode(userTOKEN)
 			if mode == "email" {
-				go sendCodeByEmail(rnd, address, e.conf)
+				go sendCodeByEmail(rnd, identity, e.conf)
 			} else if mode == "phone" {
-				go sendCodeByPhone(rnd, address, e.conf)
+				go sendCodeByPhone(rnd, identity, e.conf)
 			}
 		}
 	} else {
 		if mode == "email" {
 			//notifyURL := e.conf.Notification.NotificationURL
-			//notifyBadLogin(notifyURL, mode, address)
-			e.pluginUserLookup(address)
+			//notifyBadLogin(notifyURL, mode, identity)
+			e.pluginUserLookup(identity)
 			returnError(w, r, "record not found", 405, errors.New("record not found"), event)
 			return
 		}
@@ -361,9 +360,9 @@ func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprou
 
 func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	tmp := atoi(ps.ByName("tmp"))
-	address := ps.ByName("address")
+	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit("user login by "+mode, address, mode, address)
+	event := audit("user login by "+mode, identity, mode, identity)
 	defer func() { event.submit(e.db) }()
 
 	if mode != "phone" && mode != "email" {
@@ -371,7 +370,7 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	userBson, err := e.db.lookupUserRecordByIndex(mode, address, e.conf)
+	userBson, err := e.db.lookupUserRecordByIndex(mode, identity, e.conf)
 	if userBson == nil || err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return

@@ -71,7 +71,7 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 	       if len(userTOKEN) > 0 {
 	           notifyConsentChange(notifyURL, brief, status, "token", userTOKEN)
 	       } else {
-	           notifyConsentChange(notifyURL, brief, status, mode, address)
+	           notifyConsentChange(notifyURL, brief, status, mode, identity)
 	       }
 	   }
 	*/

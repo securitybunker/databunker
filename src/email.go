@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-func sendCodeByEmail(code int32, address string, cfg Config) {
-	Dest := []string{address}
+func sendCodeByEmail(code int32, identity string, cfg Config) {
+	Dest := []string{identity}
 	Subject := "Access Code"
 	bodyMessage := "Access code is " + strconv.Itoa(int((code)))
 	msg := "From: " + cfg.SMTP.Sender + "\n" +
