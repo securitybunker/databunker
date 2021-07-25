@@ -23,7 +23,6 @@ var (
 )
 
 func (e mainEnv) showCaptcha(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	log.Printf("Starting showCaptcha fn")
 	code := ps.ByName("code")
 	if len(code) == 0 {
 		err := errors.New("Bad code")
