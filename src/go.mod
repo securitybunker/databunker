@@ -7,7 +7,6 @@ replace github.com/securitybunker/databunker/src/storage => ./storage
 require (
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/evanphx/json-patch v4.5.0+incompatible
-	github.com/fatih/structs v1.1.0
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
@@ -20,7 +19,7 @@ require (
 	github.com/schollz/sqlite3dump v1.2.4 // indirect
 	github.com/securitybunker/databunker/src/storage v0.0.0
 	github.com/securitybunker/jsonschema v0.2.1-0.20201128224651-d77c1a3cb787
-	github.com/tidwall/gjson v1.5.0
+	github.com/tidwall/gjson v1.6.5
 	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect
 	github.com/ttacon/libphonenumber v1.1.0
 	go.mongodb.org/mongo-driver v1.4.2
