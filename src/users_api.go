@@ -347,7 +347,11 @@ func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprou
 			//notifyURL := e.conf.Notification.NotificationURL
 			//notifyBadLogin(notifyURL, mode, identity)
 			e.pluginUserLookup(identity)
-			returnError(w, r, "record not found", 405, errors.New("record not found"), event)
+			//returnError(w, r, "record not found", 405, errors.New("record not found"), event)
+			captcha, _ := generateCaptcha()
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(403)
+			fmt.Fprintf(w, `{"status":"error","result":"record not found","captchaurl":"%s"}`, captcha)
 			return
 		}
 		fmt.Println("user record not found, still returning ok status")
