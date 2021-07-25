@@ -59,15 +59,15 @@ if (conf["custom_css_link"]) {
               placeholder="Enter token...">
           </div>
           <div id="captcha-form">
-           <img src="/v1/captcha/%CAPTCHAURL%" />
+           <img id="captchaurl" src="/v1/captcha/%CAPTCHAURL%" />
            <input id="captchavalue" type="login" autocomplete="off" class="form-control" onclick="hidealert();"
              style="float: right; width: 50%; margin-top: 12px;" placeholder="Enter captcha">
           </div>
           <div class="form-group">
             <div class="peers ai-c jc-sb fxw-nw">
               <div class="peer">
-		    <div id="loading" style="display:none;">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin: auto; background: none; display: block; shape-rendering: auto;" width="100px" height="48px" viewBox="45 28 80 40" preserveAspectRatio="xMidYMid">
+                    <div id="loading" style="display:none;">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin: auto; background: none; display: block; shape-rendering: auto;" width="110px" height="48px" viewBox="15 28 60 50" preserveAspectRatio="xMidYMid">
 <defs>
   <clipPath id="progress-vacbif3f61-cp" x="0" y="0" width="100" height="100">
     <rect x="0" y="0" width="0" height="100">
@@ -85,7 +85,7 @@ if (conf["custom_css_link"]) {
                   class="btn btn-primary">Login</button></div>
             </div>
           </div>
-	</form>
+        </form>
       </div>
     </div>
   <script>displayFooterLinks();</script>
@@ -93,6 +93,8 @@ if (conf["custom_css_link"]) {
 <script>
 var lookupTimer;
 var lookupCount;
+var captchaCode = "%CAPTCHAURL%";
+
 function lookupUser(url) {
   if (lookupCount > 0) {
     // try to login with user again
@@ -100,19 +102,28 @@ function lookupUser(url) {
     xhr10.open('GET', url);
     xhr10.onload = function () {
       if (xhr10.status === 200) {
-         var data = JSON.parse(xhr.responseText);
+         var data = JSON.parse(xhr10.responseText);
          if (data.status == "error" && data.result && data.result == "captcha-error") {
            showalert("Captcha error. Refresh the page and try again.");
-	 } else if (data.status == "ok") {
+         } else if (data.status == "ok") {
            document.location = "/site/login.html";
            return;
          }
+      } else if (xhr10.status === 403) {
+        var data = JSON.parse(xhr10.responseText);
+        if (data.status == "error" && data.captchaurl) {
+          if (lookupCount === 0) {
+            var captchaurl = document.getElementById('captchaurl');
+            captchaCode = data.captchaurl;
+          }
+        }
       }
     }
-    xhr10.send();
     lookupCount = lookupCount - 1;
+    xhr10.send();
   } else {
     clearTimeout(lookupTimer);
+    captchaurl.src = '/v1/captcha/' + captchaCode;
     var loading = document.getElementById('loading');
     loading.style.display = "none";
     showalert("Failed to find user record. User record might be deleted.");
@@ -193,7 +204,6 @@ function submitbtn() {
     return false;
   }
   code = captcha.value;
-  var captcha0 = "%CAPTCHAURL%";
   var kkk = keymethod.options[keymethod.selectedIndex].value;
   if ((kkk == "Email" && emailchk.checked == false) ||
     (kkk == "Phone" && smschk.checked == false)) {
@@ -246,15 +256,19 @@ function submitbtn() {
     xhr0.onload = function () {
       if (xhr0.status === 200) {
         var xhr = new XMLHttpRequest();
-        var url = "/v1/prelogin/email/" + encodeURI(key) + "/" + code + "/" + captcha0;
+        var url = "/v1/prelogin/email/" + encodeURI(key) + "/" + code + "/" + captchaCode;
         xhr.open('GET', url);
         xhr.onload = function () {
           if (xhr.status === 200) {
              var data = JSON.parse(xhr.responseText);
-             if (data.status == "error" && data.result && data.result == "captcha-error") {
-               showalert("Captcha error. Refresh the page and try again.");
+             if (data.status == "error") {
+               if (data.result && data.result == "captcha-error") {
+                 showalert("Captcha error. Refresh the page and try again.");
+               } else {
+                 showalert("Login error. Try again.");
+               }
                return;
-	     } else if (data.status == "ok") {
+             } else if (data.status == "ok") {
                document.location = "/site/login.html";
                return;
              }
@@ -262,8 +276,8 @@ function submitbtn() {
           // lets wait for the results
           var loading = document.getElementById('loading');
           loading.style.display = "block";
-          lookupCount = 6;
-          lookupTimer = setInterval(lookupUser, 2500, url);
+          lookupCount = 3;
+          lookupTimer = setInterval(lookupUser, 5000, url);
         }
         xhr.send();
       }
@@ -277,7 +291,7 @@ function submitbtn() {
     xhr0.onload = function () {
       if (xhr0.status === 200) {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', "/v1/prelogin/phone/" + encodeURI(key) + "/" + code + "/" + captcha0);
+        xhr.open('GET', "/v1/prelogin/phone/" + encodeURI(key) + "/" + code + "/" + captchaCode);
         xhr.onload = function () {
           if (xhr.status === 200) {
              var data = JSON.parse(xhr.responseText);
