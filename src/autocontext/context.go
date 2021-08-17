@@ -12,7 +12,7 @@ import (
 var (
 	contextMutex   sync.Mutex
 	contextData    = make(map[string]map[string]interface{})
-	regexServeHTTP = regexp.MustCompile("\\.ServeHTTP\\(0x[a-fA-F0-9]+, 0x[a-fA-F0-9]+, 0x[a-fA-F0-9]+, (0x[a-fA-F0-9]+)\\)")
+	regexServeHTTP = regexp.MustCompile("\\.ServeHTTP\\(0x[a-fA-F0-9]+, {?0x[a-fA-F0-9]+, 0x[a-fA-F0-9]+}?, (0x[a-fA-F0-9]+)\\)")
 )
 
 // Set value in context
