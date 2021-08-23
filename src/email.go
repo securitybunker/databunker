@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/smtp"
 	"strconv"
 	"strings"
@@ -18,10 +19,10 @@ func sendCodeByEmail(code int32, identity string, cfg Config) {
 	err := smtp.SendMail(cfg.SMTP.Server+":"+cfg.SMTP.Port,
 		auth, cfg.SMTP.User, Dest, []byte(msg))
 	if err != nil {
-		fmt.Printf("smtp error: %s", err)
+		log.Printf("error sending email: %s", err)
 		return
 	}
-	fmt.Println("Mail sent successfully!")
+	log.Printf("Mail sent successfully!")
 }
 
 func adminEmailAlert(action string, adminEmail string, cfg Config) {
