@@ -20,10 +20,10 @@ require (
 	github.com/schollz/sqlite3dump v1.2.4 // indirect
 	github.com/securitybunker/databunker/src/storage v0.0.0
 	github.com/securitybunker/jsonschema v0.2.1-0.20201128224651-d77c1a3cb787
-	github.com/tidwall/gjson v1.7.0
+	github.com/tidwall/gjson v1.8.1
 	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect
-	github.com/ttacon/libphonenumber v1.1.0
-	go.mongodb.org/mongo-driver v1.5.1
+	github.com/ttacon/libphonenumber v1.2.1
+	go.mongodb.org/mongo-driver v1.7.1
 	golang.org/x/image v0.0.0-20210504121937-7319ad40d33e // indirect
 	golang.org/x/sys v0.0.0-20200219091948-cb0a6d8edb6c
 	gopkg.in/yaml.v2 v2.2.8
