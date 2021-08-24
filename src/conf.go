@@ -66,7 +66,7 @@ func (e mainEnv) pluginUserDelete(pluginid string, userTOKEN string) {
 	// not implemented
 }
 
-func (e mainEnv) pluginUserLookup(email string) {
+func (e mainEnv) pluginUserLookup(email string) string {
 	// not implemented
 }
 
