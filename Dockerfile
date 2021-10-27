@@ -5,13 +5,12 @@ FROM golang:alpine AS builder
 # Install git.
 # Git is required for fetching the dependencies.
 RUN apk update && apk add --no-cache git gcc libc-dev && go get -u github.com/gobuffalo/packr/packr
-COPY src/go.mod $GOPATH/src/securitybunker/databunker/src/deps
 WORKDIR $GOPATH/src/securitybunker/databunker/src/
-RUN cat deps | grep -v storage >> go.mod && go mod download && echo "copy code"
+COPY src/go.mod ./deps
+RUN cat ./deps | grep -v storage > ./go.mod && go mod download
+
 COPY . $GOPATH/src/securitybunker/databunker/
-WORKDIR $GOPATH/src/securitybunker/databunker/src/
-#RUN echo "update " && go get -u && cat ./go.mod
-#RUN echo "tidy " && go mod tidy && cat ./go.mod
+#RUN echo "tidy " && go get -u && go mod tidy && cat ./go.mod
 # Fetch dependencies.
 # Using go get.
 RUN go get -d -v && \
