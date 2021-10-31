@@ -164,6 +164,29 @@ func (dbobj dbcon) listUserApps(userTOKEN string) ([]byte, error) {
 	return resultJSON, err
 }
 
+func (dbobj dbcon) dumpUserApps(userTOKEN string) ([]byte, error) {
+	allCollections, err := dbobj.store.GetAllTables()
+	if err != nil {
+		return nil, err
+	}
+	records := make(map[string]interface{})
+	for _, colName := range allCollections {
+		if strings.HasPrefix(colName, "app_") {
+			record, err := dbobj.store.GetRecordInTable(colName, "token", userTOKEN)
+			if err != nil {
+				return nil, err
+			}
+			if record != nil {
+				records[colName[4:]] = record
+			}
+		}
+	}
+	if len(records) == 0 {
+		return nil, nil
+	}
+	return json.Marshal(records)
+}
+
 func (dbobj dbcon) listAllAppsOnly() ([]string, error) {
 	//fmt.Println("dump list of collections")
 	allCollections, err := dbobj.store.GetAllTables()

@@ -358,6 +358,31 @@ func (dbobj dbcon) getUser(userTOKEN string) ([]byte, bson.M, error) {
 	return decrypted, userBson, err
 }
 
+
+func (dbobj dbcon) dumpUserPII(email string, conf Config) (string, error) {
+	fullJSON := ""
+	profileJSON, userTOKEN, err := dbobj.getUserJsonByIndex(email, "email", conf)
+	if userTOKEN != "" {
+		fullJSON = fmt.Sprintf(`{"profile":%s`, profileJSON)
+		userappsJSON, _ := dbobj.dumpUserApps(userTOKEN)
+		if userappsJSON != nil {
+			fullJSON += fmt.Sprintf(`,"apps":%s`, userappsJSON)
+		}
+		agreementsJSON, numAgreements, _ := dbobj.listAgreementRecords(userTOKEN)
+		if numAgreements > 0 {
+			fullJSON += fmt.Sprintf(`,"agreements":%s`, agreementsJSON)
+		}
+		fullJSON += "}"
+	} else {
+		agreementsJSON, numAgreements, _ := dbobj.listAgreementRecordsByIdentity(email)
+		if numAgreements > 0 {
+			fullJSON = fmt.Sprintf(`{"agreements":%s}`, agreementsJSON)
+		}
+	}
+	return fullJSON, err
+}
+
+
 func (dbobj dbcon) getUserJsonByIndex(indexValue string, indexName string, conf Config) ([]byte, string, error) {
 	userBson, err := dbobj.lookupUserRecordByIndex(indexName, indexValue, conf)
 	if userBson == nil || err != nil {
