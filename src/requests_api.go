@@ -167,7 +167,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 	if enforceUUID(w, request, event) == false {
 		return
 	}
-	authResult := e.enforceAuth(w, r, event)
+	authResult := e.enforceAdmin(w, r, event)
 	if authResult == "" {
 		return
 	}
@@ -206,17 +206,20 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		return
 	}
 	if action == "forget-me" {
-		e.globalUserDelete(userTOKEN)
-		result, err := e.db.deleteUserRecord(userJSON, userTOKEN)
-		if err != nil {
-			returnError(w, r, "internal error", 405, err, event)
-			return
+		email := getStringValue(userBSON["email"])
+		if len(email) > 0 {
+			e.globalUserDelete(email)
 		}
-		if result == false {
+		result, err := e.db.deleteUserRecord(userJSON, userTOKEN)
+		if result == false || err != nil {
 			// user deleted
 			event.Status = "failed"
 			event.Msg = "failed to delete"
 		}
+		if err != nil {
+                        returnError(w, r, "internal error", 405, err, event)
+                        return
+                }
 		notifyURL := e.conf.Notification.NotificationURL
 		notifyForgetMe(notifyURL, userJSON, "token", userTOKEN)
 	} else if action == "change-profile" {
