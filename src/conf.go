@@ -54,7 +54,7 @@ func (e mainEnv) uiConfigurationDump(w http.ResponseWriter, r *http.Request, ps 
 	w.Write([]byte(finalJSON))
 }
 
-func (e mainEnv) globalUserDelete(userTOKEN string) {
+func (e mainEnv) globalUserDelete(email string) {
 	// not implemented
 }
 

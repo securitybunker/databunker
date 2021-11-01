@@ -251,15 +251,16 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 	var err error
-	var resultJSON []byte
+	var userBSON bson.M
+	var userJSON []byte
 	userTOKEN := identity
 	if mode == "token" {
 		if enforceUUID(w, identity, event) == false {
 			return
 		}
-		resultJSON, err = e.db.getUserJson(identity)
+		userJSON, userBSON, err = e.db.getUser(identity)
 	} else {
-		resultJSON, userTOKEN, err = e.db.getUserJsonByIndex(identity, mode, e.conf)
+		userJSON, userTOKEN, userBSON, err = e.db.getUserByIndex(identity, mode, e.conf)
 		event.Record = userTOKEN
 	}
 	if err != nil {
@@ -270,7 +271,13 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	if authResult == "" {
 		return
 	}
-	if resultJSON == nil {
+	if userJSON == nil {
+		if authResult == "root" && mode == "email" {
+			e.globalUserDelete(identity)
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(200)
+			fmt.Fprintf(w, `{"status":"ok","result":"done"}`)
+		}
 		returnError(w, r, "record not found", 405, nil, event)
 		return
 	}
@@ -289,9 +296,12 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 	}
-	e.globalUserDelete(userTOKEN)
+	email := getStringValue(userBSON["email"])
+	if len(email) > 0 {
+		e.globalUserDelete(email)
+	}
 	//fmt.Printf("deleting user %s\n", userTOKEN)
-	_, err = e.db.deleteUserRecord(resultJSON, userTOKEN)
+	_, err = e.db.deleteUserRecord(userJSON, userTOKEN)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
@@ -300,7 +310,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","result":"done"}`)
 	notifyURL := e.conf.Notification.NotificationURL
-	notifyForgetMe(notifyURL, resultJSON, "token", userTOKEN)
+	notifyForgetMe(notifyURL, userJSON, "token", userTOKEN)
 }
 
 func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
