@@ -167,7 +167,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 	if enforceUUID(w, request, event) == false {
 		return
 	}
-	authResult := e.enforceAdmin(w, r, event)
+	authResult := e.enforceAdmin(w, r)
 	if authResult == "" {
 		return
 	}
