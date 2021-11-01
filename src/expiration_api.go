@@ -14,9 +14,12 @@ func (e mainEnv) expUsers() error {
 	records, err := e.db.store.GetExpiring(storage.TblName.Users, "expstatus", "wait")
 	for _, rec := range records {
 		userTOKEN := rec["token"].(string)
-		resultJSON, _ := e.db.getUserJson(userTOKEN)
+		resultJSON, userBSON, _ := e.db.getUser(userTOKEN)
 		if resultJSON != nil {
-			e.globalUserDelete(userTOKEN)
+			email := getStringValue(userBSON["email"])
+			if len(email) > 0 {
+				e.globalUserDelete(email)
+			}
 			e.db.deleteUserRecord(resultJSON, userTOKEN)
 			e.db.updateUserExpStatus(userTOKEN, "expired")
 		}
@@ -135,14 +138,17 @@ func (e mainEnv) expDeleteData(w http.ResponseWriter, r *http.Request, ps httpro
 	if enforceUUID(w, identity, event) == false {
 		return
 	}
-	resultJSON, userTOKEN, err := e.db.getUserJsonByIndex(identity, mode, e.conf)
-	if resultJSON == nil || err != nil {
+	userJSON, userTOKEN, userBSON, err := e.db.getUserByIndex(identity, mode, e.conf)
+	if userJSON == nil || err != nil {
 		returnError(w, r, "internal error", 405, nil, event)
 		return
 	}
 	event.Record = userTOKEN
-	e.globalUserDelete(userTOKEN)
-	_, err = e.db.deleteUserRecord(resultJSON, userTOKEN)
+	email := getStringValue(userBSON["email"])
+	if len(email) > 0 {
+		e.globalUserDelete(email)
+	}
+	_, err = e.db.deleteUserRecord(userJSON, userTOKEN)
 	if err != nil {
 		returnError(w, r, "internal error", 405, nil, event)
 		return
