@@ -867,9 +867,6 @@ func (dbobj SQLiteDB) ValidateNewApp(appName string) bool {
 	if contains(knownApps, appName) == true {
 		return true
 	}
-	if len(knownApps) >= 10 {
-		return false
-	}
 	return true
 }
 
