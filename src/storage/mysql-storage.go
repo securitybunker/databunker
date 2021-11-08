@@ -872,9 +872,6 @@ func (dbobj MySQLDB) ValidateNewApp(appName string) bool {
 	if contains(allTables, appName) == true {
 		return true
 	}
-	if len(allTables) >= 100 {
-		return false
-	}
 	return true
 }
 
