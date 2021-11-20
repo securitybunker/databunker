@@ -949,11 +949,11 @@ func (dbobj MySQLDB) initUsers() error {
 func (dbobj MySQLDB) initUserapps() error {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS userapps (` +
-			`appname STRING,` +
-			`token STRING,` +
-			`md5 STRING,` +
+			`appname TINYTEXT,` +
+			`token TINYTEXT,` +
+			`md5 TINYTEXT,` +
 			`data TEXT,` +
-			`status STRING,` +
+			`status TINYTEXT,` +
 			"`when` int);",
 		`CREATE INDEX userapps_appname ON apps (appname(36));`,
 		`CREATE UNIQUE INDEX userapps_token_appname ON apps (token(36),appname(36));`}
