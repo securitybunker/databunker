@@ -68,12 +68,12 @@ func getRequestAddress() (string, error) {
 	//fmt.Printf("Stack of %d bytes: %s\n", count, trace)
 	match := regexServeHTTP.FindStringSubmatch(string(trace[0:count]))
 	if len(match) != 2 {
-		fmt.Println("Regex not found in stack")
-		fmt.Printf("*** STACK ***\n%s\n", trace)
+		fmt.Println("Autocontext: regex not found in stack")
+		//fmt.Printf("*** STACK ***\n%s\n", trace)
 		return "", errors.New("Failed to find *http.Request address")
 	}
 	if count > 3072 {
-		fmt.Println("Stack frame too large, check for bugs")
+		fmt.Println("Autocontext: stack frame too large, check for bugs")
 		fmt.Printf("*** STACK ***\n%s\n", trace)
 	}
 	//fmt.Printf("*** extracted address from stacktrace: %s\n", match[1])
