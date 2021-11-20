@@ -119,7 +119,7 @@ func TestUtilNotifyConsentChange(t *testing.T) {
 		defer req.Body.Close()
 		bodyBytes, _ := ioutil.ReadAll(req.Body)
 		fmt.Printf("body: %s\n", string(bodyBytes))
-		if string(bodyBytes) != `{"action":"consentchange","identity":"user3@user3.com","brief":"brief","mode":"email","status":"no"}` {
+		if string(bodyBytes) != `{"action":"consentchange","brief":"brief","identity":"user3@user3.com","mode":"email","status":"no"}` {
 			q <- fmt.Sprintf("bad request in notifyConsentChange: %s", string(bodyBytes))
 		} else {
 			q <- "ok"
