@@ -103,6 +103,7 @@ func init() {
 		cfg.SelfService.ForgetMe = false
 		cfg.SelfService.UserRecordChange = true
 		cfg.Generic.CreateUserWithoutAccessToken = true
+		//cfg.Generic.UseSeparateAppTables = true
 		cfg.Policy.MaxUserRetentionPeriod = "1m"
 		cfg.Policy.MaxAuditRetentionPeriod = "12m"
 		cfg.Policy.MaxSessionRetentionPeriod = "1h"

@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, expiration string, session string, appName string, partner string) (string, error) {
+func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, expiration string, session string, appName string, partner string, conf Config) (string, error) {
 	if isValidUUID(userTOKEN) == false {
 		return "", errors.New("bad uuid")
 	}
@@ -19,7 +19,7 @@ func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, expiration 
 		return "", errors.New("failed to parse expiration")
 	}
 	if len(appName) > 0 {
-		apps, _ := dbobj.listAllApps()
+		apps, _ := dbobj.listAllApps(conf)
 		if strings.Contains(string(apps), appName) == false {
 			return "", errors.New("app not found")
 		}

@@ -20,7 +20,7 @@ func (e mainEnv) expUsers() error {
 			if len(email) > 0 {
 				e.globalUserDelete(email)
 			}
-			e.db.deleteUserRecord(resultJSON, userTOKEN)
+			e.db.deleteUserRecord(resultJSON, userTOKEN, e.conf)
 			e.db.updateUserExpStatus(userTOKEN, "expired")
 		}
 	}
@@ -148,7 +148,7 @@ func (e mainEnv) expDeleteData(w http.ResponseWriter, r *http.Request, ps httpro
 	if len(email) > 0 {
 		e.globalUserDelete(email)
 	}
-	_, err = e.db.deleteUserRecord(userJSON, userTOKEN)
+	_, err = e.db.deleteUserRecord(userJSON, userTOKEN, e.conf)
 	if err != nil {
 		returnError(w, r, "internal error", 405, nil, event)
 		return

@@ -301,7 +301,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 		e.globalUserDelete(email)
 	}
 	//fmt.Printf("deleting user %s\n", userTOKEN)
-	_, err = e.db.deleteUserRecord(userJSON, userTOKEN)
+	_, err = e.db.deleteUserRecord(userJSON, userTOKEN, e.conf)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return

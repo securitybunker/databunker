@@ -44,7 +44,7 @@ func (e mainEnv) userappNew(w http.ResponseWriter, r *http.Request, ps httproute
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
-	_, err = e.db.createAppRecord(jsonData, userTOKEN, appName, event)
+	_, err = e.db.createAppRecord(jsonData, userTOKEN, appName, event, e.conf)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
@@ -86,7 +86,7 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	// make sure userapp exists
-	resultJSON, err := e.db.getUserApp(userTOKEN, appName)
+	resultJSON, err := e.db.getUserApp(userTOKEN, appName, e.conf)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
@@ -96,7 +96,7 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	if authResult != "login" {
-		_, err = e.db.updateAppRecord(jsonData, userTOKEN, appName, event)
+		_, err = e.db.updateAppRecord(jsonData, userTOKEN, appName, event, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
@@ -107,7 +107,7 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 	if e.conf.SelfService.AppRecordChange != nil {
 		for _, name := range e.conf.SelfService.AppRecordChange {
 			if stringPatternMatch(strings.ToLower(name), appName) {
-				_, err = e.db.updateAppRecord(jsonData, userTOKEN, appName, event)
+				_, err = e.db.updateAppRecord(jsonData, userTOKEN, appName, event, e.conf)
 				if err != nil {
 					returnError(w, r, "internal error", 405, err, event)
 					return
@@ -138,7 +138,7 @@ func (e mainEnv) userappList(w http.ResponseWriter, r *http.Request, ps httprout
 	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
-	result, err := e.db.listUserApps(userTOKEN)
+	result, err := e.db.listUserApps(userTOKEN, e.conf)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
@@ -164,7 +164,7 @@ func (e mainEnv) userappGet(w http.ResponseWriter, r *http.Request, ps httproute
 		returnError(w, r, "bad appname", 405, nil, event)
 		return
 	}
-	resultJSON, err := e.db.getUserApp(userTOKEN, appName)
+	resultJSON, err := e.db.getUserApp(userTOKEN, appName, e.conf)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
@@ -196,7 +196,7 @@ func (e mainEnv) userappDelete(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	e.db.deleteUserApp(userTOKEN, appName)
+	e.db.deleteUserApp(userTOKEN, appName, e.conf)
 
 	finalJSON := fmt.Sprintf(`{"status":"ok","token":"%s"}`, userTOKEN)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -208,7 +208,7 @@ func (e mainEnv) appList(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	if e.enforceAuth(w, r, nil) == "" {
 		return
 	}
-	result, err := e.db.listAllApps()
+	result, err := e.db.listAllApps(e.conf)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, nil)
 		return

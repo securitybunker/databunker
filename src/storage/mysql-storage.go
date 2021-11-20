@@ -155,6 +155,7 @@ func (dbobj *MySQLDB) InitDB(dbname *string) error {
 	dbobj.initXTokens()
 	dbobj.initAudit()
 	dbobj.initSessions()
+	dbobj.initUserapps()
 	dbobj.initRequests()
 	dbobj.initSharedRecords()
 	dbobj.initProcessingactivities()
@@ -942,6 +943,20 @@ func (dbobj MySQLDB) initUsers() error {
 		`CREATE INDEX users_custom ON users (customidx(36));`,
 		`CREATE INDEX users_endtime ON users (endtime);`,
 		`CREATE INDEX users_exptoken ON users (exptoken(36));`}
+	return dbobj.execQueries(queries)
+}
+
+func (dbobj MySQLDB) initUserapps() error {
+	queries := []string{
+		`CREATE TABLE IF NOT EXISTS userapps (` +
+			`appname STRING,` +
+			`token STRING,` +
+			`md5 STRING,` +
+			`data TEXT,` +
+			`status STRING,` +
+			"`when` int);",
+		`CREATE INDEX userapps_appname ON apps (appname(36));`,
+		`CREATE UNIQUE INDEX userapps_token_appname ON apps (token(36),appname(36));`}
 	return dbobj.execQueries(queries)
 }
 

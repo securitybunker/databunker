@@ -154,6 +154,7 @@ func (dbobj *SQLiteDB) InitDB(filepath *string) error {
 	dbobj.initXTokens()
 	dbobj.initAudit()
 	dbobj.initSessions()
+	dbobj.initUserapps()
 	dbobj.initRequests()
 	dbobj.initSharedRecords()
 	dbobj.initProcessingactivities()
@@ -932,6 +933,19 @@ func (dbobj SQLiteDB) initUsers() error {
 		`CREATE INDEX users_custom ON users (customidx);`,
 		`CREATE INDEX users_endtime ON users (endtime);`,
 		`CREATE INDEX users_exptoken ON users (exptoken);`}
+	return dbobj.execQueries(queries)
+}
+
+func (dbobj SQLiteDB) initUserapps() error {
+	queries := []string{`CREATE TABLE IF NOT EXISTS userapps (
+		appname STRING,
+		token STRING,
+		md5 STRING,
+		data TEXT,
+		status STRING,
+		` + "`when` int);",
+		"CREATE INDEX userapps_appname ON userapps (appname);",
+		"CREATE INDEX userapps_token_appname ON userapps (token,appname);"}
 	return dbobj.execQueries(queries)
 }
 
