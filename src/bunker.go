@@ -41,6 +41,7 @@ type dbcon struct {
 type Config struct {
 	Generic struct {
 		CreateUserWithoutAccessToken bool   `yaml:"create_user_without_access_token" default:false`
+		UseSeparateAppTables         bool   `yaml:"use_separate_app_tables" default:false`
 		UserRecordSchema             string `yaml:"user_record_schema"`
 		AdminEmail                   string `yaml:"admin_email"`
 	}

@@ -124,7 +124,7 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 		brief = ""
 	}
 	if len(appName) > 0 {
-		resultJSON, err = e.db.getUserApp(userTOKEN, appName)
+		resultJSON, err = e.db.getUserApp(userTOKEN, appName, e.conf)
 	} else if len(brief) > 0 {
 		resultJSON, err = e.db.viewAgreementRecord(userTOKEN, brief)
 	} else {
@@ -210,7 +210,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		if len(email) > 0 {
 			e.globalUserDelete(email)
 		}
-		result, err := e.db.deleteUserRecord(userJSON, userTOKEN)
+		result, err := e.db.deleteUserRecord(userJSON, userTOKEN, e.conf)
 		if result == false || err != nil {
 			// user deleted
 			event.Status = "failed"
@@ -237,7 +237,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		notifyProfileChange(notifyURL, oldJSON, newJSON, "token", userTOKEN)
 	} else if action == "change-app-data" {
 		app := requestInfo["app"].(string)
-		_, err = e.db.updateAppRecord(requestInfo["change"].([]uint8), userTOKEN, app, event)
+		_, err = e.db.updateAppRecord(requestInfo["change"].([]uint8), userTOKEN, app, event, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return

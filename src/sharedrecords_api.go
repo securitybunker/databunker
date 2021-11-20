@@ -71,7 +71,7 @@ func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps http
 		// using default expiration time for record
 		expiration = "1m"
 	}
-	recordUUID, err := e.db.saveSharedRecord(userTOKEN, fields, expiration, session, appName, partner)
+	recordUUID, err := e.db.saveSharedRecord(userTOKEN, fields, expiration, session, appName, partner, e.conf)
 	if err != nil {
 		returnError(w, r, err.Error(), 405, err, event)
 		return
@@ -105,7 +105,7 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 		log.Printf("field to display: %s, user token: %s\n", recordInfo.fields, recordInfo.token)
 
 		if len(recordInfo.appName) > 0 {
-			resultJSON, err = e.db.getUserApp(recordInfo.token, recordInfo.appName)
+			resultJSON, err = e.db.getUserApp(recordInfo.token, recordInfo.appName, e.conf)
 		} else if len(recordInfo.session) > 0 {
 			_, resultJSON, _, err = e.db.getSession(recordInfo.session)
 		} else {

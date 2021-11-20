@@ -364,7 +364,7 @@ func (dbobj dbcon) dumpUserPII(email string, conf Config) (string, error) {
 	profileJSON, userTOKEN, err := dbobj.getUserJsonByIndex(email, "email", conf)
 	if userTOKEN != "" {
 		fullJSON = fmt.Sprintf(`{"profile":%s`, profileJSON)
-		userappsJSON, _ := dbobj.dumpUserApps(userTOKEN)
+		userappsJSON, _ := dbobj.dumpUserApps(userTOKEN, conf)
 		if userappsJSON != nil {
 			fullJSON += fmt.Sprintf(`,"apps":%s`, userappsJSON)
 		}
@@ -439,16 +439,8 @@ func (dbobj dbcon) getUserByIndex(indexValue string, indexName string, conf Conf
 	return decrypted, userBson["token"].(string), userBson, err
 }
 
-func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string) (bool, error) {
-	userApps, err := dbobj.listAllAppsOnly()
-	if err != nil {
-		return false, err
-	}
-	// delete all user app records
-	for _, appName := range userApps {
-		appNameFull := "app_" + appName
-		dbobj.store.DeleteRecordInTable(appNameFull, "token", userTOKEN)
-	}
+func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string, conf Config) (bool, error) {
+	dbobj.deleteUserApps(userTOKEN, conf)
 	//delete in audit
 	dbobj.store.DeleteRecord(storage.TblName.Audit, "record", userTOKEN)
 	dbobj.store.DeleteRecord(storage.TblName.Sessions, "token", userTOKEN)

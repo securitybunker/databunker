@@ -5,16 +5,22 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"log"
 	"strings"
 
 	jsonpatch "github.com/evanphx/json-patch"
+	"github.com/securitybunker/databunker/src/storage"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (dbobj dbcon) getUserApp(userTOKEN string, appName string) ([]byte, error) {
-
-	record, err := dbobj.store.GetRecordInTable("app_"+appName, "token", userTOKEN)
+func (dbobj dbcon) getUserApp(userTOKEN string, appName string, conf Config) ([]byte, error) {
+	appNameFull := "app_" + appName
+	var record bson.M
+	var err error
+	if conf.Generic.UseSeparateAppTables == true {
+		record, err = dbobj.store.GetRecordInTable(appNameFull, "token", userTOKEN)
+	} else {
+		record, err = dbobj.store.GetRecord2(storage.TblName.Userapps, "token", userTOKEN, "appname", appName)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -25,18 +31,38 @@ func (dbobj dbcon) getUserApp(userTOKEN string, appName string) ([]byte, error) 
 	return dbobj.userDecrypt(userTOKEN, encData0)
 }
 
-func (dbobj dbcon) deleteUserApp(userTOKEN string, appName string) {
+func (dbobj dbcon) deleteUserApp(userTOKEN string, appName string, conf Config) {
 	appNameFull := "app_" + appName
-	dbobj.store.DeleteRecordInTable(appNameFull, "token", userTOKEN)
+	if conf.Generic.UseSeparateAppTables == true {
+		dbobj.store.DeleteRecordInTable(appNameFull, "token", userTOKEN)
+	} else {
+		dbobj.store.DeleteRecord2(storage.TblName.Userapps, "token", userTOKEN, "appname", appName)
+	}
 }
 
-func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, appName string, event *auditEvent) (string, error) {
-	log.Printf("Going to create app record: %s\n", appName)
+func (dbobj dbcon) deleteUserApps(userTOKEN string, conf Config) {
+	if conf.Generic.UseSeparateAppTables == true {
+		userApps, _:= dbobj.listAllAppsOnly(conf)
+		// delete all user app records
+		for _, appName := range userApps {
+			appNameFull := "app_" + appName
+			dbobj.store.DeleteRecordInTable(appNameFull, "token", userTOKEN)
+		}
+	} else {
+		dbobj.store.DeleteRecord(storage.TblName.Userapps, "token", userTOKEN)
+	}
+}
+
+func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, appName string, event *auditEvent, conf Config) (string, error) {
+	appNameFull := "app_" + appName
+	//log.Printf("Going to create app record: %s\n", appName)
 	encodedStr, err := dbobj.userEncrypt(userTOKEN, jsonData)
 	if err != nil {
 		return userTOKEN, err
 	}
-	dbobj.store.IndexNewApp("app_" + appName)
+	if conf.Generic.UseSeparateAppTables == true {
+		dbobj.store.IndexNewApp(appNameFull)
+	}
 
 	//var bdoc interface{}
 	bdoc := bson.M{}
@@ -51,20 +77,34 @@ func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, appName st
 		event.Record = userTOKEN
 	}
 	//fmt.Println("creating new app")
-	record, err := dbobj.store.GetRecordInTable("app_"+appName, "token", userTOKEN)
-	if err != nil {
-		return userTOKEN, err
-	}
-	if record != nil {
-		_, err = dbobj.store.UpdateRecordInTable("app_"+appName, "token", userTOKEN, &bdoc)
+	if conf.Generic.UseSeparateAppTables == true {
+		record, err := dbobj.store.GetRecordInTable(appNameFull, "token", userTOKEN)
+		if err != nil {
+			return userTOKEN, err
+		}
+		if record != nil {
+			_, err = dbobj.store.UpdateRecordInTable(appNameFull, "token", userTOKEN, &bdoc)
+		 } else {
+			_, err = dbobj.store.CreateRecordInTable(appNameFull, bdoc)
+		}
 	} else {
-		_, err = dbobj.store.CreateRecordInTable("app_"+appName, bdoc)
+		record, err := dbobj.store.GetRecord2(storage.TblName.Userapps, "token", userTOKEN, "appname", appName)
+		if err != nil {
+			return userTOKEN, err
+		}
+		if record != nil {
+			_, err = dbobj.store.UpdateRecord2(storage.TblName.Userapps, "token", userTOKEN, "appname", appName, &bdoc, nil)
+		} else {
+			bdoc["appname"] = appName
+			_, err = dbobj.store.CreateRecord(storage.TblName.Userapps, &bdoc)
+		}
 	}
 	return userTOKEN, err
 }
 
-func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appName string, event *auditEvent) (string, error) {
+func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appName string, event *auditEvent, conf Config) (string, error) {
 	//_, err = collection.InsertOne(context.TODO(), bson.M{"name": "The Go Language2", "genre": "Coding", "authorId": "4"})
+	appNameFull := "app_" + appName
 	userBson, err := dbobj.lookupUserRecord(userTOKEN)
 	if userBson == nil || err != nil {
 		// not found
@@ -76,8 +116,12 @@ func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appNa
 	if err != nil {
 		return userTOKEN, err
 	}
-
-	record, err := dbobj.store.GetRecordInTable("app_"+appName, "token", userTOKEN)
+	var record bson.M
+	if conf.Generic.UseSeparateAppTables == true {
+		record, err = dbobj.store.GetRecordInTable(appNameFull, "token", userTOKEN)
+	} else {
+		record, err = dbobj.store.GetRecord2(storage.TblName.Userapps, "token", userTOKEN, "appname", appName)
+	}
 	if err != nil {
 		return userTOKEN, err
 	}
@@ -116,7 +160,12 @@ func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appNa
 
 	// here I add md5 of the original record to filter
 	// to make sure this record was not change by other thread
-	result, err := dbobj.store.UpdateRecordInTable2("app_"+appName, "token", userTOKEN, "md5", sig, &bdoc, nil)
+	result := int64(0)
+	if conf.Generic.UseSeparateAppTables == true {
+		result, err = dbobj.store.UpdateRecordInTable2(appNameFull, "token", userTOKEN, "md5", sig, &bdoc, nil)
+	} else {
+		result, err = dbobj.store.UpdateRecord2(storage.TblName.Userapps, "token", userTOKEN, "appname", appName, &bdoc, nil)
+	}
 	if err != nil {
 		return userTOKEN, err
 	}
@@ -134,27 +183,43 @@ func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appNa
 }
 
 // go over app collections and check if we have user record inside
-func (dbobj dbcon) listUserApps(userTOKEN string) ([]byte, error) {
+func (dbobj dbcon) listUserApps(userTOKEN string, conf Config) ([]byte, error) {
 	//_, err = collection.InsertOne(context.TODO(), bson.M{"name": "The Go Language2", "genre": "Coding", "authorId": "4"})
 	record, err := dbobj.lookupUserRecord(userTOKEN)
 	if record == nil || err != nil {
 		// not found
 		return nil, err
 	}
-	allCollections, err := dbobj.store.GetAllTables()
-	if err != nil {
-		return nil, err
-	}
 	var result []string
-	for _, colName := range allCollections {
-		if strings.HasPrefix(colName, "app_") {
-			record, err := dbobj.store.GetRecordInTable(colName, "token", userTOKEN)
-			if err != nil {
-				return nil, err
+	if conf.Generic.UseSeparateAppTables == true {
+		allCollections, err := dbobj.store.GetAllTables()
+		if err != nil {
+			return nil, err
+		}
+		var result []string
+		for _, colName := range allCollections {
+			if strings.HasPrefix(colName, "app_") {
+				record, err := dbobj.store.GetRecordInTable(colName, "token", userTOKEN)
+				if err != nil {
+					return nil, err
+				}
+				if record != nil {
+					result = append(result, colName[4:])
+				}
 			}
-			if record != nil {
-				result = append(result, colName[4:])
-			}
+		}
+	} else {
+		records, err := dbobj.store.GetList(storage.TblName.Userapps, "token", userTOKEN, 0, 0, "appname")
+		if err != nil {
+			return nil, err
+		}
+		count := len(records)
+		if count == 0 {
+			return []byte("[]"), nil
+		}
+		for _, rec := range records {
+			appname := rec["appname"].(string)
+			result = append(result, appname)
 		}
 	}
 	if len(result) == 0 {
@@ -164,57 +229,74 @@ func (dbobj dbcon) listUserApps(userTOKEN string) ([]byte, error) {
 	return resultJSON, err
 }
 
-func (dbobj dbcon) dumpUserApps(userTOKEN string) ([]byte, error) {
-	allCollections, err := dbobj.store.GetAllTables()
-	if err != nil {
-		return nil, err
-	}
-	records := make(map[string]interface{})
-	for _, colName := range allCollections {
-		if strings.HasPrefix(colName, "app_") {
-			record, err := dbobj.store.GetRecordInTable(colName, "token", userTOKEN)
-			if err != nil {
-				return nil, err
-			}
-			if record != nil {
-				records[colName[4:]] = record
+func (dbobj dbcon) dumpUserApps(userTOKEN string, conf Config) ([]byte, error) {
+	results := make(map[string]interface{})
+	if conf.Generic.UseSeparateAppTables == true {
+		allCollections, err := dbobj.store.GetAllTables()
+		if err != nil {
+			return nil, err
+		}
+		for _, colName := range allCollections {
+			if strings.HasPrefix(colName, "app_") {
+				record, err := dbobj.store.GetRecordInTable(colName, "token", userTOKEN)
+				if err != nil {
+					return nil, err
+				}
+				if record != nil {
+					results[colName[4:]] = record
+				}
 			}
 		}
+	} else {
+		records, err := dbobj.store.GetList(storage.TblName.Userapps, "tone", userTOKEN, 0, 0, "appname")
+		if err != nil {
+			return nil, err
+		}
+		count := len(records)
+		if count == 0 {
+			return []byte("[]"), nil
+		}
+		for _, rec := range records {
+			appname := rec["appname"].(string)
+			delete(rec, "appname")
+			results[appname] = rec
+		}
 	}
-	if len(records) == 0 {
+	if len(results) == 0 {
 		return nil, nil
 	}
-	return json.Marshal(records)
+	return json.Marshal(results)
 }
 
-func (dbobj dbcon) listAllAppsOnly() ([]string, error) {
-	//fmt.Println("dump list of collections")
-	allCollections, err := dbobj.store.GetAllTables()
-	if err != nil {
-		return nil, err
-	}
+func (dbobj dbcon) listAllAppsOnly(conf Config) ([]string, error) {
 	var result []string
-	for _, colName := range allCollections {
-		if strings.HasPrefix(colName, "app_") {
-			result = append(result, colName[4:])
+	if conf.Generic.UseSeparateAppTables == true {
+		allCollections, err := dbobj.store.GetAllTables()
+		if err != nil {
+			return nil, err
+		}
+		for _, colName := range allCollections {
+			if strings.HasPrefix(colName, "app_") {
+				result = append(result, colName[4:])
+			}
+		}
+	} else {
+		records, err := dbobj.store.GetUniqueList(storage.TblName.Userapps, "appname")
+		if err != nil {
+			return result, err
+		}
+		for _, rec := range records {
+			appname := rec["appname"].(string)
+			result = append(result, appname)
 		}
 	}
 	return result, nil
 }
 
-func (dbobj dbcon) listAllApps() ([]byte, error) {
-	//fmt.Println("dump list of collections")
-	allCollections, err := dbobj.store.GetAllTables()
+func (dbobj dbcon) listAllApps(conf Config) ([]byte, error) {
+	result, err := dbobj.listAllAppsOnly(conf)
 	if err != nil {
 		return nil, err
 	}
-	var result []string
-	for _, colName := range allCollections {
-		if strings.HasPrefix(colName, "app_") {
-			result = append(result, colName[4:])
-		}
-	}
-	resultJSON, err := json.Marshal(result)
-	//fmt.Println(resultJSON)
-	return resultJSON, err
+	return json.Marshal(result)
 }

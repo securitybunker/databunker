@@ -16,6 +16,7 @@ type listTbls struct {
 	Xtokens              Tbl
 	Sessions             Tbl
 	Requests             Tbl
+	Userapps             Tbl
 	Legalbasis           Tbl
 	Agreements           Tbl
 	Sharedrecords        Tbl
@@ -29,10 +30,11 @@ var TblName = &listTbls{
 	Xtokens:              2,
 	Sessions:             3,
 	Requests:             4,
-	Legalbasis:           5,
-	Agreements:           6,
-	Sharedrecords:        7,
-	Processingactivities: 8,
+	Userapps:             5,
+	Legalbasis:           6,
+	Agreements:           7,
+	Sharedrecords:        8,
+	Processingactivities: 9,
 }
 
 func GetTable(t Tbl) string {
@@ -47,6 +49,8 @@ func GetTable(t Tbl) string {
 		return "sessions"
 	case TblName.Requests:
 		return "requests"
+	case TblName.Userapps:
+		return "userapps"
 	case TblName.Legalbasis:
 		return "legalbasis"
 	case TblName.Agreements:
