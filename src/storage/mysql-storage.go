@@ -955,8 +955,8 @@ func (dbobj MySQLDB) initUserapps() error {
 			`data TEXT,` +
 			`status TINYTEXT,` +
 			"`when` int);",
-		`CREATE INDEX userapps_appname ON apps (appname(36));`,
-		`CREATE UNIQUE INDEX userapps_token_appname ON apps (token(36),appname(36));`}
+		`CREATE INDEX userapps_appname ON userapps (appname(36));`,
+		`CREATE UNIQUE INDEX userapps_token_appname ON userapps (token(36),appname(36));`}
 	return dbobj.execQueries(queries)
 }
 
