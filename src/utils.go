@@ -66,7 +66,7 @@ func getStringValue(r interface{}) string {
 	case []uint8:
 		return strings.TrimSpace(string(r.([]uint8)))
 	case float64:
-                return strconv.Itoa(int(r.(float64)))
+	        return strconv.Itoa(int(r.(float64)))
 	}
 	return ""
 }
@@ -425,7 +425,7 @@ func enforceUUID(w http.ResponseWriter, uuidCode string, event *auditEvent) bool
 	return true
 }
 
-func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
+func getJSONPostMap(r *http.Request) (map[string]interface{}, error) {
 	cType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	if err != nil {
 		fmt.Printf("ignoring empty content-type: %s\n", err)
@@ -433,16 +433,15 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 	}
 	cType = strings.ToLower(cType)
 	records := make(map[string]interface{})
-	//body, _ := ioutil.ReadAll(r.Body)
-	//fmt.Printf("Body: %s\n", body)
 	if r.Method == "DELETE" {
 		// otherwise data is not parsed!
 		r.Method = "PATCH"
 	}
-	body, err := ioutil.ReadAll(r.Body)
+	body0, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return nil, err
 	}
+	body := strings.TrimSpace(string(body0))
 	if len(body) < 3 {
 		return nil, nil
 	}
@@ -450,7 +449,7 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 		if body[0] == '{' {
 			return nil, errors.New("wrong content-type, json instead of url encoded data")
 		}
-		form, err := url.ParseQuery(string(body))
+		form, err := url.ParseQuery(body)
 		if err != nil {
 			fmt.Printf("error in http data parsing: %s\n", err)
 			return nil, err
@@ -463,13 +462,13 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 			records[key] = value[0]
 		}
 	} else if strings.HasPrefix(cType, "application/json") {
-		err = json.Unmarshal(body, &records)
+		err = json.Unmarshal([]byte(body), &records)
 		if err != nil {
 			log.Printf("Error in json decode %s", err)
 			return nil, err
 		}
 	} else if strings.HasPrefix(cType, "application/xml") {
-		err = json.Unmarshal(body, &records)
+		err = json.Unmarshal([]byte(body), &records)
 		if err != nil {
 			log.Printf("Error in xml/json decode %s", err)
 			return nil, err
@@ -484,6 +483,69 @@ func getJSONPostData(r *http.Request) (map[string]interface{}, error) {
 		return nil, nil
 	}
 	return records, nil
+}
+
+func getJSONPostData(r *http.Request) ([]byte, error){
+	cType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	if err != nil {
+		fmt.Printf("ignoring empty content-type: %s\n", err)
+		return nil, nil
+	}
+	cType = strings.ToLower(cType)
+	records := make(map[string]interface{})
+	var records2 []map[string]interface{}
+	if r.Method == "DELETE" {
+		// otherwise data is not parsed!
+		r.Method = "PATCH"
+	}
+	body0, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+	body := strings.TrimSpace(string(body0))
+	if len(body) < 3 {
+		return nil, nil
+	}
+	if strings.HasPrefix(cType, "application/x-www-form-urlencoded") {
+		if body[0] == '{' || body[0] == '[' {
+			return nil, errors.New("wrong content-type, json instead of url encoded data")
+		}
+		form, err := url.ParseQuery(body)
+		if err != nil {
+			fmt.Printf("error in http data parsing: %s\n", err)
+			return nil, err
+		}
+		if len(form) == 0 {
+			return nil, nil
+		}
+		for key, value := range form {
+			records[key] = value[0]
+		}
+		return json.Marshal(records)
+	} else if strings.HasPrefix(cType, "application/json") || strings.HasPrefix(cType, "application/xml") {
+		if body[0] == '{' {
+			err = json.Unmarshal([]byte(body), &records)
+		} else if body[0] == '[' {
+			err = json.Unmarshal([]byte(body), &records2)
+		} else {
+			return nil, errors.New("wrong content-type, not a json string")
+		}
+		if err != nil {
+			return nil, err
+		}
+		if body[0] == '{' {
+			return json.Marshal(records)
+	        } else if body[0] == '[' {
+			return json.Marshal(records2)
+	        }
+	}
+	log.Printf("Ignore wrong content type: %s", cType)
+	maxStrLen := 200
+	if len(body) < maxStrLen {
+		maxStrLen = len(body)
+	}
+	log.Printf("Body[max 200 chars]: %s", body[0:maxStrLen])
+	return nil, errors.New("wrong content-type, not a json string")
 }
 
 func getIndexString(val interface{}) string {
@@ -506,7 +568,7 @@ func getIndexString(val interface{}) string {
 
 func getJSONPost(r *http.Request, defaultCountry string) (userJSON, error) {
 	var result userJSON
-	records, err := getJSONPostData(r)
+	records, err := getJSONPostMap(r)
 	if err != nil {
 		return result, err
 	}

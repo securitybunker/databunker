@@ -118,7 +118,7 @@ func (e mainEnv) newUserSession(w http.ResponseWriter, r *http.Request, ps httpr
 	if e.enforceAuth(w, r, event) == "" {
 		return
 	}
-	records, err := getJSONPostData(r)
+	records, err := getJSONPostMap(r)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return

@@ -171,7 +171,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 	if authResult == "" {
 		return
 	}
-	records, err := getJSONPostData(r)
+	records, err := getJSONPostMap(r)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
@@ -265,7 +265,7 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 	if enforceUUID(w, request, event) == false {
 		return
 	}
-	records, err := getJSONPostData(r)
+	records, err := getJSONPostMap(r)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return

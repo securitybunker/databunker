@@ -20,7 +20,7 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 		returnError(w, r, "bad brief format", 405, nil, nil)
 		return
 	}
-	records, err := getJSONPostData(r)
+	records, err := getJSONPostMap(r)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, nil)
 		return
