@@ -65,7 +65,7 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 		}
 	}
 
-	records, err := getJSONPostData(r)
+	records, err := getJSONPostMap(r)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
@@ -178,7 +178,7 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 			// else user not found - we allow to save consent for unlinked users!
 		}
 	}
-	records, err := getJSONPostData(r)
+	records, err := getJSONPostMap(r)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return

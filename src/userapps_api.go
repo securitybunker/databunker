@@ -30,7 +30,7 @@ func (e mainEnv) userappNew(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 
-	data, err := getJSONPostData(r)
+	data, err := getJSONPostMap(r)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
@@ -70,19 +70,13 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 		returnError(w, r, "bad appname", 405, nil, event)
 		return
 	}
-
-	data, err := getJSONPostData(r)
+	jsonData, err := getJSONPostData(r)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	if len(data) == 0 {
+	if jsonData == nil {
 		returnError(w, r, "empty body", 405, nil, event)
-		return
-	}
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	// make sure userapp exists

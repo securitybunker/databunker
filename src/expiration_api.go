@@ -189,7 +189,7 @@ func (e mainEnv) expStart(w http.ResponseWriter, r *http.Request, ps httprouter.
 		returnError(w, r, "internal error", 405, nil, event)
 		return
 	}
-	records, err := getJSONPostData(r)
+	records, err := getJSONPostMap(r)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
