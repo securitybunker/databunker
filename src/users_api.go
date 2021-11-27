@@ -177,7 +177,6 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		returnError(w, r, "empty request body", 405, nil, event)
 		return
 	}
-
 	userTOKEN := ""
 	var userJSON []byte
 	var userBSON bson.M
@@ -231,7 +230,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 	if err != nil {
-		returnError(w, r, "internal error", 405, err, event)
+		returnError(w, r, "error updating user", 405, err, event)
 		return
 	}
 	returnUUID(w, userTOKEN)

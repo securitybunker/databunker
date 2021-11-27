@@ -141,7 +141,16 @@ func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appNa
 	// merge
 	//fmt.Printf("old json: %s\n", decrypted)
 	//fmt.Printf("json patch: %s\n", jsonDataPatch)
-	newJSON, err := jsonpatch.MergePatch(decrypted, jsonDataPatch)
+	var newJSON []byte
+	if jsonDataPatch[0] == '{' {
+		newJSON, err = jsonpatch.MergePatch(decrypted, jsonDataPatch)
+	} else {
+		patch, err := jsonpatch.DecodePatch(jsonDataPatch)
+		if err != nil {
+			return userTOKEN, err
+		}
+		newJSON, err = patch.Apply(decrypted)
+	}
 	if err != nil {
 		return userTOKEN, err
 	}

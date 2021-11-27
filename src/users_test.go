@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"encoding/json"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
 	uuid "github.com/hashicorp/go-uuid"
+	jsonpatch "github.com/evanphx/json-patch"
 )
 
 func helpCreateUser(userJSON string) (map[string]interface{}, error) {
@@ -60,7 +62,7 @@ func helpGetUserAuditEvent(atoken string) (map[string]interface{}, error) {
 }
 
 func TestCreateUpdateUser(t *testing.T) {
-	userJSON := `{"login":"user1","name":"tom","phone":"775566998822","k1":[1,10,20],"k2":{"f1":"t1","f3":{"a":"b"}}}`
+	userJSON := `{"login":"user1","name":"tom","height":100,"phone":"775566998822","devices":[{"name":"dev1","val":1},{"name":"dev2","val":2}]}`
 	raw, _ := helpCreateUser(userJSON)
 	var userTOKEN string
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
@@ -77,6 +79,23 @@ func TestCreateUpdateUser(t *testing.T) {
 	raw, _ = helpChangeUser("token", userTOKEN, `{"login":null}`)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to update user")
+	}
+	patchJSON := `[
+		{"op": "replace", "path": "/devices/1", "value": {"name":"updated"}},
+		{"op": "add", "path": "/devices/0", "value":{"name":"dev3"}},
+		{"op": "remove", "path": "/height"}
+	]`
+	raw, _ = helpChangeUser("token", userTOKEN, patchJSON)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("Failed to update user")
+	}
+	raw, _ = helpGetUser("phone", "775566998822")
+	userRecord, _ := json.Marshal(raw["data"].(map[string]interface{}))
+	//fmt.Printf("get user %v\n", raw)
+	//fmt.Printf("user %s\n", string(userRecord))
+	afterUpdate := []byte(`{"devices":[{"name":"dev3"},{"name":"dev1","val":1},{"name":"updated"}],"name":"tom","phone":"775566998822"}`)
+	if !jsonpatch.Equal(userRecord, afterUpdate) {
+		t.Fatalf("Records are different")
 	}
 	raw, _ = helpChangeUser("phone", "775566998822", `{"login":"parpar1"}`)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
@@ -99,7 +118,7 @@ func TestCreateUpdateUser(t *testing.T) {
 		t.Fatalf("Failed to get audit event/s\n")
 	}
 	records := raw["rows"].([]interface{})
-	if raw["total"].(float64) != 4 {
+	if raw["total"].(float64) != 6 {
 		t.Fatalf("Wrong number of audit event/s\n")
 	}
 	if len(records) != 1 {

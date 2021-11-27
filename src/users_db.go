@@ -119,7 +119,17 @@ func (dbobj dbcon) validateUserRecordChange(oldUserJSON []byte, jsonDataPatch []
 	// prepare merge
 	//fmt.Printf("old json: %s\n", oldUserJSON)
 	//fmt.Printf("json patch: %s\n", jsonDataPatch)
-	newJSON, err := jsonpatch.MergePatch(oldUserJSON, jsonDataPatch)
+	var newJSON []byte
+	var err error
+	if jsonDataPatch[0] == '{' {
+		newJSON, err = jsonpatch.MergePatch(oldUserJSON, jsonDataPatch)
+	} else {
+		patch, err := jsonpatch.DecodePatch(jsonDataPatch)
+		if err != nil {
+			return false, err
+		}
+		newJSON, err = patch.Apply(oldUserJSON)
+	}
 	if err != nil {
 		return false, err
 	}
@@ -179,7 +189,16 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 	// merge
 	//fmt.Printf("old json: %s\n", decrypted)
 	//fmt.Printf("json patch: %s\n", jsonDataPatch)
-	newJSON, err := jsonpatch.MergePatch(decrypted, jsonDataPatch)
+	var newJSON []byte
+	if jsonDataPatch[0] == '{' {
+		newJSON, err = jsonpatch.MergePatch(decrypted, jsonDataPatch)
+	} else {
+		patch, err := jsonpatch.DecodePatch(jsonDataPatch)
+		if err != nil {
+			return nil, nil, false, err
+		}
+		newJSON, err = patch.Apply(decrypted)
+	}
 	if err != nil {
 		return nil, nil, false, err
 	}
