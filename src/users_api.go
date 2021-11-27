@@ -168,12 +168,12 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 
-	parsedData, err := getJSONPost(r, e.conf.Sms.DefaultCountry)
+	jsonData, err := getJSONPostData(r)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	if len(parsedData.jsonData) == 0 {
+	if jsonData == nil {
 		returnError(w, r, "empty request body", 405, nil, event)
 		return
 	}
@@ -205,7 +205,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	adminRecordChanged := false
 	if UserSchemaEnabled() {
-		adminRecordChanged, err = e.db.validateUserRecordChange(userJSON, parsedData.jsonData, userTOKEN, authResult)
+		adminRecordChanged, err = e.db.validateUserRecordChange(userJSON, jsonData, userTOKEN, authResult)
 		if err != nil {
 			returnError(w, r, "schema validation error: "+err.Error(), 405, err, event)
 			return
@@ -214,7 +214,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	if authResult == "login" {
 		event.Title = "user change-profile request"
 		if e.conf.SelfService.UserRecordChange == false || adminRecordChanged == true {
-			rtoken, rstatus, err := e.db.saveUserRequest("change-profile", userTOKEN, "", "", parsedData.jsonData, e.conf)
+			rtoken, rstatus, err := e.db.saveUserRequest("change-profile", userTOKEN, "", "", jsonData, e.conf)
 			if err != nil {
 				returnError(w, r, "internal error", 405, err, event)
 				return
@@ -225,7 +225,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 	}
-	oldJSON, newJSON, lookupErr, err := e.db.updateUserRecord(parsedData.jsonData, userTOKEN, userBSON, event, e.conf)
+	oldJSON, newJSON, lookupErr, err := e.db.updateUserRecord(jsonData, userTOKEN, userBSON, event, e.conf)
 	if lookupErr {
 		returnError(w, r, "record not found", 405, errors.New("record not found"), event)
 		return
