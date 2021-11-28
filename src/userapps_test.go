@@ -2,10 +2,12 @@ package main
 
 import (
 	"net/http/httptest"
+	"encoding/json"
 	"strings"
 	"testing"
 
 	uuid "github.com/hashicorp/go-uuid"
+	jsonpatch "github.com/evanphx/json-patch"
 )
 
 func helpCreateUserApp(userTOKEN string, appName string, appJSON string) (map[string]interface{}, error) {
@@ -50,11 +52,11 @@ func helpGetAppList() (map[string]interface{}, error) {
 	return helpServe(request)
 }
 
-func TestCreateUserApp(t *testing.T) {
+func TestCreateUserAppOnly(t *testing.T) {
 	userJSON := `{"name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1"}}`
 	raw, _ := helpCreateUser(userJSON)
 	userTOKEN := raw["token"].(string)
-	appJSON := `{"shipping":"done"}`
+	appJSON := `{"shipping":"done","height":100,"devices":[{"name":"dev1","val":1},{"name":"dev2","val":2}]}`
 	appName := "testapp"
 	raw, _ = helpCreateUserApp(userTOKEN, appName, appJSON)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
@@ -65,10 +67,22 @@ func TestCreateUserApp(t *testing.T) {
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to update userapp")
 	}
-	raw, _ = helpGetUserApp(userTOKEN, appName)
+	patchJSON := `[
+		{"op": "replace", "path": "/devices/1/name", "value":"updated"},
+		{"op": "add", "path": "/devices/0", "value":{"name":"dev3"}},
+		{"op": "remove", "path": "/height"}
+	]`
+	raw, _ = helpUpdateUserApp(userTOKEN, appName, patchJSON)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
-		t.Fatalf("Failed to get userapp")
-		return
+		t.Fatalf("Failed to update userapp")
+	}
+	raw, _ = helpGetUserApp(userTOKEN, appName)
+	userappRecord, _ := json.Marshal(raw["data"].(map[string]interface{}))
+	//fmt.Printf("get user %v\n", raw)
+	//fmt.Printf("user %s\n", string(userRecord))
+	afterUpdate := []byte(`{"devices":[{"name":"dev3"},{"name":"dev1","val":1},{"name":"updated","val":2}],"like":"yes","shipping":"done"}`)
+	if !jsonpatch.Equal(userappRecord, afterUpdate) {
+		t.Fatalf("Records are different")
 	}
 	raw, _ = helpGetUserAppList(userTOKEN)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
