@@ -61,7 +61,7 @@ func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, appName st
 		return userTOKEN, err
 	}
 	if conf.Generic.UseSeparateAppTables == true {
-		dbobj.store.IndexNewApp(appNameFull)
+		dbobj.store.CreateNewAppTable(appNameFull)
 	}
 
 	//var bdoc interface{}
