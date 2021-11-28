@@ -184,11 +184,6 @@ func (dbobj MySQLDB) BackupDB(w http.ResponseWriter) {
 	//}
 }
 
-// InitUserApps initialises list of databases.
-func (dbobj MySQLDB) InitUserApps() error {
-	return nil
-}
-
 func (dbobj MySQLDB) escapeName(name string) string {
 	if name == "when" {
 		name = "`when`"
