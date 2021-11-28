@@ -183,11 +183,6 @@ func (dbobj SQLiteDB) BackupDB(w http.ResponseWriter) {
 	}
 }
 
-// InitUserApps initialises list of databases.
-func (dbobj SQLiteDB) InitUserApps() error {
-	return nil
-}
-
 func (dbobj SQLiteDB) escapeName(name string) string {
 	if name == "when" {
 		name = "`when`"

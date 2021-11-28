@@ -566,7 +566,6 @@ func main() {
 		os.Exit(0)
 	}
 	store, _ := storage.OpenDB(dbPtr)
-	store.InitUserApps()
 	hash := md5.Sum(masterKey)
 	db := &dbcon{store, masterKey, hash[:]}
 	e := mainEnv{db, cfg, make(chan struct{})}
