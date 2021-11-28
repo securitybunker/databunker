@@ -202,14 +202,15 @@ Detailed information can be found at https://databunker.org/use-case/
 
 # Blog posts, articles, or other resources that talk about Databunker:
 
+1. https://privacybunker.io/blog/gdpr-guide-for-startup-founders/
 1. https://dbweekly.com/issues/348
-2. https://www.freecodecamp.org/news/how-to-stay-gdpr-compliant-with-access-logs/
-3. https://databunker.org/
-4. https://news.ycombinator.com/item?id=26690279
-5. https://stackshare.io/databunker
-6. https://hackernoon.com/data-leak-prevention-with-databunker-xnn33u9
-7. https://anchor.fm/techandmain/episodes/Huawei--Microsoft-and-DataBunker--Yuli-Stremovsky-evl385
-8. https://github.com/expressjs/session
+1. https://www.freecodecamp.org/news/how-to-stay-gdpr-compliant-with-access-logs/
+1. https://news.ycombinator.com/item?id=26690279
+1. https://stackshare.io/databunker
+1. https://hackernoon.com/data-leak-prevention-with-databunker-xnn33u9
+1. https://anchor.fm/techandmain/episodes/Huawei--Microsoft-and-DataBunker--Yuli-Stremovsky-evl385
+1. https://github.com/expressjs/session
+1. https://databunker.org/
 
 If you published an article about Databunker send us a link at yuli@privacybunker.io
 
