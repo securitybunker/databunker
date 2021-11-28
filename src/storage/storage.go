@@ -71,8 +71,7 @@ type BackendDB interface {
 	Ping() error
 	CloseDB()
 	BackupDB(http.ResponseWriter)
-	InitUserApps() error
-	IndexNewApp(string)
+	CreateNewAppTable(string)
 	Exec(string) error
 	CreateRecordInTable(string, interface{}) (int, error)
 	CreateRecord(Tbl, interface{}) (int, error)

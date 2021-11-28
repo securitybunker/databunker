@@ -183,11 +183,6 @@ func (dbobj SQLiteDB) BackupDB(w http.ResponseWriter) {
 	}
 }
 
-// InitUserApps initialises list of databases.
-func (dbobj SQLiteDB) InitUserApps() error {
-	return nil
-}
-
 func (dbobj SQLiteDB) escapeName(name string) string {
 	if name == "when" {
 		name = "`when`"
@@ -889,8 +884,8 @@ func (dbobj SQLiteDB) execQueries(queries []string) error {
 	return nil
 }
 
-// IndexNewApp creates a new app table and creates indexes for it.
-func (dbobj SQLiteDB) IndexNewApp(appName string) {
+// CreateNewAppTable creates a new app table and creates indexes for it.
+func (dbobj SQLiteDB) CreateNewAppTable(appName string) {
 	if contains(knownApps, appName) == false {
 		// it is a new app, create an index
 		log.Printf("This is a new app, creating table & index for: %s\n", appName)

@@ -184,11 +184,6 @@ func (dbobj MySQLDB) BackupDB(w http.ResponseWriter) {
 	//}
 }
 
-// InitUserApps initialises list of databases.
-func (dbobj MySQLDB) InitUserApps() error {
-	return nil
-}
-
 func (dbobj MySQLDB) escapeName(name string) string {
 	if name == "when" {
 		name = "`when`"
@@ -898,8 +893,8 @@ func (dbobj MySQLDB) execQueries(queries []string) error {
 	return nil
 }
 
-// IndexNewApp creates a new app table and creates indexes for it.
-func (dbobj MySQLDB) IndexNewApp(appName string) {
+// CreateNewAppTable creates a new app table and creates indexes for it.
+func (dbobj MySQLDB) CreateNewAppTable(appName string) {
 	if contains(allTables, appName) == false {
 		// it is a new app, create an index
 		log.Printf("This is a new app, creating table & index for: %s\n", appName)
