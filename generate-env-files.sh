@@ -1,7 +1,7 @@
 #!/bin/sh
 
-echo 'create ./data directory'
-mkdir data || true
+echo 'creating ./data directory'
+mkdir -p data
 chmod 777 data
 mkdir -p .env
 
@@ -24,5 +24,12 @@ echo 'MYSQL_HOST=mysql' >> .env/databunker.env
 echo 'MYSQL_PORT=3306' >> .env/databunker.env
 
 echo 'generating .env/databunker-root.env'
-ROOTTOKEN=`uuid`
-echo 'DATABUNKER_ROOTTOKEN='$ROOTTOKEN > .env/databunker-root.env
+ROOTTOKEN=`uuid 2> /dev/null`
+if [ $? -ne 0 ]; then
+  ROOTTOKEN=`uuidgen`
+fi
+if [ $? -ne 0 ]; then
+  echo "Failed to generate DATABUNKER_ROOTTOKEN"
+else
+  echo 'DATABUNKER_ROOTTOKEN='$ROOTTOKEN > .env/databunker-root.env
+fi
