@@ -11,8 +11,8 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
-{{- if contains "NodePort" .Values.service.type }}
-      nodePort: 30300
-{{- end }}
+      {{- if and (or (eq .Values.service.type "NodePort") (eq .Values.service.type "LoadBalancer")) (not (empty .Values.service.nodePort)) }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
   selector:
     {{- include "databunker-demo.selectorLabels" . | nindent 4 }}
