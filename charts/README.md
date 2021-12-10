@@ -1,4 +1,4 @@
-# Starting Databunker DEMO using Kubernetes
+# Starting Databunker DEMO pod using Kubernetes
 
 You can run the following command:
 ```
@@ -19,4 +19,11 @@ You can open `http://localhost:30300/` in your browser.
 
 You will need to get to know what is the public IP address of the Kubernetes node used to run the service.
 
-You need to open port **30300** on the same host in the security groups configuration.
+You need to open port **30300** in the security groups configuration for the same EC2 instance.
+
+## Removing **databunker-demo** pod
+
+Use the following command:
+```
+helm uninstall databunker-demo
+```
