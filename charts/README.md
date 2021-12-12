@@ -27,3 +27,10 @@ Use the following command:
 ```
 helm uninstall databunker-demo
 ```
+
+## Chart Parameters
+
+| Name                            | Description                                                | Value                |
+| ------------------------------- | ---------------------------------------------------------- | -------------------- |
+| `service.type`                  | Databunker Service Type                                    | `ClusterIP`          |
+| `service.nodePort`              | Databunker API and UI port                                 | `"30300"`            |
