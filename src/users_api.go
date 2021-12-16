@@ -146,7 +146,7 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		event.Record = userTOKEN
 	}
 	if err != nil {
-		returnError(w, r, "internal error", 405, nil, event)
+		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	authResult = e.enforceAuth(w, r, event)
