@@ -186,7 +186,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 
 	router.GET("/v1/sys/backup", e.backupDB)
 
-	router.POST("/v1/user", e.userNew)
+	router.POST("/v1/user", e.userCreate)
 	router.GET("/v1/user/:mode/:identity", e.userGet)
 	router.DELETE("/v1/user/:mode/:identity", e.userDelete)
 	router.PUT("/v1/user/:mode/:identity", e.userChange)
