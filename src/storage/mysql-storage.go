@@ -492,13 +492,16 @@ func (dbobj MySQLDB) getRecordInTableDo(q string, values []interface{}) (bson.M,
 	}
 	defer tx.Rollback()
 	rows, err := tx.Query(q, values...)
-	if err == sql.ErrNoRows {
-		return nil, nil
-	} else if err != nil {
+	if err != nil {
+		if rows != nil {
+			rows.Close()
+		}
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
 		return nil, err
 	}
 	defer rows.Close()
-
 	flag := rows.Next()
 	if flag == false {
 		fmt.Printf("no result, flag: %t\n", flag)
