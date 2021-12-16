@@ -30,12 +30,12 @@ func generateMasterKey() ([]byte, error) {
 }
 
 func decrypt(masterKey []byte, userKey []byte, data []byte) ([]byte, error) {
-	// Load your secret key from a safe place and reuse it across multiple
-	// Seal/Open calls. (Obviously don't use this example key for anything
-	// real.) If you want to convert a passphrase to a key, use a suitable
-	// package like bcrypt or scrypt.
-	// When decoded the key should be 16 bytes (AES-128) or 32 (AES-256).
-	key := append(masterKey, userKey...)
+	// DO NOT USE THE FOLLOWING LINE. It is broken!!!
+	//key := append(masterKey, userKey...)
+	la := len(masterKey)
+	key := make([]byte, la + len(userKey))
+	copy(key, masterKey)
+	copy(key[la:], userKey)
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -49,6 +49,8 @@ func decrypt(masterKey []byte, userKey []byte, data []byte) ([]byte, error) {
 	ciphertext := data[0 : len(data)-12]
 	nonce := data[len(data)-12:]
 	plaintext, err := aesgcm.Open(nil, nonce, ciphertext, nil)
+	//fmt.Printf("full key: %x, mkey %x, ukey: %x, data: %x\n", key, masterKey, userKey, data)
+	//fmt.Printf("nonce: %x, ciphertext: %x\n", nonce, ciphertext)
 	return plaintext, err
 }
 
@@ -56,7 +58,11 @@ func encrypt(masterKey []byte, userKey []byte, plaintext []byte) ([]byte, error)
 	// We use 32 byte key (AES-256).
 	// comprising 24 master key
 	// and 8 bytes record key
-	key := append(masterKey, userKey...)
+	la := len(masterKey)
+	key := make([]byte, la + len(userKey))
+	copy(key, masterKey)
+	copy(key[la:], userKey)
+
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -70,17 +76,25 @@ func encrypt(masterKey []byte, userKey []byte, plaintext []byte) ([]byte, error)
 	if err != nil {
 		return nil, err
 	}
-	ciphertext := aesgcm.Seal(nil, nonce, plaintext, nil)
+	ciphertext0 := aesgcm.Seal(nil, nonce, plaintext, nil)
 	//fmt.Printf("%x\n", ciphertext)
 	// apppend random nonce bvalue to the end
-	ciphertext = append(ciphertext, nonce...)
+	//ciphertext := append(ciphertext0, nonce...)
+	la = len(ciphertext0)
+	ciphertext := make([]byte, la + len(nonce))
+	copy(ciphertext, ciphertext0)
+	copy(ciphertext[la:], nonce)
 	return ciphertext, nil
 }
 
 func basicStringEncrypt(plaintext string, masterKey []byte, code []byte) (string, error) {
 	//log.Printf("Going to encrypt %s", plaintext)
 	nonce := []byte("$DataBunker$")
-	key := append(masterKey, code...)
+	la := len(masterKey)
+	key := make([]byte, la + len(code))
+	copy(key, masterKey)
+	copy(key[la:], code)
+
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		log.Printf("error in aes.NewCipher %s", err)
@@ -103,7 +117,10 @@ func basicStringDecrypt(data string, masterKey []byte, code []byte) (string, err
 		return "", err
 	}
 	nonce := []byte("$DataBunker$")
-	key := append(masterKey, code...)
+	la := len(masterKey)
+	key := make([]byte, la + len(code))
+	copy(key, masterKey)
+	copy(key[la:], code)
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return "", err
