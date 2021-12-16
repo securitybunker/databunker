@@ -22,18 +22,18 @@ func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (str
 	if err != nil {
 		return "", err
 	}
-	recordKey, err := generateRecordKey()
+	userKeyBinary, err := generateRecordKey()
 	if err != nil {
 		return "", err
 	}
 	//err = bson.UnmarshalExtJSON(jsonData, false, &bdoc)
-	encoded, err := encrypt(dbobj.masterKey, recordKey, parsedData.jsonData)
+	encoded, err := encrypt(dbobj.masterKey, userKeyBinary, parsedData.jsonData)
 	if err != nil {
 		return "", err
 	}
 	encodedStr := base64.StdEncoding.EncodeToString(encoded)
 	//fmt.Printf("data %s %s\n", parsedData.jsonData, encodedStr)
-	bdoc["key"] = base64.StdEncoding.EncodeToString(recordKey)
+	bdoc["key"] = base64.StdEncoding.EncodeToString(userKeyBinary)
 	bdoc["data"] = encodedStr
 	//it is ok to use md5 here, it is only for data sanity
 	md5Hash := md5.Sum([]byte(encodedStr))
@@ -164,7 +164,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 
 	// get user key
 	userKey := oldUserBson["key"].(string)
-	recordKey, err := base64.StdEncoding.DecodeString(userKey)
+	userKeyBinary, err := base64.StdEncoding.DecodeString(userKey)
 	if err != nil {
 		return nil, nil, false, err
 	}
@@ -173,7 +173,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 	if err != nil {
 		return nil, nil, false, err
 	}
-	decrypted, err := decrypt(dbobj.masterKey, recordKey, encData)
+	decrypted, err := decrypt(dbobj.masterKey, userKeyBinary, encData)
 	if err != nil {
 		return nil, nil, false, err
 	}
@@ -260,7 +260,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 		}
 	}
 
-	encoded, _ := encrypt(dbobj.masterKey, recordKey, newJSON)
+	encoded, _ := encrypt(dbobj.masterKey, userKeyBinary, newJSON)
 	encodedStr := base64.StdEncoding.EncodeToString(encoded)
 	bdoc["key"] = userKey
 	bdoc["data"] = encodedStr
@@ -325,7 +325,7 @@ func (dbobj dbcon) getUserJson(userTOKEN string) ([]byte, error) {
 		return []byte("{}"), nil
 	}
 	userKey := userBson["key"].(string)
-	recordKey, err := base64.StdEncoding.DecodeString(userKey)
+	userKeyBinary, err := base64.StdEncoding.DecodeString(userKey)
 	if err != nil {
 		return nil, err
 	}
@@ -337,7 +337,7 @@ func (dbobj dbcon) getUserJson(userTOKEN string) ([]byte, error) {
 			if err != nil {
 				return nil, err
 			}
-			decrypted, err = decrypt(dbobj.masterKey, recordKey, encData)
+			decrypted, err = decrypt(dbobj.masterKey, userKeyBinary, encData)
 			if err != nil {
 				return nil, err
 			}
@@ -356,7 +356,7 @@ func (dbobj dbcon) getUser(userTOKEN string) ([]byte, bson.M, error) {
 		return []byte("{}"), userBson, nil
 	}
 	userKey := userBson["key"].(string)
-	recordKey, err := base64.StdEncoding.DecodeString(userKey)
+	userKeyBinary, err := base64.StdEncoding.DecodeString(userKey)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -368,7 +368,7 @@ func (dbobj dbcon) getUser(userTOKEN string) ([]byte, bson.M, error) {
 			if err != nil {
 				return nil, nil, err
 			}
-			decrypted, err = decrypt(dbobj.masterKey, recordKey, encData)
+			decrypted, err = decrypt(dbobj.masterKey, userKeyBinary, encData)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -409,7 +409,7 @@ func (dbobj dbcon) getUserJsonByIndex(indexValue string, indexName string, conf 
 	}
 	// decrypt record
 	userKey := userBson["key"].(string)
-	recordKey, err := base64.StdEncoding.DecodeString(userKey)
+	userKeyBinary, err := base64.StdEncoding.DecodeString(userKey)
 	if err != nil {
 		return nil, "", err
 	}
@@ -421,7 +421,7 @@ func (dbobj dbcon) getUserJsonByIndex(indexValue string, indexName string, conf 
 			if err != nil {
 				return nil, "", err
 			}
-			decrypted, err = decrypt(dbobj.masterKey, recordKey, encData)
+			decrypted, err = decrypt(dbobj.masterKey, userKeyBinary, encData)
 			if err != nil {
 				return nil, "", err
 			}
@@ -437,7 +437,7 @@ func (dbobj dbcon) getUserByIndex(indexValue string, indexName string, conf Conf
 	}
 	// decrypt record
 	userKey := userBson["key"].(string)
-	recordKey, err := base64.StdEncoding.DecodeString(userKey)
+	userKeyBinary, err := base64.StdEncoding.DecodeString(userKey)
 	if err != nil {
 		return nil, "", nil, err
 	}
@@ -449,7 +449,7 @@ func (dbobj dbcon) getUserByIndex(indexValue string, indexName string, conf Conf
 			if err != nil {
 				return nil, "", nil, err
 			}
-			decrypted, err = decrypt(dbobj.masterKey, recordKey, encData)
+			decrypted, err = decrypt(dbobj.masterKey, userKeyBinary, encData)
 			if err != nil {
 				return nil, "", nil, err
 			}
@@ -472,7 +472,7 @@ func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string, conf Conf
 			return false, err
 		}
 		userKey := oldUserBson["key"].(string)
-		recordKey, err := base64.StdEncoding.DecodeString(userKey)
+		userKeyBinary, err := base64.StdEncoding.DecodeString(userKey)
 		if err != nil {
 			return false, err
 		}
@@ -497,7 +497,7 @@ func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string, conf Conf
 		} else {
 			bdel["loginidx"] = ""
 		}
-		encoded, _ := encrypt(dbobj.masterKey, recordKey, dataJSON)
+		encoded, _ := encrypt(dbobj.masterKey, userKeyBinary, dataJSON)
 		encodedStr := base64.StdEncoding.EncodeToString(encoded)
 		bdoc["key"] = userKey
 		bdoc["data"] = encodedStr
@@ -563,12 +563,12 @@ func (dbobj dbcon) userEncrypt(userTOKEN string, data []byte) (string, error) {
 		return "", errors.New("not found")
 	}
 	userKey := userBson["key"].(string)
-	recordKey, err := base64.StdEncoding.DecodeString(userKey)
+	userKeyBinary, err := base64.StdEncoding.DecodeString(userKey)
 	if err != nil {
 		return "", err
 	}
 	// encrypt data
-	encoded, err := encrypt(dbobj.masterKey, recordKey, data)
+	encoded, err := encrypt(dbobj.masterKey, userKeyBinary, data)
 	if err != nil {
 		return "", err
 	}
@@ -586,7 +586,7 @@ func (dbobj dbcon) userDecrypt(userTOKEN, src string) ([]byte, error) {
 		return nil, errors.New("not found")
 	}
 	userKey := userBson["key"].(string)
-	recordKey, err := base64.StdEncoding.DecodeString(userKey)
+	userKeyBinary, err := base64.StdEncoding.DecodeString(userKey)
 	if err != nil {
 		return nil, err
 	}
@@ -594,7 +594,7 @@ func (dbobj dbcon) userDecrypt(userTOKEN, src string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	decrypted, err := decrypt(dbobj.masterKey, recordKey, encData)
+	decrypted, err := decrypt(dbobj.masterKey, userKeyBinary, encData)
 	return decrypted, err
 }
 
@@ -608,7 +608,7 @@ func (dbobj dbcon) userDecrypt2(userTOKEN, src string, src2 string) ([]byte, []b
 		return nil, nil, errors.New("not found")
 	}
 	userKey := userBson["key"].(string)
-	recordKey, err := base64.StdEncoding.DecodeString(userKey)
+	userKeyBinary, err := base64.StdEncoding.DecodeString(userKey)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -616,7 +616,7 @@ func (dbobj dbcon) userDecrypt2(userTOKEN, src string, src2 string) ([]byte, []b
 	if err != nil {
 		return nil, nil, err
 	}
-	decrypted, err := decrypt(dbobj.masterKey, recordKey, encData)
+	decrypted, err := decrypt(dbobj.masterKey, userKeyBinary, encData)
 	if len(src2) == 0 {
 		return decrypted, nil, err
 	}
@@ -624,6 +624,6 @@ func (dbobj dbcon) userDecrypt2(userTOKEN, src string, src2 string) ([]byte, []b
 	if err != nil {
 		return decrypted, nil, err
 	}
-	decrypted2, err := decrypt(dbobj.masterKey, recordKey, encData2)
+	decrypted2, err := decrypt(dbobj.masterKey, userKeyBinary, encData2)
 	return decrypted, decrypted2, err
 }
