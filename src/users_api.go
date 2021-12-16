@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	event := audit("create user record", "", "", "")
 	defer func() { event.submit(e.db) }()
 
@@ -81,6 +81,14 @@ func (e mainEnv) userNew(w http.ResponseWriter, r *http.Request, ps httprouter.P
 			return
 		}
 	}
+	if len(parsedData.loginIdx) == 0 &&
+	   len(parsedData.emailIdx) == 0 &&
+	   len(parsedData.phoneIdx) == 0 &&
+	   len(parsedData.customIdx) == 0 {
+		returnError(w, r, "failed to create user, all user lookup fields are missing", 405, err, event)
+		return
+	}
+
 	userTOKEN, err := e.db.createUserRecord(parsedData, event)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
