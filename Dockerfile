@@ -41,7 +41,8 @@ RUN /bin/busybox mkdir -p /databunker/data && \
 # Tell docker that all future commands should run as the appuser user
 USER appuser
 COPY --from=builder /go/bin/databunker /databunker/bin/databunker
-COPY run.sh /databunker/bin/
+COPY run.sh health-check.sh /databunker/bin/
 EXPOSE 3000
+HEALTHCHECK --interval=5s --timeout=3s --start-period=33s --retries=3 CMD /databunker/bin/health-check.sh
 ENTRYPOINT ["/bin/sh", "/databunker/bin/run.sh"]
 #CMD ["/bin/sh", "-x", "-c", "/go/bin/databunker -init"]
