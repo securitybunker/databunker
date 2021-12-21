@@ -1,17 +1,18 @@
 annotations:
   category: database
 apiVersion: v2
-appVersion: 9.3.0
+appVersion: 1.0.2
 dependencies:
-  - condition: mariadb.enabled
-    name: mariadb
-    repository: https://charts.bitnami.com/bitnami
-    version: 9.x.x
   - name: common
     repository: https://charts.bitnami.com/bitnami
     tags:
       - bitnami-common
     version: 1.x.x
+  - condition: mariadb.enabled
+    name: mariadb
+    repository: https://charts.bitnami.com/bitnami
+    version: 9.x.x
+
 description: Secure vault and SDK to store customer records built to comply with GDPR.
 engine: gotpl
 home: https://github.com/securitybunker/databunker/tree/master/charts/databunker
@@ -22,6 +23,9 @@ keywords:
   - gdpr
   - compliance
   - privacy
+  - php
+  - nodejs
+  - vault
 maintainers:
   - email: yuli@privacybunker.io
     name: Yuli
