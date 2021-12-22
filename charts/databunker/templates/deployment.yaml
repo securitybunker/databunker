@@ -1,7 +1,9 @@
+{{- if (or .Values.mariadb.enabled .Values.externalDatabase.host) -}}
 apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
 kind: Deployment
 metadata:
   name: {{ include "common.names.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels: {{- include "common.labels.standard" . | nindent 4 }}
     {{- if .Values.commonLabels }}
     {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
@@ -13,7 +15,7 @@ spec:
   selector:
     matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
   {{- if .Values.updateStrategy }}
-  strategy: {{- toYaml .Values.updateStrategy | nindent 4 }}
+  strategy: {{- include "common.tplvalues.render" (dict "value" .Values.updateStrategy "context" $ ) | nindent 4 }}
   {{- end }}
   replicas: {{ .Values.replicaCount }}
   template:
@@ -79,54 +81,7 @@ spec:
             - name: databunker-data
               mountPath: /bitnami/databunker
         {{- end }}
-        {{- if .Values.certificates.customCAs }}
-        - name: certificates
-          image: {{ template "certificates.image" . }}
-          imagePullPolicy: {{ default .Values.image.pullPolicy .Values.certificates.image.pullPolicy }}
-          imagePullSecrets:
-          {{- range (default .Values.image.pullSecrets .Values.certificates.image.pullSecrets) }}
-            - name: {{ . }}
-          {{- end }}
-          command:
-          {{- if .Values.certificates.command }}
-          command: {{- include "common.tplvalues.render" (dict "value" .Values.certificates.command "context" $) | nindent 12 }}
-          {{- else if .Values.certificates.customCertificate.certificateSecret }}
-          - sh
-          - -c
-          - install_packages ca-certificates openssl
-          {{- else }}
-          - sh
-          - -c
-          - install_packages ca-certificates openssl
-            && openssl req -new -x509 -days 3650 -nodes -sha256
-              -subj "/CN=$(hostname)" -addext "subjectAltName = DNS:$(hostname)"
-              -out  /etc/ssl/certs/ssl-cert-snakeoil.pem
-              -keyout /etc/ssl/private/ssl-cert-snakeoil.key -extensions v3_req
-          {{- end }}
-          {{- if .Values.certificates.args }}
-          args: {{- include "common.tplvalues.render" (dict "value" .Values.certificates.args "context" $) | nindent 12 }}
-          {{- end }}
-          env: {{- include "common.tplvalues.render" (dict "value" .Values.certificates.extraEnvVars "context" $) | nindent 12 }}
-          envFrom:
-            {{- if .Values.certificates.extraEnvVarsCM }}
-            - configMapRef:
-                name: {{ include "common.tplvalues.render" (dict "value" .Values.certificates.extraEnvVarsCM "context" $) }}
-            {{- end }}
-            {{- if .Values.certificates.extraEnvVarsSecret }}
-            - secretRef:
-                name: {{ include "common.tplvalues.render" (dict "value" .Values.certificates.extraEnvVarsSecret "context" $) }}
-            {{- end }}
-          volumeMounts:
-            - name: etc-ssl-certs
-              mountPath: /etc/ssl/certs
-              readOnly: false
-            - name: etc-ssl-private
-              mountPath: /etc/ssl/private
-              readOnly: false
-            - name: custom-ca-certificates
-              mountPath: /usr/local/share/ca-certificates
-              readOnly: true
-        {{- end }}
+        {{- include "certificates.initContainer" . | nindent 8 }}
       containers:
         - name: {{ include "common.names.fullname" . }}
           image: {{ template "databunker.image" . }}
@@ -193,6 +148,12 @@ spec:
             - name: SMTP_PROTOCOL
               value: {{ .Values.smtpProtocol | quote }}
             {{- end }}
+            {{- if .Values.certificates.customCAs }}
+            - name: SSL_CERTIFICATE
+              value: {{ .Values.certificates.customCertificate.certificateLocation }}
+            - name: SSL_CERTIFICATE_KEY
+              value: {{ .Values.certificates.customCertificate.keyLocation }}
+            {{- end }}
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
             {{- end }}
@@ -209,8 +170,13 @@ spec:
           lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.lifecycleHooks "context" $) | nindent 12 }}
           {{- end }}
           ports:
+            ##- name: http
+            ##  containerPort: {{ .Values.containerPorts.http }}
             - name: https
               containerPort: {{ .Values.containerPorts.https }}
+            {{- if .Values.extraContainerPorts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.extraContainerPorts "context" $) | nindent 12 }}
+            {{- end }}
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
             httpGet:
@@ -237,12 +203,29 @@ spec:
           {{- else if .Values.customReadinessProbe }}
           readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.customReadinessProbe "context" $) | nindent 12 }}
           {{- end }}
+          {{- if .Values.startupProbe.enabled }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.startupProbe.path }}
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: {{ include "magento.host" . | quote }}
+            initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.startupProbe.successThreshold }}
+            failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+          {{- else if .Values.customStartupProbe }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.customStartupProbe "context" $) | nindent 12 }}
+          {{- end }}
           {{- if .Values.resources }}
           resources: {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
           volumeMounts:
             - name: databunker-data
               mountPath: /bitnami/databunker
+            {{- include "certificates.volumeMounts" . | nindent 12 }}
             {{- if .Values.extraVolumeMounts }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" $) | nindent 12 }}
             {{- end }}
@@ -279,6 +262,8 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+        {{- include "certificates.volumes" . | indent 8 }}
         {{- if .Values.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}
         {{- end }}
+{{- end -}}
