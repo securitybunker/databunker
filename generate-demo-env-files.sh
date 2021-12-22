@@ -1,7 +1,7 @@
 #!/bin/sh
 
-echo 'create ./data directory'
-mkdir data || true
+echo 'creating ./data directory'
+mkdir -p data
 chmod 777 data
 mkdir -p .env
 
