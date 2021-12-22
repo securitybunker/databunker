@@ -62,8 +62,8 @@ type Config struct {
 		MaxShareableRecordRetentionPeriod string `yaml:"max_shareable_record_retention_period" default:"1m"`
 	}
 	Ssl struct {
-		SslCertificate    string `yaml:"ssl_certificate", envconfig:"SSL_CERTIFICATE"`
-		SslCertificateKey string `yaml:"ssl_certificate_key", envconfig:"SSL_CERTIFICATE_KEY"`
+		SslCertificate    string `yaml:"ssl_certificate" envconfig:"SSL_CERTIFICATE"`
+		SslCertificateKey string `yaml:"ssl_certificate_key" envconfig:"SSL_CERTIFICATE_KEY"`
 	}
 	Sms struct {
 		Url            string `yaml:"url"`
@@ -77,15 +77,15 @@ type Config struct {
 		DefaultCountry string `yaml:"default_country"`
 	}
 	Server struct {
-		Port string `yaml:"port", envconfig:"BUNKER_PORT"`
-		Host string `yaml:"host", envconfig:"BUNKER_HOST"`
+		Port string `yaml:"port" envconfig:"BUNKER_PORT"`
+		Host string `yaml:"host" envconfig:"BUNKER_HOST"`
 	} `yaml:"server"`
 	SMTP struct {
-		Server string `yaml:"server", envconfig:"SMTP_SERVER"`
-		Port   string `yaml:"port", envconfig:"SMTP_PORT"`
-		User   string `yaml:"user", envconfig:"SMTP_USER"`
-		Pass   string `yaml:"pass", envconfig:"SMTP_PASS"`
-		Sender string `yaml:"sender", envconfig:"SMTP_SENDER"`
+		Server string `yaml:"server" envconfig:"SMTP_SERVER"`
+		Port   string `yaml:"port" envconfig:"SMTP_PORT"`
+		User   string `yaml:"user" envconfig:"SMTP_USER"`
+		Pass   string `yaml:"pass" envconfig:"SMTP_PASS"`
+		Sender string `yaml:"sender" envconfig:"SMTP_SENDER"`
 	} `yaml:"smtp"`
 	UI struct {
 		LogoLink           string `yaml:"logo_link"`
