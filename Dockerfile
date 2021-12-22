@@ -4,7 +4,7 @@
 FROM golang:alpine AS builder
 # Install git.
 # Git is required for fetching the dependencies.
-RUN apk update && apk add --no-cache git gcc libc-dev openssl && go get -u github.com/gobuffalo/packr/packr
+RUN apk update && apk add --no-cache git gcc libc-dev openssl mysql-client && go get -u github.com/gobuffalo/packr/packr
 WORKDIR $GOPATH/src/securitybunker/databunker/src/
 COPY src/go.mod ./deps
 RUN cat ./deps | grep -v storage > ./go.mod && go mod download
@@ -23,8 +23,8 @@ RUN go get -d -v && \
 FROM scratch
 # Copy our static executable.
 COPY --from=builder /bin/busybox /bin/sh
-COPY --from=builder /usr/bin/openssl /bin/busybox /bin/
-COPY --from=builder /lib/ld* /lib/libssl.* /lib/libcrypto.* /lib/
+COPY --from=builder /bin/busybox /usr/bin/openssl /usr/bin/mysql /bin/
+COPY --from=builder /lib/ld* /lib/libssl.* /lib/libcrypto.* /lib/libz.* /usr/lib/libncurses* /usr/lib/libstdc* /usr/lib/libgcc* /lib/libc.* /lib/
 COPY --from=builder /etc/group /etc/
 COPY --from=builder /etc/ssl /etc/ssl
 COPY databunker.yaml /databunker/conf/
