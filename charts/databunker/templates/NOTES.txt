@@ -4,16 +4,6 @@ APP VERSION: {{ .Chart.AppVersion }}
 
 ** Please be patient while the chart is being deployed **
 
-{{- if or .Values.mariadb.enabled .Values.externalDatabase.host -}}
-
-{{- if empty (include "databunker.host" .) -}}
-###############################################################################
-### ERROR: You did not provide an external host in your 'helm install' call ###
-###############################################################################
-
-This deployment will be incomplete until you configure Databunker with a resolvable
-host. To configure Databunker with the URL of your service:
-
 1. Get the Databunker URL by running:
 
   {{- if eq .Values.service.type "NodePort" }}
@@ -21,101 +11,27 @@ host. To configure Databunker with the URL of your service:
   export APP_PORT=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "common.names.fullname" . }} -o jsonpath="{.spec.ports[0].nodePort}")
   export APP_HOST=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
 
-  {{- else if eq .Values.service.type "LoadBalancer" }}
+  {{- else }}
 
+  {{- if eq .Values.service.type "LoadBalancer" }}
   NOTE: It may take a few minutes for the LoadBalancer IP to be available.
         Watch the status with: 'kubectl get svc --namespace {{ .Release.Namespace }} -w {{ include "common.names.fullname" . }}'
 
   export APP_HOST=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "common.names.fullname" . }} --template "{{ "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}" }}")
-  export APP_PASSWORD=$(kubectl get secret --namespace {{ .Release.Namespace }} {{ template "databunker.secretName" . }} -o jsonpath="{.data.databunker-password}" | base64 --decode)
-  export DATABASE_ROOT_PASSWORD=$(kubectl get secret --namespace {{ .Release.Namespace }} {{ template "databunker.databaseSecretName" . }} -o jsonpath="{.data.mariadb-root-password}" | base64 --decode)
+
   {{- end }}
-  export APP_DATABASE_PASSWORD=$(kubectl get secret --namespace {{ .Release.Namespace }} {{ template "databunker.databaseSecretName" . }} -o jsonpath="{.data.mariadb-password}" | base64 --decode)
 
-2. Complete your Databunker deployment by running:
+  export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=databunker,app.kubernetes.io/instance=databunker" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace default $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace default port-forward $POD_NAME 8080:$CONTAINER_PORT
 
-{{- if .Values.mariadb.enabled }}
+  {{- end }}
 
-  helm upgrade --namespace {{ .Release.Namespace }} {{ .Release.Name }} bitnami/{{ .Chart.Name }} \
-    --set databunkerHost=$APP_HOST,databunkerPassword=$APP_PASSWORD,mariadb.auth.rootPassword=$DATABASE_ROOT_PASSWORD,mariadb.auth.password=$APP_DATABASE_PASSWORD{{- if .Values.global }}{{- if .Values.global.imagePullSecrets }},global.imagePullSecrets={{ .Values.global.imagePullSecrets }}{{- end }}{{- end }}
-{{- else }}
+2. Databunker secreets
 
-  ## PLEASE UPDATE THE EXTERNAL DATABASE CONNECTION PARAMETERS IN THE FOLLOWING COMMAND AS NEEDED ##
+  echo DATABASE_ROOT_PASSWORD : $(kubectl get secret --namespace {{ .Release.Namespace }} {{ template "databunker.databaseSecretName" . }} -o jsonpath="{.data.mariadb-root-password}" | base64 --decode)
+  echo BUNKERUSER_DATABASE_PASSWORD : $(kubectl get secret --namespace {{ .Release.Namespace }} {{ template "databunker.databaseSecretName" . }} -o jsonpath="{.data.mariadb-password}" | base64 --decode)
+  echo MASTER_KEY : $(kubectl get secret --namespace {{ .Release.Namespace }} {{ template "databunker.secretName" . }} -o jsonpath="{.data.databunker-masterkey}" | base64 --decode)
+  echo ROOT_TOKEN : $(kubectl get secret --namespace {{ .Release.Namespace }} {{ template "databunker.secretName" . }} -o jsonpath="{.data.databunker-roottoken}" | base64 --decode)
 
-  helm upgrade --namespace {{ .Release.Namespace }} {{ .Release.Name }} bitnami/{{ .Chart.Name }} \
-    --set databunkerPassword=$APP_PASSWORD,databunkerHost=$APP_HOST,service.type={{ .Values.service.type }},mariadb.enabled=false{{- if not (empty .Values.externalDatabase.host) }},externalDatabase.host={{ .Values.externalDatabase.host }}{{- end }}{{- if not (empty .Values.externalDatabase.user) }},externalDatabase.user={{ .Values.externalDatabase.user }}{{- end }}{{- if not (empty .Values.externalDatabase.password) }},externalDatabase.password={{ .Values.externalDatabase.password }}{{- end }}{{- if not (empty .Values.externalDatabase.database) }},externalDatabase.database={{ .Values.externalDatabase.database }}{{- end }}{{- if .Values.global }}{{- if .Values.global.imagePullSecrets }},global.imagePullSecrets={{ .Values.global.imagePullSecrets }}{{- end }}{{- end }}
-{{- end }}
-
-{{- else -}}
-1. Get the Databunker URL by running:
-
-{{- if eq .Values.service.type "ClusterIP" }}
-
-  echo "Store URL: http{{ if .Values.databunkerUseHttps }}s{{ end }}://127.0.0.1:8080/"
-  echo "Admin URL: http{{ if .Values.databunkerUseSecureAdmin }}s{{ end }}://127.0.0.1:8080/{{ .Values.databunkerAdminUri }}"
-  kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "common.names.fullname" . }} 8080:{{ .Values.service.port }}
-
-{{- else }}
-
-{{- $port:=.Values.service.port | toString }}
-{{- $httpsPort:=.Values.service.httpsPort | toString }}
-
-  echo "Store URL: http{{ if .Values.databunkerUseHttps }}s{{ end }}://{{ include "databunker.host" . }}{{ if not (or (and (eq $port "80") (not .Values.databunkerUseHttps)) (and (eq $httpsPort "443") (.Values.databunkerUseHttps))) }}:{{ if .Values.databunkerUseHttps }}{{ .Values.service.httpsPort }}{{ else }}{{ .Values.service.port }}{{ end }}{{ end }}/"
-  echo "Admin URL: http{{ if .Values.databunkerUseSecureAdmin }}s{{ end }}://{{ include "databunker.host" . }}{{ if not (or (and (eq $port "80") (not .Values.databunkerUseSecureAdmin)) (and (eq $httpsPort "443") (.Values.databunkerUseSecureAdmin))) }}:{{ if .Values.databunkerUseSecureAdmin }}{{ .Values.service.httpsPort }}{{ else }}{{ .Values.service.port }}{{ end }}{{ end }}/{{ .Values.databunkerAdminUri }}"
-
-{{- end }}
-
-2. Get your Databunker login credentials by running:
-
-  echo Username : {{ .Values.databunkerUsername }}
-  echo Password : $(kubectl get secret --namespace {{ .Release.Namespace }} {{ template "databunker.secretName" . }} -o jsonpath="{.data.databunker-password}" | base64 --decode)
-{{- end }}
-
-{{- else -}}
-
-########################################################################################
-### ERROR: You did not provide an external database host in your 'helm install' call ###
-########################################################################################
-
-This deployment will be incomplete until you configure Databunker with a resolvable database
-host. To configure Databunker to use and external database host:
-1. Complete your Databunker deployment by running:
-
-{{- if eq .Values.service.type "NodePort" }}
-  export APP_HOST=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-{{- else if eq .Values.service.type "LoadBalancer" }}
-
-  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-        Watch the status with: 'kubectl get svc --namespace {{ .Release.Namespace }} -w {{ include "common.names.fullname" . }}'
-
-  export APP_HOST=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "common.names.fullname" . }} --template "{{ "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}" }}")
-{{- else }}
-
-  export APP_HOST=127.0.0.1
-{{- end }}
-  export APP_PASSWORD=$(kubectl get secret --namespace {{ .Release.Namespace }} {{ template "databunker.secretName" . }} -o jsonpath="{.data.databunker-password}" | base64 --decode)
-
-  ## PLEASE UPDATE THE EXTERNAL DATABASE CONNECTION PARAMETERS IN THE FOLLOWING COMMAND AS NEEDED ##
-
-  helm upgrade --namespace {{ .Release.Namespace }} {{ .Release.Name }} bitnami/{{ .Chart.Name }} \
-    --set databunkerPassword=$APP_PASSWORD,databunkerHost=$APP_HOST,service.type={{ .Values.service.type }},mariadb.enabled=false{{- if not (empty .Values.externalDatabase.user) }},externalDatabase.user={{ .Values.externalDatabase.user }}{{- end }}{{- if not (empty .Values.externalDatabase.password) }},externalDatabase.password={{ .Values.externalDatabase.password }}{{- end }}{{- if not (empty .Values.externalDatabase.database) }},externalDatabase.database={{ .Values.externalDatabase.database }}{{- end }},externalDatabase.host=YOUR_EXTERNAL_DATABASE_HOST{{- if .Values.global }}{{- if .Values.global.imagePullSecrets }},global.imagePullSecrets={{ .Values.global.imagePullSecrets }}{{- end }}{{- end }}
-{{- end }}
-
-{{- include "common.warnings.rollingTag" .Values.image }}
-{{- include "common.warnings.rollingTag" .Values.metrics.image }}
-{{- include "common.warnings.rollingTag" .Values.volumePermissions.image }}
-{{- include "common.warnings.rollingTag" .Values.certificates.image }}
-
-{{- $passwordValidationErrors := list -}}
-{{- if not .Values.existingSecret -}}
-    {{- $secretName := include "databunker.secretName" . -}}
-    {{- $requiredDatabunkerPassword := dict "valueKey" "databunkerPassword" "secret" $secretName "field" "databunker-password" "context" $ -}}
-    {{- $requiredDatabunkerPasswordError := include "common.validations.values.single.empty" $requiredDatabunkerPassword -}}
-    {{- $passwordValidationErrors = append $passwordValidationErrors $requiredDatabunkerPasswordError -}}
-{{- end -}}
-
-{{- $mariadbSecretName := include "databunker.databaseSecretName" . -}}
-{{- $mariadbPasswordValidationErrors := include "common.validations.values.mariadb.passwords" (dict "secret" $mariadbSecretName "subchart" true "context" $) -}}
-{{- $passwordValidationErrors = append $passwordValidationErrors $mariadbPasswordValidationErrors -}}
-
-{{- include "common.errors.upgrade.passwords.empty" (dict "validationErrors" $passwordValidationErrors "context" $) -}}
