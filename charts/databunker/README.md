@@ -81,8 +81,8 @@ The command removes all the Kubernetes components associated with the chart and 
 | `replicaCount`                       | Number of Databunker Pods to run                                                                                     | `1`                   |
 | `databunkerSkipInstall`              | Skip Databunker installation wizard. Useful for migrations and restoring from SQL dump                               | `false`               |
 | `databunkerHost`                     | Databunker host to create application URLs                                                                           | `""`                  |
-| `databunkerMasterkey                 | Databunker Master Key                                                                                                | `""`                  |
-| `databunkerRoottoken                 | Databunker Root Token                                                                                                | `""`                  |
+| `databunkerMasterkey`                | Databunker Master Key                                                                                                | `""`                  |
+| `databunkerRoottoken`                | Databunker Root Token                                                                                                | `""`                  |
 | `databunkerEmail`                    | Admin email                                                                                                          | `user@example.com`    |
 | `databunkerExtraInstallArgs`         | Databunker extra install args                                                                                        | `""`                  |
 | `command`                            | Override default container command (useful when using custom images)                                                 | `[]`                  |
@@ -121,14 +121,14 @@ The command removes all the Kubernetes components associated with the chart and 
 | `livenessProbe.failureThreshold`     | Failure threshold for livenessProbe                                                                                  | `6`                   |
 | `livenessProbe.successThreshold`     | Success threshold for livenessProbe                                                                                  | `1`                   |
 | `readinessProbe.enabled`             | Enable readinessProbe                                                                                                | `true`                |
-| `readinessProbe.path`                | Request path for readinessProbe                                                                                      | `/index.php`          |
+| `readinessProbe.path`                | Request path for readinessProbe                                                                                      | `/status`             |
 | `readinessProbe.initialDelaySeconds` | Initial delay seconds for readinessProbe                                                                             | `30`                  |
 | `readinessProbe.periodSeconds`       | Period seconds for readinessProbe                                                                                    | `5`                   |
 | `readinessProbe.timeoutSeconds`      | Timeout seconds for readinessProbe                                                                                   | `3`                   |
 | `readinessProbe.failureThreshold`    | Failure threshold for readinessProbe                                                                                 | `6`                   |
 | `readinessProbe.successThreshold`    | Success threshold for readinessProbe                                                                                 | `1`                   |
 | `startupProbe.enabled`               | Enable startupProbe                                                                                                  | `false`               |
-| `startupProbe.path`                  | Request path for startupProbe                                                                                        | `/index.php`          |
+| `startupProbe.path`                  | Request path for startupProbe                                                                                        | `/status`             |
 | `startupProbe.initialDelaySeconds`   | Initial delay seconds for startupProbe                                                                               | `0`                   |
 | `startupProbe.periodSeconds`         | Period seconds for startupProbe                                                                                      | `10`                  |
 | `startupProbe.timeoutSeconds`        | Timeout seconds for startupProbe                                                                                     | `3`                   |
@@ -483,116 +483,3 @@ In this major there were three main changes introduced:
 - Feature 1
 - Feature 2
 - Feature 3
-
-Consequences:
-
-- Backwards compatibility is not guaranteed. However, you can easily workaround this issue by removing Databunker deployment before upgrading (the following example assumes that the release name is `databunker`):
-
-```console
-$ export APP_HOST=$(kubectl get svc --namespace default databunker --template "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}")
-$ export APP_PASSWORD=$(kubectl get secret --namespace default databunker -o jsonpath="{.data.databunker-password}" | base64 --decode)
-$ export MARIADB_ROOT_PASSWORD=$(kubectl get secret --namespace default databunker-mariadb -o jsonpath="{.data.mariadb-root-password}" | base64 --decode)
-$ export MARIADB_PASSWORD=$(kubectl get secret --namespace default databunker-mariadb -o jsonpath="{.data.mariadb-password}" | base64 --decode)
-$ kubectl delete deployments.apps databunker
-$ helm upgrade databunker bitnami/databunker --set databunkerHost=$APP_HOST,databunkerPassword=$APP_PASSWORD,mariadb.auth.rootPassword=$MARIADB_ROOT_PASSWORD,mariadb.auth.password=$MARIADB_PASSWORD
-```
-
-### To 15.0.0
-
-In this major there were two main changes introduced:
-
-1. Adaptation to Helm v2 EOL
-2. Updated MariaDB and Elasticsearch dependency versions
-
-Please read the update notes carefully.
-
-**1. Adaptation to Helm v2 EOL**
-
-[On November 13, 2020, Helm v2 support was formally finished](https://github.com/helm/charts#status-of-the-project), this major version is the result of the required changes applied to the Helm Chart to be able to incorporate the different features added in Helm v3 and to be consistent with the Helm project itself regarding the Helm v2 EOL.
-
-**What changes were introduced in this major version?**
-
-- Previous versions of this Helm Chart use `apiVersion: v1` (installable by both Helm 2 and 3), this Helm Chart was updated to `apiVersion: v2` (installable by Helm 3 only). [Here](https://helm.sh/docs/topics/charts/#the-apiversion-field) you can find more information about the `apiVersion` field.
-- Move dependency information from the *requirements.yaml* to the *Chart.yaml*
-- After running `helm dependency update`, a *Chart.lock* file is generated containing the same structure used in the previous *requirements.lock*
-- The different fields present in the *Chart.yaml* file has been ordered alphabetically in a homogeneous way for all the Bitnami Helm Charts
-
-**Considerations when upgrading to this version**
-
-- If you want to upgrade to this version from a previous one installed with Helm v3, you shouldn't face any issues
-- If you want to upgrade to this version using Helm v2, this scenario is not supported as this version doesn't support Helm v2 anymore
-- If you installed the previous version with Helm v2 and wants to upgrade to this version with Helm v3, please refer to the [official Helm documentation](https://helm.sh/docs/topics/v2_v3_migration/#migration-use-cases) about migrating from Helm v2 to v3
-
-**Useful links**
-
-- https://docs.bitnami.com/tutorials/resolve-helm2-helm3-post-migration-issues/
-- https://helm.sh/docs/topics/v2_v3_migration/
-- https://helm.sh/blog/migrate-from-helm-v2-to-helm-v3/
-
-**2. Updated MariaDB dependency version**
-
-In this major the MariaDB and Elasticsearch dependency versions were also bumped to a new major version that introduces several incompatilibites. Therefore, backwards compatibility is not guaranteed. Check [MariaDB Upgrading Notes](https://github.com/bitnami/charts/tree/master/bitnami/mariadb#to-800) for more information. Although it is using the latest `bitnami/mariadb` chart, given Databunker `2.4` [current limitations](https://devdocs.databunker.com/guides/v2.4/install-gde/system-requirements.html#database), the container image of MariaDB has been bumped to `10.4.x` instead of using the latest `10.5.x`.
-
-To upgrade to `15.0.0`, it should be done reusing the PVCs used to hold data from MariaDB, Elasticsearch and Databunker data on your previous release. To do so, follow the instructions below (the following example assumes that the release name is `databunker` and that a `rootUser.password` was defined for MariaDB in `values.yaml` when the chart was first installed):
-
-> NOTE: Please, create a backup of your database before running any of those actions. The steps below would be only valid if your application (e.g. any plugins or custom code) is compatible with MariaDB 10.4.x
-
-Obtain the credentials and the names of the PVCs used to hold the MariaDB data on your current release:
-
-```console
-$ export MAGENTO_HOST=$(kubectl get svc --namespace default databunker --template "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}")
-$ export MAGENTO_PASSWORD=$(kubectl get secret --namespace default databunker -o jsonpath="{.data.databunker-password}" | base64 --decode)
-$ export MARIADB_ROOT_PASSWORD=$(kubectl get secret --namespace default databunker-mariadb -o jsonpath="{.data.mariadb-root-password}" | base64 --decode)
-$ export MARIADB_PASSWORD=$(kubectl get secret --namespace default databunker-mariadb -o jsonpath="{.data.mariadb-password}" | base64 --decode)
-$ export MARIADB_PVC=$(kubectl get pvc -l app=mariadb,component=master,release=databunker -o jsonpath="{.items[0].metadata.name}")
-```
-
-Delete the Databunker deployment and delete the MariaDB statefulset. Notice the option `--cascade=false` in the latter.
-
-```console
-$ kubectl delete deployments.apps databunker
-$ kubectl delete statefulsets.apps databunker-mariadb --cascade=false
-```
-
-Now the upgrade works:
-
-```console
-$ helm upgrade databunker bitnami/databunker --set mariadb.primary.persistence.existingClaim=$MARIADB_PVC --set mariadb.auth.rootPassword=$MARIADB_ROOT_PASSWORD --set mariadb.auth.password=$MARIADB_PASSWORD --set databunkerPassword=$MAGENTO_PASSWORD --set databunkerHost=$MAGENTO_HOST
-```
-
-You will have to delete the existing MariaDB pod and the new statefulset is going to create a new one
-
-```console
-$ kubectl delete pod databunker-mariadb-0z
-```
-
-Finally, you should see the lines below in MariaDB container logs:
-
-```console
-$ kubectl logs $(kubectl get pods -l app.kubernetes.io/instance=databunker,app.kubernetes.io/name=mariadb,app.kubernetes.io/component=primary -o jsonpath="{.items[0].metadata.name}")
-...
-mariadb 12:13:24.98 INFO  ==> Using persisted data
-mariadb 12:13:25.01 INFO  ==> Running mysql_upgrade
-...
-```
-
-### To 10.0.0
-
-Helm performs a lookup for the object based on its group (apps), version (v1), and kind (Deployment). Also known as its GroupVersionKind, or GVK. Changing the GVK is considered a compatibility breaker from Kubernetes' point of view, so you cannot "upgrade" those objects to the new GVK in-place. Earlier versions of Helm 3 did not perform the lookup correctly which has since been fixed to match the spec.
-
-In 4dfac075aacf74405e31ae5b27df4369e84eb0b0 the `apiVersion` of the deployment resources was updated to `apps/v1` in tune with the api's deprecated, resulting in compatibility breakage.
-
-This major version signifies this change.
-
-### To 5.0.0
-
-Manual intervention is needed if configuring Elasticsearch 6 as Databunker search engine is desired.
-
-[Follow the Databunker documentation](https://devdocs.databunker.com/guides/v2.3/config-guide/elasticsearch/configure-databunker.html) in order to configure Elasticsearch, setting **Search Engine** to **Elasticsearch 6.0+**. If using the Elasticsearch server included in this chart, `hostname` and `port` can be obtained with the following commands:
-
-```
-$ kubectl get svc -l app=elasticsearch,component=client,release=RELEASE_NAME -o jsonpath="{.items[0].metadata.name}"
-$ kubectl get svc -l app=elasticsearch,component=client,release=RELEASE_NAME -o jsonpath="{.items[0].spec.ports[0].port}"
-```
-
-Where `RELEASE_NAME` is the name of the release. Use `helm list` to find it.
