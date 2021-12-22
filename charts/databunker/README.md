@@ -72,8 +72,8 @@ The command removes all the Kubernetes components associated with the chart and 
 | Name                                 | Description                                                                                                          | Value                 |
 | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------- | --------------------- |
 | `image.registry`                     | Databunker image registry                                                                                            | `docker.io`           |
-| `image.repository`                   | Databunker image repository                                                                                          | `bitnami/databunker`     |
-| `image.tag`                          | Databunker image tag (immutable tags are recommended)                                                                | `2.4.3-debian-10-r63` |
+| `image.repository`                   | Databunker image repository                                                                                          | `bitnami/databunker`  |
+| `image.tag`                          | Databunker image tag (immutable tags are recommended)                                                                | `latest`              |
 | `image.pullPolicy`                   | Databunker image pull policy                                                                                         | `IfNotPresent`        |
 | `image.pullSecrets`                  | Specify docker-registry secret names as an array                                                                     | `[]`                  |
 | `image.debug`                        | Specify if debug logs should be enabled                                                                              | `false`               |
@@ -81,12 +81,10 @@ The command removes all the Kubernetes components associated with the chart and 
 | `replicaCount`                       | Number of Databunker Pods to run                                                                                     | `1`                   |
 | `databunkerSkipInstall`              | Skip Databunker installation wizard. Useful for migrations and restoring from SQL dump                               | `false`               |
 | `databunkerHost`                     | Databunker host to create application URLs                                                                           | `""`                  |
-| `databunkerPassword`                 | Application password                                                                                                 | `""`                  |
+| `databunkerMasterkey                 | Databunker Master Key                                                                                                | `""`                  |
+| `databunkerRoottoken                 | Databunker Root Token                                                                                                | `""`                  |
 | `databunkerEmail`                    | Admin email                                                                                                          | `user@example.com`    |
 | `databunkerExtraInstallArgs`         | Databunker extra install args                                                                                        | `""`                  |
-| `databunkerUseSecureAdmin`           | Use SSL to access the Databunker Admin. Valid values: `true`, `false`                                                | `false`               |
-| `databunkerSkipReindex`              | Skip Databunker Indexer reindex step during the initialization. Valid values: `true`, `false`                        | `false`               |
-| `allowEmptyPassword`                 | Allow DB blank passwords                                                                                             | `false`               |
 | `command`                            | Override default container command (useful when using custom images)                                                 | `[]`                  |
 | `args`                               | Override default container args (useful when using custom images)                                                    | `[]`                  |
 | `updateStrategy.type`                | Update strategy - only really applicable for deployments with RWO PVs attached                                       | `RollingUpdate`       |
@@ -271,8 +269,6 @@ The above parameters map to the env variables defined in [bitnami/databunker](ht
 
 > **Note**:
 >
-> For Databunker to function correctly, you should specify the `databunkerHost` parameter to specify the FQDN (recommended) or the public IP address of the Databunker service.
->
 > Optionally, you can specify the `service.loadBalancerIP` parameter to assign a reserved IP address to the Databunker service of the chart. However please note that this feature is only available on a few cloud providers (f.e. GKE).
 >
 > To reserve a public IP address on GKE:
@@ -287,13 +283,11 @@ Specify each parameter using the `--set key=value[,key=value]` argument to `helm
 
 ```console
 $ helm install my-release \
-  --set databunkerUsername=admin,databunkerPassword=password,mariadb.auth.rootPassword=secretpassword \
+  --set mariadb.primary.persistence.enabled=false \
     bitnami/databunker
 ```
 
-The above command sets the Databunker administrator account username and password to `admin` and `password` respectively. Additionally, it sets the MariaDB `root` user password to `secretpassword`.
-
-> NOTE: Once this chart is deployed, it is not possible to change the application's access credentials, such as usernames or passwords, using Helm. To change these application credentials after deployment, delete any persistent volumes (PVs) used by the chart and re-deploy it, or use the application's built-in administrative tools if available.
+> NOTE: Once this chart is deployed, it is not possible to change the application's access credentials, such as master key, using Helm.
 
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
 
@@ -377,12 +371,6 @@ If you are going to use Helm to manage the certificates, please copy these value
 
 If you are going to manage TLS secrets outside of Helm, please know that you can create a TLS secret (named `databunker.local-tls` for example).
 
-## Persistence
-
-The [Bitnami Databunker](https://github.com/bitnami/bitnami-docker-databunker) image stores the Databunker data and configurations at the `/bitnami/databunker` and `/bitnami/apache` paths of the container.
-
- Persistent Volume Claims are used to keep the data across deployments. There is a [known issue](https://github.com/kubernetes/kubernetes/issues/39178) in Kubernetes Clusters with EBS in different availability zones. Ensure your cluster is configured properly to create Volumes in the same availability zone where the nodes are running. Kuberentes 1.12 solved this issue with the [Volume Binding Mode](https://kubernetes.io/docs/concepts/storage/storage-classes/#volume-binding-mode).
-
 ### Adding extra environment variables
 
 In case you want to add extra environment variables (useful for advanced operations like custom init scripts), you can use the `extraEnvVars` property.
@@ -459,23 +447,6 @@ This chart allows you to set your custom affinity using the `affinity` parameter
 
 As an alternative, you can use of the preset configurations for pod affinity, pod anti-affinity, and node affinity available at the [bitnami/common](https://github.com/bitnami/charts/tree/master/bitnami/common#affinities) chart. To do so, set the `podAffinityPreset`, `podAntiAffinityPreset`, or `nodeAffinityPreset` parameters.
 
-## Persistence
-
-The [Bitnami Databunker](https://github.com/bitnami/bitnami-docker-databunker) image stores the Databunker data and configurations at the `/bitnami/databunker` path of the container.
-
-Persistent Volume Claims are used to keep the data across deployments. This is known to work in GCE, AWS, and minikube.
-See the [Parameters](#parameters) section to configure the PVC or to disable persistence.
-
-### Existing PersistentVolumeClaim
-
-1. Create the PersistentVolume
-1. Create the PersistentVolumeClaim
-1. Install the chart
-
-    ```bash
-    $ helm install my-release --set persistence.existingClaim=PVC_NAME bitnami/databunker
-    ```
-
 ### Host path
 
 #### System compatibility
@@ -505,79 +476,13 @@ Find more information about how to deal with common errors related to Bitnami’
 
 ## Notable changes
 
-### 19.0.0
-
-This major updates the Elasticsearch subchart to its newest major, 17.0.0, which adds support for X-pack security features such as SSL/TLS encryption and password protection. Check [Elasticsearch Upgrading Notes](https://github.com/bitnami/charts/tree/master/bitnami/elasticsearch#to-1700) for more information.
-
-### 18.0.0
-
-Elasticsearch dependency version was bumped to a new major version changing the license of some of its components to the [Elastic License](https://www.elastic.co/licensing/elastic-license) that is not currently accepted as an Open Source license by the Open Source Initiative (OSI). Check [Elasticsearch Upgrading Notes](https://github.com/bitnami/charts/tree/master/bitnami/elasticsearch#to-1500) for more information.
-
-Regular upgrade is compatible from previous versions.
-
-### 17.0.0
+### 1.0.2
 
 In this major there were three main changes introduced:
 
-- Parameter standarizations
-- Migration to non-root
-- Elasticsearch sub-chart 14.0.0 update
-
-**1. Chart standarizations**
-
-This upgrade adapts the chart to the latest Bitnami good practices. Check the Parameters section for more information. In summary:
-
-- Lots of new parameters were added, including SMTP configuration, for using existing DBs (`databunkerSkipInstall`), configuring security context, etc.
-- Some parameters were renamed or disappeared in favor of new ones in this major version. For example, `persistence.databunker.*` parameters were deprecated in favor of `persistence.*`.
-- This version also introduces `bitnami/common`, a [library chart](https://helm.sh/docs/topics/library_charts/#helm) as a dependency. More documentation about this new utility could be found [here](https://github.com/bitnami/charts/tree/master/bitnami/common#bitnami-common-library-chart). Please, make sure that you have updated the chart dependencies before executing any upgrade.
-
-**2. Migration of the Databunker image to non-root**
-
-The [Bitnami Databunker](https://github.com/bitnami/bitnami-docker-databunker) image was migrated to a "non-root" user approach. Previously the container ran as the `root` user and the Apache daemon was started as the `daemon` user. From now on, both the container and the Apache daemon run as user `1001`. Consequences:
-
-- The HTTP/HTTPS ports exposed by the container are now `8080/8443` instead of `80/443`.
-- Backwards compatibility is not guaranteed. Uninstall & install the chart again to obtain the latest version.
-
-**3. Elasticsearch sub-chart 14.0.0 update**
-
-This version of the Elasticsearch sub-chart standardizes the way of defining Ingress rules in the Kibana sub-chart.
-
-### 14.0.0
-
-This version updates the docker image to `2.3.5-debian-10-r57` version. That version persists the full `htdocs` folder. From now on, to upgrade the Databunker version it is needed to follow the [official steps](https://devdocs.databunker.com/guides/v2.3/comp-mgr/cli/cli-upgrade.html) manually.
-
-### 13.0.0
-
-Several changes were introduced that can break backwards compatibility:
-
-- This version includes a new major version of the ElasticSearch chart bundled as dependency. You can find the release notes of the new ElasticSearch major version in [this section](https://github.com/bitnami/charts/tree/master/bitnami/elasticsearch#1200) of the ES README.
-- Labels are adapted to follow the Helm charts best practices.
-
-### 9.0.0
-
-This version enabled by default an initContainer that modify some kernel settings to meet the Elasticsearch requirements.
-
-Currently, Elasticsearch requires some changes in the kernel of the host machine to work as expected. If those values are not set in the underlying operating system, the ES containers fail to boot with ERROR messages. More information about these requirements can be found in the links below:
-
-- [File Descriptor requirements](https://www.elastic.co/guide/en/elasticsearch/reference/current/file-descriptors.html)
-- [Virtual memory requirements](https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html)
-
-You can disable the initContainer using the `elasticsearch.sysctlImage.enabled=false` parameter.
-
-## Upgrading
-
-### To 17.0.0
-
-To upgrade to `17.0.0`, backup Databunker data and the previous MariaDB databases, install a new Databunker chart and import the backups and data, ensuring the `1001` user has the appropriate permissions on the migrated volume.
-
-You can disable the non-root behavior by setting the parameters `containerSecurityContext.runAsUser` to `root`.
-
-For the Elasticsearch 14.0.0 sub-chart update, when enabling Kibana and configuring a single hostname for the Kibana Ingress rule, set the `kibana.ingress.hostname` value. When defining more than one, set the `kibana.ingress.extraHosts` array. Apart from this case, no issues are expected to appear when upgrading.
-
-### To 16.0.0
-
-- Chart labels were adapted to follow the [Helm charts standard labels](https://helm.sh/docs/chart_best_practices/labels/#standard-labels).
-- This version also introduces `bitnami/common`, a [library chart](https://helm.sh/docs/topics/library_charts/#helm) as a dependency. More documentation about this new utility could be found [here](https://github.com/bitnami/charts/tree/master/bitnami/common#bitnami-common-library-chart). Please, make sure that you have updated the chart dependencies before executing any upgrade.
+- Feature 1
+- Feature 2
+- Feature 3
 
 Consequences:
 
