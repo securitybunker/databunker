@@ -1,5 +1,5 @@
+charts/databunker/charts/
 .DS_Store
-databunker
 databunker.db*
 databunker.yaml
 bql.db
