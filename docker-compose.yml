@@ -10,7 +10,7 @@ services:
     volumes:
       - ./data:/var/lib/mysql
     command: --max_connections=2000
-  # this container's job is to initialize MySQL database. It should run just 1 time.
+  # this container's job is to initialize MySQL database. It should run just one time.
   databunker-init:
     #build: .
     image: securitybunker/databunker:latest
@@ -20,7 +20,6 @@ services:
     depends_on:
       - mysql
     entrypoint: /bin/sh
-    # at first, this docker will wait for MySQL init to be ready.
     command: -c "/databunker/bin/databunker -init -db databunkerdb"
   databunker:
     #build: .
@@ -28,9 +27,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env/databunker.env
-    #entrypoint: /databunker/bin/databunker -db databunkerdb -conf /databunker/conf/databunker.yaml
     entrypoint: /bin/sh
-    command: -c "/bin/busybox sleep 30; /databunker/bin/databunker -db databunkerdb -conf /databunker/conf/databunker.yaml"
+    command: -c "/databunker/bin/databunker -db databunkerdb -conf /databunker/conf/databunker.yaml"
     depends_on:
       - mysql
     ports:
