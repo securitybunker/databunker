@@ -1,6 +1,7 @@
 # Databunker
 
-[Databunker](https://databunker.org/) is a feature-rich flexible e-commerce solution. It includes transaction options, multi-store functionality, loyalty programs, product categorization and shopper filtering, promotion rules, and more.
+[Databunker](https://databunker.org/) is an open-source secure vault and SDK to store customer records built to comply with GDPR.
+
 
 ## TL;DR
 
@@ -20,7 +21,7 @@ Bitnami charts can be used with [Kubeapps](https://kubeapps.com/) for deployment
 ## Prerequisites
 
 - Kubernetes 1.12+
-- Helm 3.1.0
+- Helm 1.12+
 
 ## Installing the Chart
 
@@ -265,7 +266,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `autoscaling.targetMemory` | Target Memory utilization percentage | `""`    |
 
 
-The above parameters map to the env variables defined in [bitnami/databunker](https://github.com/bitnami/bitnami-docker-databunker). For more information please refer to the [bitnami/databunker](https://github.com/bitnami/bitnami-docker-databunker) image documentation.
+The above parameters map to the env variables defined in [securitybunker/databunker](https://github.com/securitybunker/databunker). For more information please refer to the [securitybunker/databunker](https://github.com/securitybunker/databunker) image documentation.
 
 > **Note**:
 >
@@ -329,6 +330,10 @@ This chart provides support for ingress resources. If you have an ingress contro
 
 To enable ingress integration, please set `ingress.enabled` to `true`.
 
+> Tip! Make sure you need to use the **ingress** controller before Databunker.
+It works as a proxy and will decode the SSL traffic. Instead, you can easily configure Databunker to use imported or self-signed SSL certificates.
+
+
 #### Hosts
 
 Most likely you will only want to have one hostname that maps to this Databunker installation. If that's your case, the property `ingress.hostname` will set it. However, it is possible to have more than one host. To facilitate this, the `ingress.extraHosts` object can be specified as an array. You can also use `ingress.extraTLS` to add the TLS configuration for extra hosts.
@@ -369,7 +374,7 @@ In the first two cases, it's needed a certificate and a key. We would expect the
 
 If you are going to use Helm to manage the certificates, please copy these values into the `certificate` and `key` values for a given `ingress.secrets` entry.
 
-If you are going to manage TLS secrets outside of Helm, please know that you can create a TLS secret (named `databunker.local-tls` for example).
+If you are going to manage TLS secrets outside of Helm, please know that you can create a TLS secret (named `databunker.service-tls` for example).
 
 ### Adding extra environment variables
 
@@ -435,40 +440,43 @@ externalDatabase.port=3306
 
 Note also if you disable MariaDB per above you MUST supply values for the `externalDatabase` connection.
 
-In case the database already contains data from a previous Databunker installation, you need to set the `databunkerSkipInstall` parameter to _true_. Otherwise, the container would execute the installation wizard and could modify the existing data in the database. This parameter force the container to not execute the Databunker installation wizard. This is necessary in case you use a database that already has Databunker data [+info](https://github.com/bitnami/bitnami-docker-databunker#connect-databunker-docker-container-to-an-existing-database).
+## CA Certificates
 
-### Deploying extra resources
+Custom CA self-signed certificate can be initialized during the chart deployment in automatic way using the ```openssl``` command.
 
-There are cases where you may want to deploy extra objects, such a ConfigMap containing your app's configuration or some extra deployment with a micro service used by your app. For covering this case, the chart allows adding the full specification of other objects using the `extraDeploy` parameter.
+```yaml
+certificates:
+  customCAs:
+  - secret: databunker
+```
+
+## Loading external certificate
+
+You can configure this chart to load certificates you created outside of container. This certificate will be saved in secret store and mapped to files in Databunker container:
+
+```yaml
+certificates:
+  customCertificate: "mytls"
+    certificateSecret: ""
+    chainSecret:
+      name: ""
+      key: ""
+    certificateLocation: /etc/ssl/certs/ssl-cert-snakeoil.pem
+    keyLocation: /etc/ssl/private/ssl-cert-snakeoil.key
+    chainLocation: /etc/ssl/certs/mychain.pem
+```
+
+> Tip! You can create a self-signed certificate and a secret containing your certificates using the following command:
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=localhost"
+kubectl create secret tls mytls --key="tls.key" --cert="tls.crt"
+```
 
 ### Setting Pod's affinity
 
 This chart allows you to set your custom affinity using the `affinity` parameter. Find more infomation about Pod's affinity in the [kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity).
 
 As an alternative, you can use of the preset configurations for pod affinity, pod anti-affinity, and node affinity available at the [bitnami/common](https://github.com/bitnami/charts/tree/master/bitnami/common#affinities) chart. To do so, set the `podAffinityPreset`, `podAntiAffinityPreset`, or `nodeAffinityPreset` parameters.
-
-### Host path
-
-#### System compatibility
-
-- The local filesystem accessibility to a container in a pod with `hostPath` has been tested on OSX/MacOS with xhyve, and Linux with VirtualBox.
-- Windows has not been tested with the supported VM drivers. Minikube does however officially support [Mounting Host Folders](https://minikube.sigs.k8s.io/docs/handbook/mount/) per pod. Or you may manually sync your container whenever host files are changed with tools like [docker-sync](https://github.com/EugenMayer/docker-sync) or [docker-bg-sync](https://github.com/cweagans/docker-bg-sync).
-
-## CA Certificates
-
-Custom CA certificates not included in the base docker image can be added by means of existing secrets. The secret must exist in the same namespace and contain the desired CA certificates to import. By default, all found certificate files will be loaded.
-
-```yaml
-certificates:
-  customCAs:
-  - secret: my-ca-1
-  - secret: my-ca-2
-```
-
-> Tip! You can create a secret containing your CA certificates using the following command:
-```bash
-kubectl create secret generic my-ca-1 --from-file my-ca-1.crt
-```
 
 ## Troubleshooting
 
@@ -480,6 +488,4 @@ Find more information about how to deal with common errors related to Bitnami’
 
 In this major there were three main changes introduced:
 
-- Feature 1
-- Feature 2
-- Feature 3
+- Optimize Databunker installation
