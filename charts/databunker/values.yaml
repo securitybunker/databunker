@@ -96,16 +96,16 @@ databunkerMasterkey: ""
 ## ref: https://github.com/bitnami/bitnami-docker-databunker#configuration
 ##
 databunkerRoottoken: ""
-## @param databunkerEmail Admin email
+## @param databunkerAdminEmail Admin email
 ## ref: https://github.com/bitnami/bitnami-docker-databunker#configuration
 ##
-databunkerEmail: user@example.com
+databunkerAdminEmail: "user@example.com"
 ## @param command Override default container command (useful when using custom images)
 ##
 command: ["/bin/sh"]
 ## @param args Override default container args (useful when using custom images)
 ##
-args: ["-c", "/bin/busybox sleep 22; /databunker/bin/databunker -init -db databunkerdb; /databunker/bin/databunker -db databunkerdb -conf /databunker/conf/databunker.yaml" ]
+args: ["-c", "/databunker/bin/databunker -init -db databunkerdb; /databunker/bin/databunker -db databunkerdb -conf /databunker/conf/databunker.yaml" ]
 ## @param updateStrategy.type Update strategy - only really applicable for deployments with RWO PVs attached
 ## If replicas = 1, an update can get "stuck", as the previous pod remains attached to the
 ## PV, and the "incoming" pod can never start. Changing the strategy to "Recreate" will
@@ -700,8 +700,8 @@ certificates:
     chainLocation: /etc/ssl/certs/mychain.pem
   ## @param certificates.customCAs Defines a list of secrets to import into the container trust store
   ##
-  customCAs:
-    - secret: "databunker"
+  customCAs: []
+  #  - secret: "databunker"
   ## @param certificates.command Override default container command (useful when using custom images)
   ## e.g:
   ## - secret: custom-CA

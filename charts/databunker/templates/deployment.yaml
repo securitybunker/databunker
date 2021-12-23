@@ -92,7 +92,7 @@ spec:
                 secretKeyRef:
                   name: {{ include "databunker.databaseSecretName" . }}
                   key: {{ include "databunker.databasePasswordKey" . | quote }}
-            - name: DRUPAL_SKIP_BOOTSTRAP
+            - name: SKIP_BOOTSTRAP
               value: {{ ternary "yes" "no" .Values.databunkerSkipInstall | quote }}
             - name: DATABUNKER_MASTERKEY 
               valueFrom:
@@ -104,8 +104,8 @@ spec:
                 secretKeyRef:
                   name: {{ include "databunker.secretName" . }}
                   key: databunker-roottoken
-            - name: DRUPAL_EMAIL
-              value: {{ .Values.databunkerEmail | quote }}
+            - name: ADMIN_EMAIL
+              value: {{ .Values.databunkerAdminEmail | quote }}
             {{- if .Values.smtpHost }}
             - name: SMTP_HOST
               value: {{ .Values.smtpHost | quote }}
