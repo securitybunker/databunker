@@ -40,13 +40,13 @@ type dbcon struct {
 // Config is u	sed to store application configuration
 type Config struct {
 	Generic struct {
-		CreateUserWithoutAccessToken bool   `yaml:"create_user_without_access_token" default:false`
-		UseSeparateAppTables         bool   `yaml:"use_separate_app_tables" default:false`
-		UserRecordSchema             string `yaml:"user_record_schema"`
-		AdminEmail                   string `yaml:"admin_email"`
+		CreateUserWithoutAccessToken	bool   `yaml:"create_user_without_access_token" default:false`
+		UseSeparateAppTables		bool   `yaml:"use_separate_app_tables" default:false`
+		UserRecordSchema		string `yaml:"user_record_schema"`
+		AdminEmail			string `yaml:"admin_email" envconfig:"ADMIN_EMAIL"`
 	}
 	SelfService struct {
-		ForgetMe         bool     `yaml:"forget_me" default:false`
+		ForgetMe	 bool     `yaml:"forget_me" default:false`
 		UserRecordChange bool     `yaml:"user_record_change" default:false`
 		AppRecordChange  []string `yaml:"app_record_change"`
 	}
@@ -56,9 +56,9 @@ type Config struct {
 		MagicSyncToken  string `yaml:"magic_sync_token"`
 	}
 	Policy struct {
-		MaxUserRetentionPeriod            string `yaml:"max_user_retention_period" default:"1m"`
-		MaxAuditRetentionPeriod           string `yaml:"max_audit_retention_period" default:"12m"`
-		MaxSessionRetentionPeriod         string `yaml:"max_session_retention_period" default:"1h"`
+		MaxUserRetentionPeriod		string `yaml:"max_user_retention_period" default:"1m"`
+		MaxAuditRetentionPeriod		string `yaml:"max_audit_retention_period" default:"12m"`
+		MaxSessionRetentionPeriod	string `yaml:"max_session_retention_period" default:"1h"`
 		MaxShareableRecordRetentionPeriod string `yaml:"max_shareable_record_retention_period" default:"1m"`
 	}
 	Ssl struct {
@@ -66,15 +66,15 @@ type Config struct {
 		SslCertificateKey string `yaml:"ssl_certificate_key" envconfig:"SSL_CERTIFICATE_KEY"`
 	}
 	Sms struct {
-		Url            string `yaml:"url"`
-		From           string `yaml:"from"`
-		Body           string `yaml:"body"`
-		Token          string `yaml:"token"`
-		Method         string `yaml:"method"`
-		BasicAuth      string `yaml:"basic_auth"`
-		ContentType    string `yaml:"content_type"`
-		CustomHeader   string `yaml:"custom_header"`
-		DefaultCountry string `yaml:"default_country"`
+		Url		string `yaml:"url"`
+		From		string `yaml:"from"`
+		Body		string `yaml:"body"`
+		Token		string `yaml:"token"`
+		Method		string `yaml:"method"`
+		BasicAuth	string `yaml:"basic_auth"`
+		ContentType	string `yaml:"content_type"`
+		CustomHeader	string `yaml:"custom_header"`
+		DefaultCountry  string `yaml:"default_country"`
 	}
 	Server struct {
 		Port string `yaml:"port" envconfig:"BUNKER_PORT"`
@@ -88,11 +88,11 @@ type Config struct {
 		Sender string `yaml:"sender" envconfig:"SMTP_SENDER"`
 	} `yaml:"smtp"`
 	UI struct {
-		LogoLink           string `yaml:"logo_link"`
-		CompanyTitle       string `yaml:"company_title"`
-		CompanyVAT         string `yaml:"company_vat"`
-		CompanyCity        string `yaml:"company_city"`
-		CompanyLink        string `yaml:"company_link"`
+		LogoLink	string `yaml:"logo_link"`
+		CompanyTitle	string `yaml:"company_title"`
+		CompanyVAT	string `yaml:"company_vat"`
+		CompanyCity	string `yaml:"company_city"`
+		CompanyLink	string `yaml:"company_link"`
 		CompanyCountry     string `yaml:"company_country"`
 		CompanyAddress     string `yaml:"company_address"`
 		TermOfServiceTitle string `yaml:"term_of_service_title"`
@@ -100,7 +100,7 @@ type Config struct {
 		PrivacyPolicyTitle string `yaml:"privacy_policy_title"`
 		PrivacyPolicyLink  string `yaml:"privacy_policy_link"`
 		CustomCSSLink      string `yaml:"custom_css_link"`
-		MagicLookup        bool   `yaml:"magic_lookup"`
+		MagicLookup	   bool   `yaml:"magic_lookup"`
 	} `yaml:"ui"`
 }
 
@@ -547,7 +547,13 @@ func main() {
 		}
 		os.Exit(0)
 	}
-	if storage.DBExists(dbPtr) == false {
+	db_flag := storage.DBExists(dbPtr)
+	for num_attempts := 60; db_flag == false && num_attempts > 0; num_attempts-- {
+		time.Sleep(1 * time.Second)
+		fmt.Printf("Trying to open db: %d\n", 61-num_attempts)
+		db_flag = storage.DBExists(dbPtr)
+	}
+	if db_flag == false {
 		fmt.Printf("\nDatabase is not initialized.\n\n")
 		fmt.Println(`Run "databunker -init" for the first time to generate keys and init database.`)
 		fmt.Println("")
