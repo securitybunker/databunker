@@ -44,8 +44,8 @@ func (dbobj MySQLDB) getConnectionString(dbname *string) string {
 	if dbname != nil && len(*dbname) > 0 {
 		dbnameString = *dbname
 	}
-	str0 := fmt.Sprintf("%s:****@tcp(%s:%s)/%s", user, host, port, dbnameString)
-	fmt.Printf("myql connection string: %s\n", str0)
+	//str0 := fmt.Sprintf("%s:****@tcp(%s:%s)/%s", user, host, port, dbnameString)
+	//fmt.Printf("myql connection string: %s\n", str0)
 	str := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, dbnameString)
 	return str
 }
@@ -140,7 +140,7 @@ func (dbobj *MySQLDB) OpenDB(dbname *string) error {
 
 // InitDB function creates tables and indexes
 func (dbobj *MySQLDB) InitDB(dbname *string) error {
-	fmt.Printf("MYSQL init Databunker database: %s\n", *dbname)
+	//fmt.Printf("MYSQL init Databunker database: %s\n", *dbname)
 	connectionString := dbobj.getConnectionString(dbname)
 	db, err := sql.Open("mysql", connectionString)
 	if err != nil {
