@@ -83,7 +83,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `databunkerHost`                     | Databunker host to create application URLs                                                                           | `""`                  |
 | `databunkerMasterkey`                | Databunker Master Key                                                                                                | `""`                  |
 | `databunkerRoottoken`                | Databunker Root Token                                                                                                | `""`                  |
-| `databunkerEmail`                    | Admin email                                                                                                          | `user@example.com`    |
+| `databunkerAdminEmail`               | Admin email                                                                                                          | `user@example.com`    |
 | `databunkerExtraInstallArgs`         | Databunker extra install args                                                                                        | `""`                  |
 | `command`                            | Override default container command (useful when using custom images)                                                 | `[]`                  |
 | `args`                               | Override default container args (useful when using custom images)                                                    | `[]`                  |
