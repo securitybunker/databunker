@@ -452,6 +452,11 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 	hash := md5.Sum(masterKey)
 	fmt.Printf("Init database\n\n")
 	store, err := storage.InitDB(dbPtr)
+	for num_attempts := 60; err != nil && num_attempts > 0; num_attempts-- {
+		time.Sleep(1 * time.Second)
+		fmt.Printf("Trying to init db: %d\n", 61-num_attempts)
+		store, err = storage.InitDB(dbPtr)
+	}
 	if err != nil {
 		//log.Panic("error %s", err.Error())
 		log.Fatalf("Databunker failed to init database, error %s\n\n", err.Error())
@@ -582,7 +587,7 @@ func main() {
 		<-stop
 		log.Println("Closing app...")
 		close(e.stopChan)
-		time.Sleep(1)
+		time.Sleep(1 * time.Second)
 		srv.Shutdown(context.TODO())
 		db.store.CloseDB()
 	}()
