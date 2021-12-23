@@ -87,7 +87,7 @@ databunkerSkipInstall: false
 ## ref: https://github.com/bitnami/bitnami-docker-databunker#configuration
 ##
 databunkerHost: "localhost"
-## @param databunkerMasterkey Databunker main encyption key (24 char hext string)
+## @param databunkerMasterkey Databunker main encyption key (48 char hex string)
 ## ref: https://github.com/bitnami/bitnami-docker-databunker#configuration
 ##
 databunkerMasterkey: ""

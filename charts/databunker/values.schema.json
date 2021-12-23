@@ -6,13 +6,13 @@
       "type": "string",
       "title": "Masterkey",
       "form": true,
-      "description": "Defaults to a random 24-character hex string if not set"
+      "description": "Defaults to a random 48 char hex string if not set"
     },
     "databunkerRoottoken": {
       "type": "string",
       "title": "Roottoken",
       "form": true,
-      "description": "Defaults to a random uuid string if not set"
+      "description": "Defaults to a random UUID string if not set"
     },
     "databunkerEmail": {
       "type": "string",

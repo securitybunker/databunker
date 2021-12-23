@@ -85,7 +85,7 @@ Return the proper image name used for setting up Certificates
 - name: custom-certificate
   secret:
     secretName: {{ .Values.certificates.customCertificate.certificateSecret }}
-{{- if .Values.certificates.customCertificate.chainSecret }}
+{{- if .Values.certificates.customCertificate.chainSecret.name }}
 - name: custom-certificate-chain
   secret:
     secretName: {{ .Values.certificates.customCertificate.chainSecret.name }}
@@ -114,7 +114,7 @@ Return the proper image name used for setting up Certificates
   mountPath: {{ .Values.certificates.customCertificate.keyLocation }}
   subPath: tls.key
   readOnly: true
-{{- if .Values.certificates.customCertificate.chainSecret }}
+{{- if .Values.certificates.customCertificate.chainSecret.name }}
 - name: custom-certificate-chain
   mountPath: {{ .Values.certificates.customCertificate.chainLocation }}
   subPath: {{ .Values.certificates.customCertificate.chainSecret.key }}
