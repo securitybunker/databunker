@@ -93,8 +93,8 @@ func getInt64Value(records map[string]interface{}, key string) int64 {
 	return 0
 }
 
-func hashString(hash []byte, src string) string {
-	stringToHash := append(hash, []byte(src)...)
+func hashString(md5_salt []byte, src string) string {
+	stringToHash := append(md5_salt, []byte(src)...)
 	hashed := sha256.Sum256(stringToHash)
 	return base64.StdEncoding.EncodeToString(hashed[:])
 }
