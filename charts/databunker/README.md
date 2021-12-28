@@ -188,6 +188,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `externalDatabase.user`                     | Existing username in the external db                                                     | `databunkerdb`         |
 | `externalDatabase.password`                 | Password for the above username                                                          | `""`                   |
 | `externalDatabase.database`                 | Name of the existing database                                                            | `bunkeruser`           |
+| `externalDatabase.existingSecret`           | The name of an existing secret with database credentials                                 | `""`                   |
 
 
 ### Traffic Exposure Parameters
