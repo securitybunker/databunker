@@ -1,4 +1,6 @@
 charts/databunker/charts/
+terraform.tfstate
+terraform.tfstate.backup
 .DS_Store
 databunker.db*
 databunker.yaml

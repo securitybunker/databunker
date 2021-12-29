@@ -6,3 +6,4 @@ databunker
 .env
 data/*
 charts/
+terraform/
