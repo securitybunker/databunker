@@ -47,7 +47,7 @@ resource "aws_db_parameter_group" "mydb" {
 resource "aws_db_instance" "mydb" {
   # https://github.com/tmknom/terraform-aws-rds-mysql/blob/master/main.tf
   # The name of the database. If this parameter is not specified, no database is created in the DB instance.
-  name                   = "bunkerdb"
+  name                   = "databunkerdb"
   identifier             = "mydb"
   tags                   = { "Name" = "mydb"}
   instance_class         = "db.t3.medium"
@@ -86,7 +86,7 @@ resource "kubernetes_secret" "databunker-mysql-rds" {
     #port = aws_db_instance.mydb.port
     #dbname = aws_db_instance.mydb.name
     #username = aws_db_instance.mydb.username
-    "mariadb-password" = aws_db_instance.mydb.password
+    "db-password" = aws_db_instance.mydb.password
   }
   type = "Opaque"
 }
