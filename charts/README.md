@@ -15,8 +15,7 @@ echo "Visit http://127.0.0.1:8080 to use your application"
 kubectl --namespace default port-forward $POD_NAME 8080:$CONTAINER_PORT
 ```
 
-
-# Starting Databunker DEMO pod using Kubernetes
+# Starting Databunker DEMO deployment using Kubernetes
 
 You can run the following command:
 ```
@@ -33,13 +32,20 @@ The default port is **30300**.
 
 You can open `http://localhost:30300/` in your browser.
 
-## Using AWS KMS
+## Start Databunker DEMO on EKS
 
-You will need to get to know what is the public IP address of the Kubernetes node used to run the service.
+```
+helm install databunker-demo ./databunker-demo --set service.type=LoadBalancer
+```
 
-You need to open port **30300** in the security groups configuration for the same EC2 instance.
+You can use the following command to get URL of the load balancer:
 
-## Removing **databunker-demo** pod
+```
+kubectl get svc | grep databunker-demo
+```
+
+
+## Removing **databunker-demo** deployment
 
 Use the following command:
 ```
