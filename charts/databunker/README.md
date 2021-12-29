@@ -457,8 +457,8 @@ You can configure this chart to load certificates you created outside of contain
 
 ```yaml
 certificates:
-  customCertificate: "mytls"
-    certificateSecret: ""
+  customCertificate:
+    certificateSecret: "databunkertls"
     chainSecret:
       name: ""
       key: ""
@@ -470,7 +470,7 @@ certificates:
 > Tip! You can create a self-signed certificate and a secret containing your certificates using the following command:
 ```bash
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=localhost"
-kubectl create secret tls mytls --key="tls.key" --cert="tls.crt"
+kubectl create secret tls databunkertls --key="tls.key" --cert="tls.crt"
 ```
 
 ### Setting Pod's affinity
