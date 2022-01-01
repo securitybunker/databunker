@@ -7,7 +7,8 @@ We use Terraform scripts to streamline the installation of the following infrast
 1. VPC
 1. MySQL RDS
 1. Elastic Kubernetes Service (EKS)
-1. **Security groups** to allow connectivity
+1. Security groups to allow connectivity
+1. Generate random password for secure MySQL RDS access and save it as Kubernetes secret using the following resource path: **databunker-mysql-rds/db-password** 
 
 ### ⚡ How to set up everything
 
