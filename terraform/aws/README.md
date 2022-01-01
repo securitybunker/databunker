@@ -2,12 +2,12 @@
 
 Terraform is a powerful tool to manage infrastructure with configuration files rather than through a graphical user interface.
 
-These Terraform scripts generate the following infrastructure elements:
+We use Terraform scripts to streamline the installation of the following infrastructure elements:
 
-1. Create VPC
-1. Create MySQL RDS
-1. Create Elastic Kubernetes Service (EKS)
-1. Create **security groups** to allow connectivity
+1. VPC
+1. MySQL RDS
+1. Elastic Kubernetes Service (EKS)
+1. **Security groups** to allow connectivity
 
 ### ⚡ How to set up everything
 
