@@ -18,7 +18,7 @@ jobs:
         echo done
     - name: Run go vet
       run: |
-        sudo apt install -y go
+        sudo apt install -y golang
         cd src
         go vet
         echo done
