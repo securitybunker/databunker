@@ -22,3 +22,9 @@ jobs:
         cd src
         go vet
         echo done
+    - name: Run go test
+      run: |
+        sudo apt install -y golang
+        cd src
+        go test
+        echo done

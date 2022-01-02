@@ -53,7 +53,7 @@ func helpGetAppList() (map[string]interface{}, error) {
 }
 
 func TestCreateUserAppOnly(t *testing.T) {
-	userJSON := `{"name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1"}}`
+	userJSON := `{"name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1"},"login":"userapp1"}`
 	raw, _ := helpCreateUser(userJSON)
 	userTOKEN := raw["token"].(string)
 	appJSON := `{"shipping":"done","height":100,"devices":[{"name":"dev1","val":1},{"name":"dev2","val":2}]}`
@@ -95,7 +95,7 @@ func TestCreateUserAppOnly(t *testing.T) {
 }
 
 func TestCreateUserUpdateAppBadData(t *testing.T) {
-	userJSON := `{"name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1"}}`
+	userJSON := `{"name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1"},"login":"userapp2"}`
 	raw, _ := helpCreateUser(userJSON)
 	userTOKEN := raw["token"].(string)
 	appJSON := `{"shipping2":"done"}`
@@ -139,7 +139,7 @@ func TestCreateUserUpdateAppBadData(t *testing.T) {
 }
 
 func TestCreateUserAppResetData(t *testing.T) {
-	userJSON := `{"name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1"}}`
+	userJSON := `{"name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1"},"login":"userapp3"}`
 	raw, _ := helpCreateUser(userJSON)
 	userTOKEN := raw["token"].(string)
 	appJSON := `{"shipping":"done"}`
@@ -221,7 +221,7 @@ func TestGetFakeApp(t *testing.T) {
 }
 
 func TestUserAppAnonymouse(t *testing.T) {
-	userJSON := `{"name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1"}}`
+	userJSON := `{"name":"tom","pass":"mylittlepony","k1":[1,10,20],"k2":{"f1":"t1"},"login":"userapp4"}`
 	raw, _ := helpCreateUser(userJSON)
 	userTOKEN := raw["token"].(string)
 	appJSON := `{"shipping2":"done"}`
