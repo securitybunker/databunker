@@ -128,7 +128,7 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 	} else if len(brief) > 0 {
 		resultJSON, err = e.db.viewAgreementRecord(userTOKEN, brief)
 	} else {
-		resultJSON, err = e.db.getUserJson(userTOKEN)
+		resultJSON, err = e.db.getUserJSON(userTOKEN)
 	}
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
@@ -292,7 +292,7 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 		returnError(w, r, "wrong status: "+requestInfo["status"].(string), 405, err, event)
 		return
 	}
-	resultJSON, err := e.db.getUserJson(userTOKEN)
+	resultJSON, err := e.db.getUserJSON(userTOKEN)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return

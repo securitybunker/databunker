@@ -315,7 +315,7 @@ func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string, 
 	return dbobj.store.GetRecord(storage.TblName.Users, indexName+"idx", idxStringHashHex)
 }
 
-func (dbobj dbcon) getUserJson(userTOKEN string) ([]byte, error) {
+func (dbobj dbcon) getUserJSON(userTOKEN string) ([]byte, error) {
 	userBson, err := dbobj.lookupUserRecord(userTOKEN)
 	if userBson == nil || err != nil {
 		// not found
@@ -380,7 +380,7 @@ func (dbobj dbcon) getUser(userTOKEN string) ([]byte, bson.M, error) {
 
 func (dbobj dbcon) dumpUserPII(email string, conf Config) (string, error) {
 	fullJSON := ""
-	profileJSON, userTOKEN, err := dbobj.getUserJsonByIndex(email, "email", conf)
+	profileJSON, userTOKEN, err := dbobj.getUserJSONByIndex(email, "email", conf)
 	if userTOKEN != "" {
 		fullJSON = fmt.Sprintf(`{"profile":%s`, profileJSON)
 		userappsJSON, _ := dbobj.dumpUserApps(userTOKEN, conf)
@@ -402,7 +402,7 @@ func (dbobj dbcon) dumpUserPII(email string, conf Config) (string, error) {
 }
 
 
-func (dbobj dbcon) getUserJsonByIndex(indexValue string, indexName string, conf Config) ([]byte, string, error) {
+func (dbobj dbcon) getUserJSONByIndex(indexValue string, indexName string, conf Config) ([]byte, string, error) {
 	userBson, err := dbobj.lookupUserRecordByIndex(indexName, indexValue, conf)
 	if userBson == nil || err != nil {
 		return nil, "", err
