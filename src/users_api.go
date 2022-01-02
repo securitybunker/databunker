@@ -139,10 +139,10 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		if enforceUUID(w, identity, event) == false {
 			return
 		}
-		resultJSON, err = e.db.getUserJson(identity)
+		resultJSON, err = e.db.getUserJSON(identity)
 		userTOKEN = identity
 	} else {
-		resultJSON, userTOKEN, err = e.db.getUserJsonByIndex(identity, mode, e.conf)
+		resultJSON, userTOKEN, err = e.db.getUserJSONByIndex(identity, mode, e.conf)
 		event.Record = userTOKEN
 	}
 	if err != nil {

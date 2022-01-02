@@ -66,7 +66,7 @@ type Config struct {
 		SslCertificateKey string `yaml:"ssl_certificate_key" envconfig:"SSL_CERTIFICATE_KEY"`
 	}
 	Sms struct {
-		Url		string `yaml:"url"`
+		URL		string `yaml:"url"`
 		From		string `yaml:"from"`
 		Body		string `yaml:"body"`
 		Token		string `yaml:"token"`
@@ -398,6 +398,7 @@ func (w *CustomResponseWriter) WriteHeader(statusCode int) {
 	w.w.WriteHeader(statusCode)
 }
 
+// HealthCheckerCounter is a counter for the AWS helth check requests
 var HealthCheckerCounter = 0
 
 func reqMiddleware(handler http.Handler) http.Handler {
@@ -452,9 +453,9 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 	hash := md5.Sum(masterKey)
 	fmt.Printf("Init database\n\n")
 	store, err := storage.InitDB(dbPtr)
-	for num_attempts := 60; err != nil && num_attempts > 0; num_attempts-- {
+	for numAttempts := 60; err != nil && numAttempts > 0; numAttempts-- {
 		time.Sleep(1 * time.Second)
-		fmt.Printf("Trying to init db: %d\n", 61-num_attempts)
+		fmt.Printf("Trying to init db: %d\n", 61-numAttempts)
 		store, err = storage.InitDB(dbPtr)
 	}
 	if err != nil {
@@ -547,13 +548,13 @@ func main() {
 		}
 		os.Exit(0)
 	}
-	db_flag := storage.DBExists(dbPtr)
-	for num_attempts := 60; db_flag == false && num_attempts > 0; num_attempts-- {
+	dbExists := storage.DBExists(dbPtr)
+	for numAttempts := 60; dbExists == false && numAttempts > 0; numAttempts-- {
 		time.Sleep(1 * time.Second)
-		fmt.Printf("Trying to open db: %d\n", 61-num_attempts)
-		db_flag = storage.DBExists(dbPtr)
+		fmt.Printf("Trying to open db: %d\n", 61-numAttempts)
+		dbExists = storage.DBExists(dbPtr)
 	}
-	if db_flag == false {
+	if dbExists == false {
 		fmt.Printf("\nDatabase is not initialized.\n\n")
 		fmt.Println(`Run "databunker -init" for the first time to generate keys and init database.`)
 		fmt.Println("")

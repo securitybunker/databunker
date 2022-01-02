@@ -18,9 +18,11 @@ import (
 
 var userSchema *jsonschema.Schema
 
-// our custom validator
+// IsAdmin - admin/DPO approval is required
 type IsAdmin bool
+// IsLocked - variable is locked from changes
 type IsLocked bool
+// IsPreserve variable can never be deleted
 type IsPreserve bool
 
 func loadUserSchema(cfg Config, confFile *string) error {
@@ -64,6 +66,7 @@ func loadUserSchema(cfg Config, confFile *string) error {
 	return nil
 }
 
+// UserSchemaEnabled function checks is user schema is defined
 func UserSchemaEnabled() bool {
 	if userSchema == nil {
 		return false
@@ -122,10 +125,9 @@ func validateUserRecordChange(oldRecord []byte, newRecord []byte, authResult str
 				if r.Key == "locked" {
 					fmt.Printf("Locked value changed. Old: %s New %s\n", data1Binary, data2Binary)
 					return false, errors.New("User schema check error. Locked value changed: " + r.PropertyPath)
-				} else {
-					fmt.Printf("Admin value changed. Approval required. Old: %s New %s\n", data1Binary, data2Binary)
-					adminRecordChanged = true
 				}
+				fmt.Printf("Admin value changed. Approval required. Old: %s New %s\n", data1Binary, data2Binary)
+				adminRecordChanged = true
 			}
 		}
 	}
@@ -254,6 +256,7 @@ func (f *IsAdmin) Resolve(pointer jptr.Pointer, uri string) *jsonschema.Schema {
 	return nil
 }
 
+// ValidateKeyword adds admin keyword
 func (f *IsAdmin) ValidateKeyword(ctx context.Context, currentState *jsonschema.ValidationState, data interface{}) {
 	//fmt.Printf("ValidateKeyword admin %s => %v\n", currentState.InstanceLocation.String(), data)
 	currentState.AddExtendedResult("admin", data)
@@ -281,6 +284,7 @@ func (f *IsLocked) Resolve(pointer jptr.Pointer, uri string) *jsonschema.Schema 
 	return nil
 }
 
+// ValidateKeyword adds locked keyword
 func (f *IsLocked) ValidateKeyword(ctx context.Context, currentState *jsonschema.ValidationState, data interface{}) {
 	//fmt.Printf("ValidateKeyword locked %s => %v\n", currentState.InstanceLocation.String(), data)
 	currentState.AddExtendedResult("locked", data)
@@ -288,7 +292,7 @@ func (f *IsLocked) ValidateKeyword(ctx context.Context, currentState *jsonschema
 
 /*******************************************************************/
 
-// Preserve keyword - meaningin that value should never be deleted (after user is delete it is left)
+// Preserve keyword - meaning that value should never be deleted (after user is delete it is left)
 func newIsPreserve() jsonschema.Keyword {
 	return new(IsPreserve)
 }
@@ -308,6 +312,7 @@ func (f *IsPreserve) Resolve(pointer jptr.Pointer, uri string) *jsonschema.Schem
 	return nil
 }
 
+// ValidateKeyword adds preserve keyword
 func (f *IsPreserve) ValidateKeyword(ctx context.Context, currentState *jsonschema.ValidationState, data interface{}) {
 	//fmt.Printf("ValidateKeyword preserve %s => %v\n", currentState.InstanceLocation.String(), data)
 	currentState.AddExtendedResult("preserve", data)
