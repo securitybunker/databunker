@@ -2,14 +2,7 @@
 provider "aws" {
   access_key = var.aws_access_key
   secret_key = var.aws_secret_key
-  region     = var.region
-}
-
-locals {
-  cluster_name = "yuli-cluster"
-  vnc_name = "yuli-vpc"
-  tag_name = "Project"
-  tag_value = "yuli"
+  region     = var.aws_region
 }
 
 data "aws_eks_cluster" "cluster" {
@@ -32,8 +25,7 @@ data "aws_availability_zones" "available" {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-
-  name                 = "${local.cluster_name}"
+  name                 = "vpc-${var.name_suffix}"
   cidr                 = "172.16.0.0/16"
   azs                  = data.aws_availability_zones.available.names
   private_subnets      = ["172.16.1.0/24", "172.16.2.0/24", "172.16.3.0/24"]
@@ -43,23 +35,21 @@ module "vpc" {
   enable_dns_hostnames = true
 
   public_subnet_tags = {
-    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+    "kubernetes.io/cluster/cluster-${var.name_suffix}" = "shared"
     "kubernetes.io/role/elb"                      = "1"
   }
 
   private_subnet_tags = {
-    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+    "kubernetes.io/cluster/cluster-${var.name_suffix}" = "shared"
     "kubernetes.io/role/internal-elb"             = "1"
   }
-  tags = {
-    "${local.tag_name}" = "${local.tag_value}"
-  }
+  tags = var.resource_tags
 }
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
 
-  cluster_name    = "${local.cluster_name}"
+  cluster_name    = "cluster-${var.name_suffix}"
   cluster_version = "1.21"
   cluster_create_timeout = "30m"
   cluster_delete_timeout = "30m"
@@ -73,7 +63,7 @@ module "eks" {
       desired_capacity = 1
       max_capacity     = 10
       min_capacity     = 1
-      instance_types = ["t3.medium"]
+      instance_types = [var.ec2_eks_instance_type]
     }
   }
 
@@ -85,7 +75,7 @@ module "eks" {
 
 output "cluster_name" {
   description = "Kubernetes Cluster Name"
-  value       = local.cluster_name
+  value       = "cluster-${var.name_suffix}"
 }
 
 output "kubectl_config" {
