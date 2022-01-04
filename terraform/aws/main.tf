@@ -56,6 +56,7 @@ module "eks" {
   subnets         = module.vpc.private_subnets
   cluster_endpoint_private_access = "true"
   cluster_endpoint_public_access = "true"
+  tags = var.resource_tags
   vpc_id = module.vpc.vpc_id
 
   node_groups = {
