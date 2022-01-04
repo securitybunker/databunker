@@ -9,6 +9,11 @@ metadata:
     {{- end }}
   {{- if .Values.commonAnnotations }}
   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- else }}
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-name: "databunker-lb"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "HTTPS"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-path: "/status"
   {{- end }}
 spec:
   type: {{ .Values.service.type }}
