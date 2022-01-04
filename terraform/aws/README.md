@@ -1,17 +1,17 @@
-## Terraform scripts to create AWS infrastructure for Databunker
+## Terraform templates to create AWS infrastructure for Databunker
 
 Terraform is a powerful tool to manage infrastructure with configuration files rather than through a graphical user interface.
 
-We use Terraform scripts to streamline Databunker installation in production.
+We use Terraform templates to streamline Databunker installation in production.
 
-These scripts create the following AWS infrastructure elements:
+These templates create the following AWS infrastructure elements:
 
 1. VPC
 1. MySQL RDS
 1. Elastic Kubernetes Service (EKS)
 1. Security groups to allow connectivity
 
-During deployment, Terraform scripts generate a random password for secure MySQL RDS access and save it as Kubernetes secret using the following resource path: **databunker-mysql-rds/db-password**.
+During deployment, Terraform templates generate a random password for secure MySQL RDS access and save it as Kubernetes secret using the following resource path: **databunker-mysql-rds/db-password**.
 
 
 ### ⚡ How to set up everything

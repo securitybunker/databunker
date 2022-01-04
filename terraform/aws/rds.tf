@@ -1,16 +1,12 @@
 
-resource "aws_db_subnet_group" "mydb" {
-  name       = "mydb"
+resource "aws_db_subnet_group" "databunkersubnet" {
+  name       = "subnet-rds-${var.name_suffix}"
   subnet_ids = module.vpc.private_subnets
-
-  tags = {
-    Name = "mydb_rds_subnet"
-    "${local.tag_name}" = "${local.tag_value}"
-  }
+  tags = merge({ "Name" = "subnet-rds-${var.name_suffix}"}, var.resource_tags)
 }
 
-resource "aws_security_group" "rds" {
-  name   = "mydb_rds"
+resource "aws_security_group" "databunkersg" {
+  name   = "${var.name_suffix}-sg-rds"
   vpc_id = module.vpc.vpc_id
 
   ingress {
@@ -28,14 +24,11 @@ resource "aws_security_group" "rds" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name = "mydb_rds"
-    "${local.tag_name}" = "${local.tag_value}"
-  }
+  tags = merge({ "Name" = "${var.name_suffix}-sg-rds"}, var.resource_tags)
 }
 
-resource "aws_db_parameter_group" "mydb" {
-  name   = "mydb"
+resource "aws_db_parameter_group" "databunkerparams" {
+  name   = "db-params-${var.name_suffix}"
   family = "mysql8.0"
 
   #parameter {
@@ -44,22 +37,22 @@ resource "aws_db_parameter_group" "mydb" {
   #}
 }
 
-resource "aws_db_instance" "mydb" {
+resource "aws_db_instance" "databunkerdb" {
   # https://github.com/tmknom/terraform-aws-rds-mysql/blob/master/main.tf
   # The name of the database. If this parameter is not specified, no database is created in the DB instance.
   name                   = "databunkerdb"
-  identifier             = "mydb"
-  tags                   = { "Name" = "mydb"}
-  instance_class         = "db.t3.medium"
+  identifier             = "databunkerdb"
+  tags                   = merge({ "Name" = "db-${var.name_suffix}"}, var.resource_tags)
+  instance_class         = var.ec2_rds_instance_type
   allocated_storage      = 5
   engine                 = "mysql"
   engine_version         = "8.0.25"
   username               = "bunkeruser"
   #password               = var.db_password
   password               = random_password.db_password.result
-  db_subnet_group_name   = aws_db_subnet_group.mydb.name
-  vpc_security_group_ids = [aws_security_group.rds.id]
-  parameter_group_name   = aws_db_parameter_group.mydb.name
+  db_subnet_group_name   = aws_db_subnet_group.databunkersubnet.name
+  vpc_security_group_ids = [aws_security_group.databunkersg.id]
+  parameter_group_name   = aws_db_parameter_group.databunkerparams.name
   publicly_accessible    = false
   skip_final_snapshot    = true
   # The following list briefly describes the three storage types:
@@ -82,37 +75,37 @@ resource "kubernetes_secret" "databunker-mysql-rds" {
   }
 
   data = {
-    #host = aws_db_instance.mydb.address
-    #port = aws_db_instance.mydb.port
-    #dbname = aws_db_instance.mydb.name
-    #username = aws_db_instance.mydb.username
-    "db-password" = aws_db_instance.mydb.password
+    #host = aws_db_instance.databunkerdb.address
+    #port = aws_db_instance.databunkerdb.port
+    #dbname = aws_db_instance.databunkerdb.name
+    #username = aws_db_instance.databunkerdb.username
+    "db-password" = aws_db_instance.databunkerdb.password
   }
   type = "Opaque"
 }
 
 output "rds_hostname" {
   description = "RDS instance hostname"
-  value       = aws_db_instance.mydb.address
+  value       = aws_db_instance.databunkerdb.address
 }
 
 output "rds_port" {
   description = "RDS instance port"
-  value       = aws_db_instance.mydb.port
+  value       = aws_db_instance.databunkerdb.port
 }
 
 output "rds_dbname" {
   description = "RDS database name"
-  value = aws_db_instance.mydb.name
+  value = aws_db_instance.databunkerdb.name
 }
 
 output "rds_username" {
   description = "RDS instance root username"
-  value       = aws_db_instance.mydb.username
+  value       = aws_db_instance.databunkerdb.username
 }
 
 output "rds_password" {
   description = "RDS instance database password"
-  value       = aws_db_instance.mydb.password
+  value       = aws_db_instance.databunkerdb.password
   sensitive = true
 }
