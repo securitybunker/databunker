@@ -18,7 +18,7 @@ notification:
   # - user profile change
   # - consent change
   # user details are send as json data.
-  notification_url: "https://httpbin.org/post"
+  #notification_url: "https://httpbin.org/post"
 policy:
   # max time to store records, untill they are deleted
   max_user_retention_period: "3m"
