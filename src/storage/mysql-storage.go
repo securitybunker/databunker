@@ -504,7 +504,7 @@ func (dbobj MySQLDB) getRecordInTableDo(q string, values []interface{}) (bson.M,
 	defer rows.Close()
 	flag := rows.Next()
 	if flag == false {
-		fmt.Printf("no result, flag: %t\n", flag)
+		//fmt.Printf("no result, flag: %t\n", flag)
 		return nil, nil
 	}
 	columnNames, err := rows.Columns()
