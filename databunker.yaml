@@ -68,7 +68,7 @@ smtp:
   pass: ""
   sender: "bot@databunker.your-company.com"
 ui:
-  logo_link: "https://logosbynick.com/wp-content/uploads/2018/03/final-logo-example.png"
+  logo_link: "/site/img/logo-example.png"
   company_title: "Your company here"
   company_link: "https://privacybunker.io/"
   term_of_service_title: "Your Terms of service link"
