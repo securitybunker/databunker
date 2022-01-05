@@ -36,7 +36,7 @@ func (e mainEnv) showCaptcha(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 	log.Printf("Decoded captcha: %s", s)
 	//box := packr.NewBox("../ui")
-	//comic, err := box.Find("site/comic.ttf")
+	//comic, err := box.Find("site/fonts/comic.ttf")
 	//if err != nil {
 	//  returnError(w, r, err.Error(), 405, err, nil)
 	//  return
@@ -53,7 +53,7 @@ func initCaptcha(h [16]byte) {
 	var err error
 	copy(captchaKey[:], h[:])
 	box := packr.NewBox("../ui")
-	comic, err = box.Find("site/comic.ttf")
+	comic, err = box.Find("site/fonts/comic.ttf")
 	if err != nil {
 		log.Fatalf("Failed to load font")
 		return
