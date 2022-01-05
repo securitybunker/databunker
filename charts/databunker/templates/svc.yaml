@@ -7,14 +7,13 @@ metadata:
     {{- if .Values.commonLabels }}
     {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
     {{- end }}
-  {{- if .Values.commonAnnotations }}
-  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
-  {{- else }}
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-name: "databunker-lb"
     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "HTTPS"
     service.beta.kubernetes.io/aws-load-balancer-healthcheck-path: "/status"
-  {{- end }}
+    {{- if .Values.commonAnnotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
 spec:
   type: {{ .Values.service.type }}
   sessionAffinity: {{ default "None" .Values.service.sessionAffinity }}
