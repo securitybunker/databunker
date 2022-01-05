@@ -282,6 +282,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 				w.Header().Set("Content-Type", "text/javascript")
 			} else if strings.HasSuffix(r.URL.Path, ".svg") {
 				w.Header().Set("Content-Type", "image/svg+xml")
+			} else if strings.HasSuffix(r.URL.Path, ".png") {
+				w.Header().Set("Content-Type", "image/png")
 			}
 			// next step: https://www.sanarias.com/blog/115LearningHTTPcachinginGo
 			w.Header().Set("Cache-Control", "public, max-age=7776000")
