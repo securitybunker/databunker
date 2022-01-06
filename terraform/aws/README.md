@@ -49,6 +49,21 @@ helm install databunker databunker/databunker --set mariadb.enabled=false \
 
 The **MYSQL-RDS-HOST** is the same as ```terraform output rds_hostname```.
 
+### Update cluster to use the latest Databunker version
+
+During the first time deployment of the Databunker helm charts, the setup process creates a special Kubernetes secret callled **databunker**.
+This secret store contains the **DATABUNKER_MASTERKEY** used for the record encryption and the **DATABUNKER_ROOTTOKEN** used for service access.
+This secret store is never deleted. So, you can easily remove the helm char and/or update to the latest version, and continue to have access to the old encrypted records.
+For example:
+
+```
+helm repo update
+helm remove databunker
+helm install databunker databunker/databunker --set mariadb.enabled=false \
+  --set externalDatabase.host=MYSQL-RDS-HOST \
+  --set externalDatabase.existingSecret=databunker-mysql-rds \
+  --set certificates.customCertificate.certificateSecret=databunkertls
+```
 
 ### 🔍 View generated database password using terraform
 ```
@@ -61,7 +76,7 @@ kubectl get secret databunker-mysql-rds -o json
 ```
 
 ### ⚙️ Troubleshooting
-Different commands used to troubleshoot deployment:
+Different commands can be used to troubleshoot deployment:
 
 ```
 terraform destroy -target aws_eks_cluster.yuli-cluster
