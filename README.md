@@ -10,7 +10,7 @@
   <a href="https://join.slack.com/t/databunker/shared_invite/zt-b6ukxzw3-JCxv8NJDESL40haM45RNIA"><img src="https://img.shields.io/badge/slack-join%20chat%20%E2%86%92-e01563.svg" alt="Join Databunker Slack channel" /></a>
   <a href="https://hub.docker.com/r/securitybunker/databunker"><img src="https://img.shields.io/docker/pulls/securitybunker/databunker?color=f02e65&style=flat" /></a>
  </p>
- <p>npm install @databunker/store" - npm install @databunker/session-store"</p>
+ <p>```npm install @databunker/store``` - ```npm install @databunker/session-store```</p>
 </div>
 
 Project **demo** is available at: [https://demo.databunker.org/](https://demo.databunker.org/). Please add a ⭐**star** if you like our project.
