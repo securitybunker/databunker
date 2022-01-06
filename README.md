@@ -2,7 +2,7 @@
 
 # Databunker
 
-**Databunker is a network-based, self-hosted, GDPR compliant, secure vault for personal data or PII: https://databunker.org/**
+**Databunker is a special self-hosted encrypted database for personal data or PII built for privacy by design methodology. You get GDPR compliance out of the box. More info https://databunker.org/**
 
 <div align="center">
  <p>
@@ -10,16 +10,15 @@
   <a href="https://join.slack.com/t/databunker/shared_invite/zt-b6ukxzw3-JCxv8NJDESL40haM45RNIA"><img src="https://img.shields.io/badge/slack-join%20chat%20%E2%86%92-e01563.svg" alt="Join Databunker Slack channel" /></a>
   <a href="https://hub.docker.com/r/securitybunker/databunker"><img src="https://img.shields.io/docker/pulls/securitybunker/databunker?color=f02e65&style=flat" /></a>
  </p>
- <p>```npm install @databunker/store``` - ```npm install @databunker/session-store```</p>
+ <p>npm install @databunker/store - npm install @databunker/session-store</p>
 </div>
 
-Project **demo** is available at: [https://demo.databunker.org/](https://demo.databunker.org/). Please add a ⭐**star** if you like our project.
 
 We live in a world where the privacy of our information is nonexistent. The EU has been working to remediate this fallacy with GDPR, and the US (California) follows with a first sparrow called CCPA.
 
 Databunker project is intended to ease the GDPR and CPRA compliance. It gives organizations easy-to-implement APIs and secure vault to store PII, and a privacy portal.
 
-Databunker gives all of us, the real data owners, control of our data. Databunker allows us to know who is using our data, what is happening with our personal data and gives us the freedom to decide if we agree to that or not.
+Databunker allows to know who is using your data, what is happening with your personal details and gives you the freedom to decide how to process your personal data.
 
 Databunker, when deployed correctly, replaces all the customer's personal records (PII) scattered in the organization's different
 internal databases and log files with a single randomly generated token managed by the Databunker service.
@@ -29,6 +28,7 @@ GDPR statement: *Personal data should be processed in a manner that ensures appr
 confidentiality of the  personal data, including for preventing unauthorized access to or use of personal
 data and the equipment used for the processing.*
 
+Please add a ⭐**star** if you like our project.
 
 #### Diagram of old-style solution.
 
