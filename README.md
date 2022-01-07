@@ -28,7 +28,7 @@ GDPR statement: *Personal data should be processed in a manner that ensures appr
 confidentiality of the  personal data, including for preventing unauthorized access to or use of personal
 data and the equipment used for the processing.*
 
-## 🚀 Spead a word and raise awareness about GDPR compliance
+## ⭐⭐⭐ Spead a word and raise awareness about GDPR compliance
 Help us to spead the word about this project and raise awareness. Please add a ⭐ **star** to make it happen.
 
 
@@ -43,7 +43,7 @@ Getting started guide: https://databunker.org/doc/start/
 
 Databunker installation guide: https://databunker.org/doc/install/
 
-## Demo
+## 🚀 Demo
 
 Project demo is available at: [https://demo.databunker.org/](https://demo.databunker.org/)
 
@@ -65,7 +65,7 @@ Demo root token: ```DEMO```
 
 ---
 
-## Node.js Examples
+## 🛠️ Node.js Examples
 
 1. Node.js example implementing passwordless login using Databunker:
 https://github.com/securitybunker/databunker-nodejs-passwordless-login
@@ -76,23 +76,22 @@ https://github.com/securitybunker/databunker-nodejs-example
 3. Secure Session Storage for Node.js apps:
 https://databunker.org/use-case/secure-session-storage/#databunker-support-for-nodejs
 
-## Node.JS modules
+## 🛠️ Node.JS modules
 
 1. `@databunker/store` from https://github.com/securitybunker/databunker-store
 
 2. `@databunker/session-store` from https://github.com/securitybunker/databunker-session-store
 
-## Databunker benchmark results:
+## ⚡ Databunker benchmark results:
 
 https://databunker.org/doc/benchmark/
 
-
-## Production deployments
+## ⚡ Production deployments
 
 * Backend at https://privacybunker.io/
 * Backend at https://bitbaza.io/
 
-⚠️ **Send us a note** if you are running Databunker in production mode, so we can add your wesbite to the list.
+🚩 **Send us a note** if you are running Databunker in production mode, so we can add your wesbite to the list.
 
 ## Privacy by design
 
@@ -117,19 +116,26 @@ Any request using Databunker API is done with **HTTPS SSL certificate**. The ent
 algorithm to split the master key into a number of keys. A number of keys (that can be saved in different hands in the
 organization) are required to bring the system up.
 
+---
+
+## 🚀 Databunker quick start guide
+
+Follow this [article](https://databunker.org/doc/start/).
+
+---
 
 # This projects provides an instant solution for GDPR compliance and user rights:
 
-1. Right of access
-1. Right to restrict processing / Consent withdrawal
-1. Right to be forgotten / Right to erasure
-1. Right to rectification/ Data Accuracy
-1. Right to data portability
+1. [Right of access](#right-of-access)
+1. [Right to restrict processing / Consent withdrawal](#right-to-restrict-processing--consent-withdrawal)
+1. [Right to be forgotten](#right-to-be-forgotten)
+1. [Right to rectification](#right-to-rectification)
+1. [Right to data portability](#right-to-data-portability)
 
-⚠️ **NOTE**: Implementing this project does not make you fully compliant with GDPR requirements and you still
+🚩 **NOTE**: Implementing this project does not make you fully compliant with GDPR requirements and you still
 need to consult with an attorney specializing in privacy.
 
-⚠️ **NOTE**: When we use the term "Customer" we mean the data of the end-user that his information is being stored, shared, and deleted.
+🚩 **NOTE**: When we use the term "Customer" we mean the data of the end-user that his information is being stored, shared, and deleted.
 
 
 ## Right of access
@@ -149,10 +155,10 @@ Databunker can manage all of the customer's consents and agreements in one place
 ![Consent management](images/ui-consent-management.png)
 ![Consent withdrawal](images/ui-consent-withdrawal.png)
 
-⚠️ **NOTE**: Databunker can call your backend script on a consent withdrawal (callback). You will have to handle these requests and remove
+🚩 **NOTE**: Databunker can call your backend script on a consent withdrawal (callback). You will have to handle these requests and remove
 the customer records from other 3rd party processing companies. For example from email newsletter service, etc...
 
-## Right to be forgotten / Right to erasure
+## Right to be forgotten
 
 When your customer requests to execute his **right to be forgotten**, his private records will be wiped out of the Databunker database, giving you the possibility to leave all internal databases intact while not impacting any of your other systems.
 
@@ -160,12 +166,12 @@ Upon customer removal request, Databunker can call your backend script (callback
 
 ![Forget me](images/ui-forget-me.png)
 
-⚠️ **NOTE**: You will need to make sure that you do not have any customer identifiable information (PII) in your other databases,
+🚩 **NOTE**: You will need to make sure that you do not have any customer identifiable information (PII) in your other databases,
 logs files, etc...
 
-## Right to rectification/ Data accuracy
+## Right to rectification
 
-Your customer can sign-in to his personal account at Databunker and change his records, for example, **change his name**.
+**Right to rectification** is also known as **data accuracy** requirement. Your customer can sign-in to his personal account at Databunker and change his records, for example, **change his name**.
 Databunker can fire a callback operation with customer's details when a customer operation takes place.
 
 ![Change profile](images/ui-profile-edit-and-save.png)
@@ -175,10 +181,10 @@ Databunker can fire a callback operation with customer's details when a customer
 
 Your customer can sign in to his personal account at Databunker and view and **extract all his records stored at Databunker.**
 
-⚠️ **NOTE**: You will need to provide your customers with a way to extract data from other internal databases.
+🚩 **NOTE**: You will need to provide your customers with a way to extract data from other internal databases.
 
 
-## ⚠️ NOTE
+## 🚩 NOTE
 
 **Implementing this project does not make you fully compliant with GDPR requirements and you still need to
 consult with an attorney specializing in privacy.**
@@ -220,13 +226,7 @@ If you published an article about Databunker send us a link at yuli@privacybunke
 
 ---
 
-# Databunker quick start guide
-
-Follow this [article](https://databunker.org/doc/start/).
-
----
-
-# We always strive to make our projects better
+# ⭐ We always strive to make our projects better
 
 Your feedback is very important for us.
 
