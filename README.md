@@ -2,7 +2,7 @@
 
 # Databunker
 
-**Databunker is a special self-hosted encrypted database for personal data or PII built for privacy by design methodology. You get GDPR compliance out of the box. More info https://databunker.org/**
+**Databunker is a special self-hosted encrypted database for personal data or PII built for privacy with design methodology. You get GDPR compliance out of the box. More info https://databunker.org/**
 
 <div align="center">
  <p>
