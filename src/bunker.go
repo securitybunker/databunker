@@ -12,6 +12,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
@@ -471,8 +472,8 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 	rootToken, err := db.createRootXtoken(customRootToken)
 	if err != nil {
 		//log.Panic("error %s", err.Error())
-		fmt.Printf("error %s", err.Error())
-		return db, rootToken, err
+		fmt.Printf("Failed to init root token: %s", err.Error())
+		os.Exit(0)
 	}
 	log.Println("Creating default entities: core-send-email-on-login and core-send-sms-on-login")
 	db.createLegalBasis("core-send-email-on-login", "", "login", "Send email on login",
@@ -496,6 +497,9 @@ func variableProvided(vname string, masterKeyPtr *string) bool {
 	if len(os.Getenv(vname)) > 0 {
 		return true
 	}
+	if len(os.Getenv(vname+"_FILE")) > 0 {
+		return true
+	}
 	return false
 }
 
@@ -503,8 +507,15 @@ func masterkeyGet(masterKeyPtr *string) ([]byte, error) {
 	masterKeyStr := ""
 	if masterKeyPtr != nil && len(*masterKeyPtr) > 0 {
 		masterKeyStr = *masterKeyPtr
-	} else {
+	} else if len(os.Getenv("DATABUNKER_MASTERKEY")) > 0 {
 		masterKeyStr = os.Getenv("DATABUNKER_MASTERKEY")
+	} else if len(os.Getenv("DATABUNKER_MASTERKEY_FILE")) > 0 {
+		content, err := ioutil.ReadFile(os.Getenv("DATABUNKER_MASTERKEY_FILE"))
+		if err != nil {
+			return nil, err
+		}
+		// Convert []byte to string
+		masterKeyStr = strings.TrimSpace(string(content))
 	}
 	if len(masterKeyStr) == 0 {
 		return nil, errors.New("Master key environment variable/parameter is missing")
