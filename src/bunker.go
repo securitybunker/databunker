@@ -472,6 +472,7 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 	if err != nil {
 		//log.Panic("error %s", err.Error())
 		fmt.Printf("error %s", err.Error())
+		return db, rootToken, err
 	}
 	log.Println("Creating default entities: core-send-email-on-login and core-send-sms-on-login")
 	db.createLegalBasis("core-send-email-on-login", "", "login", "Send email on login",
@@ -480,7 +481,11 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 	db.createLegalBasis("core-send-sms-on-login", "", "login", "Send SMS on login",
 		"Confirm to allow sending access code using 3rd party SMS gateway", "consent",
 		"This consent is required to give you our service.", "active", true, true)
-	fmt.Printf("\nAPI Root token: %s\n\n", rootToken)
+	if len(customRootToken) > 0 && customRootToken != "DEMO" {
+		fmt.Printf("\nAPI Root token: ****\n\n")
+	} else {
+		fmt.Printf("\nAPI Root token: %s\n\n", rootToken)
+	}
 	return db, rootToken, err
 }
 

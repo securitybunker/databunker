@@ -27,15 +27,16 @@ func (dbobj dbcon) createRootXtoken(customRootXtoken string) (string, error) {
 	if len(rootToken) > 0 {
 		return "already-initialized", nil
 	}
-	rootToken, err = uuid.GenerateUUID()
-	if err != nil {
-		return "", err
-	}
 	if len(customRootXtoken) > 0 {
 		if customRootXtoken != "DEMO" && !isValidUUID(customRootXtoken) {
-			return "bad-custom-root-token-format", nil
+			return "", errors.New("bad root token format")
 		}
 		rootToken = customRootXtoken
+	} else {
+		rootToken, err = uuid.GenerateUUID()
+		if err != nil {
+			return "", err
+		}
 	}
 	bdoc := bson.M{}
 	bdoc["xtoken"] = hashString(dbobj.hash, rootToken)
