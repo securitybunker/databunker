@@ -99,7 +99,7 @@ spec:
                 secretKeyRef:
                   name: {{ include "databunker.secretName" . }}
                   key: databunker-masterkey
-            - name: ROOT_TOKEN
+            - name: DATABUNKER_ROOTTOKEN
               valueFrom:
                 secretKeyRef:
                   name: {{ include "databunker.secretName" . }}
