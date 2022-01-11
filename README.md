@@ -1,7 +1,5 @@
 ![Databunker](https://databunker.org/img/databunker.png)
 
-# Databunker
-
 **Databunker is a special self-hosted encrypted database for personal data or PII built for privacy with design methodology. You get GDPR compliance out of the box. More info https://databunker.org/**
 
 <div align="center">
@@ -13,6 +11,12 @@
  <p>npm install @databunker/store - npm install @databunker/session-store</p>
 </div>
 
+## ⭐⭐⭐ Spead a word and raise awareness about GDPR compliance
+Help us to spead the word about this project and raise awareness. Please add a ⭐ **star** to make it happen.
+
+![Databunker solution](images/databunker-solution.png)
+
+## Intro
 
 We live in a world where the privacy of our information is nonexistent. The EU has been working to remediate this fallacy with GDPR, and the US (California) follows with a first sparrow called CCPA.
 
@@ -27,11 +31,6 @@ By deploying this project and moving all personal information to one place, you 
 GDPR statement: *Personal data should be processed in a manner that ensures appropriate security and 
 confidentiality of the  personal data, including for preventing unauthorized access to or use of personal
 data and the equipment used for the processing.*
-
-## ⭐⭐⭐ Spead a word and raise awareness about GDPR compliance
-Help us to spead the word about this project and raise awareness. Please add a ⭐ **star** to make it happen.
-
-![Databunker solution](images/databunker-solution.png)
 
 #### Diagram of old-style solution.
 
