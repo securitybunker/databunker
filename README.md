@@ -1,4 +1,4 @@
-![Databunker solution](images/databunker-solution.png)
+![Databunker](https://databunker.org/img/databunker.png)
 
 # Databunker
 
@@ -31,6 +31,7 @@ data and the equipment used for the processing.*
 ## ⭐⭐⭐ Spead a word and raise awareness about GDPR compliance
 Help us to spead the word about this project and raise awareness. Please add a ⭐ **star** to make it happen.
 
+![Databunker solution](images/databunker-solution.png)
 
 #### Diagram of old-style solution.
 
