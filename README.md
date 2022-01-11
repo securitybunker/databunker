@@ -7,7 +7,7 @@
   <a href="https://join.slack.com/t/databunker/shared_invite/zt-b6ukxzw3-JCxv8NJDESL40haM45RNIA"><img src="https://img.shields.io/badge/slack-join%20chat%20%E2%86%92-e01563.svg" alt="Join Databunker Slack channel" /></a>
   <a href="https://hub.docker.com/r/securitybunker/databunker"><img src="https://img.shields.io/docker/pulls/securitybunker/databunker?color=f02e65&style=flat" /></a>
 
-## ⭐⭐⭐ Spead a word and raise awareness about GDPR compliance
+## ⭐⭐⭐ Spread a word to make a world a bit safer
 Help us to spead the word about this project and raise awareness. Please add a ⭐ **star** to make it happen.
 
 ![Databunker solution](images/databunker-solution.png)
