@@ -8,7 +8,7 @@
   <a href="https://hub.docker.com/r/securitybunker/databunker"><img src="https://img.shields.io/docker/pulls/securitybunker/databunker?color=f02e65&style=flat" /></a>
 
 ## ⭐⭐⭐ Spread a word to make a world a bit safer
-Help us to spead the word about this project and raise awareness. Please add a ⭐ **star** to make it happen.
+Help us to raise awareness. Please add a ⭐ **star** and share this project with your friends.
 
 ![Databunker solution](images/databunker-solution.png)
 
