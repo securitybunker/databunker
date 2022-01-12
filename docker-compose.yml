@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./data:/var/lib/mysql
-    command: --max_connections=2000
+    command: --max_connections=4096
   # this container's job is to initialize MySQL database. It should run just one time.
   databunker-init:
     #build: .
