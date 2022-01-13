@@ -1,39 +1,62 @@
-## Terraform templates to create AWS infrastructure for Databunker
+## Terraform configuration files to create AWS infrastructure for Databunker
 
 Terraform is a powerful tool to manage infrastructure with configuration files rather than through a graphical user interface.
 
-We use Terraform templates to streamline Databunker installation in production.
+We use Terraform to streamline Databunker installation for AWS.
 
-These templates create the following AWS infrastructure elements:
+These Terraform configuration files create the following AWS infrastructure elements:
 
 1. VPC
 1. MySQL RDS
 1. Elastic Kubernetes Service (EKS)
 1. Security groups to allow connectivity
 
-During deployment, Terraform templates generate a random password for secure MySQL RDS access and save it as Kubernetes secret using the following resource path: **databunker-mysql-rds/db-password**.
+During deployment, Terraform generates a random MySQL password. This password is saved in just created EKS cluster as a **Kubernetes secret** using the following resource path: ```databunker-mysql-rds/db-password```.
 
 
-### ⚡ How to set up everything
+### ⚡ How to setup everything
 
-Run the following commands:
+Run the following command to initialize a working directory for Terraform. It will download all required components. You need to run this command only once.
 ```
 terraform init
+```
+
+Run the following command to create AWS infrastructure:
+```
 terraform apply
 ```
 
-Make sure to save the database hostname displayed as **rds_hostname** variable.
-
-Same MYSQL RDS **hostname** is printed using the following command:
+You can use the following command to display MySQL database domain name. You will need its value in the next section.
 ```
 terraform output rds_hostname
 ```
 
 ### ☕ Next steps
-1. Set **KUBECONFIG** environment variable to point to a newly generated config file for Kubernetes
+1. Set **KUBECONFIG** environment variable to point to a newly generated configuration file for Kubernetes
+```
+export KUBECONFIG=`pwd`/`ls -1 kubeconfig_*`
+```
 1. Create an SSL certificate for Databunker service and save it as Kubernetes secret
-1. Add Databunker charts repository using **helm** command
-1. Start Databunker process using **helm** command
+```
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=localhost"
+```
+1. Add Databunker charts repository using ```helm``` command and run ```helm update```
+```
+helm repo add databunker https://databunker.org/charts/
+helm repo update
+```
+1. Deploy Databunker service using the ```helm``` command
+```
+helm install databunker databunker/databunker --set mariadb.enabled=false \
+  --set externalDatabase.host=MYSQL-RDS-HOST \
+  --set externalDatabase.existingSecret=databunker-mysql-rds \
+  --set certificates.customCertificate.certificateSecret=databunkertls
+```
+
+The **MYSQL-RDS-HOST** is a MySQL domain name.
+
+
+**All commands together**
 
 ```
 export KUBECONFIG=`pwd`/`ls -1 kubeconfig_*`
@@ -42,12 +65,10 @@ kubectl create secret tls databunkertls --key="tls.key" --cert="tls.crt"
 helm repo add databunker https://databunker.org/charts/
 helm repo update
 helm install databunker databunker/databunker --set mariadb.enabled=false \
-  --set externalDatabase.host=MYSQL-RDS-HOST \
+  --set externalDatabase.host=$(terraform output rds_hostname) \
   --set externalDatabase.existingSecret=databunker-mysql-rds \
   --set certificates.customCertificate.certificateSecret=databunkertls
 ```
-
-The **MYSQL-RDS-HOST** is the same as ```terraform output rds_hostname```.
 
 ### ⚙️ Update cluster to use the latest Databunker version
 
