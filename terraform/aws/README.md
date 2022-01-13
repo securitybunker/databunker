@@ -28,7 +28,7 @@ terraform apply
 
 You can use the following command to display full MySQL database domain name. You will need its value in the next part.
 ```
-terraform output rds_hostname
+terraform output -raw rds_hostname
 ```
 
 ### ☕ Next steps
@@ -49,9 +49,9 @@ helm repo update
 ```
 4. Deploy Databunker service using the ```helm``` command
 ```
-MYSQL_RDS_HOST=$(terraform output rds_hostname)
+MYSQL_RDS_HOST=$(terraform output -raw rds_hostname)
 helm install databunker databunker/databunker --set mariadb.enabled=false \
-  --set externalDatabase.host=$MYSQL-RDS-HOST \
+  --set externalDatabase.host=$MYSQL_RDS_HOST \
   --set externalDatabase.existingSecret=databunker-mysql-rds \
   --set certificates.customCertificate.certificateSecret=databunkertls
 ```
@@ -67,7 +67,7 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt
 kubectl create secret tls databunkertls --key="tls.key" --cert="tls.crt"
 helm repo add databunker https://databunker.org/charts/
 helm repo update
-MYSQL_RDS_HOST=$(terraform output rds_hostname)
+MYSQL_RDS_HOST=$(terraform output -raw rds_hostname)
 helm install databunker databunker/databunker --set mariadb.enabled=false \
   --set externalDatabase.host=$MYSQL_RDS_HOST \
   --set externalDatabase.existingSecret=databunker-mysql-rds \
@@ -81,7 +81,7 @@ This secret contains the **DATABUNKER_MASTERKEY** used for record encryption and
 This Kubernetes secret is never deleted. So, you can easily remove the helm char and/or update to the latest version. Databunker process will continue working with old encrypted records.
 ```
 helm repo update
-MYSQL_RDS_HOST=$(terraform output rds_hostname)
+MYSQL_RDS_HOST=$(terraform output -raw rds_hostname)
 helm upgrade databunker --set mariadb.enabled=false \
   --set externalDatabase.host=$MYSQL_RDS_HOST \
   --set externalDatabase.existingSecret=databunker-mysql-rds \
@@ -90,7 +90,7 @@ helm upgrade databunker --set mariadb.enabled=false \
 
 ### 🔍 View generated database password using terraform
 ```
-terraform output rds_password
+terraform output -raw rds_password
 ```
 
 ### 🔍 View generated database password using kubernetes secret
