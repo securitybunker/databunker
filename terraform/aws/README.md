@@ -11,7 +11,7 @@ These Terraform configuration files create the following AWS infrastructure elem
 1. Elastic Kubernetes Service (EKS)
 1. Security groups to allow connectivity
 
-During deployment, Terraform generates a random MySQL password. This password is saved in just created EKS cluster as a **Kubernetes secret** using the following resource path: ```databunker-mysql-rds/db-password```.
+During deployment, Terraform generates a random MySQL password. This password is saved in newly created EKS cluster as a **Kubernetes secret** using the following resource path: ```databunker-mysql-rds/db-password```.
 
 
 ### ⚡ How to setup everything
@@ -26,7 +26,7 @@ Run the following command to create AWS infrastructure:
 terraform apply
 ```
 
-You can use the following command to display MySQL database domain name. You will need its value in the next section.
+You can use the following command to display full MySQL database domain name. You will need its value in the next part.
 ```
 terraform output rds_hostname
 ```
@@ -36,16 +36,17 @@ terraform output rds_hostname
 ```
 export KUBECONFIG=`pwd`/`ls -1 kubeconfig_*`
 ```
-1. Create an SSL certificate for Databunker service and save it as Kubernetes secret
+After this command, you can execute ```kubectl get nodes``` to list all nodes in newly created EKS cluster.
+2. Create an SSL certificate for Databunker service and save it as Kubernetes secret
 ```
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=localhost"
 ```
-1. Add Databunker charts repository using ```helm``` command and run ```helm update```
+3. Add Databunker charts repository using ```helm``` command and run ```helm update```
 ```
 helm repo add databunker https://databunker.org/charts/
 helm repo update
 ```
-1. Deploy Databunker service using the ```helm``` command
+4. Deploy Databunker service using the ```helm``` command
 ```
 helm install databunker databunker/databunker --set mariadb.enabled=false \
   --set externalDatabase.host=MYSQL-RDS-HOST \
@@ -53,7 +54,7 @@ helm install databunker databunker/databunker --set mariadb.enabled=false \
   --set certificates.customCertificate.certificateSecret=databunkertls
 ```
 
-The **MYSQL-RDS-HOST** is a MySQL domain name.
+🚩 The **MYSQL-RDS-HOST** above is a full MySQL domain name.
 
 
 **All commands together**
