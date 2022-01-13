@@ -37,6 +37,7 @@ terraform output rds_hostname
 export KUBECONFIG=`pwd`/`ls -1 kubeconfig_*`
 ```
 After this command, you can execute ```kubectl get nodes``` to list all nodes in newly created EKS cluster.
+
 2. Create an SSL certificate for Databunker service and save it as Kubernetes secret
 ```
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=localhost"
@@ -48,13 +49,14 @@ helm repo update
 ```
 4. Deploy Databunker service using the ```helm``` command
 ```
+MYSQL_RDS_HOST=$(terraform output rds_hostname)
 helm install databunker databunker/databunker --set mariadb.enabled=false \
-  --set externalDatabase.host=MYSQL-RDS-HOST \
+  --set externalDatabase.host=$MYSQL-RDS-HOST \
   --set externalDatabase.existingSecret=databunker-mysql-rds \
   --set certificates.customCertificate.certificateSecret=databunkertls
 ```
 
-🚩 The **MYSQL-RDS-HOST** above is a full MySQL domain name.
+🚩 The **MYSQL_RDS_HOST** above is a full MySQL domain name.
 
 
 **All commands together**
@@ -65,24 +67,23 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt
 kubectl create secret tls databunkertls --key="tls.key" --cert="tls.crt"
 helm repo add databunker https://databunker.org/charts/
 helm repo update
+MYSQL_RDS_HOST=$(terraform output rds_hostname)
 helm install databunker databunker/databunker --set mariadb.enabled=false \
-  --set externalDatabase.host=$(terraform output rds_hostname) \
+  --set externalDatabase.host=$MYSQL_RDS_HOST \
   --set externalDatabase.existingSecret=databunker-mysql-rds \
   --set certificates.customCertificate.certificateSecret=databunkertls
 ```
 
-### ⚙️ Update cluster to use the latest Databunker version
+### ⚙️ Upgrade cluster to use the latest Databunker version
 
-During the first time deployment of the Databunker helm charts, the setup process creates a special Kubernetes secret callled **databunker**.
-This secret store contains the **DATABUNKER_MASTERKEY** used for the record encryption and the **DATABUNKER_ROOTTOKEN** used for service access.
-This secret store is never deleted. So, you can easily remove the helm char and/or update to the latest version, and continue to have access to the old encrypted records.
-For example:
-
+During the first time deployment of the Databunker helm charts, the setup process creates a special '''Kubernetes secret''' callled **databunker**.
+This secret contains the **DATABUNKER_MASTERKEY** used for record encryption and the **DATABUNKER_ROOTTOKEN** used for service access.
+This Kubernetes secret is never deleted. So, you can easily remove the helm char and/or update to the latest version. Databunker process will continue working with old encrypted records.
 ```
 helm repo update
-helm remove databunker
-helm install databunker databunker/databunker --set mariadb.enabled=false \
-  --set externalDatabase.host=MYSQL-RDS-HOST \
+MYSQL_RDS_HOST=$(terraform output rds_hostname)
+helm upgrade databunker --set mariadb.enabled=false \
+  --set externalDatabase.host=$MYSQL_RDS_HOST \
   --set externalDatabase.existingSecret=databunker-mysql-rds \
   --set certificates.customCertificate.certificateSecret=databunkertls
 ```
