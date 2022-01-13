@@ -2,27 +2,30 @@
 
 Databunker charts can be installed only with [Helm 3](https://helm.sh/docs/).
 
-Before installing containers, you need to add Databunker Helm repository.
+Before installing containers, you need to add Databunker ```helm``` repository.
 
-Run the following commands:
+Run the following command:
 ```
 helm repo add databunker https://databunker.org/charts/
+```
+
+Update all the repositories to ensure ```helm``` is aware of the latest versions.
+```
 helm repo update
 ```
 
-# Starting Databunker using MySQL database
+# Start Databunker service together with MySQL container
 
-## Start Databunker with auto-generated self-signed SSL certificate
-```
-helm install databunker databunker/databunker --set mariadb.primary.persistence.enabled=false --set certificates.customCAs\[0\].secret="databunker"
-```
-
-## Start Databunker for local testing
+You can start Databunker with auto-generated self-signed SSL certificate using the following command:
 ```
 helm install databunker databunker/databunker \
   --set mariadb.primary.persistence.enabled=false \
   --set certificates.customCAs\[0\].secret="databunker"
+```
 
+## Usefull commands
+
+```
 export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=databunker,app.kubernetes.io/instance=databunker" -o jsonpath="{.items[0].metadata.name}")
 export CONTAINER_PORT=$(kubectl get pod --namespace default $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
 echo "Visit http://127.0.0.1:8080 to use your application"
