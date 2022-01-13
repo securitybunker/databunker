@@ -257,11 +257,11 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 			log.Printf("error: %s\n", err.Error())
 			w.WriteHeader(404)
 		} else {
-			w.WriteHeader(200)
 			captcha, err := generateCaptcha()
 			if err != nil {
 				w.WriteHeader(501)
 			} else {
+				w.WriteHeader(200)
 				data2 := bytes.ReplaceAll(data, []byte("%CAPTCHAURL%"), []byte(captcha))
 				w.Write(data2)
 			}
@@ -411,6 +411,7 @@ func reqMiddleware(handler http.Handler) http.Handler {
 		//log.Printf("Set host %s\n", r.Host)
 		autocontext.Set(r, "host", r.Host)
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Connection", "keep-alive")
 		w2 := NewCustomResponseWriter(w)
 		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 			w2.Header().Set("Vary", "Accept-Encoding")
