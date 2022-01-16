@@ -18,7 +18,6 @@ func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httproute
 		// anonymous user can not create user record, check token
 		if e.enforceAuth(w, r, event) == "" {
 			fmt.Println("failed to create user, access denied, try to change Create_user_without_access_token")
-			returnError(w, r, "internal error", 405, nil, event)
 			return
 		}
 	}
