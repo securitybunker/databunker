@@ -184,6 +184,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 
 	router.GET("/v1/status", e.checkStatus)
 	router.GET("/status", e.checkStatus)
+	router.GET("/v1/status/", e.checkStatus)
+	router.GET("/status/", e.checkStatus)
 
 	router.GET("/v1/sys/backup", e.backupDB)
 
@@ -261,8 +263,9 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 			if err != nil {
 				w.WriteHeader(501)
 			} else {
-				w.WriteHeader(200)
 				data2 := bytes.ReplaceAll(data, []byte("%CAPTCHAURL%"), []byte(captcha))
+				w.Header().Set("Content-Type", "text/html; charset=utf-8")
+				w.WriteHeader(200)
 				w.Write(data2)
 			}
 		}
@@ -287,6 +290,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 				w.Header().Set("Content-Type", "image/png")
 			} else if strings.HasSuffix(r.URL.Path, ".woff2") {
 				w.Header().Set("Content-Type", "font/woff2")
+			} else if strings.HasSuffix(r.URL.Path, ".html") {
+				w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			}
 			// next step: https://www.sanarias.com/blog/115LearningHTTPcachinginGo
 			w.Header().Set("Cache-Control", "public, max-age=7776000")
@@ -411,7 +416,6 @@ func reqMiddleware(handler http.Handler) http.Handler {
 		//log.Printf("Set host %s\n", r.Host)
 		autocontext.Set(r, "host", r.Host)
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Connection", "keep-alive")
 		w2 := NewCustomResponseWriter(w)
 		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 			w2.Header().Set("Vary", "Accept-Encoding")
