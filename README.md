@@ -1,6 +1,6 @@
 ![Databunker](https://databunker.org/img/databunker.png)
 
-**Databunker is a special self-hosted encrypted database for critical personal data, PII, and PHI. It is built with privacy by design methodology. You get GDPR compliance out of the box. More info https://databunker.org/**
+**Databunker is a new type of database designed to store critical records built with strong security and encryption capabilities. It can be used to store customer records, PII, PHI, etc... It is built with privacy by design methodology. You get GDPR compliance out of the box. More info https://databunker.org/**
 
  <p>
   <a href="https://github.com/securitybunker/databunker/actions?query=workflow%3ATests" target="_blank"><img src="https://github.com/securitybunker/databunker/workflows/Tests/badge.svg" alt="Tests"></a>
