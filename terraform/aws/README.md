@@ -41,6 +41,7 @@ After this command, you can execute ```kubectl get nodes``` to list all nodes in
 2. Create an SSL certificate for Databunker service and save it as Kubernetes secret
 ```
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=localhost"
+kubectl create secret tls databunkertls --key="tls.key" --cert="tls.crt"
 ```
 3. Add Databunker charts repository using ```helm``` command and run ```helm update```
 ```
