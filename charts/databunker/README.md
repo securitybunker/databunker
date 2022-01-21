@@ -7,16 +7,14 @@
 
 ```console
 $ helm repo add databunker https://databunker.org/charts/
-$ helm install my-release bitnami/databunker
+$ helm install my-release databunker/databunker
 ```
 
 ## Introduction
 
-This chart bootstraps a [Databunker](https://github.com/bitnami/bitnami-docker-databunker) deployment on a [Kubernetes](https://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
+This chart bootstraps a [Databunker](https://github.com/securitybunker/databunker/) deployment on a [Kubernetes](https://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
 
 It also packages the [Bitnami MariaDB chart](https://github.com/bitnami/charts/tree/master/bitnami/mariadb) which is required for bootstrapping a MariaDB deployment as a database for the Databunker application.
-
-Bitnami charts can be used with [Kubeapps](https://kubeapps.com/) for deployment and management of Helm Charts in clusters.
 
 ## Prerequisites
 
@@ -28,7 +26,7 @@ Bitnami charts can be used with [Kubeapps](https://kubeapps.com/) for deployment
 To install the chart with the release name `my-release`:
 
 ```console
-$ helm install my-release bitnami/databunker
+$ helm install my-release databunker/databunker
 ```
 
 The command deploys Databunker on the Kubernetes cluster in the default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
@@ -73,7 +71,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | Name                                 | Description                                                                                                          | Value                 |
 | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------- | --------------------- |
 | `image.registry`                     | Databunker image registry                                                                                            | `docker.io`           |
-| `image.repository`                   | Databunker image repository                                                                                          | `bitnami/databunker`  |
+| `image.repository`                   | Databunker image repository                                                                                          | `securitybunker/databunker`  |
 | `image.tag`                          | Databunker image tag (immutable tags are recommended)                                                                | `latest`              |
 | `image.pullPolicy`                   | Databunker image pull policy                                                                                         | `IfNotPresent`        |
 | `image.pullSecrets`                  | Specify docker-registry secret names as an array                                                                     | `[]`                  |
@@ -286,7 +284,7 @@ Specify each parameter using the `--set key=value[,key=value]` argument to `helm
 ```console
 $ helm install my-release \
   --set mariadb.primary.persistence.enabled=false \
-    bitnami/databunker
+    databunker/databunker
 ```
 
 > NOTE: Once this chart is deployed, it is not possible to change the application's access credentials, such as master key, using Helm.
@@ -294,7 +292,7 @@ $ helm install my-release \
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
 
 ```console
-$ helm install my-release -f values.yaml bitnami/databunker
+$ helm install my-release -f values.yaml databunker/databunker
 ```
 
 > **Tip**: You can use the default [values.yaml](values.yaml)
