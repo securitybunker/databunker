@@ -6,7 +6,7 @@
 ## TL;DR
 
 ```console
-$ helm repo add bitnami https://charts.bitnami.com/bitnami
+$ helm repo add databunker https://databunker.org/charts/
 $ helm install my-release bitnami/databunker
 ```
 
