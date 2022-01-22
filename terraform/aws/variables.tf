@@ -41,6 +41,12 @@ variable "ec2_rds_instance_type" {
   default     = "db.t3.medium"
 }
 
+variable "ec2_rds_deletion_protection" {
+  description = "If the DB instance should have deletion protection enabled."
+  type        = bool
+  default     = true
+}
+
 resource "random_password" "db_password" {
   length           = 16
   special          = false
