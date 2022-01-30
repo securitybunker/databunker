@@ -12,6 +12,7 @@ import (
 	"mime"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -297,6 +298,19 @@ func isValidBrief(brief string) bool {
 
 func isValidHex(hex1 string) bool {
 	return regexHex.MatchString(hex1)
+}
+
+func isContainer() bool {
+	//if _, err := os.Stat("/.dockerenv"); err == nil {
+	//	return true
+	//}
+	if len(os.Getenv("KUBERNETES_SERVICE_HOST")) > 0 {
+		return true
+	}
+	if _, err := os.Stat("/var/run/secrets/kubernetes.io"); err == nil {
+		return true
+	}
+	return false
 }
 
 // stringPatternMatch looks for basic human patterns like "*", "*abc*", etc...
