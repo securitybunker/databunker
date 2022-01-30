@@ -48,16 +48,19 @@ module "vpc" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
+  version = "17.24.0"
 
   cluster_name    = "cluster-${var.name_suffix}"
   cluster_version = "1.21"
-  subnet_ids             = module.vpc.private_subnets
+  #subnet_ids             = module.vpc.private_subnets
+  subnets         = module.vpc.private_subnets
   cluster_endpoint_private_access = "true"
   cluster_endpoint_public_access = "true"
   tags = var.resource_tags
   vpc_id = module.vpc.vpc_id
 
-  eks_managed_node_groups = {
+  #eks_managed_node_groups
+  node_groups = {
     first = {
       desired_capacity = 1
       max_capacity     = 10
@@ -65,14 +68,14 @@ module "eks" {
       instance_types = [var.ec2_eks_instance_type]
     }
   }
-  cluster_timeouts = {
-    create = "30m"
-    update = "30m"
-    delete = "30m"
-  }
+  cluster_create_timeout = "30m"
+  cluster_delete_timeout = "30m"
+  #cluster_timeouts = {
+  #  create = "30m"
+  #  update = "30m"
+  #  delete = "30m"
+  #}
 
-  #write_kubeconfig   = true
-  #config_output_path = "./"
   #write_kubeconfig      = true
   #config_output_path    = "/.kube/"
 }
