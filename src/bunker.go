@@ -521,6 +521,10 @@ func masterkeyGet(masterKeyPtr *string) ([]byte, error) {
 		}
 		// Convert []byte to string
 		masterKeyStr = strings.TrimSpace(string(content))
+		// we will TRY to delete secret file when running inside container/kubernetes
+		if isContainer() == true {
+			os.Remove(os.Getenv("DATABUNKER_MASTERKEY_FILE"))
+		}
 	}
 	if len(masterKeyStr) == 0 {
 		return nil, errors.New("Master key environment variable/parameter is missing")
@@ -602,7 +606,11 @@ func main() {
 		log.Printf("Error: %s", masterKeyErr)
 		os.Exit(0)
 	}
-	store, _ := storage.OpenDB(dbPtr)
+	store, err := storage.OpenDB(dbPtr)
+	if err != nil {
+		log.Printf("Filed to open db: %s", err)
+                os.Exit(0)
+	}
 	hash := md5.Sum(masterKey)
 	db := &dbcon{store, masterKey, hash[:]}
 	e := mainEnv{db, cfg, make(chan struct{})}

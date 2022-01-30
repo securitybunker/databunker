@@ -5,6 +5,7 @@ package storage
 import (
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -43,6 +44,13 @@ func (dbobj MySQLDB) getConnectionString(dbname *string) string {
 	dbnameString := ""
 	if dbname != nil && len(*dbname) > 0 {
 		dbnameString = *dbname
+	}
+	if len(os.Getenv("MYSQL_USER_PASS_FILE")) > 0 {
+		content, err := ioutil.ReadFile(os.Getenv("MYSQL_USER_PASS_FILE"))
+		if err != nil {
+			return ""
+		}
+		pass = strings.TrimSpace(string(content))
 	}
 	//str0 := fmt.Sprintf("%s:****@tcp(%s:%s)/%s", user, host, port, dbnameString)
 	//fmt.Printf("myql connection string: %s\n", str0)
@@ -135,6 +143,9 @@ func (dbobj *MySQLDB) OpenDB(dbname *string) error {
 	}
 	tx.Commit()
 	fmt.Printf("tables: %s\n", allTables)
+	if isContainer() == true && len(os.Getenv("MYSQL_USER_PASS_FILE")) > 0 {
+		os.Remove(os.Getenv("MYSQL_USER_PASS_FILE"))
+	}
 	return nil
 }
 
