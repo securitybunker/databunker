@@ -49,7 +49,9 @@ resource "aws_db_instance" "databunkerdb" {
   identifier             = "databunkerdb"
   tags                   = merge({ "Name" = "db-${var.name_suffix}"}, var.resource_tags)
   instance_class         = var.ec2_rds_instance_type
+  deletion_protection    = var.ec2_rds_deletion_protection
   allocated_storage      = 5
+  max_allocated_storage  = 1000
   engine                 = "mysql"
   engine_version         = "8.0.25"
   username               = "bunkeruser"
