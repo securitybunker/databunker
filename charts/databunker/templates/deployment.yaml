@@ -59,6 +59,40 @@ spec:
       # yamllint enable rule:indentation
       {{- end }}
       initContainers:
+        {{- if not .Values.databunkerSkipInstall }}
+        - name: {{ printf "%s-init" (include "common.names.fullname" .) }}
+          image: {{ template "databunker.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          command: ["/bin/sh"]
+          args: ["-c", "/databunker/bin/databunker -init -db databunkerdb"]
+          {{- if .Values.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          env:
+            - name: MYSQL_HOST
+              value: {{ include "databunker.databaseHost" . | quote }}
+            - name: MYSQL_PORT
+              value: {{ include "databunker.databasePort" . | quote }}
+            - name: MYSQL_DATABASE
+              value: {{ include "databunker.databaseName" . | quote }}
+            - name: MYSQL_USER_NAME
+              value: {{ include "databunker.databaseUser" . | quote }}
+            - name: MYSQL_USER_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "databunker.databaseSecretName" . }}
+                  key: {{ include "databunker.databasePasswordKey" . | quote }}
+            - name: DATABUNKER_MASTERKEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "databunker.secretName" . }}
+                  key: databunker-masterkey
+            - name: DATABUNKER_ROOTTOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "databunker.secretName" . }}
+                  key: databunker-roottoken
+        {{- end }}
         {{- if .Values.initContainers }}
         {{- include "common.tplvalues.render" (dict "value" .Values.initContainers "context" $) | nindent 8 }}
         {{- end }}
@@ -87,23 +121,10 @@ spec:
               value: {{ include "databunker.databaseName" . | quote }}
             - name: MYSQL_USER_NAME
               value: {{ include "databunker.databaseUser" . | quote }}
-            - name: MYSQL_USER_PASS
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "databunker.databaseSecretName" . }}
-                  key: {{ include "databunker.databasePasswordKey" . | quote }}
-            - name: SKIP_BOOTSTRAP
-              value: {{ ternary "yes" "no" .Values.databunkerSkipInstall | quote }}
-            - name: DATABUNKER_MASTERKEY 
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "databunker.secretName" . }}
-                  key: databunker-masterkey
-            - name: DATABUNKER_ROOTTOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "databunker.secretName" . }}
-                  key: databunker-roottoken
+            - name: MYSQL_USER_PASS_FILE
+              value: "/opt/databunker/secrets/mysql-user-pass"
+            - name: DATABUNKER_MASTERKEY_FILE
+              value: "/opt/databunker/secrets/databunker-master-key"
             - name: ADMIN_EMAIL
               value: {{ .Values.databunkerAdminEmail | quote }}
             {{- if .Values.smtpHost }}
@@ -207,6 +228,12 @@ spec:
           resources: {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
           volumeMounts:
+            - name: "databunker-master-key"
+              mountPath: "/opt/databunker/secrets/databunker-master-key"
+              subPath: databunker-master-key
+            - name: "mysql-user-pass"
+              mountPath: "/opt/databunker/secrets/mysql-user-pass"
+              subPath: mysql-user-pass
             {{- include "certificates.volumeMounts" . | nindent 12 }}
             {{- if .Values.extraVolumeMounts }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" $) | nindent 12 }}
@@ -237,6 +264,18 @@ spec:
         {{- include "common.tplvalues.render" (dict "value" .Values.sidecars "context" $) | nindent 8 }}
         {{- end }}
       volumes:
+        - name: mysql-user-pass
+          secret:
+            secretName: {{ include "databunker.databaseSecretName" . }}
+            items:
+              - key: {{ include "databunker.databasePasswordKey" . | quote }}
+                path: mysql-user-pass
+        - name: databunker-master-key
+          secret:
+            secretName: {{ include "databunker.secretName" . }}
+            items:
+              - key: databunker-masterkey
+                path: databunker-master-key
         {{- include "certificates.volumes" . | indent 8 }}
         {{- if .Values.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}
