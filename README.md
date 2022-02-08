@@ -1,11 +1,11 @@
 ![Databunker](https://databunker.org/img/databunker.png)
 
-**Databunker is a new type of data storage and security solutions built to store critical records, PII, PHI, etc... It is built with privacy by design methodology. You get GDPR compliance out of the box.**
-
  <p>
   <a href="https://github.com/securitybunker/databunker/actions?query=workflow%3ATests" target="_blank"><img src="https://github.com/securitybunker/databunker/workflows/Tests/badge.svg" alt="Tests"></a>
   <a href="https://join.slack.com/t/databunker/shared_invite/zt-b6ukxzw3-JCxv8NJDESL40haM45RNIA"><img src="https://img.shields.io/badge/slack-join%20chat%20%E2%86%92-e01563.svg" alt="Join Databunker Slack channel" /></a>
   <a href="https://hub.docker.com/r/securitybunker/databunker"><img src="https://img.shields.io/docker/pulls/securitybunker/databunker?color=f02e65&style=flat" /></a>
+
+**Databunker is a new type of data storage and security solutions built to store critical records, PII, PHI, etc... It is built with privacy by design methodology. You get GDPR compliance out of the box.**
 
 Project **demo** is available at: [https://databunker.org/doc/demo/](https://databunker.org/doc/demo/). Please add a ⭐**star** if you like our project.
 
