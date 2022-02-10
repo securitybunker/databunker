@@ -9,8 +9,6 @@
 
 Project **demo** is available at: [https://databunker.org/doc/demo/](https://databunker.org/doc/demo/). Please add a ⭐**star** if you like our project.
 
-![Databunker solution](images/databunker-solution.png)
-
 ## Intro
 
 We live in a world where the privacy of our information is nonexistent. The EU has been working to remediate this fallacy with GDPR, and the US (California) follows with a first sparrow called CCPA.
@@ -26,6 +24,8 @@ By deploying this project and moving all personal information to one place, you 
 GDPR statement: *Personal data should be processed in a manner that ensures appropriate security and 
 confidentiality of the  personal data, including for preventing unauthorized access to or use of personal
 data and the equipment used for the processing.*
+
+![Databunker solution](images/databunker-solution.png)
 
 ## ⭐⭐⭐ Spread a word to make a world a bit safer with Databunker
 Help us to raise awareness. Please add a ⭐ **star** and share this project with your friends.
