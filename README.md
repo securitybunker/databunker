@@ -1,4 +1,4 @@
-![Databunker](https://databunker.org/img/databunker.png)
+![Databunker solution](images/databunker-solution.png)
 
 # Databunker
 
@@ -32,9 +32,10 @@ GDPR statement: *Personal data should be processed in a manner that ensures appr
 confidentiality of the  personal data, including for preventing unauthorized access to or use of personal
 data and the equipment used for the processing.*
 
-![Databunker solution](images/databunker-solution.png)
 
 ## ⭐⭐⭐ Spread a word to make a world a bit safer with Databunker
+![Databunker](https://databunker.org/img/databunker.png)
+
 Help us to raise awareness. Please add a ⭐ **star** and share this project with your friends.
 
 #### Diagram of old-style solution.
