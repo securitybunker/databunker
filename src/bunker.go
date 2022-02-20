@@ -632,6 +632,8 @@ func main() {
 			//tls.TLS_DHE_RSA_WITH_AES_256_CCM,
 			//tls.TLS_ECDHE_RSA_WITH_ARIA_256_GCM_SHA384,
 			//tls.TLS_DHE_RSA_WITH_ARIA_256_GCM_SHA384,
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
 		},
 	}
 	srv := &http.Server{Addr: cfg.Server.Host + ":" + cfg.Server.Port, Handler: reqMiddleware(router), TLSConfig: tlsConfig}
