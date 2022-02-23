@@ -32,12 +32,6 @@ GDPR statement: *Personal data should be processed in a manner that ensures appr
 confidentiality of the  personal data, including for preventing unauthorized access to or use of personal
 data and the equipment used for the processing.*
 
-
-## ⭐⭐⭐ Spread a word to make a world a bit safer with Databunker
-![Databunker](https://databunker.org/img/databunker.png)
-
-Help us to raise awareness. Please add a ⭐ **star** and share this project with your friends.
-
 #### Diagram of old-style solution.
 
 ![picture](images/old-style-solution.png)
@@ -241,3 +235,8 @@ Give us a ⭐ **star** if you like our product.
 If you have any questions, you can contact the development team at office@privacybunker.io.
 
 Join the project slack channel to talk with developers: [https://databunker.slack.com/](https://join.slack.com/t/databunker/shared_invite/zt-b6ukxzw3-JCxv8NJDESL40haM45RNIA)
+
+# ⭐ Spread a word to make a world a bit safer with Databunker
+![Databunker](https://databunker.org/img/databunker.png)
+
+Help us to raise awareness. Please add a ⭐ **star** and share this project with your friends.
