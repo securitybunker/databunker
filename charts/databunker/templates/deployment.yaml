@@ -183,7 +183,11 @@ spec:
           livenessProbe:
             httpGet:
               path: {{ .Values.livenessProbe.path }}
+              {{- if (or .Values.certificates.customCAs .Values.certificates.customCertificate.certificateSecret) }}
               scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
               port: https
             initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
@@ -197,7 +201,11 @@ spec:
           readinessProbe:
             httpGet:
               path: {{ .Values.readinessProbe.path }}
+              {{- if (or .Values.certificates.customCAs .Values.certificates.customCertificate.certificateSecret) }}
               scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
               port: https
             initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
@@ -211,7 +219,11 @@ spec:
           startupProbe:
             httpGet:
               path: {{ .Values.startupProbe.path }}
+              {{- if (or .Values.certificates.customCAs .Values.certificates.customCertificate.certificateSecret) }}
               scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
               port: https
               httpHeaders:
                 - name: Host
