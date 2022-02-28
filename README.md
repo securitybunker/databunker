@@ -35,12 +35,6 @@ GDPR statement: *Personal data should be processed in a manner that ensures appr
 confidentiality of the  personal data, including for preventing unauthorized access to or use of personal
 data and the equipment used for the processing.*
 
-
-## ⭐⭐⭐ Spread a word to make a world a bit safer with Databunker
-![Databunker](https://databunker.org/img/databunker.png)
-
-Help us to raise awareness. Please add a ⭐ **star** and share this project with your friends.
-
 #### Diagram of old-style solution.
 
 ![picture](images/old-style-solution.png)
@@ -221,6 +215,7 @@ Detailed information can be found at https://databunker.org/use-case/
 
 # Blog posts, articles, or other resources that talk about Databunker:
 
+1. https://oppetmoln.se/20220223/databunker-en-oppen-losning-for-gdpr-saker-lagring-av-kundinformation/
 1. https://privacybunker.io/blog/gdpr-guide-for-startup-founders/
 1. https://dbweekly.com/issues/348
 1. https://www.freecodecamp.org/news/how-to-stay-gdpr-compliant-with-access-logs/
@@ -244,3 +239,8 @@ Give us a ⭐ **star** if you like our product.
 If you have any questions, you can contact the development team at office@privacybunker.io.
 
 Join the project slack channel to talk with developers: [https://databunker.slack.com/](https://join.slack.com/t/databunker/shared_invite/zt-b6ukxzw3-JCxv8NJDESL40haM45RNIA)
+
+# ⭐ Spread a word to make a world a bit safer with Databunker
+![Databunker](https://databunker.org/img/databunker.png)
+
+Help us to raise awareness. Please add a ⭐ **star** and share this project with your friends.
