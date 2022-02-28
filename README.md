@@ -2,21 +2,24 @@
 
 # Databunker
 
-**Databunker is a network-based, self-hosted, GDPR compliant, secure store for personal records or PII: https://databunker.org/**
+**Databunker is a network-based, self-hosted, GDPR compliant, secure vault for personal data or PII: https://databunker.org/**
 
+<div align="center">
  <p>
   <a href="https://github.com/securitybunker/databunker/actions?query=workflow%3ATests" target="_blank"><img src="https://github.com/securitybunker/databunker/workflows/Tests/badge.svg" alt="Tests"></a>
   <a href="https://join.slack.com/t/databunker/shared_invite/zt-b6ukxzw3-JCxv8NJDESL40haM45RNIA"><img src="https://img.shields.io/badge/slack-join%20chat%20%E2%86%92-e01563.svg" alt="Join Databunker Slack channel" /></a>
-  <a href="https://hub.docker.com/r/securitybunker/databunker"><img src="https://img.shields.io/docker/pulls/securitybunker/databunker?color=f02e65&style=flat" /></a>
-</p>
-<p>
+  <a href="https://hub.docker.com/r/securitybunker/databunker"><img src="https://img.shields.io/docker/pulls/securitybunker/databunker?color=f02e65&style=flat-square" /></a>
+ </p>
+ <p>
   <a href="https://github.com/securitybunker/databunker-store"><img src="https://nodei.co/npm/@databunker/store.png?mini=true" alt="npm install @databunker/store" /></a>
   <a href="https://github.com/securitybunker/databunker-session-store"><img src="https://nodei.co/npm/@databunker/session-store.png?mini=true" alt="npm install @databunker/session-store" /></a>
-</p>
+ </p>
+</div>
 
-Project **demo** is available at: [https://databunker.org/doc/demo/](https://databunker.org/doc/demo/). Please add a ⭐**star** if you like our project.
+Project **demo** is available at: [https://demo.databunker.org/](https://demo.databunker.org/). Please add a ⭐**star** if you like our project.
 
-## Intro
+We live in a world where the privacy of our information is nonexistent. The EU has been working to remediate this fallacy with GDPR, and the US (California) follows with a first sparrow called CCPA.
+
 
 We live in a world where the privacy of our information is nonexistent. The EU has been working to remediate this fallacy with GDPR, and the US (California) follows with a first sparrow called CCPA.
 
