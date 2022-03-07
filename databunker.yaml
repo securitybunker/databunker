@@ -4,6 +4,8 @@ generic:
   create_user_without_access_token: true
   # use separate app tables, default false
   # use_separate_app_tables: true
+  # specify if API call to list users is available (default false)
+  # list_users: true
 selfservice:
   # specifies if user can remove himself withour Admin/DPO approval (default false)
   forget_me: false

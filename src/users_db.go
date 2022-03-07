@@ -377,6 +377,58 @@ func (dbobj dbcon) getUser(userTOKEN string) ([]byte, bson.M, error) {
 	return decrypted, userBson, err
 }
 
+func (dbobj dbcon) getUsers(offset int32, limit int32) ([]byte, int64, error) {
+	count, err := dbobj.store.CountRecords0(storage.TblName.Users)
+	if err != nil {
+		return nil, 0, err
+	}
+	if count == 0 {
+		return nil, 0, err
+	}
+	var results []bson.M
+	records, err := dbobj.store.GetList0(storage.TblName.Users, offset, limit, "token")
+	if err != nil {
+		return nil, 0, err
+	}
+	for _, element := range records {
+		rec := make(map[string]interface{})
+		userKey := element["key"].(string)
+		userKeyBinary, err := base64.StdEncoding.DecodeString(userKey)
+		if err != nil {
+			return nil, 0, err
+		}
+		userTOKEN := element["token"].(string)
+		encData0 := element["data"].(string)
+		if len(encData0) > 0 {
+			encData, err := base64.StdEncoding.DecodeString(encData0)
+			if err != nil {
+				return nil, 0, err
+			}
+			decrypted, err := decrypt(dbobj.masterKey, userKeyBinary, encData)
+			if err != nil {
+				return nil, 0, err
+			}
+			var raw2 map[string]interface{}
+			err = json.Unmarshal(decrypted, &raw2)
+			if err != nil {
+				return nil, 0, err
+			}
+			rec["private"] = raw2
+		}
+		expstatus := getStringValue(element["expstatus"])
+		if len(expstatus) > 0 {
+			rec["endtime"] = element["endtime"]
+			rec["expstatus"] = expstatus
+		}
+		rec["token"] = userTOKEN
+		results = append(results, rec)
+	}
+	resultJSON, err := json.Marshal(results)
+	if err != nil {
+		return nil, 0, err
+	}
+	return resultJSON, count, nil
+}
 
 func (dbobj dbcon) dumpUserPII(email string, conf Config) (string, error) {
 	fullJSON := ""

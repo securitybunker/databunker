@@ -46,6 +46,7 @@ type Config struct {
 		UseSeparateAppTables		bool   `yaml:"use_separate_app_tables" default:"false"`
 		UserRecordSchema		string `yaml:"user_record_schema"`
 		AdminEmail			string `yaml:"admin_email" envconfig:"ADMIN_EMAIL"`
+		ListUsers			bool   `yaml:"list_users" default:"false"`
 	}
 	SelfService struct {
 		ForgetMe	 bool     `yaml:"forget_me" default:"false"`
@@ -191,6 +192,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/sys/backup", e.backupDB)
 
 	router.POST("/v1/user", e.userCreate)
+	router.POST("/v1/users", e.userList)
 	router.GET("/v1/user/:mode/:identity", e.userGet)
 	router.DELETE("/v1/user/:mode/:identity", e.userDelete)
 	router.PUT("/v1/user/:mode/:identity", e.userChange)
@@ -557,8 +559,9 @@ func main() {
 	flag.Parse()
 
 	var cfg Config
-	readConfFile(&cfg, confPtr)
 	readEnv(&cfg)
+	readConfFile(&cfg, confPtr)
+
 	customRootToken := ""
 	if *demoPtr {
 		customRootToken = "DEMO"

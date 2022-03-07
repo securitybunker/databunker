@@ -164,6 +164,37 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	w.Write([]byte(finalJSON))
 }
 
+func (e mainEnv) userList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	authResult := e.enforceAdmin(w, r)
+	if authResult == "" {
+		return
+	}
+	if e.conf.Generic.ListUsers == false {
+		returnError(w, r, "access denied", 403, nil, nil)
+		return
+	}
+	var offset int32 = 0
+	var limit int32 = 10
+	args := r.URL.Query()
+	if value, ok := args["offset"]; ok {
+		offset = atoi(value[0])
+	}
+	if value, ok := args["limit"]; ok {
+		limit = atoi(value[0])
+	}
+	resultJSON, counter, _ := e.db.getUsers(offset, limit)
+	fmt.Printf("Total count of events: %d\n", counter)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	if counter == 0 {
+		str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":[]}`, counter)
+		w.Write([]byte(str))
+	} else {
+		str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, counter, resultJSON)
+		w.Write([]byte(str))
+	}
+}
+
 func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
