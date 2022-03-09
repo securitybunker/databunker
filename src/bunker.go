@@ -419,6 +419,11 @@ func reqMiddleware(handler http.Handler) http.Handler {
 		//log.Printf("Set host %s\n", r.Host)
 		autocontext.Set(r, "host", r.Host)
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+		w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
+		w.Header().Set("Content-Security-Policy", "default-src 'self' http: https: data: blob: 'unsafe-inline'")
+		w.Header().Set("X-XSS-Protection", "1; mode=block")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w2 := NewCustomResponseWriter(w)
 		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 			w2.Header().Set("Vary", "Accept-Encoding")
