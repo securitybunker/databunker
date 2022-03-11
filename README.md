@@ -20,9 +20,6 @@ Project **demo** is available at: [https://demo.databunker.org/](https://demo.da
 
 We live in a world where the privacy of our information is nonexistent. The EU has been working to remediate this fallacy with GDPR, and the US (California) follows with a first sparrow called CCPA.
 
-
-We live in a world where the privacy of our information is nonexistent. The EU has been working to remediate this fallacy with GDPR, and the US (California) follows with a first sparrow called CCPA.
-
 Databunker project is intended to ease the GDPR and CPRA compliance. It gives organizations easy-to-implement APIs and secure vault to store PII, and a privacy portal.
 
 Databunker allows to know who is using your data, what is happening with your personal details and gives you the freedom to decide how to process your personal data.
