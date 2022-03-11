@@ -2,7 +2,7 @@
 
 # Databunker
 
-**Databunker is a network-based, self-hosted, GDPR compliant, secure vault for personal data or PII: https://databunker.org/**
+**Databunker is a network-based, self-hosted, GDPR compliant, secure database for personal data or PII: https://databunker.org/**
 
 <div align="center">
  <p>
@@ -22,7 +22,7 @@ We live in a world where the privacy of our information is nonexistent. The EU h
 
 Databunker project is intended to ease the GDPR and CPRA compliance. It gives organizations easy-to-implement APIs and secure vault to store PII, and a privacy portal.
 
-Databunker allows to know who is using your data, what is happening with your personal details and gives you the freedom to decide how to process your personal data.
+Databunker gives all of us, the real data owners, control of our data. Databunker allows us to know who is using our data, what is happening with our personal data and gives us the freedom to decide if we agree to that or not.
 
 Databunker, when deployed correctly, replaces all the customer's personal records (PII) scattered in the organization's different
 internal databases and log files with a single randomly generated token managed by the Databunker service.
