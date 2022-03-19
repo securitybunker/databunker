@@ -19,6 +19,7 @@ require (
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
+	github.com/oschwald/geoip2-golang v1.6.1
 	github.com/pelletier/go-toml v1.7.0 // indirect
 	github.com/prometheus/client_golang v1.12.1
 	github.com/qri-io/jsonpointer v0.1.1
