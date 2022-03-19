@@ -299,6 +299,14 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 			// next step: https://www.sanarias.com/blog/115LearningHTTPcachinginGo
 			w.Header().Set("Cache-Control", "public, max-age=7776000")
 			w.WriteHeader(200)
+			if strings.HasSuffix(r.URL.Path, ".js") || strings.HasSuffix(r.URL.Path, ".html") {
+				if bytes.Contains(data, []byte("%IPCOUNTRY%")) {
+					ipCountry := getCountry(r)
+					data2 := bytes.ReplaceAll(data, []byte("%IPCOUNTRY%"), []byte(ipCountry))
+					w.Write([]byte(data2))
+					return
+				}
+			}
 			w.Write([]byte(data))
 		}
 	})
@@ -624,6 +632,7 @@ func main() {
 	db := &dbcon{store, masterKey, hash[:]}
 	e := mainEnv{db, cfg, make(chan struct{})}
 	e.dbCleanup()
+	initGeoIP()
 	initCaptcha(hash)
 	router := e.setupRouter()
 	router = e.setupConfRouter(router)
