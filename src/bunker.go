@@ -185,8 +185,8 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router := httprouter.New()
 
 	router.GET("/v1/status", e.checkStatus)
-	router.GET("/status", e.checkStatus)
 	router.GET("/v1/status/", e.checkStatus)
+	router.GET("/status", e.checkStatus)
 	router.GET("/status/", e.checkStatus)
 
 	router.GET("/v1/sys/backup", e.backupDB)
@@ -420,7 +420,8 @@ func (w *CustomResponseWriter) WriteHeader(statusCode int) {
 }
 
 // HealthCheckerCounter is a counter for the AWS helth check requests
-var HealthCheckerCounter = 0
+var StatusCounter = 0
+var StatusErrorCounter = 0
 
 func reqMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -442,16 +443,26 @@ func reqMiddleware(handler http.Handler) http.Handler {
 		}
 		handler.ServeHTTP(w2, r)
 		autocontext.Clean(r)
-		if r.Header.Get("User-Agent") == "ELB-HealthChecker/2.0" && r.URL.RequestURI() == "/" && r.Method == "GET" {
-			if HealthCheckerCounter == 0 {
-				log.Printf("%d %s %s skiping %s\n", w2.Code, r.Method, r.URL, r.Header.Get("User-Agent"))
-				HealthCheckerCounter = 1
-			} else if HealthCheckerCounter == 100 {
-				HealthCheckerCounter = 0
+		URL := r.URL.String()
+		if r.Method == "GET" && (URL == "/status" || URL == "/status/" || URL == "/v1/status" || URL == "/v1/status/") {
+			if w2.Code == 200 {
+				if StatusCounter < 2 {
+					log.Printf("%d %s %s\n", w2.Code, r.Method, r.URL)
+				} else if StatusCounter == 2 {
+                                        log.Printf("%d %s %s 'ignore subsequent /status requests'\n", w2.Code, r.Method, r.URL)
+                                }
+				StatusCounter = StatusCounter + 1
 			} else {
-				HealthCheckerCounter = HealthCheckerCounter + 1
+				if StatusErrorCounter < 2 {
+					log.Printf("%d %s %s\n", w2.Code, r.Method, r.URL)
+				} else if StatusErrorCounter == 2 {
+					log.Printf("%d %s %s 'ignore subsequent errors in /status requests'\n", w2.Code, r.Method, r.URL)
+				}
+				StatusErrorCounter = StatusErrorCounter + 1
 			}
 		} else {
+			StatusCounter = 0
+			StatusErrorCounter = 0
 			log.Printf("%d %s %s\n", w2.Code, r.Method, r.URL)
 		}
 	})
