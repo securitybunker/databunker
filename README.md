@@ -212,6 +212,7 @@ Detailed information can be found at https://databunker.org/use-case/
 
 # Blog posts, articles, or other resources that talk about Databunker:
 
+1. GDPR compliance and Databunker introduction video https://www.youtube.com/watch?v=QESOuL3LMj0
 1. https://oppetmoln.se/20220223/databunker-en-oppen-losning-for-gdpr-saker-lagring-av-kundinformation/
 1. https://privacybunker.io/blog/gdpr-guide-for-startup-founders/
 1. https://dbweekly.com/issues/348
