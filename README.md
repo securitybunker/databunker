@@ -2,7 +2,7 @@
 
 # Databunker
 
-**Databunker is a network-based, self-hosted, GDPR compliant, secure database for personal data or PII: https://databunker.org/**
+**Databunker is a secure Active Directory for developers built with GDPR compliance: https://databunker.org/**
 
 <div align="center">
  <p>
