@@ -2,7 +2,7 @@
 
 # Databunker
 
-**Databunker is a secure Active Directory for developers built with GDPR compliance: https://databunker.org/**
+**Databunker is a secure user directory built for developers to comply with the GDPR: https://databunker.org/**
 
 <div align="center">
  <p>
