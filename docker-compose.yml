@@ -1,4 +1,4 @@
-# run generate-env-files.sh to generate all key material, including root tocken.
+# run ./generate-env-files.sh to generate all key material, including root token.
 version: '3'
 services:
   mysql:
