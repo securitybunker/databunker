@@ -419,9 +419,8 @@ func (w *CustomResponseWriter) WriteHeader(statusCode int) {
 	w.w.WriteHeader(statusCode)
 }
 
-// HealthCheckerCounter is a counter for the AWS helth check requests
-var StatusCounter = 0
-var StatusErrorCounter = 0
+var statusCounter = 0
+var statusErrorCounter = 0
 
 func reqMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -446,23 +445,23 @@ func reqMiddleware(handler http.Handler) http.Handler {
 		URL := r.URL.String()
 		if r.Method == "GET" && (URL == "/status" || URL == "/status/" || URL == "/v1/status" || URL == "/v1/status/") {
 			if w2.Code == 200 {
-				if StatusCounter < 2 {
+				if statusCounter < 2 {
 					log.Printf("%d %s %s\n", w2.Code, r.Method, r.URL)
-				} else if StatusCounter == 2 {
+				} else if statusCounter == 2 {
                                         log.Printf("%d %s %s 'ignore subsequent /status requests'\n", w2.Code, r.Method, r.URL)
                                 }
-				StatusCounter = StatusCounter + 1
+				statusCounter = statusCounter + 1
 			} else {
-				if StatusErrorCounter < 2 {
+				if statusErrorCounter < 2 {
 					log.Printf("%d %s %s\n", w2.Code, r.Method, r.URL)
-				} else if StatusErrorCounter == 2 {
+				} else if statusErrorCounter == 2 {
 					log.Printf("%d %s %s 'ignore subsequent errors in /status requests'\n", w2.Code, r.Method, r.URL)
 				}
-				StatusErrorCounter = StatusErrorCounter + 1
+				statusErrorCounter = statusErrorCounter + 1
 			}
 		} else {
-			StatusCounter = 0
-			StatusErrorCounter = 0
+			statusCounter = 0
+			statusErrorCounter = 0
 			log.Printf("%d %s %s\n", w2.Code, r.Method, r.URL)
 		}
 	})
