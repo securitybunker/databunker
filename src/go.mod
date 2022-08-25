@@ -21,7 +21,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.15 // indirect
 	github.com/oschwald/geoip2-golang v1.8.0
 	github.com/pelletier/go-toml v1.7.0 // indirect
-	github.com/prometheus/client_golang v1.13.0
+	github.com/prometheus/client_golang v1.12.2
 	github.com/qri-io/jsonpointer v0.1.1
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/schollz/sqlite3dump v1.3.1 // indirect
