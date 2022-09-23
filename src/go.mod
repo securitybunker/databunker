@@ -18,6 +18,7 @@ require (
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/lib/pq v1.10.7 // indirect
 	github.com/mattn/go-sqlite3 v1.14.15 // indirect
 	github.com/oschwald/geoip2-golang v1.8.0
 	github.com/pelletier/go-toml v1.7.0 // indirect

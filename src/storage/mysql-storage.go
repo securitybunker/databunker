@@ -18,10 +18,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var (
-	allTables []string
-)
-
 // MySQL struct is used to store database object
 type MySQLDB struct {
 	db *sql.DB

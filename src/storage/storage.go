@@ -37,6 +37,10 @@ var TblName = &listTbls{
 	Processingactivities: 9,
 }
 
+var (
+        allTables []string
+)
+
 func GetTable(t Tbl) string {
 	switch t {
 	case TblName.Users:
@@ -104,6 +108,11 @@ func getDBObj() BackendDB {
 	var db BackendDB
 	if len(host) > 0 {
 		db = &MySQLDB{}
+		return db
+	}
+	host = os.Getenv("PGSQL_HOST")
+	if len(host) > 0 {
+		db = &PGSQLDB{}
 	} else {
 		db = &SQLiteDB{}
 	}
