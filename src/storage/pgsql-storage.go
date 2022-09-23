@@ -13,36 +13,36 @@ import (
 	"strings"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// MySQL struct is used to store database object
-type MySQLDB struct {
+// PGSQL struct is used to store database object
+type PGSQLDB struct {
 	db *sql.DB
 }
 
-func (dbobj MySQLDB) getConnectionString(dbname *string) string {
-	user := os.Getenv("MYSQL_USER_NAME")
-	pass := os.Getenv("MYSQL_USER_PASS")
-	host := os.Getenv("MYSQL_HOST")
-	port := os.Getenv("MYSQL_PORT")
+func (dbobj PGSQLDB) getConnectionString(dbname *string) string {
+	user := os.Getenv("PGSQL_USER_NAME")
+	pass := os.Getenv("PGSQL_USER_PASS")
+	host := os.Getenv("PGSQL_HOST")
+	port := os.Getenv("PGSQL_PORT")
 	if len(user) == 0 {
-		user = "root"
+		user = "postgres"
 	}
 	if len(host) == 0 {
 		host = "127.0.0.1"
 	}
 	if len(port) == 0 {
-		port = "3306"
+		port = "5432"
 	}
 	dbnameString := ""
 	if dbname != nil && len(*dbname) > 0 {
 		dbnameString = *dbname
 	}
-	if len(os.Getenv("MYSQL_USER_PASS_FILE")) > 0 {
-		content, err := ioutil.ReadFile(os.Getenv("MYSQL_USER_PASS_FILE"))
+	if len(os.Getenv("PGSQL_USER_PASS_FILE")) > 0 {
+		content, err := ioutil.ReadFile(os.Getenv("PGSQL_USER_PASS_FILE"))
 		if err != nil {
 			return ""
 		}
@@ -50,14 +50,16 @@ func (dbobj MySQLDB) getConnectionString(dbname *string) string {
 	}
 	//str0 := fmt.Sprintf("%s:****@tcp(%s:%s)/%s", user, host, port, dbnameString)
 	//fmt.Printf("myql connection string: %s\n", str0)
-	str := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, dbnameString)
+	//str := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, dbnameString)
+	str := fmt.Sprintf("user='%s' password='%s' host='%s' port='%s' dbname='%s'",
+			user, pass, host, port, dbnameString)
 	return str
 }
 
 // DBExists function checks if database exists
-func (dbobj MySQLDB) DBExists(dbname *string) bool {
+func (dbobj PGSQLDB) DBExists(dbname *string) bool {
 	connectionString := dbobj.getConnectionString(dbname)
-	db, err := sql.Open("mysql", connectionString)
+	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		//log.Fatalf("Failed to open database: %s", err)
 		return false
@@ -68,7 +70,7 @@ func (dbobj MySQLDB) DBExists(dbname *string) bool {
 		//log.Fatalf("Error to open database connection: %s", err.Error())
 		return false
 	}
-	dbobj2 := MySQLDB{db}
+	dbobj2 := PGSQLDB{db}
 	record, err := dbobj2.GetRecord2(TblName.Xtokens, "token", "", "type", "root")
 	if record == nil || err != nil {
 		dbobj2.CloseDB()
@@ -79,10 +81,10 @@ func (dbobj MySQLDB) DBExists(dbname *string) bool {
 }
 
 // CreateTestDB creates a test db
-func (dbobj MySQLDB) CreateTestDB() string {
+func (dbobj PGSQLDB) CreateTestDB() string {
 	testDBName := "databunker_test"
 	connectionString := dbobj.getConnectionString(nil)
-	db, err := sql.Open("mysql", connectionString)
+	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		//log.Fatalf("Failed to open database: %s", err)
 		return testDBName
@@ -106,10 +108,10 @@ func (dbobj MySQLDB) CreateTestDB() string {
 }
 
 // OpenDB function opens the database
-func (dbobj *MySQLDB) OpenDB(dbname *string) error {
-	fmt.Printf("MYSQL Databunker db name is: %s\n", *dbname)
+func (dbobj *PGSQLDB) OpenDB(dbname *string) error {
+	fmt.Printf("POSTGRESQL Databunker db name is: %s\n", *dbname)
 	connectionString := dbobj.getConnectionString(dbname)
-	db, err := sql.Open("mysql", connectionString)
+	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		log.Fatalf("Failed to open databunker db: %s", err)
 		return err
@@ -139,17 +141,17 @@ func (dbobj *MySQLDB) OpenDB(dbname *string) error {
 	}
 	tx.Commit()
 	fmt.Printf("tables: %s\n", allTables)
-	if isContainer() == true && len(os.Getenv("MYSQL_USER_PASS_FILE")) > 0 {
-		os.Remove(os.Getenv("MYSQL_USER_PASS_FILE"))
+	if isContainer() == true && len(os.Getenv("PGSQL_USER_PASS_FILE")) > 0 {
+		os.Remove(os.Getenv("PGSQL_USER_PASS_FILE"))
 	}
 	return nil
 }
 
 // InitDB function creates tables and indexes
-func (dbobj *MySQLDB) InitDB(dbname *string) error {
-	//fmt.Printf("MYSQL init Databunker database: %s\n", *dbname)
+func (dbobj *PGSQLDB) InitDB(dbname *string) error {
+	//fmt.Printf("PGSQL init Databunker database: %s\n", *dbname)
 	connectionString := dbobj.getConnectionString(dbname)
-	db, err := sql.Open("mysql", connectionString)
+	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		return err
 	}
@@ -171,19 +173,19 @@ func (dbobj *MySQLDB) InitDB(dbname *string) error {
 	return nil
 }
 
-func (dbobj MySQLDB) Ping() error {
+func (dbobj PGSQLDB) Ping() error {
 	return dbobj.db.Ping()
 }
 
 // CloseDB function closes the open database
-func (dbobj *MySQLDB) CloseDB() {
+func (dbobj *PGSQLDB) CloseDB() {
 	if dbobj.db != nil {
 		dbobj.db.Close()
 	}
 }
 
 // BackupDB function backups existing databsae and prints database structure to http.ResponseWriter
-func (dbobj MySQLDB) BackupDB(w http.ResponseWriter) {
+func (dbobj PGSQLDB) BackupDB(w http.ResponseWriter) {
 	//err := sqlite3dump.DumpDB(dbobj.db, w)
 	//if err != nil {
 	//	w.WriteHeader(http.StatusInternalServerError)
@@ -191,20 +193,16 @@ func (dbobj MySQLDB) BackupDB(w http.ResponseWriter) {
 	//}
 }
 
-func (dbobj MySQLDB) escapeName(name string) string {
+func (dbobj PGSQLDB) escapeName(name string) string {
 	if name == "when" {
-		name = "`when`"
-	} else if name == "key" {
-		name = "`key`"
+		name = `"when"`
 	} else if name == "before" {
-		name = "`before`"
-	} else if name == "change" {
-		name = "`change`"
+		name = `"before"`
 	}
 	return name
 }
 
-func (dbobj MySQLDB) decodeFieldsValues(data interface{}) (string, []interface{}) {
+func (dbobj PGSQLDB) decodeFieldsValues(data interface{}) (string, []interface{}) {
 	fields := ""
 	values := make([]interface{}, 0)
 
@@ -245,7 +243,7 @@ func (dbobj MySQLDB) decodeFieldsValues(data interface{}) (string, []interface{}
 	return fields, values
 }
 
-func (dbobj MySQLDB) decodeForCleanup(data interface{}) string {
+func (dbobj PGSQLDB) decodeForCleanup(data interface{}) string {
 	fields := ""
 
 	switch t := data.(type) {
@@ -273,7 +271,7 @@ func (dbobj MySQLDB) decodeForCleanup(data interface{}) string {
 	return fields
 }
 
-func (dbobj MySQLDB) decodeForUpdate(bdoc *bson.M, bdel *bson.M) (string, []interface{}) {
+func (dbobj PGSQLDB) decodeForUpdate(bdoc *bson.M, bdel *bson.M) (string, []interface{}) {
 	values := make([]interface{}, 0)
 	fields := ""
 
@@ -288,9 +286,9 @@ func (dbobj MySQLDB) decodeForUpdate(bdoc *bson.M, bdel *bson.M) (string, []inte
 		for idx, val := range *bdoc {
 			values = append(values, val)
 			if len(fields) == 0 {
-				fields = dbobj.escapeName(idx) + "=?"
+				fields = dbobj.escapeName(idx) + "=$1"
 			} else {
-				fields = fields + "," + dbobj.escapeName(idx) + "=?"
+				fields = fields + "," + dbobj.escapeName(idx) + "=$" + (strconv.Itoa(len(values)))
 			}
 		}
 	}
@@ -307,18 +305,18 @@ func (dbobj MySQLDB) decodeForUpdate(bdoc *bson.M, bdel *bson.M) (string, []inte
 	return fields, values
 }
 
-func (dbobj MySQLDB) Exec(q string) error {
+func (dbobj PGSQLDB) Exec(q string) error {
 	_, err := dbobj.db.Exec(q)
 	return err
 }
 
 // CreateRecordInTable creates new record
-func (dbobj MySQLDB) CreateRecordInTable(tbl string, data interface{}) (int, error) {
+func (dbobj PGSQLDB) CreateRecordInTable(tbl string, data interface{}) (int, error) {
 	fields, values := dbobj.decodeFieldsValues(data)
-	valuesInQ := "?"
+	valuesInQ := "$1"
 	for idx := range values {
 		if idx > 0 {
-			valuesInQ = valuesInQ + ",?"
+			valuesInQ = valuesInQ + ",$" + (strconv.Itoa(idx + 1))
 		}
 	}
 	q := "insert into " + tbl + " (" + fields + ") values (" + valuesInQ + ")"
@@ -340,14 +338,14 @@ func (dbobj MySQLDB) CreateRecordInTable(tbl string, data interface{}) (int, err
 }
 
 // CreateRecord creates new record
-func (dbobj MySQLDB) CreateRecord(t Tbl, data interface{}) (int, error) {
+func (dbobj PGSQLDB) CreateRecord(t Tbl, data interface{}) (int, error) {
 	//if reflect.TypeOf(value) == reflect.TypeOf("string")
 	tbl := GetTable(t)
 	return dbobj.CreateRecordInTable(tbl, data)
 }
 
 // CountRecords0 returns number of records in table
-func (dbobj MySQLDB) CountRecords0(t Tbl) (int64, error) {
+func (dbobj PGSQLDB) CountRecords0(t Tbl) (int64, error) {
 	tbl := GetTable(t)
 	q := "select count(*) from " + tbl
 	//fmt.Printf("q: %s\n", q)
@@ -370,9 +368,9 @@ func (dbobj MySQLDB) CountRecords0(t Tbl) (int64, error) {
 }
 
 // CountRecords returns number of records that match filter
-func (dbobj MySQLDB) CountRecords(t Tbl, keyName string, keyValue string) (int64, error) {
+func (dbobj PGSQLDB) CountRecords(t Tbl, keyName string, keyValue string) (int64, error) {
 	tbl := GetTable(t)
-	q := "select count(*) from " + tbl + " WHERE " + dbobj.escapeName(keyName) + "=?"
+	q := "select count(*) from " + tbl + " WHERE " + dbobj.escapeName(keyName) + "=$1"
 	//fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -394,36 +392,36 @@ func (dbobj MySQLDB) CountRecords(t Tbl, keyName string, keyValue string) (int64
 }
 
 // UpdateRecord updates database record
-func (dbobj MySQLDB) UpdateRecord(t Tbl, keyName string, keyValue string, bdoc *bson.M) (int64, error) {
+func (dbobj PGSQLDB) UpdateRecord(t Tbl, keyName string, keyValue string, bdoc *bson.M) (int64, error) {
 	table := GetTable(t)
-	filter := dbobj.escapeName(keyName) + "=\"" + keyValue + "\""
+	filter := dbobj.escapeName(keyName) + "='" + keyValue + "'"
 	return dbobj.updateRecordInTableDo(table, filter, bdoc, nil)
 }
 
 // UpdateRecordInTable updates database record
-func (dbobj MySQLDB) UpdateRecordInTable(table string, keyName string, keyValue string, bdoc *bson.M) (int64, error) {
-	filter := dbobj.escapeName(keyName) + "=\"" + keyValue + "\""
+func (dbobj PGSQLDB) UpdateRecordInTable(table string, keyName string, keyValue string, bdoc *bson.M) (int64, error) {
+	filter := dbobj.escapeName(keyName) + "='" + keyValue + "'"
 	return dbobj.updateRecordInTableDo(table, filter, bdoc, nil)
 }
 
 // UpdateRecord2 updates database record
-func (dbobj MySQLDB) UpdateRecord2(t Tbl, keyName string, keyValue string,
+func (dbobj PGSQLDB) UpdateRecord2(t Tbl, keyName string, keyValue string,
 	keyName2 string, keyValue2 string, bdoc *bson.M, bdel *bson.M) (int64, error) {
 	table := GetTable(t)
-	filter := dbobj.escapeName(keyName) + "=\"" + keyValue + "\" AND " +
-		dbobj.escapeName(keyName2) + "=\"" + keyValue2 + "\""
+	filter := dbobj.escapeName(keyName) + "='" + keyValue + "' AND " +
+		dbobj.escapeName(keyName2) + "='" + keyValue2 + "'"
 	return dbobj.updateRecordInTableDo(table, filter, bdoc, bdel)
 }
 
 // UpdateRecordInTable2 updates database record
-func (dbobj MySQLDB) UpdateRecordInTable2(table string, keyName string,
+func (dbobj PGSQLDB) UpdateRecordInTable2(table string, keyName string,
 	keyValue string, keyName2 string, keyValue2 string, bdoc *bson.M, bdel *bson.M) (int64, error) {
-	filter := dbobj.escapeName(keyName) + "=\"" + keyValue + "\" AND " +
-		dbobj.escapeName(keyName2) + "=\"" + keyValue2 + "\""
+	filter := dbobj.escapeName(keyName) + "='" + keyValue + "' AND " +
+		dbobj.escapeName(keyName2) + "='" + keyValue2 + "'"
 	return dbobj.updateRecordInTableDo(table, filter, bdoc, bdel)
 }
 
-func (dbobj MySQLDB) updateRecordInTableDo(table string, filter string, bdoc *bson.M, bdel *bson.M) (int64, error) {
+func (dbobj PGSQLDB) updateRecordInTableDo(table string, filter string, bdoc *bson.M, bdel *bson.M) (int64, error) {
 	op, values := dbobj.decodeForUpdate(bdoc, bdel)
 	q := "update " + table + " SET " + op + " WHERE " + filter
 	//fmt.Printf("q: %s\n", q)
@@ -445,13 +443,13 @@ func (dbobj MySQLDB) updateRecordInTableDo(table string, filter string, bdoc *bs
 }
 
 // Lookup record by multiple fields
-func (dbobj MySQLDB) LookupRecord(t Tbl, row bson.M) (bson.M, error) {
+func (dbobj PGSQLDB) LookupRecord(t Tbl, row bson.M) (bson.M, error) {
 	table := GetTable(t)
 	q := "select * from " + table + " WHERE "
 	num := 1
 	values := make([]interface{}, 0)
 	for keyName, keyValue := range row {
-		q = q + dbobj.escapeName(keyName) + "=?"
+		q = q + dbobj.escapeName(keyName) + "=$" + strconv.FormatInt(int64(num), 10)
 		if num < len(row) {
 			q = q + " AND "
 		}
@@ -462,35 +460,35 @@ func (dbobj MySQLDB) LookupRecord(t Tbl, row bson.M) (bson.M, error) {
 }
 
 // GetRecord returns specific record from database
-func (dbobj MySQLDB) GetRecord(t Tbl, keyName string, keyValue string) (bson.M, error) {
+func (dbobj PGSQLDB) GetRecord(t Tbl, keyName string, keyValue string) (bson.M, error) {
 	table := GetTable(t)
-	q := "select * from " + table + " WHERE " + dbobj.escapeName(keyName) + "=?"
+	q := "select * from " + table + " WHERE " + dbobj.escapeName(keyName) + "=$1"
 	values := make([]interface{}, 0)
 	values = append(values, keyValue)
 	return dbobj.getRecordInTableDo(q, values)
 }
 
 // GetRecordInTable returns specific record from database
-func (dbobj MySQLDB) GetRecordInTable(table string, keyName string, keyValue string) (bson.M, error) {
-	q := "select * from " + table + " WHERE " + dbobj.escapeName(keyName) + "=?"
+func (dbobj PGSQLDB) GetRecordInTable(table string, keyName string, keyValue string) (bson.M, error) {
+	q := "select * from " + table + " WHERE " + dbobj.escapeName(keyName) + "=$1"
 	values := make([]interface{}, 0)
 	values = append(values, keyValue)
 	return dbobj.getRecordInTableDo(q, values)
 }
 
 // GetRecord2  returns specific record from database
-func (dbobj MySQLDB) GetRecord2(t Tbl, keyName string, keyValue string,
+func (dbobj PGSQLDB) GetRecord2(t Tbl, keyName string, keyValue string,
 	keyName2 string, keyValue2 string) (bson.M, error) {
 	table := GetTable(t)
-	q := "select * from " + table + " WHERE " + dbobj.escapeName(keyName) + "=? AND " +
-		dbobj.escapeName(keyName2) + "=?"
+	q := "select * from " + table + " WHERE " + dbobj.escapeName(keyName) + "=$1 AND " +
+		dbobj.escapeName(keyName2) + "=$2"
 	values := make([]interface{}, 0)
 	values = append(values, keyValue)
 	values = append(values, keyValue2)
 	return dbobj.getRecordInTableDo(q, values)
 }
 
-func (dbobj MySQLDB) getRecordInTableDo(q string, values []interface{}) (bson.M, error) {
+func (dbobj PGSQLDB) getRecordInTableDo(q string, values []interface{}) (bson.M, error) {
 	//fmt.Printf("query: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -576,14 +574,14 @@ func (dbobj MySQLDB) getRecordInTableDo(q string, values []interface{}) (bson.M,
 }
 
 // DeleteRecord deletes record in database
-func (dbobj MySQLDB) DeleteRecord(t Tbl, keyName string, keyValue string) (int64, error) {
+func (dbobj PGSQLDB) DeleteRecord(t Tbl, keyName string, keyValue string) (int64, error) {
 	tbl := GetTable(t)
 	return dbobj.DeleteRecordInTable(tbl, keyName, keyValue)
 }
 
 // DeleteRecordInTable deletes record in database
-func (dbobj MySQLDB) DeleteRecordInTable(table string, keyName string, keyValue string) (int64, error) {
-	q := "delete from " + table + " WHERE " + dbobj.escapeName(keyName) + "=?"
+func (dbobj PGSQLDB) DeleteRecordInTable(table string, keyName string, keyValue string) (int64, error) {
+	q := "delete from " + table + " WHERE " + dbobj.escapeName(keyName) + "=$1"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -603,14 +601,14 @@ func (dbobj MySQLDB) DeleteRecordInTable(table string, keyName string, keyValue 
 }
 
 // DeleteRecord2 deletes record in database
-func (dbobj MySQLDB) DeleteRecord2(t Tbl, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
+func (dbobj PGSQLDB) DeleteRecord2(t Tbl, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
 	tbl := GetTable(t)
 	return dbobj.deleteRecordInTable2(tbl, keyName, keyValue, keyName2, keyValue2)
 }
 
-func (dbobj MySQLDB) deleteRecordInTable2(table string, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
-	q := "delete from " + table + " WHERE " + dbobj.escapeName(keyName) + "=? AND " +
-		dbobj.escapeName(keyName2) + "=?"
+func (dbobj PGSQLDB) deleteRecordInTable2(table string, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
+	q := "delete from " + table + " WHERE " + dbobj.escapeName(keyName) + "=$1 AND " +
+		dbobj.escapeName(keyName2) + "=$2"
 	fmt.Printf("q: %s\n", q)
 	tx, err := dbobj.db.Begin()
 	if err != nil {
@@ -629,18 +627,18 @@ func (dbobj MySQLDB) deleteRecordInTable2(table string, keyName string, keyValue
 }
 
 /*
-func (dbobj MySQLDB) deleteDuplicate2(t Tbl, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
+func (dbobj PGSQLDB) deleteDuplicate2(t Tbl, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
 	tbl := GetTable(t)
 	return dbobj.deleteDuplicateInTable2(tbl, keyName, keyValue, keyName2, keyValue2)
 }
 */
 
 /*
-func (dbobj MySQLDB) deleteDuplicateInTable2(table string, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
-	q := "delete from " + table + " where " + dbobj.escapeName(keyName) + "=? AND " +
-		escapeName(keyName2) + "=? AND rowid not in " +
-		"(select min(rowid) from " + table + " where " + dbobj.escapeName(keyName) + "=? AND " +
-		escapeName(keyName2) + "=?)"
+func (dbobj PGSQLDB) deleteDuplicateInTable2(table string, keyName string, keyValue string, keyName2 string, keyValue2 string) (int64, error) {
+	q := "delete from " + table + " where " + dbobj.escapeName(keyName) + "=$1 AND " +
+		escapeName(keyName2) + "=$2 AND rowid not in " +
+		"(select min(rowid) from " + table + " where " + dbobj.escapeName(keyName) + "=$3 AND " +
+		escapeName(keyName2) + "=$4)"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -661,10 +659,10 @@ func (dbobj MySQLDB) deleteDuplicateInTable2(table string, keyName string, keyVa
 */
 
 // DeleteExpired0 deletes expired records in database
-func (dbobj MySQLDB) DeleteExpired0(t Tbl, expt int32) (int64, error) {
+func (dbobj PGSQLDB) DeleteExpired0(t Tbl, expt int32) (int64, error) {
 	table := GetTable(t)
 	now := int32(time.Now().Unix())
-	q := fmt.Sprintf("delete from %s WHERE `when`>0 AND `when`<%d", table, now-expt)
+	q := fmt.Sprintf(`delete from %s WHERE "when">0 AND "when"<%d`, table, now-expt)
 	fmt.Printf("q: %s\n", q)
 	tx, err := dbobj.db.Begin()
 	if err != nil {
@@ -685,9 +683,9 @@ func (dbobj MySQLDB) DeleteExpired0(t Tbl, expt int32) (int64, error) {
 }
 
 // DeleteExpired deletes expired records in database
-func (dbobj MySQLDB) DeleteExpired(t Tbl, keyName string, keyValue string) (int64, error) {
+func (dbobj PGSQLDB) DeleteExpired(t Tbl, keyName string, keyValue string) (int64, error) {
 	table := GetTable(t)
-	q := "delete from " + table + " WHERE endtime>0 AND endtime<? AND " + dbobj.escapeName(keyName) + "=?"
+	q := "delete from " + table + " WHERE endtime>0 AND endtime<$1 AND " + dbobj.escapeName(keyName) + "=$2"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -708,10 +706,10 @@ func (dbobj MySQLDB) DeleteExpired(t Tbl, keyName string, keyValue string) (int6
 }
 
 // CleanupRecord nullifies specific feilds in records in database
-func (dbobj MySQLDB) CleanupRecord(t Tbl, keyName string, keyValue string, data interface{}) (int64, error) {
+func (dbobj PGSQLDB) CleanupRecord(t Tbl, keyName string, keyValue string, data interface{}) (int64, error) {
 	tbl := GetTable(t)
 	cleanup := dbobj.decodeForCleanup(data)
-	q := "update " + tbl + " SET " + cleanup + " WHERE " + dbobj.escapeName(keyName) + "=?"
+	q := "update " + tbl + " SET " + cleanup + " WHERE " + dbobj.escapeName(keyName) + "=$1"
 	fmt.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
@@ -731,10 +729,10 @@ func (dbobj MySQLDB) CleanupRecord(t Tbl, keyName string, keyValue string, data 
 }
 
 // GetExpiring get records that are expiring
-func (dbobj MySQLDB) GetExpiring(t Tbl, keyName string, keyValue string) ([]bson.M, error) {
+func (dbobj PGSQLDB) GetExpiring(t Tbl, keyName string, keyValue string) ([]bson.M, error) {
 	table := GetTable(t)
 	now := int32(time.Now().Unix())
-	q := fmt.Sprintf("select * from %s WHERE endtime>0 AND endtime<%d AND %s=?",
+	q := fmt.Sprintf("select * from %s WHERE endtime>0 AND endtime<%d AND %s=$1",
 		table, now, dbobj.escapeName(keyName))
 	fmt.Printf("q: %s\n", q)
 	values := make([]interface{}, 0)
@@ -743,7 +741,7 @@ func (dbobj MySQLDB) GetExpiring(t Tbl, keyName string, keyValue string) ([]bson
 }
 
 // GetUniqueList returns a unique list of values from specific column in database
-func (dbobj MySQLDB) GetUniqueList(t Tbl, keyName string) ([]bson.M, error) {
+func (dbobj PGSQLDB) GetUniqueList(t Tbl, keyName string) ([]bson.M, error) {
 	table := GetTable(t)
 	keyName = dbobj.escapeName(keyName)
 	q := "select distinct " + keyName + " from " + table + " ORDER BY " + keyName
@@ -753,7 +751,7 @@ func (dbobj MySQLDB) GetUniqueList(t Tbl, keyName string) ([]bson.M, error) {
 }
 
 // GetList is used to return list of rows. It can be used to return values using pager.
-func (dbobj MySQLDB) GetList0(t Tbl, start int32, limit int32, orderField string) ([]bson.M, error) {
+func (dbobj PGSQLDB) GetList0(t Tbl, start int32, limit int32, orderField string) ([]bson.M, error) {
 	table := GetTable(t)
 	if limit > 100 {
 		limit = 100
@@ -775,12 +773,12 @@ func (dbobj MySQLDB) GetList0(t Tbl, start int32, limit int32, orderField string
 }
 
 // GetList is used to return list of rows. It can be used to return values using pager.
-func (dbobj MySQLDB) GetList(t Tbl, keyName string, keyValue string, start int32, limit int32, orderField string) ([]bson.M, error) {
+func (dbobj PGSQLDB) GetList(t Tbl, keyName string, keyValue string, start int32, limit int32, orderField string) ([]bson.M, error) {
 	table := GetTable(t)
 	if limit > 100 {
 		limit = 100
 	}
-	q := "select * from " + table + " WHERE " + dbobj.escapeName(keyName) + "=?"
+	q := "select * from " + table + " WHERE " + dbobj.escapeName(keyName) + "=$1"
 	if len(orderField) > 0 {
 		q = q + " ORDER BY " + dbobj.escapeName(orderField) + " DESC"
 	}
@@ -796,14 +794,19 @@ func (dbobj MySQLDB) GetList(t Tbl, keyName string, keyValue string, start int32
 	return dbobj.getListDo(q, values)
 }
 
-func (dbobj MySQLDB) getListDo(q string, values []interface{}) ([]bson.M, error) {
+func (dbobj PGSQLDB) getListDo(q string, values []interface{}) ([]bson.M, error) {
 	tx, err := dbobj.db.Begin()
 	if err != nil {
 		return nil, err
 	}
 	defer tx.Rollback()
+	return dbobj.getListDoRaw(tx, q, values)
+}
+
+func (dbobj PGSQLDB) getListDoRaw(tx *sql.Tx, q string, values []interface{}) ([]bson.M, error) {
 	rows, err := tx.Query(q, values...)
 	if err == sql.ErrNoRows {
+		fmt.Println("nothing found")
 		return nil, nil
 	} else if err != nil {
 		return nil, err
@@ -831,6 +834,7 @@ func (dbobj MySQLDB) getListDo(q string, values []interface{}) ([]bson.M, error)
 
 		err = rows.Scan(columnPointers...)
 		if err == sql.ErrNoRows {
+			fmt.Println("nothing found")
 			return nil, nil
 		}
 		if err != nil {
@@ -869,19 +873,22 @@ func (dbobj MySQLDB) getListDo(q string, values []interface{}) ([]bson.M, error)
 }
 
 // GetAllTables returns all tables that exists in database
-func (dbobj MySQLDB) GetAllTables() ([]string, error) {
+func (dbobj PGSQLDB) GetAllTables() ([]string, error) {
 	return allTables, nil
 }
 
 // ValidateNewApp function check if app name can be part of the table name
-func (dbobj MySQLDB) ValidateNewApp(appName string) bool {
+func (dbobj PGSQLDB) ValidateNewApp(appName string) bool {
 	if contains(allTables, appName) == true {
 		return true
+	}
+	if len(allTables) >= 100 {
+		return false
 	}
 	return true
 }
 
-func (dbobj MySQLDB) execQueries(queries []string) error {
+func (dbobj PGSQLDB) execQueries(queries []string) error {
 	tx, err := dbobj.db.Begin()
 	if err != nil {
 		return err
@@ -904,19 +911,19 @@ func (dbobj MySQLDB) execQueries(queries []string) error {
 }
 
 // CreateNewAppTable creates a new app table and creates indexes for it.
-func (dbobj MySQLDB) CreateNewAppTable(appName string) {
+func (dbobj PGSQLDB) CreateNewAppTable(appName string) {
 	if contains(allTables, appName) == false {
 		// it is a new app, create an index
 		log.Printf("This is a new app, creating table & index for: %s\n", appName)
 		queries := []string{
 			`CREATE TABLE IF NOT EXISTS ` + appName + ` (` +
-				`token TINYTEXT,` +
-				`md5 TINYTEXT,` +
-				`rofields TINYTEXT,` +
+				`token VARCHAR,` +
+				`md5 VARCHAR,` +
+				`rofields VARCHAR,` +
 				`data TEXT,` +
-				`status TINYTEXT,` +
-				"`when` int);",
-			"CREATE UNIQUE INDEX " + appName + "_token ON " + appName + " (token(36));"}
+				`status VARCHAR,` +
+				`"when" int);`,
+			"CREATE UNIQUE INDEX " + appName + "_token ON " + appName + " (token);"}
 		err := dbobj.execQueries(queries)
 		if err == nil {
 			allTables = append(allTables, appName)
@@ -925,176 +932,176 @@ func (dbobj MySQLDB) CreateNewAppTable(appName string) {
 	return
 }
 
-func (dbobj MySQLDB) initUsers() error {
+func (dbobj PGSQLDB) initUsers() error {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS users (` +
-			`token TINYTEXT,` +
-			"`key` TINYTEXT," +
-			`md5 TINYTEXT,` +
-			`loginidx TINYTEXT,` +
-			`emailidx TINYTEXT,` +
-			`phoneidx TINYTEXT,` +
-			`customidx TINYTEXT,` +
-			`expstatus TINYTEXT,` +
-			`exptoken TINYTEXT,` +
+			`token VARCHAR,` +
+			`key VARCHAR,` +
+			`md5 VARCHAR,` +
+			`loginidx VARCHAR,` +
+			`emailidx VARCHAR,` +
+			`phoneidx VARCHAR,` +
+			`customidx VARCHAR,` +
+			`expstatus VARCHAR,` +
+			`exptoken VARCHAR,` +
 			`endtime int,` +
 			`tempcodeexp int,` +
 			`tempcode int,` +
 			`data TEXT);`,
-		`CREATE UNIQUE INDEX users_token ON users (token(36));`,
-		`CREATE INDEX users_login ON users (loginidx(36));`,
-		`CREATE INDEX users_email ON users (emailidx(36));`,
-		`CREATE INDEX users_phone ON users (phoneidx(36));`,
-		`CREATE INDEX users_custom ON users (customidx(36));`,
+		`CREATE UNIQUE INDEX users_token ON users (token);`,
+		`CREATE INDEX users_login ON users (loginidx);`,
+		`CREATE INDEX users_email ON users (emailidx);`,
+		`CREATE INDEX users_phone ON users (phoneidx);`,
+		`CREATE INDEX users_custom ON users (customidx);`,
 		`CREATE INDEX users_endtime ON users (endtime);`,
-		`CREATE INDEX users_exptoken ON users (exptoken(36));`}
+		`CREATE INDEX users_exptoken ON users (exptoken);`}
 	return dbobj.execQueries(queries)
 }
 
-func (dbobj MySQLDB) initUserapps() error {
+func (dbobj PGSQLDB) initUserapps() error {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS userapps (` +
-			`appname TINYTEXT,` +
-			`token TINYTEXT,` +
-			`md5 TINYTEXT,` +
+			`appname VARCHAR,` +
+			`token VARCHAR,` +
+			`md5 VARCHAR,` +
 			`data TEXT,` +
-			`status TINYTEXT,` +
-			"`when` int);",
-		`CREATE INDEX userapps_appname ON userapps (appname(36));`,
-		`CREATE UNIQUE INDEX userapps_token_appname ON userapps (token(36),appname(36));`}
+			`status VARCHAR,` +
+			`"when" int);`,
+		`CREATE INDEX userapps_appname ON userapps (appname);`,
+		`CREATE UNIQUE INDEX userapps_token_appname ON userapps (token,appname);`}
 	return dbobj.execQueries(queries)
 }
 
-func (dbobj MySQLDB) initXTokens() error {
+func (dbobj PGSQLDB) initXTokens() error {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS xtokens (` +
-			`xtoken TINYTEXT,` +
-			`token TINYTEXT,` +
-			`type TINYTEXT,` +
-			`app TINYTEXT,` +
-			`fields TINYTEXT,` +
+			`xtoken VARCHAR,` +
+			`token VARCHAR,` +
+			`type VARCHAR,` +
+			`app VARCHAR,` +
+			`fields VARCHAR,` +
 			`endtime int);`,
-		`CREATE UNIQUE INDEX xtokens_xtoken ON xtokens (xtoken(36));`,
-		`CREATE INDEX xtokens_type ON xtokens (type(20));`}
+		`CREATE UNIQUE INDEX xtokens_xtoken ON xtokens (xtoken);`,
+		`CREATE INDEX xtokens_type ON xtokens (type);`}
 	return dbobj.execQueries(queries)
 }
 
-func (dbobj MySQLDB) initSharedRecords() error {
+func (dbobj PGSQLDB) initSharedRecords() error {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS sharedrecords (` +
-			`token TINYTEXT,` +
-			`record TINYTEXT,` +
-			`partner TINYTEXT,` +
-			`session TINYTEXT,` +
-			`app TINYTEXT,` +
-			`fields TINYTEXT,` +
+			`token VARCHAR,` +
+			`record VARCHAR,` +
+			`partner VARCHAR,` +
+			`session VARCHAR,` +
+			`app VARCHAR,` +
+			`fields VARCHAR,` +
 			`endtime int,` +
-			"`when` int);",
-		`CREATE INDEX sharedrecords_record ON sharedrecords (record(36));`}
+			`"when" int);`,
+		`CREATE INDEX sharedrecords_record ON sharedrecords (record);`}
 	return dbobj.execQueries(queries)
 }
 
-func (dbobj MySQLDB) initAudit() error {
+func (dbobj PGSQLDB) initAudit() error {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS audit (` +
-			`atoken TINYTEXT,` +
-			`identity TINYTEXT,` +
-			`record TINYTEXT,` +
-			`who TINYTEXT,` +
-			`mode TINYTEXT,` +
-			`app TINYTEXT,` +
-			`title TINYTEXT,` +
-			`status TINYTEXT,` +
-			`msg TINYTEXT,` +
-			`debug TINYTEXT,` +
-			"`before` TEXT," +
+			`atoken VARCHAR,` +
+			`identity VARCHAR,` +
+			`record VARCHAR,` +
+			`who VARCHAR,` +
+			`mode VARCHAR,` +
+			`app VARCHAR,` +
+			`title VARCHAR,` +
+			`status VARCHAR,` +
+			`msg VARCHAR,` +
+			`debug VARCHAR,` +
+			`before TEXT,` +
 			`after TEXT,` +
-			"`when` int);",
-		`CREATE INDEX audit_atoken ON audit (atoken(36));`,
-		`CREATE INDEX audit_record ON audit (record(36));`}
+			`"when" int);`,
+		`CREATE INDEX audit_atoken ON audit (atoken);`,
+		`CREATE INDEX audit_record ON audit (record);`}
 	return dbobj.execQueries(queries)
 }
 
-func (dbobj MySQLDB) initRequests() error {
+func (dbobj PGSQLDB) initRequests() error {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS requests (` +
-			`rtoken TINYTEXT,` +
-			`token TINYTEXT,` +
-			`app TINYTEXT,` +
-			`brief TINYTEXT,` +
-			`action TINYTEXT,` +
-			`status TINYTEXT,` +
-			"`change` TINYTEXT," +
-			`reason TINYTEXT,` +
+			`rtoken VARCHAR,` +
+			`token VARCHAR,` +
+			`app VARCHAR,` +
+			`brief VARCHAR,` +
+			`action VARCHAR,` +
+			`status VARCHAR,` +
+			`change VARCHAR,` +
+			`reason VARCHAR,` +
 			`creationtime int,` +
-			"`when` int);",
-		`CREATE INDEX requests_rtoken ON requests (rtoken(36));`,
-		`CREATE INDEX requests_token ON requests (token(36));`,
-		`CREATE INDEX requests_status ON requests (status(20));`}
+			`"when" int);`,
+		`CREATE INDEX requests_rtoken ON requests (rtoken);`,
+		`CREATE INDEX requests_token ON requests (token);`,
+		`CREATE INDEX requests_status ON requests (status);`}
 	return dbobj.execQueries(queries)
 }
 
-func (dbobj MySQLDB) initProcessingactivities() error {
+func (dbobj PGSQLDB) initProcessingactivities() error {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS processingactivities (` +
-			`activity TINYTEXT,` +
-			`title TINYTEXT,` +
-			`script TEXT,` +
-			`fulldesc TINYTEXT,` +
-			`legalbasis TINYTEXT,` +
-			`applicableto TINYTEXT,` +
+			`activity VARCHAR,` +
+			`title VARCHAR,` +
+			`script VARCHAR,` +
+			`fulldesc VARCHAR,` +
+			`legalbasis VARCHAR,` +
+			`applicableto VARCHAR,` +
 			`creationtime int);`,
-		`CREATE INDEX processingactivities_activity ON processingactivities (activity(36));`}
+		`CREATE INDEX processingactivities_activity ON processingactivities (activity);`}
 	return dbobj.execQueries(queries)
 }
 
-func (dbobj MySQLDB) initLegalbasis() error {
+func (dbobj PGSQLDB) initLegalbasis() error {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS legalbasis (` +
-			`brief TINYTEXT,` +
-			`status TINYTEXT,` +
-			`module TINYTEXT,` +
-			`shortdesc TINYTEXT,` +
-			`fulldesc TEXT,` +
-			`basistype TINYTEXT,` +
-			`requiredmsg TINYTEXT,` +
+			`brief VARCHAR,` +
+			`status VARCHAR,` +
+			`module VARCHAR,` +
+			`shortdesc VARCHAR,` +
+			`fulldesc VARCHAR,` +
+			`basistype VARCHAR,` +
+			`requiredmsg VARCHAR,` +
 			`usercontrol BOOLEAN,` +
 			`requiredflag BOOLEAN,` +
 			`creationtime int);`,
-		`CREATE INDEX legalbasis_brief ON legalbasis (brief(36));`}
+		`CREATE INDEX legalbasis_brief ON legalbasis (brief);`}
 	return dbobj.execQueries(queries)
 }
 
-func (dbobj MySQLDB) initAgreements() error {
+func (dbobj PGSQLDB) initAgreements() error {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS agreements (` +
-			`who TINYTEXT,` +
-			`mode TINYTEXT,` +
-			`token TINYTEXT,` +
-			`brief TINYTEXT,` +
-			`status TINYTEXT,` +
-			`referencecode TINYTEXT,` +
-			`lastmodifiedby TINYTEXT,` +
-			`agreementmethod TINYTEXT,` +
+			`who VARCHAR,` +
+			`mode VARCHAR,` +
+			`token VARCHAR,` +
+			`brief VARCHAR,` +
+			`status VARCHAR,` +
+			`referencecode VARCHAR,` +
+			`lastmodifiedby VARCHAR,` +
+			`agreementmethod VARCHAR,` +
 			`creationtime int,` +
 			`starttime int,` +
 			`endtime int,` +
-			"`when` int);",
-		`CREATE INDEX agreements_token ON agreements (token(36));`,
-		`CREATE INDEX agreements_brief ON agreements (brief(36));`}
+			`"when" int);`,
+		`CREATE INDEX agreements_token ON agreements (token);`,
+		`CREATE INDEX agreements_brief ON agreements (brief);`}
 	return dbobj.execQueries(queries)
 }
 
-func (dbobj MySQLDB) initSessions() error {
+func (dbobj PGSQLDB) initSessions() error {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS sessions (` +
-			`token TINYTEXT,` +
-			`session TINYTEXT,` +
-			"`key` TINYTEXT," +
+			`token VARCHAR,` +
+			`session VARCHAR,` +
+			`key VARCHAR,` +
 			`data TEXT,` +
 			`endtime int,` +
-			"`when` int);",
-		`CREATE INDEX sessions_a_token ON sessions (token(36));`,
-		`CREATE INDEX sessions_a_session ON sessions (session(36));`}
+			`"when" int);`,
+		`CREATE INDEX sessions_a_token ON sessions (token);`,
+		`CREATE INDEX sessions_a_session ON sessions (session);`}
 	return dbobj.execQueries(queries)
 }
