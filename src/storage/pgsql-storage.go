@@ -123,8 +123,8 @@ func (dbobj *PGSQLDB) OpenDB(dbname *string) error {
 	}
 	dbobj.db = db
 	// load all table names
-	q := "show tables"
-	tx, err := dbobj.db.Begin()
+        q := "SELECT table_name FROM information_schema.tables where table_schema NOT IN ('pg_catalog', 'information_schema');"
+        tx, err := dbobj.db.Begin()
 	if err != nil {
 		return err
 	}
