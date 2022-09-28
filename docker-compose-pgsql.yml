@@ -21,7 +21,7 @@ services:
     depends_on:
       - postgresql
     entrypoint: /bin/sh
-    command: -c "/databunker/bin/databunker -init -db databunkerdb"
+    command: -c "/bin/busybox sleep 3; /databunker/bin/databunker -init -db databunkerdb"
   databunker:
     #build: .
     image: securitybunker/databunker:latest
