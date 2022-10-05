@@ -20,8 +20,8 @@ RUN go get -d -v && \
 FROM scratch
 COPY --from=builder /bin/sh /bin/busybox /usr/bin/openssl /bin/
 COPY --from=builder /lib/ld* /lib/libssl.* /lib/libcrypto.* /lib/
-COPY --from=builder /etc/group /etc/ssl /etc/
-COPY --from=builder /usr/share/ca-certificates/mozilla/* /usr/share/ca-certificates/mozilla/
+COPY --from=builder /etc/group /etc/
+COPY --from=builder /etc/ssl /etc/ssl
 
 COPY databunker.yaml /databunker/conf/
 RUN /bin/busybox mkdir -p /databunker/data && \
