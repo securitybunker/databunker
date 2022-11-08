@@ -182,7 +182,7 @@ func (dbobj *MySQLDB) CloseDB() {
 	}
 }
 
-// BackupDB function backups existing databsae and prints database structure to http.ResponseWriter
+// BackupDB function backups existing database and prints database structure to http.ResponseWriter
 func (dbobj MySQLDB) BackupDB(w http.ResponseWriter) {
 	//err := sqlite3dump.DumpDB(dbobj.db, w)
 	//if err != nil {
