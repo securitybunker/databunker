@@ -17,7 +17,7 @@ func (dbobj dbcon) getUserApp(userTOKEN string, appName string, conf Config) ([]
 	var record bson.M
 	var err error
 	if conf.Generic.UseSeparateAppTables == true {
-		record, err = dbobj.store.GetRecordInTable(appNameFull, "token", userTOKEN)
+		record, err = dbobj.store.GetRecordFromTable(appNameFull, "token", userTOKEN)
 	} else {
 		record, err = dbobj.store.GetRecord2(storage.TblName.Userapps, "token", userTOKEN, "appname", appName)
 	}
@@ -78,7 +78,7 @@ func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, appName st
 	}
 	//fmt.Println("creating new app")
 	if conf.Generic.UseSeparateAppTables == true {
-		record, err := dbobj.store.GetRecordInTable(appNameFull, "token", userTOKEN)
+		record, err := dbobj.store.GetRecordFromTable(appNameFull, "token", userTOKEN)
 		if err != nil {
 			return userTOKEN, err
 		}
@@ -118,7 +118,7 @@ func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appNa
 	}
 	var record bson.M
 	if conf.Generic.UseSeparateAppTables == true {
-		record, err = dbobj.store.GetRecordInTable(appNameFull, "token", userTOKEN)
+		record, err = dbobj.store.GetRecordFromTable(appNameFull, "token", userTOKEN)
 	} else {
 		record, err = dbobj.store.GetRecord2(storage.TblName.Userapps, "token", userTOKEN, "appname", appName)
 	}
@@ -208,7 +208,7 @@ func (dbobj dbcon) listUserApps(userTOKEN string, conf Config) ([]byte, error) {
 		var result []string
 		for _, colName := range allCollections {
 			if strings.HasPrefix(colName, "app_") {
-				record, err := dbobj.store.GetRecordInTable(colName, "token", userTOKEN)
+				record, err := dbobj.store.GetRecordFromTable(colName, "token", userTOKEN)
 				if err != nil {
 					return nil, err
 				}
@@ -247,7 +247,7 @@ func (dbobj dbcon) dumpUserApps(userTOKEN string, conf Config) ([]byte, error) {
 		}
 		for _, colName := range allCollections {
 			if strings.HasPrefix(colName, "app_") {
-				record, err := dbobj.store.GetRecordInTable(colName, "token", userTOKEN)
+				record, err := dbobj.store.GetRecordFromTable(colName, "token", userTOKEN)
 				if err != nil {
 					return nil, err
 				}

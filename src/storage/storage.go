@@ -87,7 +87,7 @@ type BackendDB interface {
 	UpdateRecordInTable2(string, string, string, string, string, *bson.M, *bson.M) (int64, error)
 	LookupRecord(Tbl, bson.M) (bson.M, error)
 	GetRecord(Tbl, string, string) (bson.M, error)
-	GetRecordInTable(string, string, string) (bson.M, error)
+	GetRecordFromTable(string, string, string) (bson.M, error)
 	GetRecord2(Tbl, string, string, string, string) (bson.M, error)
 	DeleteRecord(Tbl, string, string) (int64, error)
 	DeleteRecordInTable(string, string, string) (int64, error)
