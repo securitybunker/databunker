@@ -2,7 +2,7 @@
 databunker.db*
 databunker
 Dockerfile
-data
+./data
 .*
 *.md
 .env
