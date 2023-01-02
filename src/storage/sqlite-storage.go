@@ -445,7 +445,7 @@ func (dbobj SQLiteDB) LookupRecord(t Tbl, row bson.M) (bson.M, error) {
 		values = append(values, keyValue)
 		num = num + 1
 	}
-	return dbobj.getRecordInTableDo(q, values)
+	return dbobj.getOneRecord(q, values)
 }
 
 // GetRecord returns specific record from database
@@ -454,15 +454,15 @@ func (dbobj SQLiteDB) GetRecord(t Tbl, keyName string, keyValue string) (bson.M,
 	q := "select * from " + table + " WHERE " + dbobj.escapeName(keyName) + "=$1"
 	values := make([]interface{}, 0)
 	values = append(values, keyValue)
-	return dbobj.getRecordInTableDo(q, values)
+	return dbobj.getOneRecord(q, values)
 }
 
-// GetRecordInTable returns specific record from database
-func (dbobj SQLiteDB) GetRecordInTable(table string, keyName string, keyValue string) (bson.M, error) {
+// GetRecordFromTable returns specific record from database
+func (dbobj SQLiteDB) GetRecordFromTable(table string, keyName string, keyValue string) (bson.M, error) {
 	q := "select * from " + table + " WHERE " + dbobj.escapeName(keyName) + "=$1"
 	values := make([]interface{}, 0)
 	values = append(values, keyValue)
-	return dbobj.getRecordInTableDo(q, values)
+	return dbobj.getOneRecord(q, values)
 }
 
 // GetRecord2  returns specific record from database
@@ -474,10 +474,10 @@ func (dbobj SQLiteDB) GetRecord2(t Tbl, keyName string, keyValue string,
 	values := make([]interface{}, 0)
 	values = append(values, keyValue)
 	values = append(values, keyValue2)
-	return dbobj.getRecordInTableDo(q, values)
+	return dbobj.getOneRecord(q, values)
 }
 
-func (dbobj SQLiteDB) getRecordInTableDo(q string, values []interface{}) (bson.M, error) {
+func (dbobj SQLiteDB) getOneRecord(q string, values []interface{}) (bson.M, error) {
 	//fmt.Printf("query: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
