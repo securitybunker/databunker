@@ -67,7 +67,7 @@ func getStringValue(r interface{}) string {
 	case []uint8:
 		return strings.TrimSpace(string(r.([]uint8)))
 	case float64:
-	        return strconv.Itoa(int(r.(float64)))
+		return strconv.Itoa(int(r.(float64)))
 	}
 	return ""
 }
@@ -499,7 +499,7 @@ func getJSONPostMap(r *http.Request) (map[string]interface{}, error) {
 	return records, nil
 }
 
-func getJSONPostData(r *http.Request) ([]byte, error){
+func getJSONPostData(r *http.Request) ([]byte, error) {
 	cType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	if err != nil {
 		fmt.Printf("ignoring empty content-type: %s\n", err)
@@ -549,9 +549,9 @@ func getJSONPostData(r *http.Request) ([]byte, error){
 		}
 		if body[0] == '{' {
 			return json.Marshal(records)
-	        } else if body[0] == '[' {
+		} else if body[0] == '[' {
 			return json.Marshal(records2)
-	        }
+		}
 	}
 	log.Printf("Ignore wrong content type: %s", cType)
 	maxStrLen := 200
