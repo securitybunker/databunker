@@ -108,7 +108,7 @@ func TestUtilSMS(t *testing.T) {
 	client := server.Client()
 	domain := server.URL
 	var cfg Config
-	sendCodeByPhoneDo(domain, client, 1234, "4444", cfg)
+	sendCodeByPhoneDo(domain, client, 1234, "4444", &cfg)
 }
 
 func TestUtilNotifyConsentChange(t *testing.T) {
