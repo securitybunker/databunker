@@ -12,10 +12,10 @@ import (
 func sendCodeByPhone(code int32, identity string, cfg Config) {
 	domain := "https://api.twilio.com"
 	client := &http.Client{}
-	sendCodeByPhoneDo(domain, client, code, identity, cfg)
+	sendCodeByPhoneDo(domain, client, code, identity, &cfg)
 }
 
-func sendCodeByPhoneDo(domain string, client *http.Client, code int32, identity string, cfg Config) {
+func sendCodeByPhoneDo(domain string, client *http.Client, code int32, identity string, cfg *Config) {
 	if len(cfg.Sms.URL) == 0 {
 		log.Printf("SMS gateway provider URL is missing")
 		return
