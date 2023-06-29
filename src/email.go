@@ -9,15 +9,16 @@ import (
 )
 
 func sendCodeByEmail(code int32, identity string, cfg Config) {
-	Dest := []string{identity}
-	Subject := "Access Code"
+	dest := []string{identity}
+	subject := "Access Code"
 	bodyMessage := "Access code is " + strconv.Itoa(int((code)))
 	msg := "From: " + cfg.SMTP.Sender + "\n" +
-		"To: " + strings.Join(Dest, ",") + "\n" +
-		"Subject: " + Subject + "\n" + bodyMessage
+		"To: " + strings.Join(dest, ",") + "\n" +
+		"Subject: " + subject + "\n" +
+		bodyMessage
 	auth := smtp.PlainAuth("", cfg.SMTP.User, cfg.SMTP.Pass, cfg.SMTP.Server)
 	err := smtp.SendMail(cfg.SMTP.Server+":"+cfg.SMTP.Port,
-		auth, cfg.SMTP.User, Dest, []byte(msg))
+		auth, cfg.SMTP.User, dest, []byte(msg))
 	if err != nil {
 		log.Printf("error sending email: %s", err)
 		return
@@ -29,15 +30,16 @@ func adminEmailAlert(action string, adminEmail string, cfg Config) {
 	if len(adminEmail) == 0 {
 		return
 	}
-	Dest := []string{adminEmail}
-	Subject := "Data Subject request received"
+	dest := []string{adminEmail}
+	subject := "Data Subject request received"
 	bodyMessage := "Request: " + action
 	msg := "From: " + cfg.SMTP.Sender + "\n" +
-		"To: " + strings.Join(Dest, ",") + "\n" +
-		"Subject: " + Subject + "\n" + bodyMessage
+		"To: " + strings.Join(dest, ",") + "\n" +
+		"Subject: " + subject + "\n" +
+		bodyMessage
 	auth := smtp.PlainAuth("", cfg.SMTP.User, cfg.SMTP.Pass, cfg.SMTP.Server)
 	err := smtp.SendMail(cfg.SMTP.Server+":"+cfg.SMTP.Port,
-		auth, cfg.SMTP.User, Dest, []byte(msg))
+		auth, cfg.SMTP.User, dest, []byte(msg))
 	if err != nil {
 		fmt.Printf("smtp error: %s", err)
 		return
