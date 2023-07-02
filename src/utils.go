@@ -29,8 +29,9 @@ var (
 	regexAppName       = regexp.MustCompile("^[a-z][a-z0-9\\_]{1,30}$")
 	regexExpiration    = regexp.MustCompile("^([0-9]+)([mhds])?$")
 	regexHex           = regexp.MustCompile("^[a-zA-F0-9]+$")
-	consentYesStatuses = []string{"y", "yes", "accept", "agree", "approve", "given", "true", "good"}
-	basisTypes         = []string{"consent", "contract", "legitimate-interest", "vital-interest", "legal-requirement", "public-interest"}
+	consentYesStatuses = []string{"1", "accept", "agree", "approve", "given", "good", "ok", "on", "true", "y", "yes"}
+	basisTypes         = []string{"consent", "contract", "legal-requirement", "legitimate-interest", "public-interest", "vital-interest"}
+	indexNames         = []string{"custom", "email", "login", "phone", "token"}
 )
 
 // Consideration why collection of meta data patch was postpone:
@@ -102,7 +103,7 @@ func hashString(md5Salt []byte, src string) string {
 
 func normalizeConsentStatus(status string) string {
 	status = strings.ToLower(status)
-	if contains(consentYesStatuses, status) {
+	if binarySearch(consentYesStatuses, status) {
 		return "yes"
 	}
 	return "no"
@@ -110,7 +111,7 @@ func normalizeConsentStatus(status string) string {
 
 func normalizeBasisType(status string) string {
 	status = strings.ToLower(status)
-	if contains(basisTypes, status) {
+	if binarySearch(basisTypes, status) {
 		return status
 	}
 	return "consent"
@@ -153,26 +154,29 @@ func normalizePhone(phone string, defaultCountry string) string {
 }
 
 func validateMode(index string) bool {
-	if index == "token" {
-		return true
-	}
-	if index == "email" {
-		return true
-	}
-	if index == "phone" {
-		return true
-	}
-	if index == "login" {
-		return true
-	}
-	if index == "custom" {
-		return true
-	}
-	return false
+	return binarySearch(indexNames, index)
 }
 
 func parseFields(fields string) []string {
 	return strings.Split(fields, ",")
+}
+
+// Binary search implementation for a sorted array of strings
+func binarySearch(arr []string, target string) bool {
+	low := 0
+	high := len(arr) - 1
+
+	for low <= high {
+		mid := (low + high) / 2
+		if arr[mid] == target {
+			return true
+		} else if arr[mid] < target {
+			low = mid + 1
+		} else {
+			high = mid - 1
+		}
+	}
+	return false
 }
 
 func contains(slice []string, item string) bool {
