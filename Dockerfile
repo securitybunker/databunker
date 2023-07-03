@@ -23,7 +23,7 @@ COPY --from=builder /lib/ld* /lib/libssl.* /lib/libcrypto.* /lib/
 COPY --from=builder /etc/group /etc/
 COPY --from=builder /etc/ssl /etc/ssl
 
-COPY databunker.yaml /databunker/conf/
+COPY databunker*.yaml /databunker/conf/
 RUN /bin/busybox mkdir -p /databunker/data && \
     /bin/busybox mkdir -p /databunker/certs && \
     /bin/busybox ln -s /bin/busybox /bin/addgroup && \
@@ -35,8 +35,8 @@ RUN /bin/busybox mkdir -p /databunker/data && \
     addgroup -S appgroup && adduser --no-create-home -S appuser -G appgroup && \
     chown appuser:appgroup /databunker/data
 USER appuser
-COPY --from=builder /go/bin/databunker /go/src/securitybunker/databunker/run.sh /go/src/securitybunker/databunker/health-check.sh /databunker/bin/
+COPY --from=builder /go/bin/databunker /go/src/securitybunker/databunker/run*.sh /go/src/securitybunker/databunker/health-check.sh /databunker/bin/
 EXPOSE 3000
 HEALTHCHECK --interval=5s --timeout=3s --start-period=33s --retries=3 CMD /databunker/bin/health-check.sh
-ENTRYPOINT ["/bin/sh", "/databunker/bin/run.sh"]
+ENTRYPOINT ["/bin/sh", "/databunker/bin/run-heroku.sh"]
 #CMD ["/bin/sh", "-x", "-c", "/go/bin/databunker -init"]
