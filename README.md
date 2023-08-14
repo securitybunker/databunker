@@ -239,7 +239,7 @@ If you published an article about Databunker send us a link at yuli@privacybunke
 
 ---
 
-# ⭐ We always strive to make our projects better
+## ⭐ We are constantly working to improve this project
 
 Your feedback is very important for us.
 
@@ -249,7 +249,7 @@ If you have any questions, you can contact the development team at office@privac
 
 Join the project slack channel to talk with developers: [https://databunker.slack.com/](https://join.slack.com/t/databunker/shared_invite/zt-b6ukxzw3-JCxv8NJDESL40haM45RNIA)
 
-# ⭐ Spread a word to make a world a bit safer with Databunker
+## ⭐ Spread a word to make a world a bit safer with Databunker
 ![Databunker](https://databunker.org/img/databunker.png)
 
 Help us to raise awareness. Please add a ⭐ **star** and share this project with your friends.
