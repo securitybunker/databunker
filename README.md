@@ -239,11 +239,9 @@ If you published an article about Databunker send us a link at yuli@privacybunke
 
 ---
 
-## ⭐ We are constantly working to improve this project
+## 🚀 We are constantly working to improve this project
 
-Your feedback is very important for us.
-
-Give us a ⭐ **star** if you like our product.
+Your feedback is very important for us. Give us a ⭐ **star** if you like our product.
 
 If you have any questions, you can contact the development team at office@privacybunker.io.
 
