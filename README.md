@@ -195,18 +195,29 @@ consult with an attorney specializing in privacy.**
 
 Detailed information can be found at https://databunker.org/use-case/
 
-* Personal information tokenization and storage https://databunker.org/use-case/customer-profile-storage-tokenization/
-* Pseudonymized user identity for cross-border information transfer https://databunker.org/use-case/schrems-ii-compliance/
-* Critical data segregation https://databunker.org/use-case/critical-data-segregation/
-* Personal Data minimization https://databunker.org/use-case/data-minimization/
-* Trace customer profile changes and access https://databunker.org/use-case/trace-profile-access-change/
-* Temporary customer/app/session identity for 3rd party services https://databunker.org/use-case/temporary-record-identity/
-* Encrypted session storage https://databunker.org/use-case/secure-session-storage/
-* GDPR compliant logging https://databunker.org/use-case/gdpr-compliant-logging/ 
-* User privacy portal https://databunker.org/use-case/user-privacy-controls/
-* Consent management, i.e. withdrawal
+* [A perfect backend for a KYC system for a crypto startup](https://databunker.org/success-story/kyc-backend-for-crypto-startup/)
+* [Temporary record identities for secure data exchange](https://databunker.org/use-case/temporary-record-identity/)
+* [Audit trail and tracing customer profile changes](https://databunker.org/use-case/trace-profile-access-change/)
+* [Critical Data Segregation: Implementation Guide](https://databunker.org/use-case/critical-data-segregation/)
+* [Continuous Data Protection for PII/PHI records](https://databunker.org/use-case/continuous-data-protection/)
+* [Custom Privacy-Enhancing Technology - PET](https://databunker.org/use-case/privacy-enhancing-technology/)
+* [User rights and privacy controls](https://databunker.org/use-case/user-privacy-controls/)
+* [PII/PHI storage and tokenization](https://databunker.org/use-case/customer-profile-storage-tokenization/)
+* [Automatic log retention policy](https://databunker.org/use-case/gdpr-compliant-logging/)
+* [Privacy by Design Compliance](https://databunker.org/use-case/privacy-by-design-default/)
+* [Simplify user login backend](https://databunker.org/use-case/simplify-user-login-backend/)
+* [Consent Management Platform](https://databunker.org/use-case/consent-management-platform/)
+* [Personal Data minimization](https://databunker.org/use-case/data-minimization/)
+* [Secure session storage](https://databunker.org/use-case/secure-session-storage/)
+* [GDPR request workflow](https://databunker.org/use-case/gdpr-user-request-workflow/)
+* [DPO Management Portal](https://databunker.org/use-case/dpo-management-portal/)
+* [User privacy portal](https://databunker.org/use-case/privacy-portal-for-customers/)
+* [ISO27001 Compliance](https://databunker.org/use-case/iso27001-compliance/)
+* [HIPAA Compliance](https://databunker.org/use-case/hipaa-compliance/)
+* [GDPR Compliance](https://databunker.org/use-case/gdpr-compliance/)
+* [SOC2 Compliance](https://databunker.org/use-case/soc2-compliance/)
+* [Pseudonymization](https://databunker.org/use-case/pseudonymization-vs-anonymization/)
 * Passport.js support
-* DPO friendly service
  
 ---
 
