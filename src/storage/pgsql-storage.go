@@ -28,6 +28,7 @@ func (dbobj PGSQLDB) getConnectionString(dbname *string) string {
 	pass := os.Getenv("PGSQL_USER_PASS")
 	host := os.Getenv("PGSQL_HOST")
 	port := os.Getenv("PGSQL_PORT")
+	sslMode := os.Getenv("PGSQL_SSL_MODE")
 	if len(user) == 0 {
 		user = "postgres"
 	}
@@ -51,8 +52,8 @@ func (dbobj PGSQLDB) getConnectionString(dbname *string) string {
 	//str0 := fmt.Sprintf("%s:****@tcp(%s:%s)/%s", user, host, port, dbnameString)
 	//fmt.Printf("myql connection string: %s\n", str0)
 	//str := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, dbnameString)
-	str := fmt.Sprintf("user='%s' password='%s' host='%s' port='%s' dbname='%s'",
-			user, pass, host, port, dbnameString)
+	str := fmt.Sprintf("user='%s' password='%s' host='%s' port='%s' dbname='%s' sslmode='%s'",
+		user, pass, host, port, dbnameString, sslMode)
 	return str
 }
 
@@ -123,8 +124,8 @@ func (dbobj *PGSQLDB) OpenDB(dbname *string) error {
 	}
 	dbobj.db = db
 	// load all table names
-        q := "SELECT table_name FROM information_schema.tables where table_schema NOT IN ('pg_catalog', 'information_schema');"
-        tx, err := dbobj.db.Begin()
+	q := "SELECT table_name FROM information_schema.tables where table_schema NOT IN ('pg_catalog', 'information_schema');"
+	tx, err := dbobj.db.Begin()
 	if err != nil {
 		return err
 	}

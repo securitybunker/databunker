@@ -1,0 +1,11 @@
+---
+kind: template
+load: container_v1.yaml
+name: build-and-push
+data:
+  build:
+    containerRepo: livspace/databunker
+    args:
+  promote:
+    deploymentRepo: core-infra-deployments
+    appName: databunker
