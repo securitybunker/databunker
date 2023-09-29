@@ -28,8 +28,8 @@ rm -rf .env/pg-*
 openssl req -new -text -passout pass:abcd -subj /CN=localhost -out .env/pg-server.req -keyout .env/pg-privkey.pem
 openssl rsa -in .env/pg-privkey.pem -passin pass:abcd -out .env/pg-server.key
 openssl req -x509 -in .env/pg-server.req -text -key .env/pg-server.key -out .env/pg-server.crt
-chmod 400 .env/pg-*
-sudo chown 999:0 .env/pg-*
+#chmod 400 .env/pg-*
+#sudo chown 999:0 .env/pg-*
 
 echo 'generating .env/databunker-root.env'
 ROOTTOKEN=`uuid 2> /dev/null`
