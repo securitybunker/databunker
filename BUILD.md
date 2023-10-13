@@ -35,7 +35,7 @@ docker push securitybunker/databunker:latest
 ```
 
 
-## Other usefull commands for working with containers:
+## Other useful commands for working with containers:
 
 ```
 docker rm dbunker
