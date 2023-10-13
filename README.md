@@ -91,7 +91,7 @@ https://databunker.org/doc/benchmark/
 * Backend at https://privacybunker.io/
 * Backend at https://bitbaza.io/
 
-🚩 **Send us a note** if you are running Databunker in production mode, so we can add your wesbite to the list.
+🚩 **Send us a note** if you are running Databunker in production mode, so we can add your website to the list.
 
 ## Privacy by design
 
