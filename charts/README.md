@@ -23,7 +23,7 @@ helm install databunker databunker/databunker \
   --set certificates.customCAs\[0\].secret="databunker"
 ```
 
-## Usefull commands
+## Useful commands
 
 ```
 export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=databunker,app.kubernetes.io/instance=databunker" -o jsonpath="{.items[0].metadata.name}")
