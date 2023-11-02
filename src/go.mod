@@ -31,7 +31,7 @@ require (
 	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect
 	github.com/ttacon/libphonenumber v1.2.1
 	go.mongodb.org/mongo-driver v1.12.0
-	golang.org/x/image v0.8.0 // indirect
+	golang.org/x/image v0.10.0 // indirect
 	golang.org/x/sys v0.9.0
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
