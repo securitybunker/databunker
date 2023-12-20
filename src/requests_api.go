@@ -42,7 +42,7 @@ func (e mainEnv) getCustomUserRequests(w http.ResponseWriter, r *http.Request, p
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit("get user privacy requests", identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
@@ -93,7 +93,7 @@ func (e mainEnv) getCustomUserRequests(w http.ResponseWriter, r *http.Request, p
 func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	request := ps.ByName("request")
 	event := audit("get user request by request token", request, "request", request)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if enforceUUID(w, request, event) == false {
 		return
@@ -162,7 +162,7 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	request := ps.ByName("request")
 	event := audit("approve user request", request, "request", request)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if enforceUUID(w, request, event) == false {
 		return
@@ -260,7 +260,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	request := ps.ByName("request")
 	event := audit("cancel user request", request, "request", request)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if enforceUUID(w, request, event) == false {
 		return

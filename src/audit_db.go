@@ -38,7 +38,10 @@ func auditApp(title string, record string, app string, mode string, identity str
 	return &auditEvent{Title: title, Mode: mode, Who: identity, Record: record, Status: "ok", When: int32(time.Now().Unix())}
 }
 
-func (event auditEvent) submit(db *dbcon) {
+func (event auditEvent) submit(db *dbcon, conf Config) {
+	if conf.Generic.DisableAudit == true {
+		return
+	}
 	bdoc := bson.M{}
 	atoken, _ := uuid.GenerateUUID()
 	bdoc["atoken"] = atoken

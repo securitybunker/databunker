@@ -32,7 +32,7 @@ func (e mainEnv) expGetStatus(w http.ResponseWriter, r *http.Request, ps httprou
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit("get expiration status by "+mode, identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
@@ -70,7 +70,7 @@ func (e mainEnv) expCancel(w http.ResponseWriter, r *http.Request, ps httprouter
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit("clear user expiration by "+mode, identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
@@ -109,7 +109,7 @@ func (e mainEnv) expRetainData(w http.ResponseWriter, r *http.Request, ps httpro
 	identity := ps.ByName("exptoken")
 	mode := "exptoken"
 	event := audit("retain user data by exptoken", identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 	if enforceUUID(w, identity, event) == false {
 		return
 	}
@@ -134,7 +134,7 @@ func (e mainEnv) expDeleteData(w http.ResponseWriter, r *http.Request, ps httpro
 	identity := ps.ByName("exptoken")
 	mode := "exptoken"
 	event := audit("delete user data by exptoken", identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 	if enforceUUID(w, identity, event) == false {
 		return
 	}
@@ -163,7 +163,7 @@ func (e mainEnv) expStart(w http.ResponseWriter, r *http.Request, ps httprouter.
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit("initiate user record expiration by "+mode, identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
 		return

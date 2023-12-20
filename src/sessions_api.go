@@ -16,7 +16,7 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 	var event *auditEvent
 	defer func() {
 		if event != nil {
-			event.submit(e.db)
+			event.submit(e.db, e.conf)
 		}
 	}()
 	if enforceUUID(w, session, event) == false {
@@ -72,7 +72,7 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 func (e mainEnv) deleteSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	session := ps.ByName("session")
 	event := audit("delete session", session, "session", session)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 	if enforceUUID(w, session, event) == false {
 		//returnError(w, r, "bad session format", nil, event)
 		return
@@ -91,7 +91,7 @@ func (e mainEnv) newUserSession(w http.ResponseWriter, r *http.Request, ps httpr
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit("create user session", identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
@@ -154,7 +154,7 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit("get all user sessions", identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
@@ -209,7 +209,7 @@ func (e mainEnv) getSession(w http.ResponseWriter, r *http.Request, ps httproute
 	var event *auditEvent
 	defer func() {
 		if event != nil {
-			event.submit(e.db)
+			event.submit(e.db, e.conf)
 		}
 	}()
 	when, record, userTOKEN, err := e.db.getSession(session)

@@ -45,6 +45,7 @@ type Config struct {
 		CreateUserWithoutAccessToken bool   `yaml:"create_user_without_access_token" default:"false"`
 		UseSeparateAppTables         bool   `yaml:"use_separate_app_tables" default:"false"`
 		UserRecordSchema             string `yaml:"user_record_schema"`
+                DisableAudit                 bool   `yaml:"disable_audit" default:"false"`
 		AdminEmail                   string `yaml:"admin_email" envconfig:"ADMIN_EMAIL"`
 		ListUsers                    bool   `yaml:"list_users" default:"false"`
 	}
