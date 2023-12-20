@@ -12,7 +12,7 @@ import (
 
 func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	event := audit("create user record", "", "", "")
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if e.conf.Generic.CreateUserWithoutAccessToken == false {
 		// anonymous user can not create user record, check token
@@ -127,7 +127,7 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit("get user record by "+mode, identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
@@ -199,7 +199,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit("change user record by "+mode, identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if validateMode(mode) == false {
 		returnError(w, r, "bad index", 405, nil, event)
@@ -281,7 +281,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit("delete user record by "+mode, identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
@@ -356,7 +356,7 @@ func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprou
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit("user prelogin by "+mode, identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	code0, err := decryptCaptcha(captcha)
 	if err != nil || code0 != code {
@@ -413,7 +413,7 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit("user login by "+mode, identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if mode != "phone" && mode != "email" {
 		returnError(w, r, "bad mode", 405, nil, event)

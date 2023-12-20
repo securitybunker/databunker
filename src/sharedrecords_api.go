@@ -15,7 +15,7 @@ import (
 func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	userTOKEN := ps.ByName("token")
 	event := audit("create shared record by user token", userTOKEN, "token", userTOKEN)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if enforceUUID(w, userTOKEN, event) == false {
 		return
@@ -86,7 +86,7 @@ func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps http
 func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	record := ps.ByName("record")
 	event := audit("get record data by record token", record, "record", record)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if enforceUUID(w, record, event) == false {
 		return

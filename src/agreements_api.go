@@ -14,7 +14,7 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
 	event := audit("agreement accept for "+brief, identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
@@ -127,7 +127,7 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
 	event := audit("consent withdraw for "+brief, identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
@@ -264,7 +264,7 @@ func (e mainEnv) getUserAgreements(w http.ResponseWriter, r *http.Request, ps ht
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit("privacy agreements for "+mode, identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
@@ -331,7 +331,7 @@ func (e mainEnv) getUserAgreement(w http.ResponseWriter, r *http.Request, ps htt
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
 	event := audit("privacy agreements for "+mode, identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
@@ -408,7 +408,7 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
 	event := audit("consent record for "+brief, identity, mode, identity)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
@@ -461,7 +461,7 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 func (e mainEnv) consentFilterRecords(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	brief := ps.ByName("brief")
 	event := audit("consent get all for "+brief, brief, "brief", brief)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 	if e.enforceAuth(w, r, event) == "" {
 		return
 	}

@@ -11,7 +11,7 @@ import (
 func (e mainEnv) getAuditEvents(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	userTOKEN := ps.ByName("token")
 	event := audit("view audit events", userTOKEN, "token", userTOKEN)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 	if enforceUUID(w, userTOKEN, event) == false {
 		return
 	}
@@ -68,7 +68,7 @@ func (e mainEnv) getAdminAuditEvents(w http.ResponseWriter, r *http.Request, ps 
 func (e mainEnv) getAuditEvent(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	atoken := ps.ByName("atoken")
 	event := audit("view audit event", atoken, "token", atoken)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 	//fmt.Println("error code")
 	if enforceUUID(w, atoken, event) == false {
 		return

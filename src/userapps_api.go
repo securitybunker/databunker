@@ -13,7 +13,7 @@ func (e mainEnv) userappNew(w http.ResponseWriter, r *http.Request, ps httproute
 	userTOKEN := ps.ByName("token")
 	appName := strings.ToLower(ps.ByName("appname"))
 	event := auditApp("create user app record", userTOKEN, appName, "token", userTOKEN)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if enforceUUID(w, userTOKEN, event) == false {
 		return
@@ -57,7 +57,7 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 	userTOKEN := ps.ByName("token")
 	appName := strings.ToLower(ps.ByName("appname"))
 	event := auditApp("change user app record", userTOKEN, appName, "token", userTOKEN)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if enforceUUID(w, userTOKEN, event) == false {
 		return
@@ -124,7 +124,7 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 func (e mainEnv) userappList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	userTOKEN := ps.ByName("token")
 	event := audit("get user app list", userTOKEN, "token", userTOKEN)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if enforceUUID(w, userTOKEN, event) == false {
 		return
@@ -146,7 +146,7 @@ func (e mainEnv) userappGet(w http.ResponseWriter, r *http.Request, ps httproute
 	userTOKEN := ps.ByName("token")
 	appName := strings.ToLower(ps.ByName("appname"))
 	event := auditApp("get user app record", userTOKEN, appName, "token", userTOKEN)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if enforceUUID(w, userTOKEN, event) == false {
 		return
@@ -177,7 +177,7 @@ func (e mainEnv) userappDelete(w http.ResponseWriter, r *http.Request, ps httpro
 	userTOKEN := ps.ByName("token")
 	appName := strings.ToLower(ps.ByName("appname"))
 	event := auditApp("delete user app record", userTOKEN, appName, "token", userTOKEN)
-	defer func() { event.submit(e.db) }()
+	defer func() { event.submit(e.db, e.conf) }()
 
 	if enforceUUID(w, userTOKEN, event) == false {
 		return
