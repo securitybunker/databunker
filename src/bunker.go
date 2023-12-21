@@ -81,7 +81,7 @@ type Config struct {
 		DefaultCountry string `yaml:"default_country"`
 	}
 	Server struct {
-		Port string `yaml:"port" envconfig:"BUNKER_PORT"`
+		Port string `yaml:"port" envconfig:"PORT"`
 		Host string `yaml:"host" envconfig:"BUNKER_HOST"`
 	} `yaml:"server"`
 	SMTP struct {
