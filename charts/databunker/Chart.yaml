@@ -1,7 +1,7 @@
 annotations:
   category: Database
 apiVersion: v2
-appVersion: 1.0.2
+appVersion: 1.0.3
 dependencies:
   - name: common
     repository: https://charts.bitnami.com/bitnami
@@ -33,4 +33,4 @@ name: databunker
 sources:
   - https://github.com/securitybunker/databunker
   - https://databunker.org/
-version: 1.0.17
+version: 1.0.18
