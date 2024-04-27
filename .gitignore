@@ -1,7 +1,9 @@
+src/a_main-packr.go
 charts/databunker/charts/
 terraform.tfstate
 terraform.tfstate.backup
 .DS_Store
+databunker
 databunker.db*
 databunker.yaml
 bql.db

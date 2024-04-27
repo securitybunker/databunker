@@ -1,28 +1,20 @@
 # Building Databunker
 
-## Build for release
-
-```
-./release.sh
-```
-
-It will generate **databunker** executable. HTML files are built inside executable.
-
-## Debug version
+Use the folllowing command
 
 ```
 ./build.sh
 ```
 
-It will generate **databunker** executable that can be run on the same box.
-Web UI files will be fetched from ui/ directory.
+It will generate **databunker** executable. HTML files are built inside executable.
 
 ## Build container
 
 It will generate "securitybunker/databunker" container and save it locally.
 
 ```
-docker build -t securitybunker/databunker:latest .
+VERSION=$(cat ./version.txt)
+docker build -t securitybunker/databunker:$VERSION --build-arg VERSION=$VERSION .
 ```
 
 ## Push container
@@ -31,7 +23,8 @@ docker build -t securitybunker/databunker:latest .
 
 ```
 docker login
-docker push securitybunker/databunker:latest
+VERSION=$(cat ./version.txt)
+docker push securitybunker/databunker:$VERSION
 ```
 
 
