@@ -1,6 +1,7 @@
 ############################
 # STEP 1 build executable binary
 ############################
+ARG VERSION
 FROM golang:alpine AS builder
 RUN apk update && apk add --no-cache git gcc libc-dev openssl && go install github.com/gobuffalo/packr/packr@latest
 WORKDIR $GOPATH/src/securitybunker/databunker/src/
@@ -12,7 +13,7 @@ COPY . $GOPATH/src/securitybunker/databunker/
 # Using go get.
 RUN go get -d -v && \
     packr && \
-    go build -o /go/bin/databunker && \
+    go build -ldflags="-s -w -X main.version=${VERSION}" -o /go/bin/databunker && \
     packr clean
 ############################
 # STEP 2 build a small image

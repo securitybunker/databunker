@@ -33,6 +33,8 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+var version string
+
 type dbcon struct {
 	store     storage.BackendDB
 	masterKey []byte
@@ -338,7 +340,7 @@ func readConfFile(cfg *Config, filepath *string) error {
 			confFile = *filepath
 		}
 	}
-	fmt.Printf("Databunker configuration file is: %s\n", confFile)
+	fmt.Printf("Databunker configuration file: %s\n", confFile)
 	f, err := os.Open(confFile)
 	if err != nil {
 		return err
@@ -580,7 +582,13 @@ func main() {
 	dbPtr := flag.String("db", "databunker", "Specify database name/file")
 	confPtr := flag.String("conf", "", "Configuration file name to use")
 	rootTokenKeyPtr := flag.String("roottoken", "", "Specify custom root token to use during database init. It must be in UUID format.")
+	versionPtr := flag.Bool("version", false, "Print version information")
 	flag.Parse()
+
+	if *versionPtr {
+		fmt.Printf("Databunker version: %s\n", version)
+		os.Exit(0)
+	}
 
 	var cfg Config
 	readEnv(&cfg)
