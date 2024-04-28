@@ -1,9 +1,7 @@
-**/.git
 databunker.db*
 databunker
 Dockerfile
 ./data
-.*
 *.md
 .env
 data/*
