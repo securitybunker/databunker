@@ -14,7 +14,7 @@ To generate the ```securitybunker/databunker``` container, use the following com
 
 ```
 VERSION=$(cat ./version.txt)
-docker build -t securitybunker/databunker:$VERSION --build-arg VERSION=$VERSION .
+docker build -t securitybunker/databunker:$VERSION .
 ```
 
 ## Pushing Container
