@@ -22,19 +22,16 @@ jobs:
         echo done
     - name: Download deps
       run: |
-        sudo apt install -y golang
         cd src
         go get -d -v
         echo done
     - name: Run go vet
       run: |
-        sudo apt install -y golang
         cd src
         go vet
         echo done
     - name: Run go test
       run: |
-        sudo apt install -y golang
         cd src
         go test
         echo done
