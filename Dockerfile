@@ -2,7 +2,7 @@
 # STEP 1 build executable file
 ##############################
 FROM golang:alpine AS builder
-RUN apk update && apk add --no-cache git gcc libc-dev openssl
+RUN apk update && apk add --no-cache git gcc libc-dev openssl && go install github.com/gobuffalo/packr/packr@latest
 WORKDIR /go/src/securitybunker/databunker/src/
 COPY src/go.mod ./deps
 RUN cat ./deps | grep -v storage > ./go.mod && go mod download
