@@ -1,6 +1,6 @@
 module github.com/securitybunker/databunker/src
 
-go 1.13
+go 1.20
 
 replace github.com/securitybunker/databunker/src/storage => ./storage
 
