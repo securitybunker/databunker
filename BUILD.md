@@ -37,3 +37,8 @@ docker container stats databunker
 docker run --rm -ti alpine
 /bin/busybox wget localhost:3000
 ```
+
+## Check what packages require cgo
+```
+go list -f "{{if .CgoFiles}}{{.ImportPath}}{{end}}" $(go list -f "{{.ImportPath}}{{range .Deps}} {{. }}{{end}}")
+```
