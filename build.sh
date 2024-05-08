@@ -20,15 +20,15 @@ go get -d -v
 
 if [ -x "~/go/bin/packr" ]; then
   ~/go/bin/packr
-elif [ -x "packr" ]; then
+else
   packr
 fi
 
-go build -v -ldflags="-s -w -X main.version=$FULL_VERSION" -o ../databunker
+CGO_ENABLED=0 go build -v -ldflags="-s -w -X main.version=$FULL_VERSION" -o ../databunker
 
 if [ -x "~/go/bin/packr" ]; then
   ~/go/bin/packr clean
-elif [ -x "packr" ]; then
+else
   packr clean
 fi
 
