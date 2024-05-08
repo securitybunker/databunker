@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3" // load sqlite3 here
-	"github.com/schollz/sqlite3dump"
+        _ "modernc.org/sqlite"
+	//"github.com/schollz/sqlite3dump"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -41,7 +41,7 @@ func (dbobj SQLiteDB) DBExists(filepath *string) bool {
 	if _, err := os.Stat(dbfile); os.IsNotExist(err) {
 		return false
 	}
-	db, err := sql.Open("sqlite3", "file:"+dbfile+"?_journal_mode=WAL")
+	db, err := sql.Open("sqlite", "file:"+dbfile+"?_journal_mode=WAL")
 	if err != nil {
 		return false
 	}
@@ -95,7 +95,7 @@ func (dbobj *SQLiteDB) OpenDB(filepath *string) error {
 
 	//ql.RegisterDriver2()
 	//db, err := sql.Open("ql2", dbfile)
-	db, err := sql.Open("sqlite3", "file:"+dbfile+"?_journal_mode=WAL")
+	db, err := sql.Open("sqlite", "file:"+dbfile+"?_journal_mode=WAL")
 	if err != nil {
 		log.Fatalf("Failed to open databunker.db file: %s", err)
 		return err
@@ -140,7 +140,7 @@ func (dbobj *SQLiteDB) InitDB(filepath *string) error {
 		dbfile = dbfile + ".db"
 	}
 	log.Printf("Init Databunker db file is: %s\n", dbfile)
-	db, err := sql.Open("sqlite3", "file:"+dbfile+"?_journal_mode=WAL")
+	db, err := sql.Open("sqlite", "file:"+dbfile+"?_journal_mode=WAL")
 	if err != nil {
 		return err
 	}
@@ -176,11 +176,13 @@ func (dbobj *SQLiteDB) CloseDB() {
 
 // BackupDB function backups existing database and prints database structure to http.ResponseWriter
 func (dbobj SQLiteDB) BackupDB(w http.ResponseWriter) {
+/*
 	err := sqlite3dump.DumpDB(dbobj.db, w)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("error in backup: %s", err)
 	}
+*/
 }
 
 func (dbobj SQLiteDB) escapeName(name string) string {
