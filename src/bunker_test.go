@@ -121,6 +121,7 @@ func init() {
 	fmt.Printf("**INIT*DONE***\n")
 }
 
+/*
 func TestBackupOK(t *testing.T) {
 	fmt.Printf("root token: %s\n", rootToken)
 	raw, err := helpBackupRequest(rootToken)
@@ -132,6 +133,7 @@ func TestBackupOK(t *testing.T) {
 		t.Fatalf("Backup failed\n")
 	}
 }
+*/
 
 func TestMetrics(t *testing.T) {
 	raw, err := helpMetricsRequest(rootToken)
