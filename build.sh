@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 VERSION=$(cat ./version.txt)
 HASH=$(git rev-parse --short=12 HEAD)
@@ -10,7 +10,7 @@ if [ -x ~/go/bin/packr ]; then
 elif [ -x "packr" ]; then
   echo "Fond packr"
 else
-  echo "installing packr"
+  echo "Installing packr"
   go install github.com/gobuffalo/packr/packr@latest
 fi
 
