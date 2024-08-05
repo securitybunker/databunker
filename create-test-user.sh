@@ -2,10 +2,9 @@
 
 XTOKEN=$1
 if [ -z $XTOKEN ]; then
-  echo "missing api key parameter"
-  exit
+  echo "The API token is missing, assuming the DEMO API token"
+  XTOKEN="DEMO"
 fi
-
 DATABUNKER="http://localhost:3000"
 
 RESULT=`curl -s $DATABUNKER/v1/pactivity/share-data-with-sms-provider -XPOST \
