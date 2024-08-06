@@ -1,14 +1,14 @@
 package main
 
 import (
-	"log"
 	"encoding/json"
+	"log"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
-	uuid "github.com/hashicorp/go-uuid"
 	jsonpatch "github.com/evanphx/json-patch"
+	uuid "github.com/hashicorp/go-uuid"
 )
 
 func helpCreateUser(userJSON string) (map[string]interface{}, error) {

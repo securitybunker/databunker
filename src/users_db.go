@@ -454,7 +454,6 @@ func (dbobj dbcon) dumpUserPII(email string, conf Config) (string, error) {
 	return fullJSON, err
 }
 
-
 func (dbobj dbcon) getUserJSONByIndex(indexValue string, indexName string, conf Config) ([]byte, string, error) {
 	userBson, err := dbobj.lookupUserRecordByIndex(indexName, indexValue, conf)
 	if userBson == nil || err != nil {

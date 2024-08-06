@@ -1,13 +1,13 @@
 package main
 
 import (
-	"net/http/httptest"
 	"encoding/json"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
-	uuid "github.com/hashicorp/go-uuid"
 	jsonpatch "github.com/evanphx/json-patch"
+	uuid "github.com/hashicorp/go-uuid"
 )
 
 func helpCreateUserApp(userTOKEN string, appName string, appJSON string) (map[string]interface{}, error) {

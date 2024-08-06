@@ -42,7 +42,7 @@ func (dbobj dbcon) deleteUserApp(userTOKEN string, appName string, conf Config) 
 
 func (dbobj dbcon) deleteUserApps(userTOKEN string, conf Config) {
 	if conf.Generic.UseSeparateAppTables == true {
-		userApps, _:= dbobj.listAllAppsOnly(conf)
+		userApps, _ := dbobj.listAllAppsOnly(conf)
 		// delete all user app records
 		for _, appName := range userApps {
 			appNameFull := "app_" + appName
@@ -84,7 +84,7 @@ func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, appName st
 		}
 		if record != nil {
 			_, err = dbobj.store.UpdateRecordInTable(appNameFull, "token", userTOKEN, &bdoc)
-		 } else {
+		} else {
 			_, err = dbobj.store.CreateRecordInTable(appNameFull, bdoc)
 		}
 	} else {

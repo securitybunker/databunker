@@ -217,9 +217,9 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 			event.Msg = "failed to delete"
 		}
 		if err != nil {
-                        returnError(w, r, "internal error", 405, err, event)
-                        return
-                }
+			returnError(w, r, "internal error", 405, err, event)
+			return
+		}
 		notifyURL := e.conf.Notification.NotificationURL
 		notifyForgetMe(notifyURL, userJSON, "token", userTOKEN)
 	} else if action == "change-profile" {

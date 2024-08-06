@@ -56,10 +56,10 @@ func notifyConsentChange(notifyURL string, brief string, status string, mode str
 		return
 	}
 	requestBody, _ := json.Marshal(map[string]string{
-		"action":  "consentchange",
-		"brief":   brief,
-		"status":  status,
-		"mode":    mode,
+		"action":   "consentchange",
+		"brief":    brief,
+		"status":   status,
+		"mode":     mode,
 		"identity": identity,
 	})
 	host := autocontext.GetAuto("host")

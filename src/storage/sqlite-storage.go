@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-        _ "modernc.org/sqlite"
+	_ "modernc.org/sqlite"
 	//"github.com/schollz/sqlite3dump"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -176,13 +176,14 @@ func (dbobj *SQLiteDB) CloseDB() {
 
 // BackupDB function backups existing database and prints database structure to http.ResponseWriter
 func (dbobj SQLiteDB) BackupDB(w http.ResponseWriter) {
-/*
-	err := sqlite3dump.DumpDB(dbobj.db, w)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Printf("error in backup: %s", err)
-	}
-*/
+	/*
+	   err := sqlite3dump.DumpDB(dbobj.db, w)
+
+	   	if err != nil {
+	   		w.WriteHeader(http.StatusInternalServerError)
+	   		log.Printf("error in backup: %s", err)
+	   	}
+	*/
 }
 
 func (dbobj SQLiteDB) escapeName(name string) string {
@@ -234,17 +235,17 @@ func (dbobj SQLiteDB) decodeFieldsValues(data interface{}) (string, []interface{
 }
 
 func (dbobj SQLiteDB) decodeForCleanup(bdel []string) string {
-        fields := ""
-        if bdel != nil {
-                for _, colname := range bdel {
-                        if len(fields) == 0 {
-                                fields = dbobj.escapeName(colname) + "=null"
-                        } else {
-                                fields = fields + "," + dbobj.escapeName(colname) + "=null"
-                        }
-                }
-        }
-        return fields
+	fields := ""
+	if bdel != nil {
+		for _, colname := range bdel {
+			if len(fields) == 0 {
+				fields = dbobj.escapeName(colname) + "=null"
+			} else {
+				fields = fields + "," + dbobj.escapeName(colname) + "=null"
+			}
+		}
+	}
+	return fields
 }
 
 func (dbobj SQLiteDB) decodeForUpdate(bdoc *bson.M, bdel []string) (string, []interface{}) {
@@ -269,15 +270,15 @@ func (dbobj SQLiteDB) decodeForUpdate(bdoc *bson.M, bdel []string) (string, []in
 		}
 	}
 
-        if bdel != nil {
-                for _, colname := range bdel {
-                        if len(fields) == 0 {
-                                fields = dbobj.escapeName(colname) + "=null"
-                        } else {
-                                fields = fields + "," + dbobj.escapeName(colname) + "=null"
-                        }
-                }
-        }
+	if bdel != nil {
+		for _, colname := range bdel {
+			if len(fields) == 0 {
+				fields = dbobj.escapeName(colname) + "=null"
+			} else {
+				fields = fields + "," + dbobj.escapeName(colname) + "=null"
+			}
+		}
+	}
 	return fields, values
 }
 

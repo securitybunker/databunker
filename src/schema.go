@@ -20,8 +20,10 @@ var userSchema *jsonschema.Schema
 
 // IsAdmin - admin/DPO approval is required
 type IsAdmin bool
+
 // IsLocked - variable is locked from changes
 type IsLocked bool
+
 // IsPreserve variable can never be deleted
 type IsPreserve bool
 

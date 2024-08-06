@@ -247,15 +247,15 @@ func (dbobj MySQLDB) decodeFieldsValues(data interface{}) (string, []interface{}
 
 func (dbobj MySQLDB) decodeForCleanup(bdel []string) string {
 	fields := ""
-        if bdel != nil {
-                for _, colname := range bdel {
-                        if len(fields) == 0 {
-                                fields = dbobj.escapeName(colname) + "=null"
-                        } else {
-                                fields = fields + "," + dbobj.escapeName(colname) + "=null"
-                        }
-                }
-        }
+	if bdel != nil {
+		for _, colname := range bdel {
+			if len(fields) == 0 {
+				fields = dbobj.escapeName(colname) + "=null"
+			} else {
+				fields = fields + "," + dbobj.escapeName(colname) + "=null"
+			}
+		}
+	}
 	return fields
 }
 
@@ -281,15 +281,15 @@ func (dbobj MySQLDB) decodeForUpdate(bdoc *bson.M, bdel []string) (string, []int
 		}
 	}
 
-        if bdel != nil {
-                for _, colname := range bdel {
-                        if len(fields) == 0 {
-                                fields = dbobj.escapeName(colname) + "=null"
-                        } else {
-                                fields = fields + "," + dbobj.escapeName(colname) + "=null"
-                        }
-                }
-        }
+	if bdel != nil {
+		for _, colname := range bdel {
+			if len(fields) == 0 {
+				fields = dbobj.escapeName(colname) + "=null"
+			} else {
+				fields = fields + "," + dbobj.escapeName(colname) + "=null"
+			}
+		}
+	}
 	return fields, values
 }
 

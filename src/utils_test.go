@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"

@@ -33,7 +33,7 @@ func decrypt(masterKey []byte, userKey []byte, data []byte) ([]byte, error) {
 	// DO NOT USE THE FOLLOWING LINE. It is broken!!!
 	//key := append(masterKey, userKey...)
 	la := len(masterKey)
-	key := make([]byte, la + len(userKey))
+	key := make([]byte, la+len(userKey))
 	copy(key, masterKey)
 	copy(key[la:], userKey)
 
@@ -59,7 +59,7 @@ func encrypt(masterKey []byte, userKey []byte, plaintext []byte) ([]byte, error)
 	// comprising 24 master key
 	// and 8 bytes record key
 	la := len(masterKey)
-	key := make([]byte, la + len(userKey))
+	key := make([]byte, la+len(userKey))
 	copy(key, masterKey)
 	copy(key[la:], userKey)
 
@@ -81,7 +81,7 @@ func encrypt(masterKey []byte, userKey []byte, plaintext []byte) ([]byte, error)
 	// apppend random nonce bvalue to the end
 	//ciphertext := append(ciphertext0, nonce...)
 	la = len(ciphertext0)
-	ciphertext := make([]byte, la + len(nonce))
+	ciphertext := make([]byte, la+len(nonce))
 	copy(ciphertext, ciphertext0)
 	copy(ciphertext[la:], nonce)
 	return ciphertext, nil
@@ -91,7 +91,7 @@ func basicStringEncrypt(plaintext string, masterKey []byte, code []byte) (string
 	//log.Printf("Going to encrypt %s", plaintext)
 	nonce := []byte("$DataBunker$")
 	la := len(masterKey)
-	key := make([]byte, la + len(code))
+	key := make([]byte, la+len(code))
 	copy(key, masterKey)
 	copy(key[la:], code)
 
@@ -118,7 +118,7 @@ func basicStringDecrypt(data string, masterKey []byte, code []byte) (string, err
 	}
 	nonce := []byte("$DataBunker$")
 	la := len(masterKey)
-	key := make([]byte, la + len(code))
+	key := make([]byte, la+len(code))
 	copy(key, masterKey)
 	copy(key[la:], code)
 	block, err := aes.NewCipher(key)
