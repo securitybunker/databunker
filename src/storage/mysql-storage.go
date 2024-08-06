@@ -245,35 +245,21 @@ func (dbobj MySQLDB) decodeFieldsValues(data interface{}) (string, []interface{}
 	return fields, values
 }
 
-func (dbobj MySQLDB) decodeForCleanup(data interface{}) string {
+func (dbobj MySQLDB) decodeForCleanup(bdel []string) string {
 	fields := ""
-
-	switch t := data.(type) {
-	case primitive.M:
-		for idx := range data.(primitive.M) {
-			if len(fields) == 0 {
-				fields = dbobj.escapeName(idx) + "=null"
-			} else {
-				fields = fields + "," + dbobj.escapeName(idx) + "=null"
-			}
-		}
-		return fields
-	case map[string]interface{}:
-		for idx := range data.(map[string]interface{}) {
-			if len(fields) == 0 {
-				fields = dbobj.escapeName(idx) + "=null"
-			} else {
-				fields = fields + "," + dbobj.escapeName(idx) + "=null"
-			}
-		}
-	default:
-		fmt.Printf("decodeForCleanup: wrong type: %s\n", t)
-	}
-
+        if bdel != nil {
+                for _, colname := range bdel {
+                        if len(fields) == 0 {
+                                fields = dbobj.escapeName(colname) + "=null"
+                        } else {
+                                fields = fields + "," + dbobj.escapeName(colname) + "=null"
+                        }
+                }
+        }
 	return fields
 }
 
-func (dbobj MySQLDB) decodeForUpdate(bdoc *bson.M, bdel *bson.M) (string, []interface{}) {
+func (dbobj MySQLDB) decodeForUpdate(bdoc *bson.M, bdel []string) (string, []interface{}) {
 	values := make([]interface{}, 0)
 	fields := ""
 
@@ -295,15 +281,15 @@ func (dbobj MySQLDB) decodeForUpdate(bdoc *bson.M, bdel *bson.M) (string, []inte
 		}
 	}
 
-	if bdel != nil {
-		for idx := range *bdel {
-			if len(fields) == 0 {
-				fields = dbobj.escapeName(idx) + "=null"
-			} else {
-				fields = fields + "," + dbobj.escapeName(idx) + "=null"
-			}
-		}
-	}
+        if bdel != nil {
+                for _, colname := range bdel {
+                        if len(fields) == 0 {
+                                fields = dbobj.escapeName(colname) + "=null"
+                        } else {
+                                fields = fields + "," + dbobj.escapeName(colname) + "=null"
+                        }
+                }
+        }
 	return fields, values
 }
 
@@ -408,7 +394,7 @@ func (dbobj MySQLDB) UpdateRecordInTable(table string, keyName string, keyValue 
 
 // UpdateRecord2 updates database record
 func (dbobj MySQLDB) UpdateRecord2(t Tbl, keyName string, keyValue string,
-	keyName2 string, keyValue2 string, bdoc *bson.M, bdel *bson.M) (int64, error) {
+	keyName2 string, keyValue2 string, bdoc *bson.M, bdel []string) (int64, error) {
 	table := GetTable(t)
 	filter := dbobj.escapeName(keyName) + "=\"" + keyValue + "\" AND " +
 		dbobj.escapeName(keyName2) + "=\"" + keyValue2 + "\""
@@ -417,13 +403,13 @@ func (dbobj MySQLDB) UpdateRecord2(t Tbl, keyName string, keyValue string,
 
 // UpdateRecordInTable2 updates database record
 func (dbobj MySQLDB) UpdateRecordInTable2(table string, keyName string,
-	keyValue string, keyName2 string, keyValue2 string, bdoc *bson.M, bdel *bson.M) (int64, error) {
+	keyValue string, keyName2 string, keyValue2 string, bdoc *bson.M, bdel []string) (int64, error) {
 	filter := dbobj.escapeName(keyName) + "=\"" + keyValue + "\" AND " +
 		dbobj.escapeName(keyName2) + "=\"" + keyValue2 + "\""
 	return dbobj.updateRecordInTableDo(table, filter, bdoc, bdel)
 }
 
-func (dbobj MySQLDB) updateRecordInTableDo(table string, filter string, bdoc *bson.M, bdel *bson.M) (int64, error) {
+func (dbobj MySQLDB) updateRecordInTableDo(table string, filter string, bdoc *bson.M, bdel []string) (int64, error) {
 	op, values := dbobj.decodeForUpdate(bdoc, bdel)
 	q := "update " + table + " SET " + op + " WHERE " + filter
 	//fmt.Printf("q: %s\n", q)
@@ -708,9 +694,9 @@ func (dbobj MySQLDB) DeleteExpired(t Tbl, keyName string, keyValue string) (int6
 }
 
 // CleanupRecord nullifies specific feilds in records in database
-func (dbobj MySQLDB) CleanupRecord(t Tbl, keyName string, keyValue string, data interface{}) (int64, error) {
+func (dbobj MySQLDB) CleanupRecord(t Tbl, keyName string, keyValue string, bdel []string) (int64, error) {
 	tbl := GetTable(t)
-	cleanup := dbobj.decodeForCleanup(data)
+	cleanup := dbobj.decodeForCleanup(bdel)
 	q := "update " + tbl + " SET " + cleanup + " WHERE " + dbobj.escapeName(keyName) + "=?"
 	fmt.Printf("q: %s\n", q)
 

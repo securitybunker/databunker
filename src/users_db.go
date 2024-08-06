@@ -209,7 +209,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 	if err != nil {
 		return nil, nil, false, err
 	}
-	bdel := bson.M{}
+	var bdel []string
 	sig := oldUserBson["md5"].(string)
 	// create new user record
 	bdoc := bson.M{}
@@ -256,7 +256,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 			//fmt.Printf("adding index3? %s\n", raw[idx])
 			bdoc[idx+"idx"] = hashString(dbobj.hash, newIdxFinalValue)
 		} else if len(newIdxFinalValue) == 0 {
-			bdel[idx+"idx"] = ""
+			bdel = append(bdel, idx+"idx")
 		}
 	}
 
@@ -274,7 +274,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 	//filter2 := bson.D{{"token", userTOKEN}, {"md5", sig}}
 
 	//fmt.Printf("op json: %s\n", update)
-	result, err := dbobj.store.UpdateRecord2(storage.TblName.Users, "token", userTOKEN, "md5", sig, &bdoc, &bdel)
+	result, err := dbobj.store.UpdateRecord2(storage.TblName.Users, "token", userTOKEN, "md5", sig, &bdoc, bdel)
 	if err != nil {
 		return nil, nil, false, err
 	}
@@ -517,7 +517,7 @@ func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string, conf Conf
 	dbobj.store.DeleteRecord(storage.TblName.Sessions, "token", userTOKEN)
 
 	dataJSON, record := cleanupRecord(userJSON)
-	bdel := bson.M{}
+	var bdel []string
 	if dataJSON != nil {
 		oldUserBson, err := dbobj.lookupUserRecord(userTOKEN)
 		if err != nil {
@@ -535,19 +535,19 @@ func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string, conf Conf
 			fmt.Printf("Preservice email idx\n")
 			bdoc["emailidx"] = oldUserBson["emailidx"].(string)
 		} else {
-			bdel["emailidx"] = ""
+			bdel = append(bdel, "emailidx")
 		}
 		if _, ok := record["phone"]; ok {
 			fmt.Printf("Preservice phone idx\n")
 			bdoc["phoneidx"] = oldUserBson["phoneidx"].(string)
 		} else {
-			bdel["phoneidx"] = ""
+			bdel = append(bdel, "phoneidx")
 		}
 		if _, ok := record["login"]; ok {
 			fmt.Printf("Preservice login idx\n")
 			bdoc["loginidx"] = oldUserBson["loginidx"].(string)
 		} else {
-			bdel["loginidx"] = ""
+			bdel = append(bdel, "loginidx")
 		}
 		encoded, _ := encrypt(dbobj.masterKey, userKeyBinary, dataJSON)
 		encodedStr := base64.StdEncoding.EncodeToString(encoded)
@@ -556,7 +556,7 @@ func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string, conf Conf
 		md5Hash := md5.Sum([]byte(encodedStr))
 		bdoc["md5"] = base64.StdEncoding.EncodeToString(md5Hash[:])
 		bdoc["token"] = userTOKEN
-		result, err := dbobj.store.UpdateRecord2(storage.TblName.Users, "token", userTOKEN, "md5", sig, &bdoc, &bdel)
+		result, err := dbobj.store.UpdateRecord2(storage.TblName.Users, "token", userTOKEN, "md5", sig, &bdoc, bdel)
 		if err != nil {
 			return false, err
 		}
@@ -566,12 +566,7 @@ func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string, conf Conf
 		return false, nil
 	}
 	// cleanup user record
-	bdel["data"] = ""
-	bdel["key"] = ""
-	bdel["loginidx"] = ""
-	bdel["emailidx"] = ""
-	bdel["phoneidx"] = ""
-	bdel["customidx"] = ""
+	bdel = append(bdel, "data", "key", "loginidx", "emailidx", "phoneidx", "customidx")
 	result, err := dbobj.store.CleanupRecord(storage.TblName.Users, "token", userTOKEN, bdel)
 	if err != nil {
 		return false, err
