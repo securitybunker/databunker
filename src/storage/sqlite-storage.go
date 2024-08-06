@@ -680,7 +680,7 @@ func (dbobj SQLiteDB) CleanupRecord(t Tbl, keyName string, keyValue string, bdel
 	tbl := GetTable(t)
 	cleanup := dbobj.decodeForCleanup(bdel)
 	q := "update " + tbl + " SET " + cleanup + " WHERE " + dbobj.escapeName(keyName) + "=$1"
-	log.Printf("CleanupRecord q: %s\n", q)
+	log.Printf("q: %s\n", q)
 
 	tx, err := dbobj.db.Begin()
 	if err != nil {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"reflect"
 
@@ -103,7 +104,7 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	case "phone":
 		identity = normalizePhone(identity, e.conf.Sms.DefaultCountry)
 	}
-	fmt.Printf("Processing agreement, status: %s\n", status)
+	log.Printf("Processing agreement, status: %s\n", status)
 	e.db.acceptAgreement(userTOKEN, mode, identity, brief, status, agreementmethod,
 		referencecode, lastmodifiedby, starttime, expiration)
 	/*
@@ -319,7 +320,6 @@ func (e mainEnv) getUserAgreements(w http.ResponseWriter, r *http.Request, ps ht
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
-	//fmt.Printf("Total count of rows: %d\n", numRecords)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, numRecords, resultJSON)
@@ -395,7 +395,6 @@ func (e mainEnv) getUserAgreement(w http.ResponseWriter, r *http.Request, ps htt
 		returnError(w, r, "not found", 405, err, event)
 		return
 	}
-	//fmt.Printf("Total count of rows: %d\n", numRecords)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	str := fmt.Sprintf(`{"status":"ok","data":%s}`, resultJSON)
@@ -479,7 +478,7 @@ func (e mainEnv) consentFilterRecords(w http.ResponseWriter, r *http.Request, ps
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
-	fmt.Printf("Total count of rows: %d\n", numRecords)
+	log.Printf("Total count of rows: %d\n", numRecords)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, numRecords, resultJSON)
