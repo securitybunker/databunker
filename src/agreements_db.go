@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/securitybunker/databunker/src/storage"
@@ -45,7 +45,7 @@ func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, identity strin
 		// first check if this agreement exists, then update
 		raw, err := dbobj.store.GetRecord2(storage.TblName.Agreements, "token", userTOKEN, "brief", brief)
 		if err != nil {
-			fmt.Printf("error to find:%s", err)
+			log.Printf("Error to find:%s", err)
 			return false, err
 		}
 		if raw != nil {
@@ -59,7 +59,7 @@ func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, identity strin
 	} else if len(identity) > 0 {
 		raw, err := dbobj.store.GetRecord2(storage.TblName.Agreements, "who", encIdentity, "brief", brief)
 		if err != nil {
-			fmt.Printf("error to find:%s", err)
+			log.Printf("Error to find:%s", err)
 			return false, err
 		}
 		if raw != nil {
@@ -84,7 +84,7 @@ func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, identity strin
 	// in any case - insert record
 	_, err := dbobj.store.CreateRecord(storage.TblName.Agreements, &bdoc)
 	if err != nil {
-		fmt.Printf("error to insert record: %s\n", err)
+		log.Printf("Error to insert record: %s\n", err)
 		return false, err
 	}
 	return true, nil
@@ -113,7 +113,7 @@ func (dbobj dbcon) withdrawAgreement(userTOKEN string, brief string, mode string
 	bdoc["status"] = "no"
 	bdoc["lastmodifiedby"] = lastmodifiedby
 	if len(userTOKEN) > 0 {
-		fmt.Printf("%s %s\n", userTOKEN, brief)
+		log.Printf("%s %s\n", userTOKEN, brief)
 		dbobj.store.UpdateRecord2(storage.TblName.Agreements, "token", userTOKEN, "brief", brief, &bdoc, nil)
 	} else if len(identity) > 0 {
 		dbobj.store.UpdateRecord2(storage.TblName.Agreements, "who", encIdentity, "brief", brief, &bdoc, nil)
@@ -143,7 +143,7 @@ func (dbobj dbcon) listAgreementRecords(userTOKEN string) ([]byte, int, error) {
 	if err != nil {
 		return nil, 0, err
 	}
-	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
+	//log.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, count, nil
 }
 
@@ -164,7 +164,7 @@ func (dbobj dbcon) listAgreementRecordsByIdentity(identity string) ([]byte, int,
 	if err != nil {
 		return nil, 0, err
 	}
-	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
+	//log.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, count, nil
 }
 
@@ -184,7 +184,7 @@ func (dbobj dbcon) viewAgreementRecord(userTOKEN string, brief string) ([]byte, 
 	if err != nil {
 		return nil, err
 	}
-	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
+	//log.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, nil
 }
 
@@ -201,9 +201,9 @@ func (dbobj dbcon) expireAgreementRecords(notifyURL string) error {
 		bdoc["status"] = "expired"
 		userTOKEN := rec["token"].(string)
 		brief := rec["brief"].(string)
-		fmt.Printf("This Agreements record is expired: %s - %s\n", userTOKEN, brief)
+		log.Printf("This agreement record is expired: %s - %s\n", userTOKEN, brief)
 		if len(userTOKEN) > 0 {
-			fmt.Printf("%s %s\n", userTOKEN, brief)
+			log.Printf("%s %s\n", userTOKEN, brief)
 			dbobj.store.UpdateRecord2(storage.TblName.Agreements, "token", userTOKEN, "brief", brief, &bdoc, nil)
 			notifyConsentChange(notifyURL, brief, "expired", "token", userTOKEN)
 		} else {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"reflect"
 
@@ -108,7 +109,7 @@ func (e mainEnv) listLegalBasisRecords(w http.ResponseWriter, r *http.Request, p
 		returnError(w, r, "internal error", 405, err, nil)
 		return
 	}
-	fmt.Printf("Total count of rows: %d\n", numRecords)
+	log.Printf("Total count of rows: %d\n", numRecords)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, numRecords, resultJSON)

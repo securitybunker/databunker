@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -52,7 +52,7 @@ func TestCreateSharedRecord(t *testing.T) {
 		t.Fatalf("Failed to create shared record: %s\n", raw["message"])
 	}
 	recordTOKEN := raw["record"].(string)
-	fmt.Printf("User record token: %s\n", recordTOKEN)
+	log.Printf("User record token: %s\n", recordTOKEN)
 	raw, _ = helpGetSharedRecord(recordTOKEN)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get shared record: %s\n", raw["message"])

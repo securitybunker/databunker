@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"encoding/json"
 	"net/http/httptest"
 	"strings"
@@ -91,8 +91,8 @@ func TestCreateUpdateUser(t *testing.T) {
 	}
 	raw, _ = helpGetUser("phone", "775566998822")
 	userRecord, _ := json.Marshal(raw["data"].(map[string]interface{}))
-	//fmt.Printf("get user %v\n", raw)
-	//fmt.Printf("user %s\n", string(userRecord))
+	//log.Printf("get user %v\n", raw)
+	//log.Printf("user %s\n", string(userRecord))
 	afterUpdate := []byte(`{"devices":[{"name":"dev3"},{"name":"dev1","val":1},{"name":"updated"}],"name":"tom","phone":"775566998822"}`)
 	if !jsonpatch.Equal(userRecord, afterUpdate) {
 		t.Fatalf("Records are different")
@@ -136,7 +136,7 @@ func TestCreateUpdateUser(t *testing.T) {
 		if len(atoken) == 0 {
 			t.Fatalf("Failed to extract atoken\n")
 		}
-		fmt.Printf("Audit record: %s\n", atoken)
+		log.Printf("Audit record: %s\n", atoken)
 		raw, _ = helpGetUserAuditEvent(atoken)
 		if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 			t.Fatalf("Failed to get specific audit event\n")

@@ -2,7 +2,7 @@ package main
 
 import (
 	"errors"
-	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -25,7 +25,7 @@ func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, expiration 
 		}
 	}
 
-	fmt.Printf("Expiration is : %s\n", expiration)
+	log.Printf("Expiration is : %s\n", expiration)
 	start, err := parseExpiration(expiration)
 	if err != nil {
 		return "", err

@@ -46,14 +46,14 @@ func getMeta(r *http.Request) string {
 	headers := bson.M{}
 	for idx, val := range r.Header {
 		idx0 := strings.ToLower(idx)
-		fmt.Printf("checking header: %s\n", idx0)
+		log.Printf("Checking header: %s\n", idx0)
 		if contains(interestingHeaders, idx0) {
 			headers[idx] = val[0]
 		}
 	}
 	headersStr, _ := json.Marshal(headers)
 	meta := fmt.Sprintf(`{"clientip":"%s","headers":%s}`, r.RemoteAddr, headersStr)
-	fmt.Printf("Meta: %s\n", meta)
+	log.Printf("Meta: %s\n", meta)
 	return meta
 }
 */
@@ -126,7 +126,7 @@ func normalizeEmail(email0 string) string {
 	email = strings.ToLower(email)
 	email = strings.TrimSpace(email)
 	if email0 != email {
-		fmt.Printf("email before: %s, after: %s\n", email0, email)
+		log.Printf("email before: %s, after: %s\n", email0, email)
 	}
 	return email
 }
@@ -146,7 +146,7 @@ func normalizePhone(phone string, defaultCountry string) string {
 	}
 	res, err := libphonenumber.Parse(phone, defaultCountry)
 	if err != nil {
-		fmt.Printf("failed to parse phone number: %s", phone)
+		log.Printf("Failed to parse phone number: %s", phone)
 		return ""
 	}
 	phone = "+" + strconv.Itoa(int(*res.CountryCode)) + strconv.FormatUint(*res.NationalNumber, 10)
@@ -350,7 +350,7 @@ func stringPatternMatch(pattern string, value string) bool {
 }
 
 func returnError(w http.ResponseWriter, r *http.Request, message string, code int, err error, event *auditEvent) {
-	fmt.Printf("%d %s %s\n", code, r.Method, r.URL.Path)
+	log.Printf("Return error: %d %s %s\n", code, r.Method, r.URL.Path)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
 	fmt.Fprintf(w, `{"status":"error","message":%q}`, message)
@@ -402,7 +402,7 @@ func (e mainEnv) enforceAuth(w http.ResponseWriter, r *http.Request, event *audi
 			}
 		*/
 	}
-	fmt.Printf("403 Access denied\n")
+	log.Printf("403 Access denied\n")
 	w.WriteHeader(http.StatusForbidden)
 	w.Write([]byte("Access denied"))
 	if event != nil {
@@ -422,7 +422,7 @@ func (e mainEnv) enforceAdmin(w http.ResponseWriter, r *http.Request) string {
 			}
 		}
 	}
-	fmt.Printf("403 Access denied\n")
+	log.Printf("403 Access denied\n")
 	w.WriteHeader(http.StatusForbidden)
 	w.Write([]byte("Access denied"))
 	return ""

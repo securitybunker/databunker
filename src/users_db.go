@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	jsonpatch "github.com/evanphx/json-patch"
@@ -32,7 +33,7 @@ func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (str
 		return "", err
 	}
 	encodedStr := base64.StdEncoding.EncodeToString(encoded)
-	//fmt.Printf("data %s %s\n", parsedData.jsonData, encodedStr)
+	//log.Printf("Data %s %s\n", parsedData.jsonData, encodedStr)
 	bdoc["key"] = base64.StdEncoding.EncodeToString(userKeyBinary)
 	bdoc["data"] = encodedStr
 	//it is ok to use md5 here, it is only for data sanity
@@ -58,10 +59,10 @@ func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (str
 		event.After = encodedStr
 		event.Record = userTOKEN
 	}
-	//fmt.Println("creating new user")
+	//log.Println("Creating new user")
 	_, err = dbobj.store.CreateRecord(storage.TblName.Users, &bdoc)
 	if err != nil {
-		fmt.Printf("error in create!\n")
+		log.Printf("Error in create!\n")
 		return "", err
 	}
 	return userTOKEN, nil
@@ -93,32 +94,32 @@ func (dbobj dbcon) updateUserExpStatus(userTOKEN string, status string) error {
 
 func (dbobj dbcon) generateTempLoginCode(userTOKEN string) int32 {
 	rnd := randNum(6)
-	fmt.Printf("random: %d\n", rnd)
+	log.Printf("Random: %d\n", rnd)
 	bdoc := bson.M{}
 	bdoc["tempcode"] = rnd
 	expired := int32(time.Now().Unix()) + 60
 	bdoc["tempcodeexp"] = expired
-	//fmt.Printf("op json: %s\n", update)
+	//log.Printf("op json: %s\n", update)
 	dbobj.store.UpdateRecord(storage.TblName.Users, "token", userTOKEN, &bdoc)
 	return rnd
 }
 
 func (dbobj dbcon) generateDemoLoginCode(userTOKEN string) int32 {
 	rnd := int32(4444)
-	fmt.Printf("random: %d\n", rnd)
+	log.Printf("Demo random: %d\n", rnd)
 	bdoc := bson.M{}
 	bdoc["tempcode"] = 4444
 	expired := int32(time.Now().Unix()) + 60
 	bdoc["tempcodeexp"] = expired
-	//fmt.Printf("op json: %s\n", update)
+	//log.Printf("op json: %s\n", update)
 	dbobj.store.UpdateRecord(storage.TblName.Users, "token", userTOKEN, &bdoc)
 	return rnd
 }
 
 func (dbobj dbcon) validateUserRecordChange(oldUserJSON []byte, jsonDataPatch []byte, userTOKEN string, authResult string) (bool, error) {
 	// prepare merge
-	//fmt.Printf("old json: %s\n", oldUserJSON)
-	//fmt.Printf("json patch: %s\n", jsonDataPatch)
+	//log.Printf("old json: %s\n", oldUserJSON)
+	//log.Printf("json patch: %s\n", jsonDataPatch)
 	var newJSON []byte
 	var err error
 	if jsonDataPatch[0] == '{' {
@@ -133,7 +134,7 @@ func (dbobj dbcon) validateUserRecordChange(oldUserJSON []byte, jsonDataPatch []
 	if err != nil {
 		return false, err
 	}
-	//fmt.Printf("result: %s\n", newJSON)
+	//log.Printf("result: %s\n", newJSON)
 	return validateUserRecordChange(oldUserJSON, newJSON, authResult)
 }
 
@@ -187,8 +188,8 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 		oldEmail = normalizeEmail(raw2["email"].(string))
 	}
 	// merge
-	//fmt.Printf("old json: %s\n", decrypted)
-	//fmt.Printf("json patch: %s\n", jsonDataPatch)
+	//log.Printf("old json: %s\n", decrypted)
+	//log.Printf("json patch: %s\n", jsonDataPatch)
 	var newJSON []byte
 	if jsonDataPatch[0] == '{' {
 		newJSON, err = jsonpatch.MergePatch(decrypted, jsonDataPatch)
@@ -202,7 +203,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 	if err != nil {
 		return nil, nil, false, err
 	}
-	//fmt.Printf("result: %s\n", newJSON)
+	//log.Printf("result: %s\n", newJSON)
 
 	var raw map[string]interface{}
 	err = json.Unmarshal(newJSON, &raw)
@@ -216,12 +217,12 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 	keys := []string{"login", "email", "phone", "custom"}
 	newEmail := ""
 	for _, idx := range keys {
-		//fmt.Printf("Checking %s\n", idx)
+		//log.Printf("Checking %s\n", idx)
 		actionCode := 1
 		newIdxFinalValue := ""
 		if newIdxValue, ok3 := raw[idx]; ok3 {
 			newIdxFinalValue = getIndexString(newIdxValue)
-			//fmt.Println("newIdxFinalValue0", newIdxFinalValue)
+			//log.Println("newIdxFinalValue0", newIdxFinalValue)
 			if len(newIdxFinalValue) > 0 {
 				if idx == "email" {
 					newIdxFinalValue = normalizeEmail(newIdxFinalValue)
@@ -230,30 +231,30 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 					newIdxFinalValue = normalizePhone(newIdxFinalValue, conf.Sms.DefaultCountry)
 				}
 			}
-			//fmt.Println("newIdxFinalValue", newIdxFinalValue)
+			//log.Println("newIdxFinalValue", newIdxFinalValue)
 		}
 		if idxOldValue, ok := oldUserBson[idx+"idx"]; ok {
 			if len(newIdxFinalValue) > 0 && len(idxOldValue.(string)) >= 0 {
 				idxStringHashHex := hashString(dbobj.hash, newIdxFinalValue)
 				if idxStringHashHex == idxOldValue.(string) {
-					//fmt.Println("index value NOT changed!")
+					//log.Println("Index value NOT changed!")
 					actionCode = 0
 				} else {
-					//fmt.Println("index value changed!")
+					//log.Println("Index value changed!")
 				}
 				//} else {
-				//	fmt.Println("old or new is empty")
+				//	log.Println("Old or new is empty")
 			}
 		}
 		if len(newIdxFinalValue) > 0 && actionCode == 1 {
 			// check if new value is created
-			//fmt.Printf("adding index? %s\n", raw[idx])
+			//log.Printf("Adding index? %s\n", raw[idx])
 			otherUserBson, _ := dbobj.lookupUserRecordByIndex(idx, newIdxFinalValue, conf)
 			if otherUserBson != nil {
 				// already exist user with same index value
 				return nil, nil, true, fmt.Errorf("duplicate %s index", idx)
 			}
-			//fmt.Printf("adding index3? %s\n", raw[idx])
+			//log.Printf("Adding index3? %s\n", raw[idx])
 			bdoc[idx+"idx"] = hashString(dbobj.hash, newIdxFinalValue)
 		} else if len(newIdxFinalValue) == 0 {
 			bdel = append(bdel, idx+"idx")
@@ -273,7 +274,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 	// to make sure this record was not change by other thread
 	//filter2 := bson.D{{"token", userTOKEN}, {"md5", sig}}
 
-	//fmt.Printf("op json: %s\n", update)
+	//log.Printf("op json: %s\n", update)
 	result, err := dbobj.store.UpdateRecord2(storage.TblName.Users, "token", userTOKEN, "md5", sig, &bdoc, bdel)
 	if err != nil {
 		return nil, nil, false, err
@@ -311,7 +312,7 @@ func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string, 
 		return dbobj.store.GetRecord(storage.TblName.Users, "exptoken", indexValue)
 	}
 	idxStringHashHex := hashString(dbobj.hash, indexValue)
-	//fmt.Printf("loading by %s, value: %s\n", indexName, indexValue)
+	//log.Printf("Loading by %s, value: %s\n", indexName, indexValue)
 	return dbobj.store.GetRecord(storage.TblName.Users, indexName+"idx", idxStringHashHex)
 }
 
@@ -532,19 +533,19 @@ func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string, conf Conf
 		bdoc := bson.M{}
 
 		if _, ok := record["email"]; ok {
-			fmt.Printf("Preservice email idx\n")
+			log.Printf("Preservice email idx\n")
 			bdoc["emailidx"] = oldUserBson["emailidx"].(string)
 		} else {
 			bdel = append(bdel, "emailidx")
 		}
 		if _, ok := record["phone"]; ok {
-			fmt.Printf("Preservice phone idx\n")
+			log.Printf("Preservice phone idx\n")
 			bdoc["phoneidx"] = oldUserBson["phoneidx"].(string)
 		} else {
 			bdel = append(bdel, "phoneidx")
 		}
 		if _, ok := record["login"]; ok {
-			fmt.Printf("Preservice login idx\n")
+			log.Printf("Preservice login idx\n")
 			bdoc["loginidx"] = oldUserBson["loginidx"].(string)
 		} else {
 			bdel = append(bdel, "loginidx")
