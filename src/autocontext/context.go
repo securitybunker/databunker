@@ -3,6 +3,7 @@ package autocontext
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"regexp"
 	"runtime"
@@ -68,13 +69,13 @@ func getRequestAddress() (string, error) {
 	//fmt.Printf("Stack of %d bytes: %s\n", count, trace)
 	match := regexServeHTTP.FindStringSubmatch(string(trace[0:count]))
 	if len(match) != 2 {
-		fmt.Println("Autocontext: regex not found in stack")
+		log.Println("Autocontext: regex not found in stack")
 		//fmt.Printf("*** STACK ***\n%s\n", trace)
 		return "", errors.New("Failed to find *http.Request address")
 	}
 	if count > 3072 {
-		fmt.Println("Autocontext: stack frame too large, check for bugs")
-		fmt.Printf("*** STACK ***\n%s\n", trace)
+		log.Println("Autocontext: stack frame too large, check for bugs")
+		log.Printf("*** STACK ***\n%s\n", trace)
 	}
 	//fmt.Printf("*** extracted address from stacktrace: %s\n", match[1])
 	return match[1], nil

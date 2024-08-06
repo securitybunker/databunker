@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -95,7 +95,7 @@ func TestUserLoginDelete(t *testing.T) {
 		t.Fatalf("Failed to create user login: %s", raw["message"].(string))
 	}
 	xtoken := raw["xtoken"].(string)
-	fmt.Printf("User login *** xtoken: %s\n", xtoken)
+	log.Printf("User login *** xtoken: %s\n", xtoken)
 	oldRootToken := rootToken
 	rootToken = xtoken
 	raw, _ = helpAcceptAgreement("token", userTOKEN, "contract1", "")
@@ -130,7 +130,7 @@ func TestUserLoginDelete(t *testing.T) {
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get user app list with user xtoken\n")
 	}
-	fmt.Printf("apps: %s\n", raw["apps"])
+	log.Printf("apps: %s\n", raw["apps"])
 	// user asks to forget-me
 	raw, _ = helpDeleteUser("token", userTOKEN)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
@@ -141,7 +141,7 @@ func TestUserLoginDelete(t *testing.T) {
 	}
 	rtoken0 := raw["rtoken"].(string)
 	raw, _ = helpGetUserAppList(userTOKEN)
-	fmt.Printf("apps: %s\n", raw["apps"])
+	log.Printf("apps: %s\n", raw["apps"])
 
 	rootToken = oldRootToken
 	// get user requests
@@ -161,7 +161,7 @@ func TestUserLoginDelete(t *testing.T) {
 			if rtoken != rtoken0 {
 				t.Fatalf("Rtoken0 is wrong\n")
 			}
-			fmt.Printf("** User request record: %s\n", rtoken)
+			log.Printf("** User request record: %s\n", rtoken)
 		}
 		raw8, _ := helpGetUserRequest(rtoken)
 		if raw8["status"].(string) != "ok" {
