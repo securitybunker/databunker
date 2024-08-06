@@ -52,7 +52,7 @@ func (dbobj PGSQLDB) getConnectionString(dbname *string) string {
 	//fmt.Printf("myql connection string: %s\n", str0)
 	//str := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, dbnameString)
 	str := fmt.Sprintf("user='%s' password='%s' host='%s' port='%s' dbname='%s'",
-			user, pass, host, port, dbnameString)
+		user, pass, host, port, dbnameString)
 	return str
 }
 
@@ -123,8 +123,8 @@ func (dbobj *PGSQLDB) OpenDB(dbname *string) error {
 	}
 	dbobj.db = db
 	// load all table names
-        q := "SELECT table_name FROM information_schema.tables where table_schema NOT IN ('pg_catalog', 'information_schema');"
-        tx, err := dbobj.db.Begin()
+	q := "SELECT table_name FROM information_schema.tables where table_schema NOT IN ('pg_catalog', 'information_schema');"
+	tx, err := dbobj.db.Begin()
 	if err != nil {
 		return err
 	}
@@ -244,17 +244,17 @@ func (dbobj PGSQLDB) decodeFieldsValues(data interface{}) (string, []interface{}
 }
 
 func (dbobj PGSQLDB) decodeForCleanup(bdel []string) string {
-        fields := ""
-        if bdel != nil {
-                for _, colname := range bdel {
-                        if len(fields) == 0 {
-                                fields = dbobj.escapeName(colname) + "=null"
-                        } else {
-                                fields = fields + "," + dbobj.escapeName(colname) + "=null"
-                        }
-                }
-        }
-        return fields
+	fields := ""
+	if bdel != nil {
+		for _, colname := range bdel {
+			if len(fields) == 0 {
+				fields = dbobj.escapeName(colname) + "=null"
+			} else {
+				fields = fields + "," + dbobj.escapeName(colname) + "=null"
+			}
+		}
+	}
+	return fields
 }
 
 func (dbobj PGSQLDB) decodeForUpdate(bdoc *bson.M, bdel []string) (string, []interface{}) {

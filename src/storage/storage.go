@@ -38,7 +38,7 @@ var TblName = &listTbls{
 }
 
 var (
-        allTables []string
+	allTables []string
 )
 
 func GetTable(t Tbl) string {

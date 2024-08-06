@@ -5,15 +5,15 @@ import (
 	"net"
 	"net/http"
 	"strings"
+
 	"github.com/gobuffalo/packr"
 	"github.com/oschwald/geoip2-golang"
 )
 
 var (
 	geoipBytes []byte
-	geoip * geoip2.Reader
+	geoip      *geoip2.Reader
 )
-
 
 func initGeoIP() {
 	var err error

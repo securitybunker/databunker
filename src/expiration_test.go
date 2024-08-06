@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"time"
-	"strings"
 	"net/http/httptest"
+	"strings"
 	"testing"
+	"time"
 )
 
 func helpGetExpStatus(utoken string) (map[string]interface{}, error) {
@@ -130,7 +130,7 @@ func TestExpCancel(t *testing.T) {
 
 func TestExpAuto(t *testing.T) {
 	userJSON := `{"login":"william4"}`
-	now := int32(time.Now().Unix())+1
+	now := int32(time.Now().Unix()) + 1
 	raw, _ := helpCreateUser(userJSON)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to create user")
