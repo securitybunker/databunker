@@ -24,7 +24,7 @@ func helpServe0(request *http.Request) ([]byte, error) {
 	request.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, request)
-	fmt.Printf("[%d] %s%s\n", rr.Code, request.Host, request.URL.Path)
+	log.Printf("[%d] %s%s\n", rr.Code, request.Host, request.URL.Path)
 	if rr.Code != 200 {
 		return rr.Body.Bytes(), fmt.Errorf("wrong status: %d", rr.Code)
 	}

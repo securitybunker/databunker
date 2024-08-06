@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -100,7 +101,7 @@ func TestCreateSessionAndSharedRecord(t *testing.T) {
 	data = fmt.Sprintf(`{"expiration":"1d","session":"%s","fields":"cookie,missing"}`, sessionTOKEN)
 	raw, _ = helpCreateSharedRecord("token", userTOKEN, data)
 	recordTOKEN := raw["record"].(string)
-	fmt.Printf("User record token: %s\n", recordTOKEN)
+	log.Printf("User record token: %s\n", recordTOKEN)
 	raw, _ = helpGetSharedRecord(recordTOKEN)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to get shared record: %s\n", raw["message"])

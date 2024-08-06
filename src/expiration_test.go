@@ -131,7 +131,6 @@ func TestExpCancel(t *testing.T) {
 func TestExpAuto(t *testing.T) {
 	userJSON := `{"login":"william4"}`
 	now := int32(time.Now().Unix())+1
-	fmt.Printf("time %d\n", now)
 	raw, _ := helpCreateUser(userJSON)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to create user")
