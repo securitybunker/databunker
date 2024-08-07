@@ -80,16 +80,6 @@ func TestUserLoginDelete(t *testing.T) {
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to create user login: %s", raw["message"].(string))
 	}
-	/*
-		userBson, err := e.db.lookupUserRecordByIndex("email", email, e.conf)
-		if userBson == nil || err != nil {
-			t.Fatalf("Failed to lookupUserRecordByIndex")
-		}
-		tmpCode := int32(0)
-		if _, ok := userBson["tempcode"]; ok {
-			tmpCode = userBson["tempcode"].(int32)
-		}
-	*/
 	raw, _ = helpUserLogin("email", email, "4444") //strconv.Itoa(int(tmpCode)))
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
 		t.Fatalf("Failed to create user login: %s", raw["message"].(string))
@@ -146,8 +136,8 @@ func TestUserLoginDelete(t *testing.T) {
 	rootToken = oldRootToken
 	// get user requests
 	raw, _ = helpGetUserRequests()
-	if raw["total"].(float64) != 3 {
-		t.Fatalf("Wrong number of user requests for admin to approve/reject/s\n")
+	if raw["total"].(float64) != 4 {
+		t.Fatalf("Wrong number of user requests for admin to approval\n")
 	}
 	records := raw["rows"].([]interface{})
 	for id := range records {
@@ -187,7 +177,7 @@ func TestUserLoginDelete(t *testing.T) {
 	helpApproveUserRequest(rtoken0)
 	raw, _ = helpGetUserRequests()
 	if raw["total"].(float64) != 0 {
-		t.Fatalf("Wrong number of user requests for admin to approve/reject/s\n")
+		t.Fatalf("Wrong number of user requests for admin to approval\n")
 	}
 	// user should be deleted now
 	raw10, _ := helpGetUserAppList(userTOKEN)
