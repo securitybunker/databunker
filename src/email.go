@@ -10,17 +10,19 @@ import (
 
 func sendCodeByEmail(code int32, identity string, cfg Config) {
 	dest := []string{identity}
+	target := strings.Join(dest, ",")
 	subject := "Access Code"
 	bodyMessage := "Access code is " + strconv.Itoa(int((code)))
 	msg := "From: " + cfg.SMTP.Sender + "\n" +
-		"To: " + strings.Join(dest, ",") + "\n" +
+		"To: " + target + "\n" +
 		"Subject: " + subject + "\n" +
 		bodyMessage
 	auth := smtp.PlainAuth("", cfg.SMTP.User, cfg.SMTP.Pass, cfg.SMTP.Server)
 	err := smtp.SendMail(cfg.SMTP.Server+":"+cfg.SMTP.Port,
 		auth, cfg.SMTP.User, dest, []byte(msg))
+	log.Printf("Send email to %s via %s", target, cfg.SMTP.Server)
 	if err != nil {
-		log.Printf("error sending email: %s", err)
+		log.Printf("Error sending email: %s", err)
 		return
 	}
 	log.Printf("Mail sent successfully!")
