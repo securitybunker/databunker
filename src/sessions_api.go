@@ -28,26 +28,26 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	expiration := e.conf.Policy.MaxSessionRetentionPeriod
-	parsedData, err := getJSONPost(r, e.conf.Sms.DefaultCountry)
+	userJSON, err := getUserJSON(r, e.conf.Sms.DefaultCountry)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	if len(parsedData.jsonData) == 0 {
+	if len(userJSON.jsonData) == 0 {
 		returnError(w, r, "empty request body", 405, nil, event)
 		return
 	}
 	var userBson bson.M
-	if len(parsedData.loginIdx) > 0 {
-		userBson, err = e.db.lookupUserRecordByIndex("login", parsedData.loginIdx, e.conf)
-	} else if len(parsedData.emailIdx) > 0 {
-		userBson, err = e.db.lookupUserRecordByIndex("email", parsedData.emailIdx, e.conf)
-	} else if len(parsedData.phoneIdx) > 0 {
-		userBson, err = e.db.lookupUserRecordByIndex("phone", parsedData.phoneIdx, e.conf)
-	} else if len(parsedData.customIdx) > 0 {
-		userBson, err = e.db.lookupUserRecordByIndex("custom", parsedData.customIdx, e.conf)
-	} else if len(parsedData.token) > 0 {
-		userBson, err = e.db.lookupUserRecord(parsedData.token)
+	if len(userJSON.loginIdx) > 0 {
+		userBson, err = e.db.lookupUserRecordByIndex("login", userJSON.loginIdx, e.conf)
+	} else if len(userJSON.emailIdx) > 0 {
+		userBson, err = e.db.lookupUserRecordByIndex("email", userJSON.emailIdx, e.conf)
+	} else if len(userJSON.phoneIdx) > 0 {
+		userBson, err = e.db.lookupUserRecordByIndex("phone", userJSON.phoneIdx, e.conf)
+	} else if len(userJSON.customIdx) > 0 {
+		userBson, err = e.db.lookupUserRecordByIndex("custom", userJSON.customIdx, e.conf)
+	} else if len(userJSON.token) > 0 {
+		userBson, err = e.db.lookupUserRecord(userJSON.token)
 	}
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
@@ -59,7 +59,7 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 		userTOKEN = userBson["token"].(string)
 		event.Record = userTOKEN
 	}
-	session, err = e.db.createSessionRecord(session, userTOKEN, expiration, parsedData.jsonData)
+	session, err = e.db.createSessionRecord(session, userTOKEN, expiration, userJSON.jsonData)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return

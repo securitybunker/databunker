@@ -126,7 +126,7 @@ func normalizeEmail(email0 string) string {
 	email = strings.ToLower(email)
 	email = strings.TrimSpace(email)
 	if email0 != email {
-		log.Printf("email before: %s, after: %s\n", email0, email)
+		log.Printf("Email before normalization: %s, after: %s\n", email0, email)
 	}
 	return email
 }
@@ -350,7 +350,7 @@ func stringPatternMatch(pattern string, value string) bool {
 }
 
 func returnError(w http.ResponseWriter, r *http.Request, message string, code int, err error, event *auditEvent) {
-	log.Printf("Return error: %d %s %s\n", code, r.Method, r.URL.Path)
+	log.Printf("[%d] %s %s -> Return error\n", code, r.Method, r.URL.Path)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
 	fmt.Fprintf(w, `{"status":"error","message":%q}`, message)
@@ -584,7 +584,7 @@ func getIndexString(val interface{}) string {
 	return ""
 }
 
-func getJSONPost(r *http.Request, defaultCountry string) (userJSON, error) {
+func getUserJSON(r *http.Request, defaultCountry string) (userJSON, error) {
 	var result userJSON
 	records, err := getJSONPostMap(r)
 	if err != nil {
