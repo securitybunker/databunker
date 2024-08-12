@@ -25,8 +25,15 @@ func helpUserLogin(mode string, identity string, code string) (map[string]interf
 	return helpServe(request)
 }
 
-func helpGetUserRequests() (map[string]interface{}, error) {
+func helpGetAllUserRequests() (map[string]interface{}, error) {
 	url := "http://localhost:3000/v1/requests"
+	request := httptest.NewRequest("GET", url, nil)
+	request.Header.Set("X-Bunker-Token", rootToken)
+	return helpServe(request)
+}
+
+func helpGetUserRequests(mode string, identity string) (map[string]interface{}, error) {
+	url := "http://localhost:3000/v1/requests/" + mode + "/" + identity
 	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
@@ -131,11 +138,15 @@ func TestUserLoginDelete(t *testing.T) {
 	}
 	rtoken0 := raw["rtoken"].(string)
 	raw, _ = helpGetUserAppList(userTOKEN)
-	log.Printf("apps: %s\n", raw["apps"])
+	log.Printf("List apps: %s\n", raw["apps"])
 
 	rootToken = oldRootToken
+	user_requests, _ := helpGetUserRequests("token", userTOKEN)
+	if user_requests["total"].(float64) != 4 {
+		t.Fatalf("Wrong number of user requests\n")
+	}
 	// get user requests
-	raw, _ = helpGetUserRequests()
+	raw, _ = helpGetAllUserRequests()
 	if raw["total"].(float64) != 4 {
 		t.Fatalf("Wrong number of user requests for admin to approval\n")
 	}
@@ -175,7 +186,7 @@ func TestUserLoginDelete(t *testing.T) {
 		}
 	}
 	helpApproveUserRequest(rtoken0)
-	raw, _ = helpGetUserRequests()
+	raw, _ = helpGetAllUserRequests()
 	if raw["total"].(float64) != 0 {
 		t.Fatalf("Wrong number of user requests for admin to approval\n")
 	}

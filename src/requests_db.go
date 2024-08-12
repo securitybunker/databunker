@@ -89,7 +89,6 @@ func (dbobj dbcon) getRequests(status string, offset int32, limit int32) ([]byte
 	if err != nil {
 		return nil, 0, err
 	}
-	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, count, nil
 }
 
@@ -117,7 +116,6 @@ func (dbobj dbcon) getUserRequests(userTOKEN string, offset int32, limit int32) 
 	if err != nil {
 		return nil, 0, err
 	}
-	//fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
 	return resultJSON, count, nil
 }
 

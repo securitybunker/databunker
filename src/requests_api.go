@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+// This function retrieves all requests that require admin approval. This function supports result pager.
 func (e mainEnv) getUserRequests(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if e.enforceAuth(w, r, nil) == "" {
 		return
@@ -38,6 +39,7 @@ func (e mainEnv) getUserRequests(w http.ResponseWriter, r *http.Request, ps http
 	w.Write([]byte(str))
 }
 
+// Get list of requests for specific user
 func (e mainEnv) getCustomUserRequests(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
@@ -83,7 +85,6 @@ func (e mainEnv) getCustomUserRequests(w http.ResponseWriter, r *http.Request, p
 		returnError(w, r, "internal error", 405, err, nil)
 		return
 	}
-	fmt.Printf("Total count of custom user requests: %d\n", counter)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	str := fmt.Sprintf(`{"status":"ok","total":%d,"rows":%s}`, counter, resultJSON)
