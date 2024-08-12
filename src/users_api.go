@@ -21,23 +21,23 @@ func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 	}
-	parsedData, err := getJSONPost(r, e.conf.Sms.DefaultCountry)
+	userJSON, err := getUserJSON(r, e.conf.Sms.DefaultCountry)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	if len(parsedData.jsonData) == 0 {
+	if len(userJSON.jsonData) == 0 {
 		returnError(w, r, "empty request body", 405, nil, event)
 		return
 	}
-	err = validateUserRecord(parsedData.jsonData)
+	err = validateUserRecord(userJSON.jsonData)
 	if err != nil {
 		returnError(w, r, "user schema error: "+err.Error(), 405, err, event)
 		return
 	}
 	// make sure that login, email and phone are unique
-	if len(parsedData.loginIdx) > 0 {
-		otherUserBson, err := e.db.lookupUserRecordByIndex("login", parsedData.loginIdx, e.conf)
+	if len(userJSON.loginIdx) > 0 {
+		otherUserBson, err := e.db.lookupUserRecordByIndex("login", userJSON.loginIdx, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
@@ -47,8 +47,8 @@ func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 	}
-	if len(parsedData.emailIdx) > 0 {
-		otherUserBson, err := e.db.lookupUserRecordByIndex("email", parsedData.emailIdx, e.conf)
+	if len(userJSON.emailIdx) > 0 {
+		otherUserBson, err := e.db.lookupUserRecordByIndex("email", userJSON.emailIdx, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
@@ -58,8 +58,8 @@ func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 	}
-	if len(parsedData.phoneIdx) > 0 {
-		otherUserBson, err := e.db.lookupUserRecordByIndex("phone", parsedData.phoneIdx, e.conf)
+	if len(userJSON.phoneIdx) > 0 {
+		otherUserBson, err := e.db.lookupUserRecordByIndex("phone", userJSON.phoneIdx, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
@@ -69,8 +69,8 @@ func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 	}
-	if len(parsedData.customIdx) > 0 {
-		otherUserBson, err := e.db.lookupUserRecordByIndex("custom", parsedData.customIdx, e.conf)
+	if len(userJSON.customIdx) > 0 {
+		otherUserBson, err := e.db.lookupUserRecordByIndex("custom", userJSON.customIdx, e.conf)
 		if err != nil {
 			returnError(w, r, "internal error", 405, err, event)
 			return
@@ -80,29 +80,29 @@ func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httproute
 			return
 		}
 	}
-	if len(parsedData.loginIdx) == 0 &&
-		len(parsedData.emailIdx) == 0 &&
-		len(parsedData.phoneIdx) == 0 &&
-		len(parsedData.customIdx) == 0 {
+	if len(userJSON.loginIdx) == 0 &&
+		len(userJSON.emailIdx) == 0 &&
+		len(userJSON.phoneIdx) == 0 &&
+		len(userJSON.customIdx) == 0 {
 		returnError(w, r, "failed to create user, all user lookup fields are missing", 405, err, event)
 		return
 	}
 
-	userTOKEN, err := e.db.createUserRecord(parsedData, event)
+	userTOKEN, err := e.db.createUserRecord(userJSON, event)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	encPhoneIdx := ""
-	if len(parsedData.emailIdx) > 0 {
-		encEmailIdx, _ := basicStringEncrypt(parsedData.emailIdx, e.db.masterKey, e.db.GetCode())
+	if len(userJSON.emailIdx) > 0 {
+		encEmailIdx, _ := basicStringEncrypt(userJSON.emailIdx, e.db.masterKey, e.db.GetCode())
 		e.db.linkAgreementRecords(userTOKEN, encEmailIdx)
 	}
-	if len(parsedData.phoneIdx) > 0 {
-		encPhoneIdx, _ = basicStringEncrypt(parsedData.phoneIdx, e.db.masterKey, e.db.GetCode())
+	if len(userJSON.phoneIdx) > 0 {
+		encPhoneIdx, _ = basicStringEncrypt(userJSON.phoneIdx, e.db.masterKey, e.db.GetCode())
 		e.db.linkAgreementRecords(userTOKEN, encPhoneIdx)
 	}
-	if len(parsedData.emailIdx) > 0 && len(parsedData.phoneIdx) > 0 {
+	if len(userJSON.emailIdx) > 0 && len(userJSON.phoneIdx) > 0 {
 		// delete duplicate consent records for user
 		records, _ := e.db.store.GetList(storage.TblName.Agreements, "token", userTOKEN, 0, 0, "")
 		var briefCodes []string
@@ -117,7 +117,7 @@ func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httproute
 	event.Record = userTOKEN
 	returnUUID(w, userTOKEN)
 	notifyURL := e.conf.Notification.NotificationURL
-	notifyProfileNew(notifyURL, parsedData.jsonData, "token", userTOKEN)
+	notifyProfileNew(notifyURL, userJSON.jsonData, "token", userTOKEN)
 	return
 }
 

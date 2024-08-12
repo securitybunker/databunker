@@ -67,7 +67,7 @@ func TestUtilGetJSONPost(t *testing.T) {
 	for _, value := range goodJsons {
 		request := httptest.NewRequest("POST", "/user", strings.NewReader(value))
 		request.Header.Set("Content-Type", "application/json")
-		result, err := getJSONPost(request, "IL")
+		result, err := getUserJSON(request, "IL")
 		if err != nil {
 			t.Fatalf("Failed to parse json: %s, err: %s\n", value, err)
 		}
@@ -83,7 +83,7 @@ func TestUtilGetJSONPost(t *testing.T) {
 	for _, value := range badJsons {
 		request := httptest.NewRequest("POST", "/user", strings.NewReader(value))
 		request.Header.Set("Content-Type", "application/json")
-		result, err := getJSONPost(request, "IL")
+		result, err := getUserJSON(request, "IL")
 		if err != nil {
 			t.Fatalf("Failed to parse json: %s, err: %s\n", value, err)
 		}

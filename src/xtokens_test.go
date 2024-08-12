@@ -85,7 +85,7 @@ func TestUserLoginDelete(t *testing.T) {
 		t.Fatalf("Failed to create user login: %s", raw["message"].(string))
 	}
 	xtoken := raw["xtoken"].(string)
-	log.Printf("User login *** xtoken: %s\n", xtoken)
+	log.Printf("User login *** xtoken: %s...\n", xtoken[0:8])
 	oldRootToken := rootToken
 	rootToken = xtoken
 	raw, _ = helpAcceptAgreement("token", userTOKEN, "contract1", "")
