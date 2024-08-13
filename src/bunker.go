@@ -30,6 +30,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/securitybunker/databunker/src/autocontext"
 	"github.com/securitybunker/databunker/src/storage"
+	"go.mongodb.org/mongo-driver/bson"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -237,11 +238,11 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	//router.GET("/v1/consent/:mode/:identity", e.consentAllUserRecords)
 	//router.GET("/v1/consent/:mode/:identity/:brief", e.consentUserRecord)
 
-	router.POST("/v1/userapp/token/:token/:appname", e.userappNew)
-	router.GET("/v1/userapp/token/:token/:appname", e.userappGet)
-	router.PUT("/v1/userapp/token/:token/:appname", e.userappChange)
-	router.DELETE("/v1/userapp/token/:token/:appname", e.userappDelete)
-	router.GET("/v1/userapp/token/:token", e.userappList)
+	router.POST("/v1/userapp/:mode/:identity/:appname", e.userappNew)
+	router.GET("/v1/userapp/:mode/:identity/:appname", e.userappGet)
+	router.PUT("/v1/userapp/:mode/:identity/:appname", e.userappChange)
+	router.DELETE("/v1/userapp/:mode/:identity/:appname", e.userappDelete)
+	router.GET("/v1/userapp/:mode/:identity", e.userappList)
 	router.GET("/v1/userapps", e.appList)
 
 	router.GET("/v1/session/:session", e.getSession)
@@ -386,6 +387,30 @@ func (e mainEnv) dbCleanup() {
 			}
 		}
 	}()
+}
+
+// helper function to load user details by idex name
+func (e mainEnv) loadUserToken(w http.ResponseWriter, r *http.Request, mode string, identity string, event *auditEvent) string {
+	var err error
+	if validateMode(mode) == false {
+		returnError(w, r, "bad mode", 405, nil, event)
+		return ""
+	}
+	var userBson bson.M
+	if mode == "token" {
+		if enforceUUID(w, identity, event) == false {
+			return ""
+		}
+		userBson, err = e.db.lookupUserRecord(identity)
+	} else {
+		userBson, err = e.db.lookupUserRecordByIndex(mode, identity, e.conf)
+	}
+	if userBson == nil || err != nil {
+		returnError(w, r, "internal error", 405, nil, event)
+		return ""
+	}
+	event.Record = userBson["token"].(string)
+	return event.Record
 }
 
 // CustomResponseWriter struct is a custom wrapper for ResponseWriter
