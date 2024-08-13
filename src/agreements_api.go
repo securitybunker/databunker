@@ -14,8 +14,9 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	identity := ps.ByName("identity")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
-	event := audit("agreement accept for "+brief, identity, mode, identity)
+	event := audit("accept agreement for "+brief, identity, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
+
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
@@ -127,7 +128,7 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	identity := ps.ByName("identity")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
-	event := audit("consent withdraw for "+brief, identity, mode, identity)
+	event := audit("withdraw agreement for "+brief, identity, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
 
 	if validateMode(mode) == false {
@@ -199,8 +200,7 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	if selfService == false {
 		// user can change consent only for briefs defined in self-service
 		if len(authResult) == 0 {
-			authResult = e.enforceAuth(w, r, event)
-			if authResult == "" {
+			if e.enforceAdmin(w, r) == "" {
 				return
 			}
 		}
@@ -239,6 +239,9 @@ func (e mainEnv) agreementRevokeAll(w http.ResponseWriter, r *http.Request, ps h
 	brief := ps.ByName("brief")
 	authResult := e.enforceAdmin(w, r)
 	if authResult == "" {
+		return
+	}
+	if e.enforceAdmin(w, r) == "" {
 		return
 	}
 	brief = normalizeBrief(brief)
