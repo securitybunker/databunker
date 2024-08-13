@@ -67,9 +67,9 @@ func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, expiration 
 
 func (dbobj dbcon) getSharedRecord(recordUUID string) (checkRecordResult, error) {
 	var result checkRecordResult
-	if isValidUUID(recordUUID) == false {
-		return result, errors.New("failed to authenticate")
-	}
+	//if isValidUUID(recordUUID) == false {
+	//	return result, errors.New("failed to authenticate")
+	//}
 	record, err := dbobj.store.GetRecord(storage.TblName.Sharedrecords, "record", recordUUID)
 	if record == nil || err != nil {
 		return result, errors.New("failed to authenticate")
