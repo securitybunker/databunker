@@ -10,12 +10,14 @@ import (
 )
 
 func (e mainEnv) userappNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	userTOKEN := ps.ByName("token")
 	appName := strings.ToLower(ps.ByName("appname"))
-	event := auditApp("create user app record", userTOKEN, appName, "token", userTOKEN)
+	identity := ps.ByName("identity")
+	mode := ps.ByName("mode")
+	event := auditApp("create user app record by"+mode, identity, appName, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
 
-	if enforceUUID(w, userTOKEN, event) == false {
+	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
+	if userTOKEN == "" {
 		return
 	}
 	if e.enforceAuth(w, r, event) == "" {
@@ -54,12 +56,13 @@ func (e mainEnv) userappNew(w http.ResponseWriter, r *http.Request, ps httproute
 }
 
 func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	userTOKEN := ps.ByName("token")
 	appName := strings.ToLower(ps.ByName("appname"))
-	event := auditApp("change user app record", userTOKEN, appName, "token", userTOKEN)
+	identity := ps.ByName("identity")
+	mode := ps.ByName("mode")
+	event := auditApp("change user app record by"+mode, identity, appName, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
-
-	if enforceUUID(w, userTOKEN, event) == false {
+	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
+	if userTOKEN == "" {
 		return
 	}
 	authResult := e.enforceAuth(w, r, event)
@@ -122,11 +125,12 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 }
 
 func (e mainEnv) userappList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	userTOKEN := ps.ByName("token")
-	event := audit("get user app list", userTOKEN, "token", userTOKEN)
+	identity := ps.ByName("identity")
+	mode := ps.ByName("mode")
+	event := audit("get user app list by "+mode, identity, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
-
-	if enforceUUID(w, userTOKEN, event) == false {
+	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
+	if userTOKEN == "" {
 		return
 	}
 	if e.enforceAuth(w, r, event) == "" {
@@ -143,12 +147,13 @@ func (e mainEnv) userappList(w http.ResponseWriter, r *http.Request, ps httprout
 }
 
 func (e mainEnv) userappGet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	userTOKEN := ps.ByName("token")
 	appName := strings.ToLower(ps.ByName("appname"))
-	event := auditApp("get user app record", userTOKEN, appName, "token", userTOKEN)
+	identity := ps.ByName("identity")
+	mode := ps.ByName("mode")
+	event := auditApp("get user app record by "+mode, identity, appName, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
-
-	if enforceUUID(w, userTOKEN, event) == false {
+	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
+	if userTOKEN == "" {
 		return
 	}
 	if e.enforceAuth(w, r, event) == "" {
@@ -174,12 +179,13 @@ func (e mainEnv) userappGet(w http.ResponseWriter, r *http.Request, ps httproute
 }
 
 func (e mainEnv) userappDelete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	userTOKEN := ps.ByName("token")
 	appName := strings.ToLower(ps.ByName("appname"))
-	event := auditApp("delete user app record", userTOKEN, appName, "token", userTOKEN)
+	identity := ps.ByName("identity")
+	mode := ps.ByName("mode")
+	event := auditApp("delete user app record by "+mode, identity, appName, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
-
-	if enforceUUID(w, userTOKEN, event) == false {
+	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
+	if userTOKEN == "" {
 		return
 	}
 	if e.enforceAuth(w, r, event) == "" {
