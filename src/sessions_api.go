@@ -3,12 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strings"
+
 	uuid "github.com/hashicorp/go-uuid"
 	"github.com/julienschmidt/httprouter"
 	"github.com/securitybunker/databunker/src/storage"
 	"go.mongodb.org/mongo-driver/bson"
-	"net/http"
-	"strings"
 )
 
 func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -23,8 +24,7 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 		//returnError(w, r, "bad session format", nil, event)
 		return
 	}
-	authResult := e.enforceAdmin(w, r)
-	if authResult == "" {
+	if e.enforceAdmin(w, r) == "" {
 		return
 	}
 	expiration := e.conf.Policy.MaxSessionRetentionPeriod
@@ -77,8 +77,7 @@ func (e mainEnv) deleteSession(w http.ResponseWriter, r *http.Request, ps httpro
 		//returnError(w, r, "bad session format", nil, event)
 		return
 	}
-	authResult := e.enforceAdmin(w, r)
-	if authResult == "" {
+	if e.enforceAdmin(w, r) == "" {
 		return
 	}
 	e.db.deleteSession(session)
@@ -147,7 +146,6 @@ func (e mainEnv) newUserSession(w http.ResponseWriter, r *http.Request, ps httpr
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","session":"%s"}`, sessionID)
-	return
 }
 
 func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -201,7 +199,6 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","total":%d,"rows":[%s]}`, count, data)
-	return
 }
 
 func (e mainEnv) getSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -227,5 +224,4 @@ func (e mainEnv) getSession(w http.ResponseWriter, r *http.Request, ps httproute
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","session":"%s","when":%d,"data":%s}`, session, when, record)
-	return
 }

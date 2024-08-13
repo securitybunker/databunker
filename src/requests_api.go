@@ -114,8 +114,7 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 	if len(userTOKEN) != 0 {
 		event.Record = userTOKEN
 	}
-	authResult := e.enforceAuth(w, r, event)
-	if authResult == "" {
+	if e.enforceAdmin(w, r) == "" {
 		return
 	}
 	change := getStringValue(requestInfo["change"])

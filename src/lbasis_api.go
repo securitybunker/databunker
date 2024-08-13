@@ -12,8 +12,7 @@ import (
 
 func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	brief := ps.ByName("brief")
-	authResult := e.enforceAdmin(w, r)
-	if authResult == "" {
+	if e.enforceAdmin(w, r) == "" {
 		return
 	}
 	brief = normalizeBrief(brief)
@@ -83,8 +82,7 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 
 func (e mainEnv) deleteLegalBasis(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	brief := ps.ByName("brief")
-	authResult := e.enforceAdmin(w, r)
-	if authResult == "" {
+	if e.enforceAdmin(w, r) == "" {
 		return
 	}
 	brief = normalizeBrief(brief)
@@ -100,8 +98,7 @@ func (e mainEnv) deleteLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 }
 
 func (e mainEnv) listLegalBasisRecords(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	authResult := e.enforceAdmin(w, r)
-	if authResult == "" {
+	if e.enforceAdmin(w, r) == "" {
 		return
 	}
 	resultJSON, numRecords, err := e.db.getLegalBasisRecords()

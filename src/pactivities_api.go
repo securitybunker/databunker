@@ -12,8 +12,7 @@ import (
 
 func (e mainEnv) pactivityCreate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	activity := ps.ByName("activity")
-	authResult := e.enforceAdmin(w, r)
-	if authResult == "" {
+	if e.enforceAdmin(w, r) == "" {
 		return
 	}
 	activity = normalizeBrief(activity)
@@ -71,8 +70,7 @@ func (e mainEnv) pactivityCreate(w http.ResponseWriter, r *http.Request, ps http
 
 func (e mainEnv) pactivityDelete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	activity := ps.ByName("activity")
-	authResult := e.enforceAdmin(w, r)
-	if authResult == "" {
+	if e.enforceAdmin(w, r) == "" {
 		return
 	}
 	activity = normalizeBrief(activity)
@@ -89,8 +87,7 @@ func (e mainEnv) pactivityDelete(w http.ResponseWriter, r *http.Request, ps http
 func (e mainEnv) pactivityLink(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	activity := ps.ByName("activity")
 	brief := ps.ByName("brief")
-	authResult := e.enforceAdmin(w, r)
-	if authResult == "" {
+	if e.enforceAdmin(w, r) == "" {
 		return
 	}
 	activity = normalizeBrief(activity)
@@ -125,8 +122,7 @@ func (e mainEnv) pactivityLink(w http.ResponseWriter, r *http.Request, ps httpro
 func (e mainEnv) pactivityUnlink(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	activity := ps.ByName("activity")
 	brief := ps.ByName("brief")
-	authResult := e.enforceAdmin(w, r)
-	if authResult == "" {
+	if e.enforceAdmin(w, r) == "" {
 		return
 	}
 	activity = normalizeBrief(activity)
@@ -150,8 +146,7 @@ func (e mainEnv) pactivityUnlink(w http.ResponseWriter, r *http.Request, ps http
 }
 
 func (e mainEnv) pactivityList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	authResult := e.enforceAdmin(w, r)
-	if authResult == "" {
+	if e.enforceAdmin(w, r) == "" {
 		return
 	}
 	resultJSON, numRecords, err := e.db.listProcessingActivities()

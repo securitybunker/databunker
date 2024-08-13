@@ -128,6 +128,7 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	mode := ps.ByName("mode")
 	event := audit("get user record by "+mode, identity, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
+
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
@@ -165,8 +166,7 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 }
 
 func (e mainEnv) userList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	authResult := e.enforceAdmin(w, r)
-	if authResult == "" {
+	if e.enforceAdmin(w, r) == "" {
 		return
 	}
 	if e.conf.Generic.ListUsers == false {
