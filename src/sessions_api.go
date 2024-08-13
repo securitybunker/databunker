@@ -92,26 +92,8 @@ func (e mainEnv) newUserSession(w http.ResponseWriter, r *http.Request, ps httpr
 	event := audit("create user session", identity, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
 
-	if validateMode(mode) == false {
-		returnError(w, r, "bad mode", 405, nil, event)
-		return
-	}
-	userTOKEN := identity
-	var userBson bson.M
-	if mode == "token" {
-		if enforceUUID(w, identity, event) == false {
-			return
-		}
-		userBson, _ = e.db.lookupUserRecord(identity)
-	} else {
-		userBson, _ = e.db.lookupUserRecordByIndex(mode, identity, e.conf)
-		if userBson != nil {
-			userTOKEN = userBson["token"].(string)
-			event.Record = userTOKEN
-		}
-	}
-	if userBson == nil {
-		returnError(w, r, "internal error", 405, nil, event)
+	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
+	if userTOKEN == "" {
 		return
 	}
 	if e.enforceAuth(w, r, event) == "" {
@@ -154,27 +136,8 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 	event := audit("get all user sessions", identity, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
 
-	if validateMode(mode) == false {
-		returnError(w, r, "bad mode", 405, nil, event)
-		return
-	}
-	userTOKEN := identity
-	var userBson bson.M
-	if mode == "token" {
-		if enforceUUID(w, identity, event) == false {
-			return
-		}
-		userBson, _ = e.db.lookupUserRecord(identity)
-	} else {
-		// TODO: decode url in code!
-		userBson, _ = e.db.lookupUserRecordByIndex(mode, identity, e.conf)
-		if userBson != nil {
-			userTOKEN = userBson["token"].(string)
-			event.Record = userTOKEN
-		}
-	}
-	if userBson == nil {
-		returnError(w, r, "internal error", 405, nil, event)
+	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
+	if userTOKEN == "" {
 		return
 	}
 	if e.enforceAuth(w, r, event) == "" {

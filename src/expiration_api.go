@@ -28,16 +28,15 @@ func (e mainEnv) expUsers() error {
 }
 
 func (e mainEnv) expGetStatus(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	var err error
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit("get expiration status by "+mode, identity, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
+	var err error
 	if validateMode(mode) == false {
 		returnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
-	userTOKEN := identity
 	var userBson bson.M
 	if mode == "token" {
 		if enforceUUID(w, identity, event) == false {
@@ -46,15 +45,13 @@ func (e mainEnv) expGetStatus(w http.ResponseWriter, r *http.Request, ps httprou
 		userBson, err = e.db.lookupUserRecord(identity)
 	} else {
 		userBson, err = e.db.lookupUserRecordByIndex(mode, identity, e.conf)
-		if userBson != nil {
-			userTOKEN = userBson["token"].(string)
-			event.Record = userTOKEN
-		}
 	}
 	if userBson == nil || err != nil {
 		returnError(w, r, "internal error", 405, nil, event)
 		return
 	}
+	userTOKEN := userBson["token"].(string)
+	event.Record = userTOKEN
 	expirationDate := getIntValue(userBson["endtime"])
 	expirationStatus := getStringValue(userBson["expstatus"])
 	expirationToken := getStringValue(userBson["exptoken"])
@@ -164,29 +161,12 @@ func (e mainEnv) expStart(w http.ResponseWriter, r *http.Request, ps httprouter.
 	mode := ps.ByName("mode")
 	event := audit("initiate user record expiration by "+mode, identity, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
-	if validateMode(mode) == false {
-		returnError(w, r, "bad mode", 405, nil, event)
-		return
-	}
+
 	if e.enforceAdmin(w, r) == "" {
 		return
 	}
-	userTOKEN := identity
-	var userBson bson.M
-	if mode == "token" {
-		if enforceUUID(w, identity, event) == false {
-			return
-		}
-		userBson, err = e.db.lookupUserRecord(identity)
-	} else {
-		userBson, err = e.db.lookupUserRecordByIndex(mode, identity, e.conf)
-		if userBson != nil {
-			userTOKEN = userBson["token"].(string)
-			event.Record = userTOKEN
-		}
-	}
-	if userBson == nil || err != nil {
-		returnError(w, r, "internal error", 405, nil, event)
+	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
+	if userTOKEN == "" {
 		return
 	}
 	records, err := getJSONPostMap(r)
