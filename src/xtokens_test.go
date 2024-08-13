@@ -141,8 +141,8 @@ func TestUserLoginDelete(t *testing.T) {
 	log.Printf("List apps: %s\n", raw["apps"])
 
 	rootToken = oldRootToken
-	user_requests, _ := helpGetUserRequests("token", userTOKEN)
-	if user_requests["total"].(float64) != 4 {
+	userRequests, _ := helpGetUserRequests("token", userTOKEN)
+	if userRequests["total"].(float64) != 4 {
 		t.Fatalf("Wrong number of user requests\n")
 	}
 	// get user requests
