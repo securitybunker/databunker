@@ -13,11 +13,13 @@ import (
 )
 
 func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	userTOKEN := ps.ByName("token")
-	event := audit("create shareable record by user token", userTOKEN, "token", userTOKEN)
+	identity := ps.ByName("identity")
+	mode := ps.ByName("mode")
+	event := audit("create shareable record by "+mode, identity, "token", identity)
 	defer func() { event.submit(e.db, e.conf) }()
 
-	if enforceUUID(w, userTOKEN, event) == false {
+	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
+	if userTOKEN == "" {
 		return
 	}
 	if e.enforceAuth(w, r, event) == "" {
