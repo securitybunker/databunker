@@ -210,7 +210,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.POST("/v1/exp/start/:mode/:identity", e.expStart)
 	router.DELETE("/v1/exp/cancel/:mode/:identity", e.expCancel)
 
-	router.POST("/v1/sharedrecord/token/:token", e.newSharedRecord)
+	router.POST("/v1/sharedrecord/:mode/:identity", e.newSharedRecord)
 	router.GET("/v1/get/:record", e.getRecord)
 
 	router.GET("/v1/request/:request", e.getUserRequest)
