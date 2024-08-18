@@ -86,10 +86,12 @@ func (e mainEnv) deleteSession(w http.ResponseWriter, r *http.Request, ps httpro
 	fmt.Fprintf(w, `{"status":"ok"}`)
 }
 
+
+// the following function is currently not used
 func (e mainEnv) newUserSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit("create user session", identity, mode, identity)
+	event := audit("create user session by "+mode, identity, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
 
 	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
