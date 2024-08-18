@@ -118,7 +118,6 @@ func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httproute
 	returnUUID(w, userTOKEN)
 	notifyURL := e.conf.Notification.NotificationURL
 	notifyProfileNew(notifyURL, userJSON.jsonData, "token", userTOKEN)
-	return
 }
 
 func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
