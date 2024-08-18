@@ -14,7 +14,7 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	identity := ps.ByName("identity")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
-	event := audit("accept agreement for "+brief, identity, mode, identity)
+	event := audit("accept agreement by "+brief, identity, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
 
 	if validateMode(mode) == false {
@@ -128,7 +128,7 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	identity := ps.ByName("identity")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
-	event := audit("withdraw agreement for "+brief, identity, mode, identity)
+	event := audit("withdraw agreement by "+brief, identity, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
 
 	if validateMode(mode) == false {
