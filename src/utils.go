@@ -205,13 +205,11 @@ func binarySearch(arr []string, target string) bool {
 }
 
 func contains(slice []string, item string) bool {
-	set := make(map[string]struct{}, len(slice))
+	set := make(map[string]bool, len(slice))
 	for _, s := range slice {
-		set[s] = struct{}{}
+		set[s] = true
 	}
-
-	_, ok := set[item]
-	return ok
+	return set[item]
 }
 
 func atoi(s string) int32 {
