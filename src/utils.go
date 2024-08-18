@@ -24,14 +24,39 @@ import (
 )
 
 var (
-	regexUUID          = regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$")
-	regexBrief         = regexp.MustCompile("^[a-z][a-z0-9\\-]{1,64}$")
-	regexAppName       = regexp.MustCompile("^[a-z][a-z0-9\\_]{1,30}$")
-	regexExpiration    = regexp.MustCompile("^([0-9]+)([mhds])?$")
-	regexHex           = regexp.MustCompile("^[a-zA-F0-9]+$")
-	consentYesStatuses = []string{"1", "accept", "agree", "approve", "given", "good", "ok", "on", "true", "y", "yes"}
-	basisTypes         = []string{"consent", "contract", "legal-requirement", "legitimate-interest", "public-interest", "vital-interest"}
-	indexNames         = []string{"custom", "email", "login", "phone", "token"}
+	regexUUID       = regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$")
+	regexBrief      = regexp.MustCompile("^[a-z][a-z0-9\\-]{1,64}$")
+	regexAppName    = regexp.MustCompile("^[a-z][a-z0-9\\_]{1,30}$")
+	regexExpiration = regexp.MustCompile("^([0-9]+)([mhds])?$")
+	regexHex        = regexp.MustCompile("^[a-zA-F0-9]+$")
+	indexNames      = map[string]bool{
+		"custom": true,
+		"email":  true,
+		"login":  true,
+		"phone":  true,
+		"token":  true,
+	}
+	consentYesStatuses = map[string]bool{
+		"1":       true,
+		"accept":  true,
+		"agree":   true,
+		"approve": true,
+		"given":   true,
+		"good":    true,
+		"ok":      true,
+		"on":      true,
+		"true":    true,
+		"y":       true,
+		"yes":     true,
+	}
+	basisTypes = map[string]bool{
+		"consent":             true,
+		"contract":            true,
+		"legal-requirement":   true,
+		"legitimate-interest": true,
+		"public-interest":     true,
+		"vital-interest":      true,
+	}
 )
 
 // Consideration why collection of meta data patch was postpone:
@@ -103,7 +128,7 @@ func hashString(md5Salt []byte, src string) string {
 
 func normalizeConsentStatus(status string) string {
 	status = strings.ToLower(status)
-	if binarySearch(consentYesStatuses, status) {
+	if consentYesStatuses[status] {
 		return "yes"
 	}
 	return "no"
@@ -111,7 +136,7 @@ func normalizeConsentStatus(status string) string {
 
 func normalizeBasisType(status string) string {
 	status = strings.ToLower(status)
-	if binarySearch(basisTypes, status) {
+	if basisTypes[status] {
 		return status
 	}
 	return "consent"
@@ -154,7 +179,7 @@ func normalizePhone(phone string, defaultCountry string) string {
 }
 
 func validateMode(index string) bool {
-	return binarySearch(indexNames, index)
+	return indexNames[strings.ToLower(index)]
 }
 
 func parseFields(fields string) []string {
