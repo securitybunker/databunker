@@ -7,20 +7,23 @@ if [ ! -f /databunker/data/databunker.db ]; then
   if [ "$1" == "demo" ]; then
     OPTION="-demoinit"
   fi
-  echo "-------------INIT------------"
+  echo "-------------------------------------------------"
+  echo "run.sh: init database, encryption, and access keys"
   #/bin/busybox mkdir -p /tmp
-  RESULT=`/databunker/bin/databunker $OPTION -db /databunker/data/databunker.db -conf /databunker/conf/databunker.yaml > /tmp/init.txt`
+  RESULT=`/databunker/bin/databunker $OPTION -db /databunker/data/databunker.db -conf /databunker/conf/databunker.yaml > /tmp/init.txt 2>&1`
   if [ ! -f /databunker/data/databunker.db ]; then
     echo "Failed to init databunker database. Probably permission issue for /databunker/data directory."
     /bin/busybox sleep 60
     exit
   fi
-  DATABUNKER_ROOTTOKEN=`/bin/busybox awk '/API Root token:/ {print $4}' /tmp/init.txt`
-  DATABUNKER_MASTERKEY2=`/bin/busybox awk '/Master key:/ {print $3}' /tmp/init.txt`
+  /bin/busybox cat /tmp/init.txt
+  DATABUNKER_ROOTTOKEN=`/bin/busybox awk '/API Root token:/ {print $6}' /tmp/init.txt`
+  DATABUNKER_MASTERKEY2=`/bin/busybox awk '/Master key:/ {print $5}' /tmp/init.txt`
   echo "DATABUNKER_ROOTTOKEN $DATABUNKER_ROOTTOKEN"
   echo "DATABUNKER_MASTERKEY $DATABUNKER_MASTERKEY2"
   /bin/busybox rm -rf /tmp/init.txt
   if [ -z "$DATABUNKER_MASTERKEY" ]; then
+    echo "export DATABUNKER_MASTERKEY=$DATABUNKER_MASTERKEY2"
     export DATABUNKER_MASTERKEY=$DATABUNKER_MASTERKEY2
   fi
 fi
@@ -29,9 +32,6 @@ if [ -z "$DATABUNKER_MASTERKEY" ]; then
   /bin/busybox sleep 60
   exit
 fi
-#echo "-------------ENV-------------"
-#/bin/busybox env
-#echo "-------------FIND------------"
-#/bin/busybox find /databunker
-echo "-------------RUN-------------"
+echo "-------------------------------------------------"
+echo "run.sh: shart databunker service"
 /databunker/bin/databunker -start -db /databunker/data/databunker.db -conf /databunker/conf/databunker.yaml

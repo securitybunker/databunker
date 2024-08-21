@@ -11,7 +11,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"flag"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -341,7 +340,7 @@ func readConfFile(cfg *Config, filepath *string) error {
 			confFile = *filepath
 		}
 	}
-	fmt.Printf("Databunker configuration file: %s\n", confFile)
+	log.Printf("Databunker configuration file: %s\n", confFile)
 	f, err := os.Open(confFile)
 	if err != nil {
 		return err
@@ -496,30 +495,30 @@ func reqMiddleware(handler http.Handler) http.Handler {
 }
 
 func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbcon, string, error) {
-	fmt.Printf("\nDatabunker init\n\n")
+	log.Println("Databunker init")
 	var masterKey []byte
 	var err error
 	if variableProvided("DATABUNKER_MASTERKEY", masterKeyPtr) == true {
 		masterKey, err = masterkeyGet(masterKeyPtr)
 		if err != nil {
-			fmt.Printf("Failed to parse master key: %s", err)
+			log.Printf("Failed to parse master key: %s\n", err)
 			os.Exit(0)
 		}
-		fmt.Printf("Master key: ****\n\n")
+		log.Println("Master key: ****")
 	} else {
 		masterKey, err = generateMasterKey()
 		if err != nil {
-			fmt.Printf("Failed to generate master key: %s", err)
+			log.Printf("Failed to generate master key: %s", err)
 			os.Exit(0)
 		}
-		fmt.Printf("Master key: %x\n\n", masterKey)
+		log.Printf("Master key: %x\n", masterKey)
 	}
 	hash := md5.Sum(masterKey)
-	fmt.Printf("Init database\n\n")
+	log.Println("Init database")
 	store, err := storage.InitDB(dbPtr)
 	for numAttempts := 60; err != nil && numAttempts > 0; numAttempts-- {
 		time.Sleep(1 * time.Second)
-		fmt.Printf("Trying to init db: %d\n", 61-numAttempts)
+		log.Printf("Trying to init db: %d\n", 61-numAttempts)
 		store, err = storage.InitDB(dbPtr)
 	}
 	if err != nil {
@@ -531,10 +530,10 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 	rootToken, err := db.createRootXtoken(customRootToken)
 	if err != nil {
 		//log.Panic("error %s", err.Error())
-		fmt.Printf("Failed to init root token: %s", err.Error())
+		log.Printf("Failed to init root token: %s", err.Error())
 		os.Exit(0)
 	}
-	log.Println("Creating default entities: core-send-email-on-login and core-send-sms-on-login")
+	log.Println("Creating default legal bases records")
 	db.createLegalBasis("core-send-email-on-login", "", "login", "Send email on login",
 		"Confirm to allow sending access code using 3rd party email gateway", "consent",
 		"This consent is required to give you our service.", "active", true, true)
@@ -542,9 +541,9 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 		"Confirm to allow sending access code using 3rd party SMS gateway", "consent",
 		"This consent is required to give you our service.", "active", true, true)
 	if len(customRootToken) > 0 && customRootToken != "DEMO" {
-		fmt.Printf("\nAPI Root token: ****\n\n")
+		log.Println("API Root token: ****")
 	} else {
-		fmt.Printf("\nAPI Root token: %s\n\n", rootToken)
+		log.Printf("API Root token: %s\n", rootToken)
 	}
 	return db, rootToken, err
 }
@@ -611,7 +610,7 @@ func main() {
 	flag.Parse()
 
 	if *versionPtr {
-		fmt.Printf("Databunker version: %s\n", version)
+		log.Printf("Databunker version: %s\n", version)
 		os.Exit(0)
 	}
 
@@ -631,7 +630,7 @@ func main() {
 	}
 	if *initPtr || *demoPtr {
 		if storage.DBExists(dbPtr) == true {
-			fmt.Printf("\nDatabase is alredy initialized.\n\n")
+			log.Println("Database is alredy initialized.")
 		} else {
 			db, _, _ := setupDB(dbPtr, masterKeyPtr, customRootToken)
 			db.store.CloseDB()
@@ -641,25 +640,22 @@ func main() {
 	dbExists := storage.DBExists(dbPtr)
 	for numAttempts := 60; dbExists == false && numAttempts > 0; numAttempts-- {
 		time.Sleep(1 * time.Second)
-		fmt.Printf("Trying to open db: %d\n", 61-numAttempts)
+		log.Printf("Trying to open db [%d]\n", 61-numAttempts)
 		dbExists = storage.DBExists(dbPtr)
 	}
 	if dbExists == false {
-		fmt.Printf("\nDatabase is not initialized.\n\n")
-		fmt.Println(`Run "databunker -init" for the first time to generate keys and init database.`)
-		fmt.Println("")
+		log.Println("Database is not initialized")
+		log.Println(`Run "databunker -init" for the first time to generate keys and init database.`)
 		os.Exit(0)
 	}
 	if masterKeyPtr == nil && *startPtr == false {
-		fmt.Println("")
-		fmt.Println(`Run "databunker -start" will load DATABUNKER_MASTERKEY environment variable.`)
-		fmt.Println(`For testing "databunker -masterkey MASTER_KEY_VALUE" can be used. Not recommended for production.`)
-		fmt.Println("")
+		log.Println(`Run "databunker -start" will load DATABUNKER_MASTERKEY environment variable.`)
+		log.Println(`For testing "databunker -masterkey MASTER_KEY_VALUE" can be used. Not recommended for production.`)
 		os.Exit(0)
 	}
 	err := loadUserSchema(cfg, confPtr)
 	if err != nil {
-		fmt.Printf("Failed to load user schema: %s\n", err)
+		log.Printf("Failed to load user schema: %s\n", err)
 		os.Exit(0)
 	}
 	masterKey, masterKeyErr := masterkeyGet(masterKeyPtr)
