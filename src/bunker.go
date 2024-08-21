@@ -533,7 +533,7 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 		log.Printf("Failed to init root token: %s", err.Error())
 		os.Exit(0)
 	}
-	log.Println("Creating default legal bases records")
+	log.Println("Creating default legal basis records")
 	db.createLegalBasis("core-send-email-on-login", "", "login", "Send email on login",
 		"Confirm to allow sending access code using 3rd party email gateway", "consent",
 		"This consent is required to give you our service.", "active", true, true)
