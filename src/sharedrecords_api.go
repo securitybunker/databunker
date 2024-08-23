@@ -95,7 +95,7 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 	}
 	recordInfo, err := e.db.getSharedRecord(record)
 	if err != nil {
-		fmt.Printf("%d access denied for : %s\n", http.StatusForbidden, record)
+		log.Printf("%d access denied for : %s\n", http.StatusForbidden, record)
 		w.WriteHeader(http.StatusForbidden)
 		w.Write([]byte("Access denied"))
 		return

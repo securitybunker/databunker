@@ -77,7 +77,7 @@ func (dbobj *SQLiteDB) OpenDB(filepath *string) error {
 	if len(dbfile) >= 3 && dbfile[len(dbfile)-3:] != ".db" {
 		dbfile = dbfile + ".db"
 	}
-	fmt.Printf("Databunker db file is: %s\n", dbfile)
+	log.Printf("Databunker db file is: %s\n", dbfile)
 	// collect list of all tables
 	/*
 		if _, err := os.Stat(dbfile); !os.IsNotExist(err) {

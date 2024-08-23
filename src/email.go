@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/smtp"
 	"strconv"
@@ -43,8 +42,8 @@ func adminEmailAlert(action string, adminEmail string, cfg Config) {
 	err := smtp.SendMail(cfg.SMTP.Server+":"+cfg.SMTP.Port,
 		auth, cfg.SMTP.User, dest, []byte(msg))
 	if err != nil {
-		fmt.Printf("smtp error: %s", err)
+		log.Printf("smtp error: %s", err)
 		return
 	}
-	fmt.Println("Mail sent successfully!")
+	log.Println("Mail sent successfully!")
 }

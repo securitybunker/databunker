@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -26,7 +25,7 @@ func sendCodeByPhoneDo(domain string, client *http.Client, code int32, identity 
 	finalURL = strings.ReplaceAll(finalURL, "_FROM_", url.QueryEscape(cfg.Sms.From))
 	finalURL = strings.ReplaceAll(finalURL, "_TOKEN_", url.QueryEscape(cfg.Sms.Token))
 	finalURL = strings.ReplaceAll(finalURL, "_MSG_", url.QueryEscape(msg))
-	fmt.Printf("finalURL: %s\n", finalURL)
+	log.Printf("sendCodeByPhoneDo finalURL: %s\n", finalURL)
 	if len(cfg.Sms.Method) == 0 || strings.ToUpper(cfg.Sms.Method) == "GET" {
 		req, _ := http.NewRequest("GET", finalURL, nil)
 		if len(cfg.Sms.BasicAuth) > 0 && strings.Contains(cfg.Sms.BasicAuth, ":") {
@@ -42,7 +41,7 @@ func sendCodeByPhoneDo(domain string, client *http.Client, code int32, identity 
 			}
 		}
 		resp, _ := client.Do(req)
-		fmt.Println(resp.Status)
+		log.Println(resp.Status)
 		return
 	}
 	body := cfg.Sms.Body
@@ -82,5 +81,5 @@ func sendCodeByPhoneDo(domain string, client *http.Client, code int32, identity 
 	}
 	req.Header.Add("Content-Type", cType)
 	resp, _ := client.Do(req)
-	fmt.Println(resp.Status)
+	log.Println(resp.Status)
 }

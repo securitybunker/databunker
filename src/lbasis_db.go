@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -41,7 +41,7 @@ func (dbobj dbcon) createLegalBasis(brief string, newbrief string, module string
 	bdoc["requiredflag"] = requiredflag
 	raw, err := dbobj.store.GetRecord(storage.TblName.Legalbasis, "brief", brief)
 	if err != nil {
-		fmt.Printf("error to find:%s", err)
+		log.Printf("error to find: %s\n", err)
 		return false, err
 	}
 	if raw != nil {
@@ -56,7 +56,7 @@ func (dbobj dbcon) createLegalBasis(brief string, newbrief string, module string
 	bdoc["creationtime"] = now
 	_, err = dbobj.store.CreateRecord(storage.TblName.Legalbasis, &bdoc)
 	if err != nil {
-		fmt.Printf("error to insert record: %s\n", err)
+		log.Printf("error to insert record: %s\n", err)
 		return false, err
 	}
 	return true, nil
@@ -188,7 +188,7 @@ func (dbobj dbcon) checkLegalBasis(brief string) (bool, error) {
 func (dbobj dbcon) getLegalBasis(brief string) (bson.M, error) {
 	row, err := dbobj.store.GetRecord(storage.TblName.Legalbasis, "brief", brief)
 	if err != nil {
-		fmt.Printf("error to find:%s", err)
+		log.Printf("error to find: %s\n", err)
 		return nil, err
 	}
 	return row, err

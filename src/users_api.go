@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -17,7 +18,7 @@ func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httproute
 	if e.conf.Generic.CreateUserWithoutAccessToken == false {
 		// anonymous user can not create user record, check token
 		if e.enforceAuth(w, r, event) == "" {
-			fmt.Println("failed to create user, access denied, try to change Create_user_without_access_token")
+			log.Println("failed to create user, access denied, try to configure Create_user_without_access_token\n")
 			return
 		}
 	}
@@ -182,7 +183,7 @@ func (e mainEnv) userList(w http.ResponseWriter, r *http.Request, ps httprouter.
 		limit = atoi(value[0])
 	}
 	resultJSON, counter, _ := e.db.getUsers(offset, limit)
-	fmt.Printf("Total count of events: %d\n", counter)
+	log.Printf("Total count of events: %d\n", counter)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	if counter == 0 {
@@ -400,7 +401,7 @@ func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprou
 			fmt.Fprintf(w, `{"status":"error","result":"record not found","captchaurl":"%s"}`, captcha)
 			return
 		}
-		fmt.Println("user record not found, still returning ok status")
+		log.Println("user record not found, returning ok status")
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)

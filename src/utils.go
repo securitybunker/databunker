@@ -469,7 +469,7 @@ func enforceUUID(w http.ResponseWriter, uuidCode string, event *auditEvent) bool
 func getJSONPostMap(r *http.Request) (map[string]interface{}, error) {
 	cType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	if err != nil {
-		fmt.Printf("ignoring empty content-type: %s\n", err)
+		log.Printf("ignoring empty content-type: %s\n", err)
 		return nil, nil
 	}
 	cType = strings.ToLower(cType)
@@ -492,7 +492,7 @@ func getJSONPostMap(r *http.Request) (map[string]interface{}, error) {
 		}
 		form, err := url.ParseQuery(body)
 		if err != nil {
-			fmt.Printf("error in http data parsing: %s\n", err)
+			log.Printf("error to parse HTTP data request: %s\n", err)
 			return nil, err
 		}
 		if len(form) == 0 {
@@ -529,7 +529,7 @@ func getJSONPostMap(r *http.Request) (map[string]interface{}, error) {
 func getJSONPostData(r *http.Request) ([]byte, error) {
 	cType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	if err != nil {
-		fmt.Printf("ignoring empty content-type: %s\n", err)
+		log.Printf("ignoring empty content-type: %s\n", err)
 		return nil, nil
 	}
 	cType = strings.ToLower(cType)
@@ -553,7 +553,7 @@ func getJSONPostData(r *http.Request) ([]byte, error) {
 		}
 		form, err := url.ParseQuery(body)
 		if err != nil {
-			fmt.Printf("error in http data parsing: %s\n", err)
+			log.Printf("error in HTTP data request: %s\n", err)
 			return nil, err
 		}
 		if len(form) == 0 {
