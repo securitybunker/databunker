@@ -19,8 +19,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/kelseyhightower/envconfig"
 	"github.com/ttacon/libphonenumber"
 	"golang.org/x/sys/unix"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -118,6 +120,46 @@ func getInt64Value(records map[string]interface{}, key string) int64 {
 		}
 	}
 	return 0
+}
+
+// readConfFile() read configuration file.
+func readConfFile(cfg *Config, filepath *string) error {
+	confFile := "databunker.yaml"
+	if filepath != nil {
+		if len(*filepath) > 0 {
+			confFile = *filepath
+		}
+	}
+	log.Printf("Loading configuration file: %s\n", confFile)
+	f, err := os.Open(confFile)
+	if err != nil {
+		return err
+	}
+	decoder := yaml.NewDecoder(f)
+	err = decoder.Decode(cfg)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// readEnv() process environment variables.
+func readEnv(cfg *Config) error {
+	err := envconfig.Process("", cfg)
+	return err
+}
+
+func getArgEnvFileVariable(vname string, masterKeyPtr *string) string {
+	strvalue := ""
+	if masterKeyPtr != nil && len(*masterKeyPtr) > 0 {
+		strvalue = *masterKeyPtr
+	} else if len(os.Getenv(vname)) > 0 {
+		strvalue = os.Getenv(vname)
+	} else if len(os.Getenv(vname+"_FILE")) > 0 {
+		data, _ := os.ReadFile(os.Getenv(vname + "_FILE"))
+		strvalue = string(data)
+	}
+	return strings.TrimSpace(strvalue)
 }
 
 func hashString(md5Salt []byte, src string) string {
