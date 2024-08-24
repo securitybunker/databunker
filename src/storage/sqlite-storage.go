@@ -476,7 +476,7 @@ func (dbobj SQLiteDB) getOneRecord(q string, values []interface{}) (bson.M, erro
 	defer tx.Rollback()
 	rows, err := tx.Query(q, values...)
 	if err == sql.ErrNoRows {
-		log.Println("nothing found")
+		log.Println("Nothing found")
 		return nil, nil
 	} else if err != nil {
 		return nil, err
@@ -774,7 +774,7 @@ func (dbobj SQLiteDB) getListDo(q string, values []interface{}) ([]bson.M, error
 	defer tx.Rollback()
 	rows, err := tx.Query(q, values...)
 	if err == sql.ErrNoRows {
-		log.Println("nothing found")
+		log.Println("Nothing found")
 		return nil, nil
 	} else if err != nil {
 		return nil, err
