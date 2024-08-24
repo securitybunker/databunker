@@ -69,7 +69,7 @@ func loadService() {
 		os.Exit(0)
 	}
 	if len(masterKeyStr) == 0 {
-		log.Println(`ENV['DATABUNKER_MASTERKEY'] or 'databunker -masterkey value' must be present.`)
+		log.Println(`ENV['DATABUNKER_MASTERKEY'], ENV['DATABUNKER_MASTERKEY_FILE'], or 'databunker -masterkey value' must be provided.`)
 		os.Exit(0)
 	}
 	err := loadUserSchema(cfg, confPtr)
