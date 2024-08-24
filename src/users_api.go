@@ -18,7 +18,7 @@ func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httproute
 	if e.conf.Generic.CreateUserWithoutAccessToken == false {
 		// anonymous user can not create user record, check token
 		if e.enforceAuth(w, r, event) == "" {
-			log.Println("failed to create user, access denied, try to configure Create_user_without_access_token\n")
+			log.Println("Failed to create user, access denied, try to configure Create_user_without_access_token")
 			return
 		}
 	}
@@ -401,7 +401,7 @@ func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprou
 			fmt.Fprintf(w, `{"status":"error","result":"record not found","captchaurl":"%s"}`, captcha)
 			return
 		}
-		log.Println("user record not found, returning ok status")
+		log.Println("User record not found, returning ok status")
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
