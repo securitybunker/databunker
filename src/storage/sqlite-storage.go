@@ -77,7 +77,7 @@ func (dbobj *SQLiteDB) OpenDB(filepath *string) error {
 	if len(dbfile) >= 3 && dbfile[len(dbfile)-3:] != ".db" {
 		dbfile = dbfile + ".db"
 	}
-	log.Printf("Databunker db file is: %s\n", dbfile)
+	log.Printf("Database file: %s\n", dbfile)
 	// collect list of all tables
 	/*
 		if _, err := os.Stat(dbfile); !os.IsNotExist(err) {
@@ -124,7 +124,7 @@ func (dbobj *SQLiteDB) OpenDB(filepath *string) error {
 		knownApps = append(knownApps, t)
 	}
 	tx.Commit()
-	log.Printf("List of tables: %s\n", knownApps)
+	log.Printf("Found tables: %s\n", knownApps)
 	return nil
 }
 
@@ -139,7 +139,7 @@ func (dbobj *SQLiteDB) InitDB(filepath *string) error {
 	if len(dbfile) >= 3 && dbfile[len(dbfile)-3:] != ".db" {
 		dbfile = dbfile + ".db"
 	}
-	log.Printf("Init Databunker db file is: %s\n", dbfile)
+	log.Printf("Create database file: %s\n", dbfile)
 	db, err := sql.Open("sqlite", "file:"+dbfile+"?_journal_mode=WAL")
 	if err != nil {
 		return err
