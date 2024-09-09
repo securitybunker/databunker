@@ -74,9 +74,9 @@ smtp:
 ui:
   logo_link: "/site/img/logo-example.png"
   company_title: "Your company here"
-  company_link: "https://privacybunker.io/"
+  company_link: "https://databunker.org/"
   term_of_service_title: "Your Terms of service link"
-  term_of_service_link: "https://privacybunker.io/"
+  term_of_service_link: "https://databunker.org/"
   privacy_policy_title: "Your Privacy Policy link"
-  privacy_policy_link: "https://privacybunker.io/"
+  privacy_policy_link: "https://databunker.org/"
   custom_css_link: ""
