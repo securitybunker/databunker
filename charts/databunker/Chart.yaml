@@ -27,7 +27,7 @@ keywords:
   - nodejs
   - vault
 maintainers:
-  - email: yuli@privacybunker.io
+  - email: yuli@databunker.org
     name: Yuli
 name: databunker
 sources:
