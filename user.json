@@ -1,5 +1,5 @@
 {
-"$id": "https://privacybunker.io/schema/",
+"$id": "https://databunker.org/schema/",
 "$comment" : "user record",
 "title": "user",
 "description": "user record",

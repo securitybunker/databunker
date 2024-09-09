@@ -89,7 +89,8 @@ https://databunker.org/doc/benchmark/
 
 ## ⚡ Production deployments
 
-* Backend at https://privacybunker.io/
+* Backend at https://cloudrevive.com/
+* Backend at https://metal8.cloud/
 * Backend at https://bitbaza.io/
 
 🚩 **Send us a note** if you are running Databunker in production mode, so we can add your website to the list.
@@ -236,7 +237,7 @@ Detailed information can be found at https://databunker.org/use-case/
 1. https://github.com/expressjs/session
 1. https://databunker.org/
 
-If you published an article about Databunker send us a link at yuli@privacybunker.io
+If you published an article about Databunker send us a link at yuli@databunker.org
 
 ---
 
@@ -244,7 +245,7 @@ If you published an article about Databunker send us a link at yuli@privacybunke
 
 Your feedback is very important for us. Give us a ⭐ **star** if you like our product.
 
-If you have any questions, you can contact the development team at office@privacybunker.io.
+If you have any questions, you can contact the development team at hello@databunker.org.
 
 Join the project slack channel to talk with developers: [https://databunker.slack.com/](https://join.slack.com/t/databunker/shared_invite/zt-b6ukxzw3-JCxv8NJDESL40haM45RNIA)
 
