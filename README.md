@@ -233,6 +233,7 @@ Detailed information can be found at https://databunker.org/use-case/
 1. https://anchor.fm/techandmain/episodes/Huawei--Microsoft-and-DataBunker--Yuli-Stremovsky-evl385
 1. https://nocomplexity.com/documents/simplifyprivacy/databunker.html
 1. https://ipv6.rs/tutorial/FreeBSD_Latest/Databunker/
+1. https://selfhostedworld.com/software/databunker
 1. https://ipv6.rs/tutorial/Void_Linux/Databunker/
 1. https://slashdot.org/software/p/Databunker/
 1. https://github.com/expressjs/session
