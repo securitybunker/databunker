@@ -29,7 +29,7 @@ services:
     env_file:
       - .env/databunker.env
     entrypoint: /bin/sh
-    command: -c "/databunker/bin/databunker -db databunkerdb -conf /databunker/conf/databunker.yaml"
+    command: -c "/databunker/bin/databunker -start -db databunkerdb -conf /databunker/conf/databunker.yaml"
     depends_on:
       - postgresql
     ports:
