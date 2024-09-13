@@ -264,6 +264,18 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 			}
 		}
 	})
+	router.GET("/robots.txt", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		data, err := box.Find("robots.txt")
+		if err != nil {
+			//log.Panic("error %s", err.Error())
+			log.Printf("error: %s\n", err.Error())
+			w.WriteHeader(404)
+		} else {
+			w.Header().Set("Content-Type", "text/plain")
+			w.WriteHeader(200)
+			w.Write(data)
+		}
+	})
 	router.GET("/site/*filepath", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		fname := r.URL.Path
 		if fname == "/site/" {
