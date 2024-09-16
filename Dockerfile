@@ -30,6 +30,7 @@ RUN /bin/busybox mkdir -p /databunker/data && \
     /bin/busybox chmod 0777 /tmp && \
     addgroup -S appgroup && adduser --no-create-home -S appuser -G appgroup && \
     chown appuser:appgroup /databunker/data
+VOLUME ["/databunker/data"]
 USER appuser
 COPY --from=builder /go/src/securitybunker/databunker/databunker /go/src/securitybunker/databunker/run.sh /go/src/securitybunker/databunker/health-check.sh /databunker/bin/
 EXPOSE 3000
