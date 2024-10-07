@@ -19,19 +19,36 @@
 
 Project **demo** is available at: [https://demo.databunker.org/](https://demo.databunker.org/). Please add a **star** if you like our project.
 
-We live in a world where the privacy of our information is nonexistent. The EU has been working to remediate this fallacy with GDPR, and the US (California) follows with a first sparrow called CCPA.
+⚠️ Here is a simple truth: <b>traditional database encryption often provides a false sense of security</b>.
 
-Databunker project is intended to ease the GDPR and CPRA compliance. It gives organizations easy-to-implement APIs and secure vault to store PII, and a privacy portal.
+What are the risks of traditional database security solutions?
 
-Databunker gives all of us, the real data owners, control of our data. Databunker allows us to know who is using our data, what is happening with our personal data and gives us the freedom to decide if we agree to that or not.
+* **Data encryption is not enough:** Most cloud and security vendors provide only data or disk encryption
+* **Unfiltered GraphQL Queries:** Attackers can retrieve unencrypted data via incorrectly filtered queries
+* **SQL Injection Attacks:** Cybercriminals can easily access plain text data through SQL injection
 
-Databunker, when deployed correctly, replaces all the customer's personal records (PII) scattered in the organization's different
-internal databases and log files with a single randomly generated token managed by the Databunker service.
+#### Introducing Databunker
 
-By deploying this project and moving all personal information to one place, you will comply with the following
-GDPR statement: *Personal data should be processed in a manner that ensures appropriate security and 
-confidentiality of the  personal data, including for preventing unauthorized access to or use of personal
-data and the equipment used for the processing.*
+Databunker is a specialized system for secure storage, data tokenization, and consent management, designed to protect:
+* Personally Identifiable Information (PII)
+* Protected Health Information (PHI)
+* Payment Card Industry (PCI) data
+* Know Your Customer (KYC) records
+
+#### Key Features:
+* **Open-Source:** Fully available under the commercially friendly MIT license
+* **GDPR Compliant:** Built with privacy regulations in mind
+* **Superior Protection:** Goes beyond standard database encryption offered by major vendors
+
+#### How Databunker Reinvents Data Security:
+Databunker introduces a new approach to customer data protection:
+1. **Secure Indexing:** Utilizes hash-based indexing for all search indexes
+1. **No Clear Text Storage:** Ensures all information is encrypted, enhancing overall security
+1. **Restricted Bulk Retrieval:** Bulk retrieval is disabled by default, adding an extra layer of defense
+1. **API-Based Communication:** Backend interacts with Databunker through API calls, similar to NoSQL solutions
+1. **Record Token:** Databunker creates a secured version of your data object - an object UUID token that is safe to use in your database
+
+Don't let your sensitive data become the next breach headline
 
 #### Diagram of old-style solution.
 
