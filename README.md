@@ -50,7 +50,9 @@ Databunker introduces a new approach to customer data protection:
 
 Don't let your sensitive data become the next breach headline
 
-#### Diagram of old-style solution.
+&nbsp;
+
+#### Diagram of old-style solution
 
 ![picture](images/old-style-solution.png)
 
