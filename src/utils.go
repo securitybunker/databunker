@@ -575,8 +575,6 @@ func getJSONPostData(r *http.Request) ([]byte, error) {
 		return nil, nil
 	}
 	cType = strings.ToLower(cType)
-	records := make(map[string]interface{})
-	var records2 []map[string]interface{}
 	if r.Method == "DELETE" {
 		// otherwise data is not parsed!
 		r.Method = "PATCH"
@@ -601,26 +599,18 @@ func getJSONPostData(r *http.Request) ([]byte, error) {
 		if len(form) == 0 {
 			return nil, nil
 		}
+		records := make(map[string]interface{})
 		for key, value := range form {
 			records[key] = value[0]
 		}
 		return json.Marshal(records)
 	} else if strings.HasPrefix(cType, "application/json") || strings.HasPrefix(cType, "application/xml") {
-		if body[0] == '{' {
-			err = json.Unmarshal([]byte(body), &records)
-		} else if body[0] == '[' {
-			err = json.Unmarshal([]byte(body), &records2)
-		} else {
-			return nil, errors.New("wrong content-type, not a json string")
-		}
+		var data interface{}
+		err := json.Unmarshal([]byte(body), &data)
 		if err != nil {
-			return nil, err
+			return nil, errors.New("error decoding json data")
 		}
-		if body[0] == '{' {
-			return json.Marshal(records)
-		} else if body[0] == '[' {
-			return json.Marshal(records2)
-		}
+		return json.Marshal(data)
 	}
 	log.Printf("Ignore wrong content type: %s", cType)
 	maxStrLen := 200
