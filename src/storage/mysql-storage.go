@@ -717,7 +717,7 @@ func (dbobj MySQLDB) CleanupRecord(t Tbl, keyName string, keyValue string, bdel 
 }
 
 // GetExpiring get records that are expiring
-func (dbobj MySQLDB) GetExpiring(t Tbl, keyName string, keyValue string) ([]bson.M, error) {
+func (dbobj MySQLDB) GetExpiring(t Tbl, keyName string, keyValue string) ([]map[string]interface{}, error) {
 	table := GetTable(t)
 	now := int32(time.Now().Unix())
 	q := fmt.Sprintf("select * from %s WHERE endtime>0 AND endtime<%d AND %s=?",
@@ -729,7 +729,7 @@ func (dbobj MySQLDB) GetExpiring(t Tbl, keyName string, keyValue string) ([]bson
 }
 
 // GetUniqueList returns a unique list of values from specific column in database
-func (dbobj MySQLDB) GetUniqueList(t Tbl, keyName string) ([]bson.M, error) {
+func (dbobj MySQLDB) GetUniqueList(t Tbl, keyName string) ([]map[string]interface{}, error) {
 	table := GetTable(t)
 	keyName = dbobj.escapeName(keyName)
 	q := "select distinct " + keyName + " from " + table + " ORDER BY " + keyName
@@ -739,7 +739,7 @@ func (dbobj MySQLDB) GetUniqueList(t Tbl, keyName string) ([]bson.M, error) {
 }
 
 // GetList is used to return list of rows. It can be used to return values using pager.
-func (dbobj MySQLDB) GetList0(t Tbl, start int32, limit int32, orderField string) ([]bson.M, error) {
+func (dbobj MySQLDB) GetList0(t Tbl, start int32, limit int32, orderField string) ([]map[string]interface{}, error) {
 	table := GetTable(t)
 	if limit > 100 {
 		limit = 100
@@ -761,7 +761,7 @@ func (dbobj MySQLDB) GetList0(t Tbl, start int32, limit int32, orderField string
 }
 
 // GetList is used to return list of rows. It can be used to return values using pager.
-func (dbobj MySQLDB) GetList(t Tbl, keyName string, keyValue string, start int32, limit int32, orderField string) ([]bson.M, error) {
+func (dbobj MySQLDB) GetList(t Tbl, keyName string, keyValue string, start int32, limit int32, orderField string) ([]map[string]interface{}, error) {
 	table := GetTable(t)
 	if limit > 100 {
 		limit = 100
@@ -782,7 +782,7 @@ func (dbobj MySQLDB) GetList(t Tbl, keyName string, keyValue string, start int32
 	return dbobj.getListDo(q, values)
 }
 
-func (dbobj MySQLDB) getListDo(q string, values []interface{}) ([]bson.M, error) {
+func (dbobj MySQLDB) getListDo(q string, values []interface{}) ([]map[string]interface{}, error) {
 	tx, err := dbobj.db.Begin()
 	if err != nil {
 		return nil, err
@@ -804,11 +804,11 @@ func (dbobj MySQLDB) getListDo(q string, values []interface{}) ([]bson.M, error)
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	var results []bson.M
+	var results []map[string]interface{}
 	//pointers := make([]interface{}, len(columnNames))
 	//rows.Next()
 	for rows.Next() {
-		recBson := bson.M{}
+		recBson := make(map[string]interface{})
 		columnPointers := make([]interface{}, len(columnNames))
 		columns := make([]interface{}, len(columnNames))
 		for idx := range columns {
