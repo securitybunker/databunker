@@ -1,9 +1,10 @@
 package storage
 
 import (
-	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
 	"os"
+
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // Tbl is used to store table id
@@ -95,10 +96,10 @@ type BackendDB interface {
 	DeleteExpired0(Tbl, int32) (int64, error)
 	DeleteExpired(Tbl, string, string) (int64, error)
 	CleanupRecord(Tbl, string, string, []string) (int64, error)
-	GetExpiring(Tbl, string, string) ([]bson.M, error)
-	GetUniqueList(Tbl, string) ([]bson.M, error)
-	GetList0(Tbl, int32, int32, string) ([]bson.M, error)
-	GetList(Tbl, string, string, int32, int32, string) ([]bson.M, error)
+	GetExpiring(Tbl, string, string) ([]map[string]interface{}, error)
+	GetUniqueList(Tbl, string) ([]map[string]interface{}, error)
+	GetList0(Tbl, int32, int32, string) ([]map[string]interface{}, error)
+	GetList(Tbl, string, string, int32, int32, string) ([]map[string]interface{}, error)
 	GetAllTables() ([]string, error)
 	ValidateNewApp(appName string) bool
 }
