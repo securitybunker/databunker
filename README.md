@@ -96,7 +96,7 @@ const user = await db.users.findByEmail('user@example.com');
 - Basic audit logging
 - MIT license
 
-### Enterprise Edition (Starting $1.2/hour)
+### Enterprise Edition (Startup-friendly pricing)
 - Multi-tenancy support
 - Advanced monitoring
 - Priority support
