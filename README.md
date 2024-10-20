@@ -46,7 +46,7 @@ curl -v http://localhost:3000/status
    - Drop-in replacement for your user table
    - Built-in session management
 
-Project **demo** is available at: [https://demo.databunker.org/](https://demo.databunker.org/).
+Project **demo** is available at: https://databunker.org/doc/demo/.
 
 Please add a **star** if you like our project.
 
@@ -130,7 +130,7 @@ const user = await db.users.findByEmail('user@example.com');
 1. https://dbweekly.com/issues/348
 1. https://databunker.org/
 
-## GDPR: Out of the box solution to:
+## 📘 GDPR: Out of the box solution for:
 
 1. [Right of access](#right-of-access)
 1. [Right to restrict processing / Consent withdrawal](#right-to-restrict-processing--consent-withdrawal)
@@ -139,7 +139,7 @@ const user = await db.users.findByEmail('user@example.com');
 1. [Right to data portability](#right-to-data-portability)
 
 
-## Databunker use cases
+## ⚡ Databunker use cases
 
 Detailed information can be found at https://databunker.org/use-case/
 
