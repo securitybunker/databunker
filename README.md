@@ -23,8 +23,14 @@
 docker pull securitybunker/databunker
 docker run -p 3000:3000 -d --rm --name dbunker securitybunker/databunker demo
 
-# Test the service
-curl -v http://localhost:3000/status
+# Create user records
+curl -s http://localhost:3000/v1/user -X POST -H "X-Bunker-Token: DEMO" -H "Content-Type: application/json" \
+-d '{"first":"John","last":"Doe","login":"john","email":"user@gmail.com"}'
+
+# Get user by login, email, phone, or token
+curl -s -H "X-Bunker-Token: DEMO" -X GET http://localhost:3000/v1/user/login/john
+
+# Admin UI: http://localhost:3000
 ```
 
 ## 💡 What Problems Does Databunker Solve?
