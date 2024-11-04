@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/securitybunker/databunker/src/autocontext"
 )
 
 func (e mainEnv) setupConfRouter(router *httprouter.Router) *httprouter.Router {
@@ -13,6 +14,10 @@ func (e mainEnv) setupConfRouter(router *httprouter.Router) *httprouter.Router {
 	router.GET("/v1/sys/uiconfiguration", e.uiConfigurationDump)
 	router.GET("/v1/sys/cookiesettings", e.cookieSettings)
 	return router
+}
+
+func (e mainEnv) initContext(r *http.Request) {
+	autocontext.Set(r, "host", r.Host)
 }
 
 func (e mainEnv) cookieSettings(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

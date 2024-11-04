@@ -94,7 +94,7 @@ func TestUtilGetJSONPost(t *testing.T) {
 }
 
 func TestUtilSMS(t *testing.T) {
-	server := httptest.NewServer(reqMiddleware(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+	server := httptest.NewServer(e.reqMiddleware(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(200)
 		defer req.Body.Close()

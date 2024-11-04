@@ -113,7 +113,7 @@ func loadService() {
 		},
 	}
 	listener := cfg.Server.Host + ":" + cfg.Server.Port
-	srv := &http.Server{Addr: listener, Handler: reqMiddleware(router), TLSConfig: tlsConfig}
+	srv := &http.Server{Addr: listener, Handler: e.reqMiddleware(router), TLSConfig: tlsConfig}
 
 	stop := make(chan os.Signal, 2)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)

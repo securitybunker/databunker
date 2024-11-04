@@ -422,10 +422,10 @@ func (w *CustomResponseWriter) WriteHeader(statusCode int) {
 var statusCounter = 0
 var statusErrorCounter = 0
 
-func reqMiddleware(handler http.Handler) http.Handler {
+func (e mainEnv) reqMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//log.Printf("Set host %s\n", r.Host)
-		autocontext.Set(r, "host", r.Host)
+		e.initContext(r)
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
 		w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
