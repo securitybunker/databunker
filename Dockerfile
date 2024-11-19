@@ -1,7 +1,7 @@
 ############################
 # STEP 1 build executable binary
 ############################
-FROM golang:alpine AS builder
+FROM golang:1.19.10-alpine3.18 AS builder
 RUN apk update && apk add --no-cache git gcc libc-dev openssl && go install github.com/gobuffalo/packr/packr@latest
 WORKDIR $GOPATH/src/securitybunker/databunker/src/
 COPY src/go.mod ./deps
