@@ -3,6 +3,7 @@ package storage
 import (
 	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
+	"net/url"
 	"os"
 )
 
@@ -104,8 +105,18 @@ type BackendDB interface {
 }
 
 func getDBObj() BackendDB {
-	host := os.Getenv("MYSQL_HOST")
 	var db BackendDB
+	databaseURL := os.Getenv("DATABASE_URL")
+	// Check if DATABASE_URL is set and is a PostgreSQL URL
+	if len(databaseURL) > 0 {
+		u, err := url.Parse(databaseURL)
+		if err == nil && u.Scheme == "postgres" {
+			db = &PGSQLDB{}
+			return db
+		}
+	}
+
+	host := os.Getenv("MYSQL_HOST")
 	if len(host) > 0 {
 		db = &MySQLDB{}
 		return db

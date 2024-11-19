@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -24,6 +25,22 @@ type PGSQLDB struct {
 }
 
 func (dbobj PGSQLDB) getConnectionString(dbname *string) string {
+	databaseURL := os.Getenv("DATABASE_URL")
+	if len(databaseURL) > 0 {
+		u, err := url.Parse(databaseURL)
+		if err == nil && u.Scheme == "postgres" {
+			// Extract user info, host, port, and dbname from the URL
+			user := u.User.Username()
+			pass, _ := u.User.Password()
+			host := u.Hostname()
+			port := u.Port()
+			dbname := strings.TrimPrefix(u.Path, "/")
+
+			return fmt.Sprintf("user='%s' password='%s' host='%s' port='%s' dbname='%s'",
+				user, pass, host, port, dbname)
+		}
+	}
+
 	user := os.Getenv("PGSQL_USER_NAME")
 	pass := os.Getenv("PGSQL_USER_PASS")
 	host := os.Getenv("PGSQL_HOST")
