@@ -64,8 +64,6 @@ server:
   port: 3000
 smtp:
   # You need to get SMTP server to send out email notification for example to allow user login.
-  # You can look for a email service company offering SMTP services. You can pick from here:
-  # https://privacybunker.io/blog/european-cloud-saas-vendors/
   server: "email-smtp-server.com"
   port: 587
   user: "user@your-company.com"
