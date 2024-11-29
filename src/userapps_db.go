@@ -257,7 +257,7 @@ func (dbobj dbcon) dumpUserApps(userTOKEN string, conf Config) ([]byte, error) {
 			}
 		}
 	} else {
-		records, err := dbobj.store.GetList(storage.TblName.Userapps, "tone", userTOKEN, 0, 0, "appname")
+		records, err := dbobj.store.GetList(storage.TblName.Userapps, "token", userTOKEN, 0, 0, "appname")
 		if err != nil {
 			return nil, err
 		}
