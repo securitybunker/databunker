@@ -13,7 +13,7 @@ func (e mainEnv) userappNew(w http.ResponseWriter, r *http.Request, ps httproute
 	appName := strings.ToLower(ps.ByName("appname"))
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := auditApp("create user app record by"+mode, identity, appName, mode, identity)
+	event := auditApp("create user app record by "+mode, identity, appName, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
 
 	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
@@ -59,7 +59,7 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 	appName := strings.ToLower(ps.ByName("appname"))
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := auditApp("change user app record by"+mode, identity, appName, mode, identity)
+	event := auditApp("change user app record by "+mode, identity, appName, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
 	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
 	if userTOKEN == "" {
