@@ -44,3 +44,4 @@ transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-s
 .shortstring {vertical-align:middle;display:inline-block;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;max-width:130px;}
 .bigblock .jsoneditor {border:none;}
 .container .bigblock .bootstrap-table .fixed-table-container .fixed-table-body .fixed-table-loading .loading-wrap .loading-text {font-size:14px;}
+input[type=checkbox].form-control:focus {box-shadow:unset;}
