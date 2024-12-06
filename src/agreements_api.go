@@ -352,6 +352,7 @@ func (e mainEnv) getUserAgreement(w http.ResponseWriter, r *http.Request, ps htt
 	}
 	if exists == false {
 		returnError(w, r, "not found", 404, nil, event)
+		return
 	}
 	userTOKEN := ""
 	if mode == "token" {
