@@ -162,7 +162,7 @@ func (e mainEnv) expStart(w http.ResponseWriter, r *http.Request, ps httprouter.
 	event := audit("initiate user record expiration by "+mode, identity, mode, identity)
 	defer func() { event.submit(e.db, e.conf) }()
 
-	if e.enforceAdmin(w, r) == "" {
+	if e.enforceAdmin(w, r, event) == "" {
 		return
 	}
 	userTOKEN := e.loadUserToken(w, r, mode, identity, event)

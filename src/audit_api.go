@@ -40,7 +40,7 @@ func (e mainEnv) getAuditEvents(w http.ResponseWriter, r *http.Request, ps httpr
 }
 
 func (e mainEnv) getAdminAuditEvents(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	if e.enforceAdmin(w, r) == "" {
+	if e.enforceAdmin(w, r, nil) == "" {
 		return
 	}
 	var offset int32

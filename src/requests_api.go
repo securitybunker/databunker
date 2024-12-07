@@ -95,7 +95,7 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 	if len(userTOKEN) != 0 {
 		event.Record = userTOKEN
 	}
-	if e.enforceAdmin(w, r) == "" {
+	if e.enforceAdmin(w, r, event) == "" {
 		return
 	}
 	change := getStringValue(requestInfo["change"])
@@ -148,7 +148,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 	if enforceUUID(w, request, event) == false {
 		return
 	}
-	authResult := e.enforceAdmin(w, r)
+	authResult := e.enforceAdmin(w, r, event)
 	if authResult == "" {
 		return
 	}

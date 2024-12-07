@@ -166,7 +166,7 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 }
 
 func (e mainEnv) userList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	if e.enforceAdmin(w, r) == "" {
+	if e.enforceAdmin(w, r, nil) == "" {
 		return
 	}
 	if e.conf.Generic.ListUsers == false {

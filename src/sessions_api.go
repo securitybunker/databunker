@@ -24,7 +24,7 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 		//returnError(w, r, "bad session format", nil, event)
 		return
 	}
-	if e.enforceAdmin(w, r) == "" {
+	if e.enforceAdmin(w, r, event) == "" {
 		return
 	}
 	expiration := e.conf.Policy.MaxSessionRetentionPeriod
@@ -77,7 +77,7 @@ func (e mainEnv) deleteSession(w http.ResponseWriter, r *http.Request, ps httpro
 		//returnError(w, r, "bad session format", nil, event)
 		return
 	}
-	if e.enforceAdmin(w, r) == "" {
+	if e.enforceAdmin(w, r, event) == "" {
 		return
 	}
 	e.db.deleteSession(session)
@@ -85,7 +85,6 @@ func (e mainEnv) deleteSession(w http.ResponseWriter, r *http.Request, ps httpro
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok"}`)
 }
-
 
 // the following function is currently not used
 func (e mainEnv) newUserSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
