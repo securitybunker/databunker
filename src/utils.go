@@ -477,11 +477,14 @@ func (e mainEnv) enforceAuth(w http.ResponseWriter, r *http.Request, event *audi
 	return ""
 }
 
-func (e mainEnv) enforceAdmin(w http.ResponseWriter, r *http.Request) string {
+func (e mainEnv) enforceAdmin(w http.ResponseWriter, r *http.Request, event *auditEvent) string {
 	if token, ok := r.Header["X-Bunker-Token"]; ok {
 		authResult, err := e.db.checkUserAuthXToken(token[0])
 		//fmt.Printf("error in auth? error %s - %s\n", err, token[0])
 		if err == nil {
+			if event != nil {
+				event.Identity = authResult.name
+			}
 			if len(authResult.ttype) > 0 && authResult.ttype != "login" {
 				return authResult.ttype
 			}

@@ -200,7 +200,7 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	if selfService == false {
 		// user can change consent only for briefs defined in self-service
 		if len(authResult) == 0 {
-			if e.enforceAdmin(w, r) == "" {
+			if e.enforceAdmin(w, r, event) == "" {
 				return
 			}
 		}
@@ -237,11 +237,7 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 
 func (e mainEnv) agreementRevokeAll(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	brief := ps.ByName("brief")
-	authResult := e.enforceAdmin(w, r)
-	if authResult == "" {
-		return
-	}
-	if e.enforceAdmin(w, r) == "" {
+	if e.enforceAdmin(w, r, nil) == "" {
 		return
 	}
 	brief = normalizeBrief(brief)
