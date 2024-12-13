@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -27,27 +28,35 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 	if e.enforceAdmin(w, r, event) == "" {
 		return
 	}
-	expiration := e.conf.Policy.MaxSessionRetentionPeriod
-	userJSON, err := getUserJSON(r, e.conf.Sms.DefaultCountry)
+	records, err := getJSONPostMap(r)
 	if err != nil {
 		returnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	if len(userJSON.jsonData) == 0 {
-		returnError(w, r, "empty request body", 405, nil, event)
+	if len(records) == 0 {
+		returnError(w, r, "empty body", 405, nil, event)
 		return
 	}
+	expirationStr := getStringValue(records["expiration"])
+	expiration := setExpiration(e.conf.Policy.MaxSessionRetentionPeriod, expirationStr)
+	log.Printf("Record expiration: %s", expiration)
+	userToken := getStringValue(records["token"])
+	userLogin := getStringValue(records["login"])
+	userEmail := getStringValue(records["email"])
+	userPhone := getStringValue(records["phone"])
+	userCustomIdx := getStringValue(records["custom"])
+
 	var userBson bson.M
-	if len(userJSON.loginIdx) > 0 {
-		userBson, err = e.db.lookupUserRecordByIndex("login", userJSON.loginIdx, e.conf)
-	} else if len(userJSON.emailIdx) > 0 {
-		userBson, err = e.db.lookupUserRecordByIndex("email", userJSON.emailIdx, e.conf)
-	} else if len(userJSON.phoneIdx) > 0 {
-		userBson, err = e.db.lookupUserRecordByIndex("phone", userJSON.phoneIdx, e.conf)
-	} else if len(userJSON.customIdx) > 0 {
-		userBson, err = e.db.lookupUserRecordByIndex("custom", userJSON.customIdx, e.conf)
-	} else if len(userJSON.token) > 0 {
-		userBson, err = e.db.lookupUserRecord(userJSON.token)
+	if len(userLogin) > 0 {
+		userBson, err = e.db.lookupUserRecordByIndex("login", userLogin, e.conf)
+	} else if len(userEmail) > 0 {
+		userBson, err = e.db.lookupUserRecordByIndex("email", userEmail, e.conf)
+	} else if len(userPhone) > 0 {
+		userBson, err = e.db.lookupUserRecordByIndex("phone", userPhone, e.conf)
+	} else if len(userCustomIdx) > 0 {
+		userBson, err = e.db.lookupUserRecordByIndex("custom", userCustomIdx, e.conf)
+	} else if len(userToken) > 0 {
+		userBson, err = e.db.lookupUserRecord(userToken)
 	}
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
@@ -59,7 +68,12 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 		userTOKEN = userBson["token"].(string)
 		event.Record = userTOKEN
 	}
-	session, err = e.db.createSessionRecord(session, userTOKEN, expiration, userJSON.jsonData)
+	jsonData, err := json.Marshal(records)
+	if err != nil {
+		returnError(w, r, "internal error", 405, err, event)
+		return
+	}
+	session, err = e.db.createSessionRecord(session, userTOKEN, expiration, jsonData)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
 		return
@@ -111,6 +125,7 @@ func (e mainEnv) newUserSession(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 	expirationStr := getStringValue(records["expiration"])
 	expiration := setExpiration(e.conf.Policy.MaxSessionRetentionPeriod, expirationStr)
+	log.Printf("Record expiration: %s", expiration)
 	jsonData, err := json.Marshal(records)
 	if err != nil {
 		returnError(w, r, "internal error", 405, err, event)
@@ -167,21 +182,22 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 
 func (e mainEnv) getSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	session := ps.ByName("session")
-	var event *auditEvent
+	event := audit("get session", session, "session", session)
 	defer func() {
 		if event != nil {
 			event.submit(e.db, e.conf)
 		}
 	}()
 	when, record, userTOKEN, err := e.db.getSession(session)
+	if len(userTOKEN) > 0 {
+		event.Record = userTOKEN
+		e.db.store.DeleteExpired(storage.TblName.Sessions, "token", userTOKEN)
+	}
 	if err != nil {
 		returnError(w, r, err.Error(), 405, err, event)
 		return
 	}
-	if len(userTOKEN) > 0 {
-		event = audit("get session", session, "session", session)
-		event.Record = userTOKEN
-	}
+
 	if e.enforceAuth(w, r, event) == "" {
 		return
 	}

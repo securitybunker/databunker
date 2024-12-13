@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	uuid "github.com/hashicorp/go-uuid"
 )
@@ -36,6 +37,31 @@ func helpGetUserLoginSessions(login string) (map[string]interface{}, error) {
 	request := httptest.NewRequest("GET", url, nil)
 	request.Header.Set("X-Bunker-Token", rootToken)
 	return helpServe(request)
+}
+
+func TestCreateQuickSession(t *testing.T) {
+	userJSON := `{"login":"bob"}`
+	raw, err := helpCreateUser(userJSON)
+	if err != nil {
+		t.Fatalf("error: %s", err)
+	}
+	if _, found := raw["status"]; !found || raw["status"].(string) != "ok" {
+		t.Fatalf("failed to create user")
+	}
+	data := `{"expiration":"3s","cookie":"abcdefg","login":"bob"}`
+	sid, _ := uuid.GenerateUUID()
+	raw, _ = helpCreateSession(sid, data)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
+		t.Fatalf("failed to create session")
+	}
+	sessionTOKEN := raw["session"].(string)
+	time.Sleep(5 * time.Second)
+	log.Printf("After delay--------")
+	raw, _ = helpGetSession(sessionTOKEN)
+	log.Printf("Got: %v", raw)
+	if _, ok := raw["status"]; !ok || raw["status"].(string) == "ok" {
+		t.Fatalf("Should failed to get session")
+	}
 }
 
 func TestCreateSessionRecord(t *testing.T) {
@@ -113,7 +139,7 @@ func TestCreateFakeUserSession(t *testing.T) {
 	sid, _ := uuid.GenerateUUID()
 	raw, _ := helpCreateSession(sid, data)
 	if _, ok := raw["status"]; ok && raw["status"].(string) != "ok" {
-		t.Fatalf("Should fail to create session")
+		t.Fatalf("Failed to create anonymous session")
 	}
 }
 

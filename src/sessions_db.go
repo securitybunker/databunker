@@ -18,11 +18,13 @@ type sessionEvent struct {
 func (dbobj dbcon) createSessionRecord(sessionUUID string, userTOKEN string, expiration string, data []byte) (string, error) {
 	var endtime int32
 	var err error
+	now := int32(time.Now().Unix())
 	if len(expiration) > 0 {
 		endtime, err = parseExpiration(expiration)
 		if err != nil {
 			return "", err
 		}
+		//log.Printf("expiration set to: %d, now: %d", endtime, now)
 	}
 	recordKey, err := generateRecordKey()
 	if err != nil {
@@ -34,7 +36,6 @@ func (dbobj dbcon) createSessionRecord(sessionUUID string, userTOKEN string, exp
 	}
 	encodedStr := base64.StdEncoding.EncodeToString(encoded)
 	bdoc := bson.M{}
-	now := int32(time.Now().Unix())
 	bdoc["token"] = userTOKEN
 	bdoc["session"] = sessionUUID
 	bdoc["endtime"] = endtime
@@ -63,6 +64,7 @@ func (dbobj dbcon) getSession(sessionUUID string) (int32, []byte, string, error)
 	}
 	// check expiration
 	now := int32(time.Now().Unix())
+	//log.Printf("getSession checking now: %d exp %d", now, record["endtime"].(int32))
 	if now > record["endtime"].(int32) {
 		return 0, nil, "", errors.New("session expired")
 	}
