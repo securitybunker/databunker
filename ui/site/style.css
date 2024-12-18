@@ -20,7 +20,7 @@ h4 {color:#313435!important;margin-bottom:20px!important;letter-spacing:.5px;fon
 body {font-size:14px;color:#72777a;letter-spacing:0.2px;font-weight:400;padding:0;margin:0;height:100%;background-color:#f9fafb;}
 img.logo {display:block;max-width:100%;height:auto;}
 .container {height:100%;width:100%;display:block;}
-.bigblock {background-color:#fff !important;border-radius:3px !important;border:1px solid rgba(0, 0, 0, 0.0625) !important;padding:20px !important;width:100%;}
+.bigblock {background-color:#fff !important;border-radius:3px !important;border:1px solid rgba(0,0,0,0.0625) !important;padding:20px !important;width:100%;}
 .sectiontitle {padding-top:20px;text-decoration:underline;}
 div.bigblock table {color:#72777a;}
 .table thead {background-color:#F1F8FF;}
@@ -45,3 +45,5 @@ transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-s
 .bigblock .jsoneditor {border:none;}
 .container .bigblock .bootstrap-table .fixed-table-container .fixed-table-body .fixed-table-loading .loading-wrap .loading-text {font-size:14px;}
 input[type=checkbox].form-control:focus {box-shadow:unset;}
+.terminal {background-color:#f9f9f9;color:#c7254e;padding:20px;border-radius:.25rem;font-family:'Monaco',monospace;border:1px solid #eaeded;}
+pre {margin:0;white-space:pre-wrap;word-break:break-all;line-height:1.5;color:unset;}
