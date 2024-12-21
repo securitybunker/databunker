@@ -2,7 +2,7 @@ module github.com/securitybunker/databunker/src
 
 go 1.21
 
-toolchain go1.22.2
+toolchain go1.23.3
 
 replace github.com/securitybunker/databunker/src/storage => ./storage
 
@@ -14,13 +14,13 @@ require (
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/oschwald/geoip2-golang v1.11.0
-	github.com/prometheus/client_golang v1.19.1
+	github.com/prometheus/client_golang v1.20.5
 	github.com/qri-io/jsonpointer v0.1.1
 	github.com/securitybunker/databunker/src/storage v0.0.0
 	github.com/securitybunker/jsonschema v0.2.1-0.20201128224651-d77c1a3cb787
 	github.com/tidwall/gjson v1.17.3
 	github.com/ttacon/libphonenumber v1.2.1
-	go.mongodb.org/mongo-driver v1.16.0
+	go.mongodb.org/mongo-driver v1.16.1
 	golang.org/x/sys v0.23.0
 	gopkg.in/yaml.v2 v2.4.0
 )
