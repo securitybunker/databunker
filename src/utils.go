@@ -106,6 +106,8 @@ func getIntValue(r interface{}) int {
 		return r.(int)
 	case int32:
 		return int(r.(int32))
+	case float64:
+		return int(r.(float64))
 	}
 	return 0
 }
