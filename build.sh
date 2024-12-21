@@ -15,7 +15,7 @@ else
 fi
 
 cd src
-go get -d -v
+go get -v
 
 if [ -x ~/go/bin/packr ]; then
   ~/go/bin/packr
