@@ -7,37 +7,38 @@ import (
 	"reflect"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/securitybunker/databunker/src/utils"
 	//"go.mongodb.org/mongo-driver/bson"
 )
 
 func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	brief := ps.ByName("brief")
-	if e.enforceAdmin(w, r, nil) == "" {
+	if e.EnforceAdmin(w, r, nil) == "" {
 		return
 	}
-	brief = normalizeBrief(brief)
-	if isValidBrief(brief) == false {
-		returnError(w, r, "bad brief format", 405, nil, nil)
+	brief = utils.NormalizeBrief(brief)
+	if utils.CheckValidBrief(brief) == false {
+		ReturnError(w, r, "bad brief format", 405, nil, nil)
 		return
 	}
-	records, err := getJSONPostMap(r)
+	records, err := utils.GetJSONPostMap(r)
 	if err != nil {
-		returnError(w, r, "failed to decode request body", 405, err, nil)
+		ReturnError(w, r, "failed to decode request body", 405, err, nil)
 		return
 	}
-	newbrief := getStringValue(records["brief"])
+	newbrief := utils.GetStringValue(records["brief"])
 	if len(newbrief) > 0 && newbrief != brief {
-		if isValidBrief(newbrief) == false {
-			returnError(w, r, "bad brief format", 405, nil, nil)
+		if utils.CheckValidBrief(newbrief) == false {
+			ReturnError(w, r, "bad brief format", 405, nil, nil)
 			return
 		}
 	}
-	status := getStringValue(records["status"])
-	module := getStringValue(records["module"])
-	fulldesc := getStringValue(records["fulldesc"])
-	shortdesc := getStringValue(records["shortdesc"])
-	basistype := getStringValue(records["basistype"])
-	requiredmsg := getStringValue(records["requiredmsg"])
+	status := utils.GetStringValue(records["status"])
+	module := utils.GetStringValue(records["module"])
+	fulldesc := utils.GetStringValue(records["fulldesc"])
+	shortdesc := utils.GetStringValue(records["shortdesc"])
+	basistype := utils.GetStringValue(records["basistype"])
+	requiredmsg := utils.GetStringValue(records["requiredmsg"])
 	usercontrol := false
 	requiredflag := false
 	if status != "disabled" {
@@ -82,12 +83,12 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 
 func (e mainEnv) deleteLegalBasis(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	brief := ps.ByName("brief")
-	if e.enforceAdmin(w, r, nil) == "" {
+	if e.EnforceAdmin(w, r, nil) == "" {
 		return
 	}
-	brief = normalizeBrief(brief)
-	if isValidBrief(brief) == false {
-		returnError(w, r, "bad brief format", 405, nil, nil)
+	brief = utils.NormalizeBrief(brief)
+	if utils.CheckValidBrief(brief) == false {
+		ReturnError(w, r, "bad brief format", 405, nil, nil)
 		return
 	}
 	e.db.unlinkProcessingActivityBrief(brief)
@@ -98,12 +99,12 @@ func (e mainEnv) deleteLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 }
 
 func (e mainEnv) listLegalBasisRecords(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	if e.enforceAdmin(w, r, nil) == "" {
+	if e.EnforceAdmin(w, r, nil) == "" {
 		return
 	}
 	resultJSON, numRecords, err := e.db.getLegalBasisRecords()
 	if err != nil {
-		returnError(w, r, "internal error", 405, err, nil)
+		ReturnError(w, r, "internal error", 405, err, nil)
 		return
 	}
 	log.Printf("Total count of rows: %d\n", numRecords)

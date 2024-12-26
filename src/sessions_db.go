@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/securitybunker/databunker/src/storage"
+	"github.com/securitybunker/databunker/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -20,7 +21,7 @@ func (dbobj dbcon) createSessionRecord(sessionUUID string, userTOKEN string, exp
 	var err error
 	now := int32(time.Now().Unix())
 	if len(expiration) > 0 {
-		endtime, err = parseExpiration(expiration)
+		endtime, err = utils.ParseExpiration(expiration)
 		if err != nil {
 			return "", err
 		}

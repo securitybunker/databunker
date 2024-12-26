@@ -865,7 +865,7 @@ func (dbobj PGSQLDB) GetAllTables() ([]string, error) {
 
 // ValidateNewApp function check if app name can be part of the table name
 func (dbobj PGSQLDB) ValidateNewApp(appName string) bool {
-	if contains(allTables, appName) == true {
+	if SliceContains(allTables, appName) == true {
 		return true
 	}
 	if len(allTables) >= 100 {
@@ -898,7 +898,7 @@ func (dbobj PGSQLDB) execQueries(queries []string) error {
 
 // CreateNewAppTable creates a new app table and creates indexes for it.
 func (dbobj PGSQLDB) CreateNewAppTable(appName string) {
-	if contains(allTables, appName) == false {
+	if SliceContains(allTables, appName) == false {
 		// it is a new app, create an index
 		log.Printf("This is a new app, creating table & index for: %s\n", appName)
 		queries := []string{

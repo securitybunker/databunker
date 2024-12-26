@@ -16,7 +16,7 @@ func init() {
 	rootToken = myRootToken
 	var cfg Config
 	cfile := "../databunker.yaml"
-	err = readConfFile(&cfg, &cfile)
+	err = ReadConfFile(&cfg, &cfile)
 	cfg.SelfService.AppRecordChange = []string{"testapp", "super"}
 	if err != nil {
 		cfg.SelfService.ForgetMe = false

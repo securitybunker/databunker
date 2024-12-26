@@ -143,7 +143,7 @@ func CreateTestDB() string {
 	return db.CreateTestDB()
 }
 
-func contains(slice []string, item string) bool {
+func SliceContains(slice []string, item string) bool {
 	set := make(map[string]struct{}, len(slice))
 	for _, s := range slice {
 		set[s] = struct{}{}

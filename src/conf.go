@@ -23,7 +23,7 @@ func (e mainEnv) initContext(r *http.Request) {
 func (e mainEnv) cookieSettings(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	resultJSON, scriptsJSON, _, err := e.db.getLegalBasisCookieConf()
 	if err != nil {
-		returnError(w, r, "internal error", 405, err, nil)
+		ReturnError(w, r, "internal error", 405, err, nil)
 		return
 	}
 	resultUIConfJSON, _ := json.Marshal(e.conf.UI)
@@ -34,7 +34,7 @@ func (e mainEnv) cookieSettings(w http.ResponseWriter, r *http.Request, ps httpr
 }
 
 func (e mainEnv) configurationDump(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	if e.enforceAuth(w, r, nil) == "" {
+	if e.EnforceAuth(w, r, nil) == "" {
 		return
 	}
 	resultJSON, _ := json.Marshal(e.conf)

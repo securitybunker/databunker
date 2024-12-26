@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/securitybunker/databunker/src/storage"
+	"github.com/securitybunker/databunker/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -75,7 +76,7 @@ func (dbobj dbcon) linkProcessingActivity(activity string, brief string) (bool, 
 		}
 	}
 	briefs := strings.Split(legalbasis, ",")
-	if contains(briefs, brief) == true {
+	if utils.SliceContains(briefs, brief) == true {
 		// nothing to do here
 		return false, nil
 	}
@@ -106,7 +107,7 @@ func (dbobj dbcon) unlinkProcessingActivity(activity string, brief string) (bool
 		}
 	}
 	briefs := strings.Split(legalbasis, ",")
-	if contains(briefs, brief) == false {
+	if utils.SliceContains(briefs, brief) == false {
 		// nothing to do here
 		return false, nil
 	}
