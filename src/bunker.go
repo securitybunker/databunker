@@ -9,16 +9,20 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/gobuffalo/packr"
 	"github.com/julienschmidt/httprouter"
+	"github.com/kelseyhightower/envconfig"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/securitybunker/databunker/src/autocontext"
 	"github.com/securitybunker/databunker/src/storage"
+	"github.com/securitybunker/databunker/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
+	"gopkg.in/yaml.v2"
 )
 
 var version string
@@ -105,16 +109,6 @@ type mainEnv struct {
 	stopChan chan struct{}
 }
 
-// userJSON used to parse user POST
-type userJSON struct {
-	jsonData  []byte
-	loginIdx  string
-	emailIdx  string
-	phoneIdx  string
-	customIdx string
-	token     string
-}
-
 type tokenAuthResult struct {
 	ttype string
 	name  string
@@ -151,7 +145,7 @@ func (e mainEnv) metrics(w http.ResponseWriter, r *http.Request, ps httprouter.P
 
 // backupDB API call.
 func (e mainEnv) backupDB(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	if e.enforceAuth(w, r, nil) == "" {
+	if e.EnforceAuth(w, r, nil) == "" {
 		return
 	}
 	w.WriteHeader(200)
@@ -167,6 +161,33 @@ func (e mainEnv) checkStatus(w http.ResponseWriter, r *http.Request, ps httprout
 		w.WriteHeader(200)
 		w.Write([]byte("OK"))
 	}
+}
+
+// ReadConfFile() read configuration file.
+func ReadConfFile(cfg *Config, filepath *string) error {
+	confFile := "databunker.yaml"
+	if filepath != nil {
+		if len(*filepath) > 0 {
+			confFile = *filepath
+		}
+	}
+	log.Printf("Loading configuration file: %s\n", confFile)
+	f, err := os.Open(confFile)
+	if err != nil {
+		return err
+	}
+	decoder := yaml.NewDecoder(f)
+	err = decoder.Decode(cfg)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// readEnv() process environment variables.
+func ReadEnv(cfg *Config) error {
+	err := envconfig.Process("", cfg)
+	return err
 }
 
 // setupRouter() setup HTTP Router object.
@@ -335,7 +356,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 // dbCleanup() is used to run cron jobs.
 func (e mainEnv) dbCleanupDo() {
 	log.Printf("db cleanup timeout\n")
-	exp, _ := parseExpiration0(e.conf.Policy.MaxAuditRetentionPeriod)
+	exp, _ := utils.ParseExpiration0(e.conf.Policy.MaxAuditRetentionPeriod)
 	if exp > 0 {
 		e.db.store.DeleteExpired0(storage.TblName.Audit, exp)
 	}
@@ -364,13 +385,13 @@ func (e mainEnv) dbCleanup() {
 // helper function to load user details by idex name
 func (e mainEnv) loadUserToken(w http.ResponseWriter, r *http.Request, mode string, identity string, event *auditEvent) string {
 	var err error
-	if validateMode(mode) == false {
-		returnError(w, r, "bad mode", 405, nil, event)
+	if utils.ValidateMode(mode) == false {
+		ReturnError(w, r, "bad mode", 405, nil, event)
 		return ""
 	}
 	var userBson bson.M
 	if mode == "token" {
-		if enforceUUID(w, identity, event) == false {
+		if EnforceUUID(w, identity, event) == false {
 			return ""
 		}
 		userBson, err = e.db.lookupUserRecord(identity)
@@ -378,7 +399,7 @@ func (e mainEnv) loadUserToken(w http.ResponseWriter, r *http.Request, mode stri
 		userBson, err = e.db.lookupUserRecordByIndex(mode, identity, e.conf)
 	}
 	if userBson == nil || err != nil {
-		returnError(w, r, "internal error", 405, nil, event)
+		ReturnError(w, r, "internal error", 405, nil, event)
 		return ""
 	}
 	event.Record = userBson["token"].(string)
@@ -470,6 +491,6 @@ func (e mainEnv) reqMiddleware(handler http.Handler) http.Handler {
 // main application function
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	lockMemory()
+	utils.LockMemory()
 	loadService()
 }

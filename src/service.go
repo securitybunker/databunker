@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/securitybunker/databunker/src/storage"
+	"github.com/securitybunker/databunker/src/utils"
 )
 
 func loadService() {
@@ -34,14 +35,14 @@ func loadService() {
 	}
 	log.Printf("Databunker version: %s\n", version)
 	var cfg Config
-	readEnv(&cfg)
-	readConfFile(&cfg, confPtr)
+	ReadEnv(&cfg)
+	ReadConfFile(&cfg, confPtr)
 
 	customRootToken := ""
 	if *demoPtr {
 		customRootToken = "DEMO"
 	} else {
-		customRootToken = getArgEnvFileVariable("DATABUNKER_ROOTTOKEN", rootTokenKeyPtr)
+		customRootToken = utils.GetArgEnvFileVariable("DATABUNKER_ROOTTOKEN", rootTokenKeyPtr)
 	}
 	if *initPtr || *demoPtr {
 		if storage.DBExists(dbPtr) == true {
@@ -63,7 +64,7 @@ func loadService() {
 		log.Println(`Run "databunker -init" for the first time to generate keys and init database.`)
 		os.Exit(0)
 	}
-	masterKeyStr := getArgEnvFileVariable("DATABUNKER_MASTERKEY", masterKeyPtr)
+	masterKeyStr := utils.GetArgEnvFileVariable("DATABUNKER_MASTERKEY", masterKeyPtr)
 	if *startPtr == false {
 		log.Println(`'databunker -start' command is missing.`)
 		os.Exit(0)
@@ -149,7 +150,7 @@ func decodeMasterkey(masterKeyStr string) ([]byte, error) {
 	if len(masterKeyStr) != 48 {
 		return nil, errors.New("Master key length is wrong")
 	}
-	if isValidHex(masterKeyStr) == false {
+	if utils.CheckValidHex(masterKeyStr) == false {
 		return nil, errors.New("Master key is not valid hex string")
 	}
 	masterKey, err := hex.DecodeString(masterKeyStr)
@@ -163,7 +164,7 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 	log.Println("Databunker init")
 	var masterKey []byte
 	var err error
-	masterKeyString := getArgEnvFileVariable("DATABUNKER_MASTERKEY", masterKeyPtr)
+	masterKeyString := utils.GetArgEnvFileVariable("DATABUNKER_MASTERKEY", masterKeyPtr)
 	if len(masterKeyString) > 0 {
 		masterKey, err = decodeMasterkey(masterKeyString)
 		if err != nil {

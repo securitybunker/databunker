@@ -849,7 +849,7 @@ func (dbobj SQLiteDB) GetAllTables() ([]string, error) {
 
 // ValidateNewApp function check if app name can be part of the table name
 func (dbobj SQLiteDB) ValidateNewApp(appName string) bool {
-	if contains(knownApps, appName) == true {
+	if SliceContains(knownApps, appName) == true {
 		return true
 	}
 	return true
@@ -875,7 +875,7 @@ func (dbobj SQLiteDB) execQueries(queries []string) error {
 
 // CreateNewAppTable creates a new app table and creates indexes for it.
 func (dbobj SQLiteDB) CreateNewAppTable(appName string) {
-	if contains(knownApps, appName) == false {
+	if SliceContains(knownApps, appName) == false {
 		// it is a new app, create an index
 		log.Printf("This is a new app, creating table & index for: %s\n", appName)
 		queries := []string{"CREATE TABLE IF NOT EXISTS " + appName + ` (

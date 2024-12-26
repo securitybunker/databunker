@@ -8,11 +8,12 @@ import (
 
 	uuid "github.com/hashicorp/go-uuid"
 	"github.com/securitybunker/databunker/src/storage"
+	"github.com/securitybunker/databunker/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, expiration string, session string, appName string, partner string, conf Config) (string, error) {
-	if isValidUUID(userTOKEN) == false {
+	if utils.CheckValidUUID(userTOKEN) == false {
 		return "", errors.New("bad uuid")
 	}
 	if len(expiration) == 0 {
@@ -26,7 +27,7 @@ func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, expiration 
 	}
 
 	log.Printf("Expiration is : %s\n", expiration)
-	start, err := parseExpiration(expiration)
+	start, err := utils.ParseExpiration(expiration)
 	if err != nil {
 		return "", err
 	}
@@ -67,7 +68,7 @@ func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, expiration 
 
 func (dbobj dbcon) getSharedRecord(recordUUID string) (checkRecordResult, error) {
 	var result checkRecordResult
-	//if isValidUUID(recordUUID) == false {
+	//if utils.CheckValidUUID(recordUUID) == false {
 	//	return result, errors.New("failed to authenticate")
 	//}
 	record, err := dbobj.store.GetRecord(storage.TblName.Sharedrecords, "record", recordUUID)

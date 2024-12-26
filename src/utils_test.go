@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	uuid "github.com/hashicorp/go-uuid"
+	"github.com/securitybunker/databunker/src/utils"
 )
 
 func TestUtilUUID(t *testing.T) {
@@ -18,7 +19,7 @@ func TestUtilUUID(t *testing.T) {
 		t.Logf("Checking[%d]: %s\n", id, recordUUID)
 		if err != nil {
 			t.Fatalf("Failed to generate UUID %s: %s ", recordUUID, err)
-		} else if isValidUUID(recordUUID) == false {
+		} else if utils.CheckValidUUID(recordUUID) == false {
 			t.Fatalf("Failed to validate UUID: %s ", recordUUID)
 		}
 	}
@@ -27,13 +28,13 @@ func TestUtilUUID(t *testing.T) {
 func TestUtilAppNames(t *testing.T) {
 	goodApps := []string{"penn", "teller", "a123", "good_app"}
 	for _, value := range goodApps {
-		if isValidApp(value) == false {
+		if utils.CheckValidApp(value) == false {
 			t.Fatalf("Failed to validate good app name: %s ", value)
 		}
 	}
 	badApps := []string{"P1", "4as", "_a", "a.a", "a a", "a!b"}
 	for _, value := range badApps {
-		if isValidApp(value) == true {
+		if utils.CheckValidApp(value) == true {
 			t.Fatalf("Failed to validate bad app name: %s ", value)
 		}
 	}
@@ -51,7 +52,7 @@ func TestUtilStringPatternMatch(t *testing.T) {
 		{"pattern": "*test", "name": "123test", "result": true},
 	}
 	for _, value := range goodJsons {
-		if stringPatternMatch(value["pattern"].(string), value["name"].(string)) != value["result"].(bool) {
+		if utils.StringPatternMatch(value["pattern"].(string), value["name"].(string)) != value["result"].(bool) {
 			t.Fatalf("Failed in %s match %s\n", value["pattern"].(string), value["name"].(string))
 		}
 	}
@@ -67,11 +68,11 @@ func TestUtilGetJSONPost(t *testing.T) {
 	for _, value := range goodJsons {
 		request := httptest.NewRequest("POST", "/user", strings.NewReader(value))
 		request.Header.Set("Content-Type", "application/json")
-		result, err := getUserJSON(request, "IL")
+		result, err := utils.GetUserJSONStruct(request, "IL")
 		if err != nil {
 			t.Fatalf("Failed to parse json: %s, err: %s\n", value, err)
 		}
-		if len(result.loginIdx) == 0 {
+		if len(result.LoginIdx) == 0 {
 			t.Fatalf("Failed to parse login index from json: %s ", value)
 		}
 	}
@@ -83,11 +84,11 @@ func TestUtilGetJSONPost(t *testing.T) {
 	for _, value := range badJsons {
 		request := httptest.NewRequest("POST", "/user", strings.NewReader(value))
 		request.Header.Set("Content-Type", "application/json")
-		result, err := getUserJSON(request, "IL")
+		result, err := utils.GetUserJSONStruct(request, "IL")
 		if err != nil {
 			t.Fatalf("Failed to parse json: %s, err: %s\n", value, err)
 		}
-		if len(result.loginIdx) != 0 {
+		if len(result.LoginIdx) != 0 {
 			t.Fatalf("Failed to parse login index from json: %s ", value)
 		}
 	}

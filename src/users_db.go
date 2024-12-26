@@ -12,10 +12,11 @@ import (
 	jsonpatch "github.com/evanphx/json-patch"
 	uuid "github.com/hashicorp/go-uuid"
 	"github.com/securitybunker/databunker/src/storage"
+	"github.com/securitybunker/databunker/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (string, error) {
+func (dbobj dbcon) createUserRecord(parsedData utils.UserJSONStruct, event *auditEvent) (string, error) {
 	var userTOKEN string
 	//var bdoc interface{}
 	bdoc := bson.M{}
@@ -28,7 +29,7 @@ func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (str
 		return "", err
 	}
 	//err = bson.UnmarshalExtJSON(jsonData, false, &bdoc)
-	encoded, err := encrypt(dbobj.masterKey, userKeyBinary, parsedData.jsonData)
+	encoded, err := encrypt(dbobj.masterKey, userKeyBinary, parsedData.JsonData)
 	if err != nil {
 		return "", err
 	}
@@ -43,17 +44,17 @@ func (dbobj dbcon) createUserRecord(parsedData userJSON, event *auditEvent) (str
 	// the index search field is hashed here, to be not-reversible
 	// I use original md5(master_key) as a kind of salt here,
 	// so no additional configuration field is needed here.
-	if len(parsedData.loginIdx) > 0 {
-		bdoc["loginidx"] = hashString(dbobj.hash, parsedData.loginIdx)
+	if len(parsedData.LoginIdx) > 0 {
+		bdoc["loginidx"] = utils.HashString(dbobj.hash, parsedData.LoginIdx)
 	}
-	if len(parsedData.emailIdx) > 0 {
-		bdoc["emailidx"] = hashString(dbobj.hash, parsedData.emailIdx)
+	if len(parsedData.EmailIdx) > 0 {
+		bdoc["emailidx"] = utils.HashString(dbobj.hash, parsedData.EmailIdx)
 	}
-	if len(parsedData.phoneIdx) > 0 {
-		bdoc["phoneidx"] = hashString(dbobj.hash, parsedData.phoneIdx)
+	if len(parsedData.PhoneIdx) > 0 {
+		bdoc["phoneidx"] = utils.HashString(dbobj.hash, parsedData.PhoneIdx)
 	}
-	if len(parsedData.customIdx) > 0 {
-		bdoc["customidx"] = hashString(dbobj.hash, parsedData.customIdx)
+	if len(parsedData.CustomIdx) > 0 {
+		bdoc["customidx"] = utils.HashString(dbobj.hash, parsedData.CustomIdx)
 	}
 	if event != nil {
 		event.After = encodedStr
@@ -93,7 +94,7 @@ func (dbobj dbcon) updateUserExpStatus(userTOKEN string, status string) error {
 }
 
 func (dbobj dbcon) generateTempLoginCode(userTOKEN string) int32 {
-	rnd := randNum(6)
+	rnd := utils.RandNum(6)
 	log.Printf("Random: %d\n", rnd)
 	bdoc := bson.M{}
 	bdoc["tempcode"] = rnd
@@ -185,7 +186,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 	}
 	oldEmail := ""
 	if _, ok := raw2["email"]; ok {
-		oldEmail = normalizeEmail(raw2["email"].(string))
+		oldEmail = utils.NormalizeEmail(raw2["email"].(string))
 	}
 	// merge
 	//log.Printf("old json: %s\n", decrypted)
@@ -221,21 +222,21 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 		actionCode := 1
 		newIdxFinalValue := ""
 		if newIdxValue, ok3 := raw[idx]; ok3 {
-			newIdxFinalValue = getIndexString(newIdxValue)
+			newIdxFinalValue = utils.GetIndexString(newIdxValue)
 			//log.Println("newIdxFinalValue0", newIdxFinalValue)
 			if len(newIdxFinalValue) > 0 {
 				if idx == "email" {
-					newIdxFinalValue = normalizeEmail(newIdxFinalValue)
+					newIdxFinalValue = utils.NormalizeEmail(newIdxFinalValue)
 					newEmail = newIdxFinalValue
 				} else if idx == "phone" {
-					newIdxFinalValue = normalizePhone(newIdxFinalValue, conf.Sms.DefaultCountry)
+					newIdxFinalValue = utils.NormalizePhone(newIdxFinalValue, conf.Sms.DefaultCountry)
 				}
 			}
 			//log.Println("newIdxFinalValue", newIdxFinalValue)
 		}
 		if idxOldValue, ok := oldUserBson[idx+"idx"]; ok {
 			if len(newIdxFinalValue) > 0 && len(idxOldValue.(string)) >= 0 {
-				idxStringHashHex := hashString(dbobj.hash, newIdxFinalValue)
+				idxStringHashHex := utils.HashString(dbobj.hash, newIdxFinalValue)
 				if idxStringHashHex == idxOldValue.(string) {
 					//log.Println("Index value NOT changed!")
 					actionCode = 0
@@ -255,7 +256,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 				return nil, nil, true, fmt.Errorf("duplicate %s index", idx)
 			}
 			//log.Printf("Adding index3? %s\n", raw[idx])
-			bdoc[idx+"idx"] = hashString(dbobj.hash, newIdxFinalValue)
+			bdoc[idx+"idx"] = utils.HashString(dbobj.hash, newIdxFinalValue)
 		} else if len(newIdxFinalValue) == 0 {
 			bdel = append(bdel, idx+"idx")
 		}
@@ -301,9 +302,9 @@ func (dbobj dbcon) lookupUserRecord(userTOKEN string) (bson.M, error) {
 
 func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string, conf Config) (bson.M, error) {
 	if indexName == "email" {
-		indexValue = normalizeEmail(indexValue)
+		indexValue = utils.NormalizeEmail(indexValue)
 	} else if indexName == "phone" {
-		indexValue = normalizePhone(indexValue, conf.Sms.DefaultCountry)
+		indexValue = utils.NormalizePhone(indexValue, conf.Sms.DefaultCountry)
 	}
 	if len(indexValue) == 0 {
 		return nil, nil
@@ -311,7 +312,7 @@ func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string, 
 	if indexName == "exptoken" {
 		return dbobj.store.GetRecord(storage.TblName.Users, "exptoken", indexValue)
 	}
-	idxStringHashHex := hashString(dbobj.hash, indexValue)
+	idxStringHashHex := utils.HashString(dbobj.hash, indexValue)
 	//log.Printf("Loading by %s, value: %s\n", indexName, indexValue)
 	return dbobj.store.GetRecord(storage.TblName.Users, indexName+"idx", idxStringHashHex)
 }
@@ -416,7 +417,7 @@ func (dbobj dbcon) getUsers(offset int32, limit int32) ([]byte, int64, error) {
 			}
 			rec["private"] = raw2
 		}
-		expstatus := getStringValue(element["expstatus"])
+		expstatus := utils.GetStringValue(element["expstatus"])
 		if len(expstatus) > 0 {
 			rec["endtime"] = element["endtime"]
 			rec["expstatus"] = expstatus

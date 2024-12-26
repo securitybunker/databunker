@@ -6,6 +6,7 @@ import (
 
 	uuid "github.com/hashicorp/go-uuid"
 	"github.com/securitybunker/databunker/src/storage"
+	"github.com/securitybunker/databunker/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -28,7 +29,7 @@ func (dbobj dbcon) createRootXtoken(customRootXtoken string) (string, error) {
 		return "already-initialized", nil
 	}
 	if len(customRootXtoken) > 0 {
-		if customRootXtoken != "DEMO" && !isValidUUID(customRootXtoken) {
+		if customRootXtoken != "DEMO" && !utils.CheckValidUUID(customRootXtoken) {
 			return "", errors.New("bad root token format")
 		}
 		rootToken = customRootXtoken
@@ -39,7 +40,7 @@ func (dbobj dbcon) createRootXtoken(customRootXtoken string) (string, error) {
 		}
 	}
 	bdoc := bson.M{}
-	bdoc["xtoken"] = hashString(dbobj.hash, rootToken)
+	bdoc["xtoken"] = utils.HashString(dbobj.hash, rootToken)
 	bdoc["type"] = "root"
 	bdoc["token"] = ""
 	_, err = dbobj.store.CreateRecord(storage.TblName.Xtokens, &bdoc)
@@ -60,7 +61,7 @@ func (dbobj dbcon) generateUserLoginXtoken(userTOKEN string) (string, string, er
 	if err != nil {
 		return "", "", err
 	}
-	hashedToken := hashString(dbobj.hash, tokenUUID)
+	hashedToken := utils.HashString(dbobj.hash, tokenUUID)
 	// by default login token for 30 minutes only
 	expired := int32(time.Now().Unix()) + 10*60
 	bdoc := bson.M{}
@@ -74,10 +75,10 @@ func (dbobj dbcon) generateUserLoginXtoken(userTOKEN string) (string, string, er
 
 func (dbobj dbcon) checkUserAuthXToken(xtokenUUID string) (tokenAuthResult, error) {
 	result := tokenAuthResult{}
-	if xtokenUUID != "DEMO" && isValidUUID(xtokenUUID) == false {
+	if xtokenUUID != "DEMO" && utils.CheckValidUUID(xtokenUUID) == false {
 		return result, errors.New("failed to authenticate")
 	}
-	xtokenHashed := hashString(dbobj.hash, xtokenUUID)
+	xtokenHashed := utils.HashString(dbobj.hash, xtokenUUID)
 	if len(rootXTOKEN) > 0 && rootXTOKEN == xtokenHashed {
 		//log.Println("It is a root token")
 		result.ttype = "root"

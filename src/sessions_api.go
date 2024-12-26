@@ -10,6 +10,7 @@ import (
 	uuid "github.com/hashicorp/go-uuid"
 	"github.com/julienschmidt/httprouter"
 	"github.com/securitybunker/databunker/src/storage"
+	"github.com/securitybunker/databunker/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -21,30 +22,30 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 			event.submit(e.db, e.conf)
 		}
 	}()
-	if enforceUUID(w, session, event) == false {
-		//returnError(w, r, "bad session format", nil, event)
+	if EnforceUUID(w, session, event) == false {
+		//ReturnError(w, r, "bad session format", nil, event)
 		return
 	}
-	if e.enforceAdmin(w, r, event) == "" {
+	if e.EnforceAdmin(w, r, event) == "" {
 		return
 	}
-	records, err := getJSONPostMap(r)
+	records, err := utils.GetJSONPostMap(r)
 	if err != nil {
-		returnError(w, r, "failed to decode request body", 405, err, event)
+		ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	if len(records) == 0 {
-		returnError(w, r, "empty body", 405, nil, event)
+		ReturnError(w, r, "empty body", 405, nil, event)
 		return
 	}
-	expirationStr := getStringValue(records["expiration"])
-	expiration := setExpiration(e.conf.Policy.MaxSessionRetentionPeriod, expirationStr)
+	expirationStr := utils.GetStringValue(records["expiration"])
+	expiration := utils.SetExpiration(e.conf.Policy.MaxSessionRetentionPeriod, expirationStr)
 	log.Printf("Record expiration: %s", expiration)
-	userToken := getStringValue(records["token"])
-	userLogin := getStringValue(records["login"])
-	userEmail := getStringValue(records["email"])
-	userPhone := getStringValue(records["phone"])
-	userCustomIdx := getStringValue(records["custom"])
+	userToken := utils.GetStringValue(records["token"])
+	userLogin := utils.GetStringValue(records["login"])
+	userEmail := utils.GetStringValue(records["email"])
+	userPhone := utils.GetStringValue(records["phone"])
+	userCustomIdx := utils.GetStringValue(records["custom"])
 
 	var userBson bson.M
 	if len(userLogin) > 0 {
@@ -59,7 +60,7 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 		userBson, err = e.db.lookupUserRecord(userToken)
 	}
 	if err != nil {
-		returnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	userTOKEN := ""
@@ -70,12 +71,12 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 	jsonData, err := json.Marshal(records)
 	if err != nil {
-		returnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	session, err = e.db.createSessionRecord(session, userTOKEN, expiration, jsonData)
 	if err != nil {
-		returnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -87,11 +88,11 @@ func (e mainEnv) deleteSession(w http.ResponseWriter, r *http.Request, ps httpro
 	session := ps.ByName("session")
 	event := audit("delete session", session, "session", session)
 	defer func() { event.submit(e.db, e.conf) }()
-	if enforceUUID(w, session, event) == false {
-		//returnError(w, r, "bad session format", nil, event)
+	if EnforceUUID(w, session, event) == false {
+		//ReturnError(w, r, "bad session format", nil, event)
 		return
 	}
-	if e.enforceAdmin(w, r, event) == "" {
+	if e.EnforceAdmin(w, r, event) == "" {
 		return
 	}
 	e.db.deleteSession(session)
@@ -111,34 +112,34 @@ func (e mainEnv) newUserSession(w http.ResponseWriter, r *http.Request, ps httpr
 	if userTOKEN == "" {
 		return
 	}
-	if e.enforceAuth(w, r, event) == "" {
+	if e.EnforceAuth(w, r, event) == "" {
 		return
 	}
-	records, err := getJSONPostMap(r)
+	records, err := utils.GetJSONPostMap(r)
 	if err != nil {
-		returnError(w, r, "failed to decode request body", 405, err, event)
+		ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	if len(records) == 0 {
-		returnError(w, r, "empty body", 405, nil, event)
+		ReturnError(w, r, "empty body", 405, nil, event)
 		return
 	}
-	expirationStr := getStringValue(records["expiration"])
-	expiration := setExpiration(e.conf.Policy.MaxSessionRetentionPeriod, expirationStr)
+	expirationStr := utils.GetStringValue(records["expiration"])
+	expiration := utils.SetExpiration(e.conf.Policy.MaxSessionRetentionPeriod, expirationStr)
 	log.Printf("Record expiration: %s", expiration)
 	jsonData, err := json.Marshal(records)
 	if err != nil {
-		returnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	sessionUUID, err := uuid.GenerateUUID()
 	if err != nil {
-		returnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	sessionID, err := e.db.createSessionRecord(sessionUUID, userTOKEN, expiration, jsonData)
 	if err != nil {
-		returnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -156,7 +157,7 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 	if userTOKEN == "" {
 		return
 	}
-	if e.enforceAuth(w, r, event) == "" {
+	if e.EnforceAuth(w, r, event) == "" {
 		return
 	}
 	e.db.store.DeleteExpired(storage.TblName.Sessions, "token", userTOKEN)
@@ -164,14 +165,14 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 	var offset int32
 	var limit int32 = 10
 	if value, ok := args["offset"]; ok {
-		offset = atoi(value[0])
+		offset = utils.Atoi(value[0])
 	}
 	if value, ok := args["limit"]; ok {
-		limit = atoi(value[0])
+		limit = utils.Atoi(value[0])
 	}
 	records, count, err := e.db.getUserSessionsByToken(userTOKEN, offset, limit)
 	if err != nil {
-		returnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	data := strings.Join(records, ",")
@@ -194,11 +195,11 @@ func (e mainEnv) getSession(w http.ResponseWriter, r *http.Request, ps httproute
 		e.db.store.DeleteExpired(storage.TblName.Sessions, "token", userTOKEN)
 	}
 	if err != nil {
-		returnError(w, r, err.Error(), 405, err, event)
+		ReturnError(w, r, err.Error(), 405, err, event)
 		return
 	}
 
-	if e.enforceAuth(w, r, event) == "" {
+	if e.EnforceAuth(w, r, event) == "" {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

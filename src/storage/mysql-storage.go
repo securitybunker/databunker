@@ -861,7 +861,7 @@ func (dbobj MySQLDB) GetAllTables() ([]string, error) {
 
 // ValidateNewApp function check if app name can be part of the table name
 func (dbobj MySQLDB) ValidateNewApp(appName string) bool {
-	if contains(allTables, appName) == true {
+	if SliceContains(allTables, appName) == true {
 		return true
 	}
 	return true
@@ -891,7 +891,7 @@ func (dbobj MySQLDB) execQueries(queries []string) error {
 
 // CreateNewAppTable creates a new app table and creates indexes for it.
 func (dbobj MySQLDB) CreateNewAppTable(appName string) {
-	if contains(allTables, appName) == false {
+	if SliceContains(allTables, appName) == false {
 		// it is a new app, create an index
 		log.Printf("This is a new app, creating table & index for: %s\n", appName)
 		queries := []string{
