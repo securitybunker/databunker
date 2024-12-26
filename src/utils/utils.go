@@ -19,10 +19,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/kelseyhightower/envconfig"
 	"github.com/ttacon/libphonenumber"
 	"golang.org/x/sys/unix"
-	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -61,6 +59,16 @@ var (
 	}
 )
 
+// UserJSON used to parse user POST
+type UserJSONStruct struct {
+	JsonData  []byte
+	LoginIdx  string
+	EmailIdx  string
+	PhoneIdx  string
+	CustomIdx string
+	Token     string
+}
+
 // Consideration why collection of meta data patch was postpone:
 // 1. Databunker is not anti-fraud solution
 // 2. GDPR stands for data minimalization.
@@ -74,7 +82,7 @@ func getMeta(r *http.Request) string {
 	for idx, val := range r.Header {
 		idx0 := strings.ToLower(idx)
 		log.Printf("Checking header: %s\n", idx0)
-		if contains(interestingHeaders, idx0) {
+		if utils.SliceContains(interestingHeaders, idx0) {
 			headers[idx] = val[0]
 		}
 	}
@@ -85,7 +93,7 @@ func getMeta(r *http.Request) string {
 }
 */
 
-func getStringValue(r interface{}) string {
+func GetStringValue(r interface{}) string {
 	if r == nil {
 		return ""
 	}
@@ -100,7 +108,7 @@ func getStringValue(r interface{}) string {
 	return ""
 }
 
-func getIntValue(r interface{}) int {
+func GetIntValue(r interface{}) int {
 	switch r.(type) {
 	case int:
 		return r.(int)
@@ -112,7 +120,7 @@ func getIntValue(r interface{}) int {
 	return 0
 }
 
-func getInt64Value(records map[string]interface{}, key string) int64 {
+func GetInt64Value(records map[string]interface{}, key string) int64 {
 	if value, ok := records[key]; ok {
 		switch value.(type) {
 		case int32:
@@ -124,34 +132,7 @@ func getInt64Value(records map[string]interface{}, key string) int64 {
 	return 0
 }
 
-// readConfFile() read configuration file.
-func readConfFile(cfg *Config, filepath *string) error {
-	confFile := "databunker.yaml"
-	if filepath != nil {
-		if len(*filepath) > 0 {
-			confFile = *filepath
-		}
-	}
-	log.Printf("Loading configuration file: %s\n", confFile)
-	f, err := os.Open(confFile)
-	if err != nil {
-		return err
-	}
-	decoder := yaml.NewDecoder(f)
-	err = decoder.Decode(cfg)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// readEnv() process environment variables.
-func readEnv(cfg *Config) error {
-	err := envconfig.Process("", cfg)
-	return err
-}
-
-func getArgEnvFileVariable(vname string, masterKeyPtr *string) string {
+func GetArgEnvFileVariable(vname string, masterKeyPtr *string) string {
 	strvalue := ""
 	if masterKeyPtr != nil && len(*masterKeyPtr) > 0 {
 		strvalue = *masterKeyPtr
@@ -164,13 +145,13 @@ func getArgEnvFileVariable(vname string, masterKeyPtr *string) string {
 	return strings.TrimSpace(strvalue)
 }
 
-func hashString(md5Salt []byte, src string) string {
+func HashString(md5Salt []byte, src string) string {
 	stringToHash := append(md5Salt, []byte(src)...)
 	hashed := sha256.Sum256(stringToHash)
 	return base64.StdEncoding.EncodeToString(hashed[:])
 }
 
-func normalizeConsentStatus(status string) string {
+func NormalizeConsentStatus(status string) string {
 	status = strings.ToLower(status)
 	if consentYesStatuses[status] {
 		return "yes"
@@ -186,11 +167,11 @@ func normalizeBasisType(status string) string {
 	return "consent"
 }
 
-func normalizeBrief(brief string) string {
+func NormalizeBrief(brief string) string {
 	return strings.ToLower(brief)
 }
 
-func normalizeEmail(email0 string) string {
+func NormalizeEmail(email0 string) string {
 	email, _ := url.QueryUnescape(email0)
 	email = strings.ToLower(email)
 	email = strings.TrimSpace(email)
@@ -200,7 +181,7 @@ func normalizeEmail(email0 string) string {
 	return email
 }
 
-func normalizePhone(phone string, defaultCountry string) string {
+func NormalizePhone(phone string, defaultCountry string) string {
 	// 4444 is a phone number for testing, no need to normilize it
 	phone = strings.TrimSpace(phone)
 	if len(phone) == 0 {
@@ -226,7 +207,7 @@ func ValidateMode(index string) bool {
 	return indexNames[strings.ToLower(index)]
 }
 
-func parseFields(fields string) []string {
+func ParseFields(fields string) []string {
 	return strings.Split(fields, ",")
 }
 
@@ -248,7 +229,7 @@ func binarySearch(arr []string, target string) bool {
 	return false
 }
 
-func contains(slice []string, item string) bool {
+func SliceContains(slice []string, item string) bool {
 	set := make(map[string]bool, len(slice))
 	for _, s := range slice {
 		set[s] = true
@@ -256,7 +237,7 @@ func contains(slice []string, item string) bool {
 	return set[item]
 }
 
-func atoi(s string) int32 {
+func Atoi(s string) int32 {
 	var (
 		n uint32
 		i int
@@ -280,15 +261,15 @@ func atoi(s string) int32 {
 	return int32(n)
 }
 
-func setExpiration(maxExpiration string, userExpiration string) string {
+func SetExpiration(maxExpiration string, userExpiration string) string {
 	if len(userExpiration) == 0 {
 		return maxExpiration
 	}
-	userExpirationNum, _ := parseExpiration(userExpiration)
-	maxExpirationNum, _ := parseExpiration(maxExpiration)
+	userExpirationNum, _ := ParseExpiration(userExpiration)
+	maxExpirationNum, _ := ParseExpiration(maxExpiration)
 	if maxExpirationNum == 0 {
 		maxExpiration = "6m"
-		maxExpirationNum, _ = parseExpiration(maxExpiration)
+		maxExpirationNum, _ = ParseExpiration(maxExpiration)
 	}
 	if userExpirationNum == 0 {
 		return maxExpiration
@@ -299,7 +280,7 @@ func setExpiration(maxExpiration string, userExpiration string) string {
 	return userExpiration
 }
 
-func parseExpiration0(expiration string) (int32, error) {
+func ParseExpiration0(expiration string) (int32, error) {
 	match := regexExpiration.FindStringSubmatch(expiration)
 	// expiration format: 10d, 10h, 10m, 10s
 	if len(match) != 3 {
@@ -311,22 +292,22 @@ func parseExpiration0(expiration string) (int32, error) {
 	start := int32(0)
 	switch format {
 	case "d": // day
-		start = start + (atoi(num) * 24 * 3600)
+		start = start + (Atoi(num) * 24 * 3600)
 	case "h": // hour
-		start = start + (atoi(num) * 3600)
+		start = start + (Atoi(num) * 3600)
 	case "m": // month
-		start = start + (atoi(num) * 24 * 31 * 3600)
+		start = start + (Atoi(num) * 24 * 31 * 3600)
 	case "s":
-		start = start + (atoi(num))
+		start = start + (Atoi(num))
 	}
 	return start, nil
 }
 
-func parseExpiration(expiration string) (int32, error) {
+func ParseExpiration(expiration string) (int32, error) {
 	match := regexExpiration.FindStringSubmatch(expiration)
 	// expiration format: 10d, 10h, 10m, 10s
 	if len(match) == 2 {
-		return atoi(match[1]), nil
+		return Atoi(match[1]), nil
 	}
 	if len(match) != 3 {
 		e := fmt.Sprintf("failed to parse expiration value: %s", expiration)
@@ -335,39 +316,39 @@ func parseExpiration(expiration string) (int32, error) {
 	num := match[1]
 	format := match[2]
 	if len(format) == 0 {
-		return atoi(num), nil
+		return Atoi(num), nil
 	}
 	start := int32(time.Now().Unix())
 	switch format {
 	case "d": // day
-		start = start + (atoi(num) * 24 * 3600)
+		start = start + (Atoi(num) * 24 * 3600)
 	case "h": // hour
-		start = start + (atoi(num) * 3600)
+		start = start + (Atoi(num) * 3600)
 	case "m": // month
-		start = start + (atoi(num) * 24 * 31 * 3600)
+		start = start + (Atoi(num) * 24 * 31 * 3600)
 	case "s":
-		start = start + (atoi(num))
+		start = start + (Atoi(num))
 	}
 	return start, nil
 }
 
-func lockMemory() error {
+func LockMemory() error {
 	return unix.Mlockall(syscall.MCL_CURRENT | syscall.MCL_FUTURE)
 }
 
-func isValidUUID(uuidCode string) bool {
+func CheckValidUUID(uuidCode string) bool {
 	return regexUUID.MatchString(uuidCode)
 }
 
-func isValidApp(app string) bool {
+func CheckValidApp(app string) bool {
 	return regexAppName.MatchString(app)
 }
 
-func isValidBrief(brief string) bool {
+func CheckValidBrief(brief string) bool {
 	return regexBrief.MatchString(brief)
 }
 
-func isValidHex(hex1 string) bool {
+func CheckValidHex(hex1 string) bool {
 	return regexHex.MatchString(hex1)
 }
 
@@ -384,8 +365,8 @@ func isContainer() bool {
 	return false
 }
 
-// stringPatternMatch looks for basic human patterns like "*", "*abc*", etc...
-func stringPatternMatch(pattern string, value string) bool {
+// StringPatternMatch looks for basic human patterns like "*", "*abc*", etc...
+func StringPatternMatch(pattern string, value string) bool {
 	if len(pattern) == 0 {
 		return false
 	}
@@ -416,104 +397,13 @@ func stringPatternMatch(pattern string, value string) bool {
 	return false
 }
 
-func returnError(w http.ResponseWriter, r *http.Request, message string, code int, err error, event *auditEvent) {
-	log.Printf("[%d] %s %s -> Return error\n", code, r.Method, r.URL.Path)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(code)
-	fmt.Fprintf(w, `{"status":"error","message":%q}`, message)
-	if event != nil {
-		event.Status = "error"
-		event.Msg = message
-		if err != nil {
-			event.Debug = err.Error()
-			log.Printf("Generate error response: %s, Error: %s\n", message, err.Error())
-		} else {
-			log.Printf("Generate error response: %s\n", message)
-		}
-	}
-	//http.Error(w, http.StatusText(405), 405)
-}
-
-func returnUUID(w http.ResponseWriter, code string) {
+func ReturnUUID(w http.ResponseWriter, code string) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, `{"status":"ok","token":%q}`, code)
 }
 
-func (e mainEnv) enforceAuth(w http.ResponseWriter, r *http.Request, event *auditEvent) string {
-	/*
-		for key, value := range r.Header {
-			fmt.Printf("%s => %s\n", key, value)
-		}
-	*/
-	if token, ok := r.Header["X-Bunker-Token"]; ok {
-		authResult, err := e.db.checkUserAuthXToken(token[0])
-		//fmt.Printf("error in auth? error %s - %s\n", err, token[0])
-		if err == nil {
-			if event != nil {
-				event.Identity = authResult.name
-				if authResult.ttype == "login" && authResult.token == event.Record {
-					return authResult.ttype
-				}
-			}
-			if len(authResult.ttype) > 0 && authResult.ttype != "login" {
-				return authResult.ttype
-			}
-		}
-		/*
-			if e.db.checkXtoken(token[0]) == true {
-				if event != nil {
-					event.Identity = "admin"
-				}
-				return true
-			}
-		*/
-	}
-	log.Printf("403 Access denied\n")
-	w.WriteHeader(http.StatusForbidden)
-	w.Write([]byte("Access denied"))
-	if event != nil {
-		event.Status = "error"
-		event.Msg = "access denied"
-	}
-	return ""
-}
-
-func (e mainEnv) enforceAdmin(w http.ResponseWriter, r *http.Request, event *auditEvent) string {
-	if token, ok := r.Header["X-Bunker-Token"]; ok {
-		authResult, err := e.db.checkUserAuthXToken(token[0])
-		//fmt.Printf("error in auth? error %s - %s\n", err, token[0])
-		if err == nil {
-			if event != nil {
-				event.Identity = authResult.name
-			}
-			if len(authResult.ttype) > 0 && authResult.ttype != "login" {
-				return authResult.ttype
-			}
-		}
-	}
-	log.Printf("403 Access denied\n")
-	w.WriteHeader(http.StatusForbidden)
-	w.Write([]byte("Access denied"))
-	return ""
-}
-
-func EnforceUUID(w http.ResponseWriter, uuidCode string, event *auditEvent) bool {
-	if isValidUUID(uuidCode) == false {
-		//fmt.Printf("405 bad uuid in : %s\n", uuidCode)
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(405)
-		fmt.Fprintf(w, `{"status":"error","message":"bad uuid"}`)
-		if event != nil {
-			event.Status = "error"
-			event.Msg = "bad uuid"
-		}
-		return false
-	}
-	return true
-}
-
-func getJSONPostMap(r *http.Request) (map[string]interface{}, error) {
+func GetJSONPostMap(r *http.Request) (map[string]interface{}, error) {
 	cType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	if err != nil {
 		log.Printf("ignoring empty content-type: %s\n", err)
@@ -573,7 +463,7 @@ func getJSONPostMap(r *http.Request) (map[string]interface{}, error) {
 	return records, nil
 }
 
-func getJSONPostData(r *http.Request) ([]byte, error) {
+func GetJSONPostData(r *http.Request) ([]byte, error) {
 	cType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	if err != nil {
 		log.Printf("ignoring empty content-type: %s\n", err)
@@ -626,7 +516,7 @@ func getJSONPostData(r *http.Request) ([]byte, error) {
 	return nil, errors.New("wrong content-type, not a json string")
 }
 
-func getIndexString(val interface{}) string {
+func GetIndexString(val interface{}) string {
 	switch val.(type) {
 	case nil:
 		return ""
@@ -644,9 +534,9 @@ func getIndexString(val interface{}) string {
 	return ""
 }
 
-func getUserJSON(r *http.Request, defaultCountry string) (userJSON, error) {
-	var result userJSON
-	records, err := getJSONPostMap(r)
+func GetUserJSONStruct(r *http.Request, defaultCountry string) (UserJSONStruct, error) {
+	var result UserJSONStruct
+	records, err := GetJSONPostMap(r)
 	if err != nil {
 		return result, err
 	}
@@ -655,27 +545,27 @@ func getUserJSON(r *http.Request, defaultCountry string) (userJSON, error) {
 	}
 
 	if value, ok := records["login"]; ok {
-		result.loginIdx = getIndexString(value)
+		result.LoginIdx = GetIndexString(value)
 	}
 	if value, ok := records["email"]; ok {
-		result.emailIdx = normalizeEmail(getIndexString(value))
+		result.EmailIdx = NormalizeEmail(GetIndexString(value))
 	}
 	if value, ok := records["phone"]; ok {
-		result.phoneIdx = normalizePhone(getIndexString(value), defaultCountry)
+		result.PhoneIdx = NormalizePhone(GetIndexString(value), defaultCountry)
 	}
 	if value, ok := records["custom"]; ok {
-		result.customIdx = getIndexString(value)
+		result.CustomIdx = GetIndexString(value)
 	}
 	if value, ok := records["token"]; ok {
-		result.token = value.(string)
+		result.Token = value.(string)
 	}
-	result.jsonData, err = json.Marshal(records)
+	result.JsonData, err = json.Marshal(records)
 	return result, err
 }
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-func randSeq(n int) string {
+func RandSeq(n int) string {
 	b := make([]rune, n)
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]
@@ -686,11 +576,11 @@ func randSeq(n int) string {
 var numbers0 = []rune("123456789")
 var numbers = []rune("0123456789")
 
-func randNum(n int) int32 {
+func RandNum(n int) int32 {
 	b := make([]rune, n)
 	for i := range b {
 		b[i] = numbers[rand.Intn(len(numbers))]
 	}
 	b[0] = numbers0[rand.Intn(len(numbers0))]
-	return atoi(string(b))
+	return Atoi(string(b))
 }
