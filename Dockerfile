@@ -5,7 +5,7 @@ FROM golang:alpine AS builder
 RUN apk update && apk add --no-cache git gcc libc-dev openssl && go install github.com/gobuffalo/packr/packr@latest
 WORKDIR /go/src/securitybunker/databunker/src/
 COPY src/go.mod ./deps
-RUN cat ./deps | grep -v storage > ./go.mod && go mod download
+RUN cat ./deps | grep -v storage | grep -v utils > ./go.mod && go mod download
 COPY . /go/src/securitybunker/databunker/
 WORKDIR /go/src/securitybunker/databunker/
 #RUN echo "tidy " && go get -u && go mod tidy && cat ./go.mod
