@@ -5,10 +5,8 @@ go 1.21
 toolchain go1.23.2
 
 require (
-	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/ttacon/libphonenumber v1.2.1
 	golang.org/x/sys v0.28.0
-	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
