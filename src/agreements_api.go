@@ -82,7 +82,7 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	if len(status) == 0 {
 		status = "yes"
 	} else {
-		status = utils.NormalizeConsentStatus(status)
+		status = utils.NormalizeConsentValue(status)
 	}
 	if value, ok := records["expiration"]; ok {
 		switch records["expiration"].(type) {

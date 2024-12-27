@@ -151,16 +151,3 @@ func SliceContains(slice []string, item string) bool {
 	_, ok := set[item]
 	return ok
 }
-
-func isContainer() bool {
-	//if _, err := os.Stat("/.dockerenv"); err == nil {
-	//	return true
-	//}
-	if len(os.Getenv("KUBERNETES_SERVICE_HOST")) > 0 {
-		return true
-	}
-	if _, err := os.Stat("/var/run/secrets/kubernetes.io"); err == nil {
-		return true
-	}
-	return false
-}
