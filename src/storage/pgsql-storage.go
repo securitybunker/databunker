@@ -141,9 +141,6 @@ func (dbobj *PGSQLDB) OpenDB(dbname *string) error {
 	}
 	tx.Commit()
 	fmt.Printf("tables: %s\n", allTables)
-	if isContainer() == true && len(os.Getenv("PGSQL_USER_PASS_FILE")) > 0 {
-		os.Remove(os.Getenv("PGSQL_USER_PASS_FILE"))
-	}
 	return nil
 }
 

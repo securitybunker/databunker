@@ -29,6 +29,9 @@ var (
 	regexAppName    = regexp.MustCompile("^[a-z][a-z0-9\\_]{1,30}$")
 	regexExpiration = regexp.MustCompile("^([0-9]+)([mhds])?$")
 	regexHex        = regexp.MustCompile("^[a-zA-F0-9]+$")
+	letters         = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	numbers         = []rune("0123456789")
+	numbers0        = []rune("123456789")
 	indexNames      = map[string]bool{
 		"custom": true,
 		"email":  true,
@@ -36,7 +39,7 @@ var (
 		"phone":  true,
 		"token":  true,
 	}
-	consentYesStatuses = map[string]bool{
+	consentValueTypes = map[string]bool{
 		"1":       true,
 		"accept":  true,
 		"agree":   true,
@@ -49,7 +52,7 @@ var (
 		"y":       true,
 		"yes":     true,
 	}
-	basisTypes = map[string]bool{
+	legalBasisTypes = map[string]bool{
 		"consent":             true,
 		"contract":            true,
 		"legal-requirement":   true,
@@ -151,17 +154,17 @@ func HashString(md5Salt []byte, src string) string {
 	return base64.StdEncoding.EncodeToString(hashed[:])
 }
 
-func NormalizeConsentStatus(status string) string {
+func NormalizeConsentValue(status string) string {
 	status = strings.ToLower(status)
-	if consentYesStatuses[status] {
+	if consentValueTypes[status] {
 		return "yes"
 	}
 	return "no"
 }
 
-func normalizeBasisType(status string) string {
+func NormalizeLegalBasisType(status string) string {
 	status = strings.ToLower(status)
-	if basisTypes[status] {
+	if legalBasisTypes[status] {
 		return status
 	}
 	return "consent"
@@ -209,24 +212,6 @@ func ValidateMode(index string) bool {
 
 func ParseFields(fields string) []string {
 	return strings.Split(fields, ",")
-}
-
-// Binary search implementation for a sorted array of strings
-func binarySearch(arr []string, target string) bool {
-	low := 0
-	high := len(arr) - 1
-
-	for low <= high {
-		mid := (low + high) / 2
-		if arr[mid] == target {
-			return true
-		} else if arr[mid] < target {
-			low = mid + 1
-		} else {
-			high = mid - 1
-		}
-	}
-	return false
 }
 
 func SliceContains(slice []string, item string) bool {
@@ -350,19 +335,6 @@ func CheckValidBrief(brief string) bool {
 
 func CheckValidHex(hex1 string) bool {
 	return regexHex.MatchString(hex1)
-}
-
-func isContainer() bool {
-	//if _, err := os.Stat("/.dockerenv"); err == nil {
-	//	return true
-	//}
-	if len(os.Getenv("KUBERNETES_SERVICE_HOST")) > 0 {
-		return true
-	}
-	if _, err := os.Stat("/var/run/secrets/kubernetes.io"); err == nil {
-		return true
-	}
-	return false
 }
 
 // StringPatternMatch looks for basic human patterns like "*", "*abc*", etc...
@@ -563,8 +535,6 @@ func GetUserJSONStruct(r *http.Request, defaultCountry string) (UserJSONStruct, 
 	return result, err
 }
 
-var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
 func RandSeq(n int) string {
 	b := make([]rune, n)
 	for i := range b {
@@ -572,9 +542,6 @@ func RandSeq(n int) string {
 	}
 	return string(b)
 }
-
-var numbers0 = []rune("123456789")
-var numbers = []rune("0123456789")
 
 func RandNum(n int) int32 {
 	b := make([]rune, n)
