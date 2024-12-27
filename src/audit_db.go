@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	//"log"
 	"time"
 
 	uuid "github.com/hashicorp/go-uuid"
 	"github.com/securitybunker/databunker/src/storage"
+	"github.com/securitybunker/databunker/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -47,7 +49,7 @@ func (event auditEvent) submit(db *dbcon, conf Config) {
 	bdoc["atoken"] = atoken
 	bdoc["when"] = event.When
 	if len(event.Who) > 0 {
-		bdoc["who"], _ = basicStringEncrypt(event.Who, db.masterKey, db.GetCode())
+		bdoc["who"], _ = utils.BasicStringEncrypt(event.Who, db.masterKey, db.GetCode())
 	}
 	if len(event.Mode) > 0 {
 		bdoc["mode"] = event.Mode
@@ -56,7 +58,7 @@ func (event auditEvent) submit(db *dbcon, conf Config) {
 		bdoc["identity"] = event.Identity
 	}
 	if len(event.Record) > 0 {
-		bdoc["record"], _ = basicStringEncrypt(event.Record, db.masterKey, db.GetCode())
+		bdoc["record"], _ = utils.BasicStringEncrypt(event.Record, db.masterKey, db.GetCode())
 	}
 	if len(event.App) > 0 {
 		bdoc["app"] = event.App
@@ -81,7 +83,7 @@ func (event auditEvent) submit(db *dbcon, conf Config) {
 }
 
 func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) ([]byte, int64, error) {
-	userTOKENEnc, _ := basicStringEncrypt(userTOKEN, dbobj.masterKey, dbobj.GetCode())
+	userTOKENEnc, _ := utils.BasicStringEncrypt(userTOKEN, dbobj.masterKey, dbobj.GetCode())
 	count, err := dbobj.store.CountRecords(storage.TblName.Audit, "record", userTOKENEnc)
 	if err != nil {
 		return nil, 0, err
@@ -110,7 +112,7 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 			element["debug"] = ""
 		}
 		if _, ok := element["who"]; ok {
-			element["who"], _ = basicStringDecrypt(element["who"].(string), dbobj.masterKey, code)
+			element["who"], _ = utils.BasicStringDecrypt(element["who"].(string), dbobj.masterKey, code)
 		}
 		element["record"] = userTOKEN
 		results = append(results, element)
@@ -151,10 +153,10 @@ func (dbobj dbcon) getAdminAuditEvents(offset int32, limit int32) ([]byte, int64
 			element["debug"] = ""
 		}
 		if _, ok := element["record"]; ok {
-			element["record"], _ = basicStringDecrypt(element["record"].(string), dbobj.masterKey, code)
+			element["record"], _ = utils.BasicStringDecrypt(element["record"].(string), dbobj.masterKey, code)
 		}
 		if _, ok := element["who"]; ok {
-			element["who"], _ = basicStringDecrypt(element["who"].(string), dbobj.masterKey, code)
+			element["who"], _ = utils.BasicStringDecrypt(element["who"].(string), dbobj.masterKey, code)
 		}
 		results = append(results, element)
 	}
@@ -196,7 +198,7 @@ func (dbobj dbcon) getAuditEvent(atoken string) (string, []byte, error) {
 	if len(userTOKENEnc) == 0 {
 		return userTOKEN, nil, errors.New("empty token")
 	}
-	userTOKEN, _ = basicStringDecrypt(userTOKENEnc, dbobj.masterKey, dbobj.GetCode())
+	userTOKEN, _ = utils.BasicStringDecrypt(userTOKENEnc, dbobj.masterKey, dbobj.GetCode())
 	if len(before) > 0 {
 		before2, after2, _ := dbobj.userDecrypt2(userTOKEN, before, after)
 		//log.Printf("before: %s", before2)

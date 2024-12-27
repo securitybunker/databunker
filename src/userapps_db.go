@@ -9,6 +9,7 @@ import (
 
 	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/securitybunker/databunker/src/storage"
+	"github.com/securitybunker/databunker/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -134,7 +135,7 @@ func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appNa
 	if err != nil {
 		return userTOKEN, err
 	}
-	decrypted, err := decrypt(dbobj.masterKey, recordKey, encData)
+	decrypted, err := utils.Decrypt(dbobj.masterKey, recordKey, encData)
 	if err != nil {
 		return userTOKEN, err
 	}
@@ -156,7 +157,7 @@ func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appNa
 	}
 	//fmt.Printf("result: %s\n", newJSON)
 	bdoc := bson.M{}
-	encoded, err := encrypt(dbobj.masterKey, recordKey, newJSON)
+	encoded, err := utils.Encrypt(dbobj.masterKey, recordKey, newJSON)
 	if err != nil {
 		return userTOKEN, err
 	}
