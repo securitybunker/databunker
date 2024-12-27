@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/securitybunker/databunker/src/storage"
+	"github.com/securitybunker/databunker/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -39,7 +40,7 @@ func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, identity strin
 	}
 	encIdentity := ""
 	if len(identity) > 0 {
-		encIdentity, _ = basicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
+		encIdentity, _ = utils.BasicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
 	}
 	if len(userTOKEN) > 0 {
 		// first check if this agreement exists, then update
@@ -103,7 +104,7 @@ func (dbobj dbcon) withdrawAgreement(userTOKEN string, brief string, mode string
 	// update date, status
 	encIdentity := ""
 	if len(identity) > 0 {
-		encIdentity, _ = basicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
+		encIdentity, _ = utils.BasicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
 	}
 	bdoc := bson.M{}
 	bdoc["when"] = now
@@ -133,7 +134,7 @@ func (dbobj dbcon) listAgreementRecords(userTOKEN string) ([]byte, int, error) {
 	for _, rec := range records {
 		encIdentity := rec["who"].(string)
 		if len(encIdentity) > 0 {
-			identity, _ := basicStringDecrypt(encIdentity, dbobj.masterKey, dbobj.GetCode())
+			identity, _ := utils.BasicStringDecrypt(encIdentity, dbobj.masterKey, dbobj.GetCode())
 			if len(identity) > 0 {
 				rec["who"] = identity
 			}
@@ -148,7 +149,7 @@ func (dbobj dbcon) listAgreementRecords(userTOKEN string) ([]byte, int, error) {
 }
 
 func (dbobj dbcon) listAgreementRecordsByIdentity(identity string) ([]byte, int, error) {
-	encIdentity, _ := basicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
+	encIdentity, _ := utils.BasicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
 	records, err := dbobj.store.GetList(storage.TblName.Agreements, "who", encIdentity, 0, 0, "")
 	if err != nil {
 		return nil, 0, err
@@ -175,7 +176,7 @@ func (dbobj dbcon) viewAgreementRecord(userTOKEN string, brief string) ([]byte, 
 	}
 	encIdentity := record["who"].(string)
 	if len(encIdentity) > 0 {
-		identity, _ := basicStringDecrypt(encIdentity, dbobj.masterKey, dbobj.GetCode())
+		identity, _ := utils.BasicStringDecrypt(encIdentity, dbobj.masterKey, dbobj.GetCode())
 		if len(identity) > 0 {
 			record["who"] = identity
 		}
@@ -209,7 +210,7 @@ func (dbobj dbcon) expireAgreementRecords(notifyURL string) error {
 		} else {
 			encIdentity := rec["who"].(string)
 			dbobj.store.UpdateRecord2(storage.TblName.Agreements, "who", encIdentity, "brief", brief, &bdoc, nil)
-			identity, _ := basicStringDecrypt(encIdentity, dbobj.masterKey, dbobj.GetCode())
+			identity, _ := utils.BasicStringDecrypt(encIdentity, dbobj.masterKey, dbobj.GetCode())
 			notifyConsentChange(notifyURL, brief, "expired", rec["mode"].(string), identity)
 		}
 

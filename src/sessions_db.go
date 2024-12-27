@@ -27,11 +27,11 @@ func (dbobj dbcon) createSessionRecord(sessionUUID string, userTOKEN string, exp
 		}
 		//log.Printf("expiration set to: %d, now: %d", endtime, now)
 	}
-	recordKey, err := generateRecordKey()
+	recordKey, err := utils.GenerateRecordKey()
 	if err != nil {
 		return "", err
 	}
-	encoded, err := encrypt(dbobj.masterKey, recordKey, data)
+	encoded, err := utils.Encrypt(dbobj.masterKey, recordKey, data)
 	if err != nil {
 		return "", err
 	}
@@ -81,7 +81,7 @@ func (dbobj dbcon) getSession(sessionUUID string) (int32, []byte, string, error)
 	if err != nil {
 		return 0, nil, "", err
 	}
-	decrypted, err := decrypt(dbobj.masterKey, recordKey, encData)
+	decrypted, err := utils.Decrypt(dbobj.masterKey, recordKey, encData)
 	if err != nil {
 		return 0, nil, "", err
 	}
@@ -105,7 +105,7 @@ func (dbobj dbcon) getUserSessionsByToken(userTOKEN string, offset int32, limit 
 		recordKey0 := element["key"].(string)
 		recordKey, _ := base64.StdEncoding.DecodeString(recordKey0)
 		encData, _ := base64.StdEncoding.DecodeString(encData0)
-		decrypted, _ := decrypt(dbobj.masterKey, recordKey, encData)
+		decrypted, _ := utils.Decrypt(dbobj.masterKey, recordKey, encData)
 		sEvent := fmt.Sprintf(`{"when":%d,"session":"%s","data":%s}`, when, session, string(decrypted))
 		results = append(results, sEvent)
 	}

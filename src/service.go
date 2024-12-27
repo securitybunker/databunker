@@ -173,7 +173,7 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 		}
 		log.Println("Master key: ****")
 	} else {
-		masterKey, err = generateMasterKey()
+		masterKey, err = utils.GenerateMasterKey()
 		if err != nil {
 			log.Printf("Failed to generate master key: %s", err)
 			os.Exit(0)

@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"crypto/aes"
@@ -14,7 +14,7 @@ import (
 // https://github.com/kinvolk/go-shamir
 // go get github.com/hashicorp/vault/shamir
 
-func generateRecordKey() ([]byte, error) {
+func GenerateRecordKey() ([]byte, error) {
 	key := make([]byte, 8)
 	if _, err := io.ReadFull(rand.Reader, key); err != nil {
 		return nil, err
@@ -23,13 +23,13 @@ func generateRecordKey() ([]byte, error) {
 }
 
 // generate master key - 24 bytes length
-func generateMasterKey() ([]byte, error) {
+func GenerateMasterKey() ([]byte, error) {
 	masterKey := make([]byte, 24)
 	_, err := io.ReadFull(rand.Reader, masterKey)
 	return masterKey, err
 }
 
-func decrypt(masterKey []byte, userKey []byte, data []byte) ([]byte, error) {
+func Decrypt(masterKey []byte, userKey []byte, data []byte) ([]byte, error) {
 	// DO NOT USE THE FOLLOWING LINE. It is broken!!!
 	//key := append(masterKey, userKey...)
 	la := len(masterKey)
@@ -54,7 +54,7 @@ func decrypt(masterKey []byte, userKey []byte, data []byte) ([]byte, error) {
 	return plaintext, err
 }
 
-func encrypt(masterKey []byte, userKey []byte, plaintext []byte) ([]byte, error) {
+func Encrypt(masterKey []byte, userKey []byte, plaintext []byte) ([]byte, error) {
 	// We use 32 byte key (AES-256).
 	// comprising 24 master key
 	// and 8 bytes record key
@@ -87,8 +87,8 @@ func encrypt(masterKey []byte, userKey []byte, plaintext []byte) ([]byte, error)
 	return ciphertext, nil
 }
 
-func basicStringEncrypt(plaintext string, masterKey []byte, code []byte) (string, error) {
-	//log.Printf("Going to encrypt %s", plaintext)
+func BasicStringEncrypt(plaintext string, masterKey []byte, code []byte) (string, error) {
+	//log.Printf("Going to utils.Encrypt %s", plaintext)
 	nonce := []byte("$DataBunker$")
 	la := len(masterKey)
 	key := make([]byte, la+len(code))
@@ -111,7 +111,7 @@ func basicStringEncrypt(plaintext string, masterKey []byte, code []byte) (string
 	return result, nil
 }
 
-func basicStringDecrypt(data string, masterKey []byte, code []byte) (string, error) {
+func BasicStringDecrypt(data string, masterKey []byte, code []byte) (string, error) {
 	ciphertext, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
 		return "", err
@@ -133,6 +133,6 @@ func basicStringDecrypt(data string, masterKey []byte, code []byte) (string, err
 	if err != nil {
 		return "", err
 	}
-	//log.Printf("decrypt result : %s", string(plaintext))
+	//log.Printf("utils.Decrypt result : %s", string(plaintext))
 	return string(plaintext), err
 }

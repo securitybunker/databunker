@@ -97,11 +97,11 @@ func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	encPhoneIdx := ""
 	if len(userJSON.EmailIdx) > 0 {
-		encEmailIdx, _ := basicStringEncrypt(userJSON.EmailIdx, e.db.masterKey, e.db.GetCode())
+		encEmailIdx, _ := utils.BasicStringEncrypt(userJSON.EmailIdx, e.db.masterKey, e.db.GetCode())
 		e.db.linkAgreementRecords(userTOKEN, encEmailIdx)
 	}
 	if len(userJSON.PhoneIdx) > 0 {
-		encPhoneIdx, _ = basicStringEncrypt(userJSON.PhoneIdx, e.db.masterKey, e.db.GetCode())
+		encPhoneIdx, _ = utils.BasicStringEncrypt(userJSON.PhoneIdx, e.db.masterKey, e.db.GetCode())
 		e.db.linkAgreementRecords(userTOKEN, encPhoneIdx)
 	}
 	if len(userJSON.EmailIdx) > 0 && len(userJSON.PhoneIdx) > 0 {
