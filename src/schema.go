@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -51,7 +50,7 @@ func loadUserSchema(cfg Config, confFile *string) error {
 	if os.IsNotExist(err) {
 		return err
 	}
-	schemaData, err := ioutil.ReadFile(fileSchema)
+	schemaData, err := os.ReadFile(fileSchema)
 	if err != nil {
 		return err
 	}

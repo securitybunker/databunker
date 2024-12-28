@@ -5,7 +5,6 @@ package storage
 import (
 	"database/sql"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -42,7 +41,7 @@ func (dbobj MySQLDB) getConnectionString(dbname *string) string {
 		dbnameString = *dbname
 	}
 	if len(os.Getenv("MYSQL_USER_PASS_FILE")) > 0 {
-		content, err := ioutil.ReadFile(os.Getenv("MYSQL_USER_PASS_FILE"))
+		content, err := os.ReadFile(os.Getenv("MYSQL_USER_PASS_FILE"))
 		if err != nil {
 			return ""
 		}

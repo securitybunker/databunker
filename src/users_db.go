@@ -11,12 +11,13 @@ import (
 
 	jsonpatch "github.com/evanphx/json-patch"
 	uuid "github.com/hashicorp/go-uuid"
+	"github.com/securitybunker/databunker/src/audit"
 	"github.com/securitybunker/databunker/src/storage"
 	"github.com/securitybunker/databunker/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (dbobj dbcon) createUserRecord(parsedData utils.UserJSONStruct, event *auditEvent) (string, error) {
+func (dbobj dbcon) createUserRecord(parsedData utils.UserJSONStruct, event *audit.AuditEvent) (string, error) {
 	var userTOKEN string
 	//var bdoc interface{}
 	bdoc := bson.M{}
@@ -139,7 +140,7 @@ func (dbobj dbcon) validateUserRecordChange(oldUserJSON []byte, jsonDataPatch []
 	return validateUserRecordChange(oldUserJSON, newJSON, authResult)
 }
 
-func (dbobj dbcon) updateUserRecord(jsonDataPatch []byte, userTOKEN string, userBSON bson.M, event *auditEvent, conf Config) ([]byte, []byte, bool, error) {
+func (dbobj dbcon) updateUserRecord(jsonDataPatch []byte, userTOKEN string, userBSON bson.M, event *audit.AuditEvent, conf Config) ([]byte, []byte, bool, error) {
 	oldJSON, newJSON, lookupErr, err := dbobj.updateUserRecordDo(jsonDataPatch, userTOKEN, userBSON, event, conf)
 	if lookupErr == true {
 		return oldJSON, newJSON, lookupErr, err
@@ -162,7 +163,7 @@ func (dbobj dbcon) updateUserRecord(jsonDataPatch []byte, userTOKEN string, user
 	return nil, nil, false, err
 }
 
-func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, oldUserBson bson.M, event *auditEvent, conf Config) ([]byte, []byte, bool, error) {
+func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, oldUserBson bson.M, event *audit.AuditEvent, conf Config) ([]byte, []byte, bool, error) {
 
 	// get user key
 	userKey := oldUserBson["key"].(string)

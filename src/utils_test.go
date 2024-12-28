@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -99,7 +99,7 @@ func TestUtilSMS(t *testing.T) {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(200)
 		defer req.Body.Close()
-		bodyBytes, _ := ioutil.ReadAll(req.Body)
+		bodyBytes, _ := io.ReadAll(req.Body)
 		log.Printf("body: %s\n", string(bodyBytes))
 		if string(bodyBytes) != "Body=Data+Bunker+code+1234&From=from1234&To=4444" {
 			t.Fatalf("bad request: %s", string(bodyBytes))
@@ -119,7 +119,7 @@ func TestUtilNotifyConsentChange(t *testing.T) {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(200)
 		defer req.Body.Close()
-		bodyBytes, _ := ioutil.ReadAll(req.Body)
+		bodyBytes, _ := io.ReadAll(req.Body)
 		log.Printf("body: %s\n", string(bodyBytes))
 		if string(bodyBytes) != `{"action":"consentchange","brief":"brief","identity":"user3@user3.com","mode":"email","status":"no"}` {
 			q <- fmt.Sprintf("bad request in notifyConsentChange: %s", string(bodyBytes))
@@ -142,7 +142,7 @@ func TestUtilNotifyProfileNew(t *testing.T) {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(200)
 		defer req.Body.Close()
-		bodyBytes, _ := ioutil.ReadAll(req.Body)
+		bodyBytes, _ := io.ReadAll(req.Body)
 		log.Printf("body: %s\n", string(bodyBytes))
 		if string(bodyBytes) != `{"action":"profilenew","identity":"user3@user3.com","mode":"email","profile":{"name":"alex"}}` {
 			q <- fmt.Sprintf("bad request in notifyConsentChange: %s", string(bodyBytes))
@@ -166,7 +166,7 @@ func TestUtilNotifyForgetMe(t *testing.T) {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(200)
 		defer req.Body.Close()
-		bodyBytes, _ := ioutil.ReadAll(req.Body)
+		bodyBytes, _ := io.ReadAll(req.Body)
 		log.Printf("body: %s\n", string(bodyBytes))
 		if string(bodyBytes) != `{"action":"forgetme","identity":"user3@user3.com","mode":"email","profile":{"name":"alex"}}` {
 			q <- fmt.Sprintf("bad request in notifyConsentChange: %s", string(bodyBytes))
@@ -190,7 +190,7 @@ func TestUtilNotifyProfileChange(t *testing.T) {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(200)
 		defer req.Body.Close()
-		bodyBytes, _ := ioutil.ReadAll(req.Body)
+		bodyBytes, _ := io.ReadAll(req.Body)
 		log.Printf("body: %s\n", string(bodyBytes))
 		if string(bodyBytes) != `{"action":"profilechange","identity":"user3@user3.com","mode":"email","old":{"name":"alex2"},"profile":{"name":"alex3"}}` {
 			q <- fmt.Sprintf("bad request in notifyConsentChange: %s", string(bodyBytes))

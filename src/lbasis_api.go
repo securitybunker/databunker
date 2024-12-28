@@ -18,18 +18,18 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 	}
 	brief = utils.NormalizeBrief(brief)
 	if utils.CheckValidBrief(brief) == false {
-		ReturnError(w, r, "bad brief format", 405, nil, nil)
+		utils.ReturnError(w, r, "bad brief format", 405, nil, nil)
 		return
 	}
 	records, err := utils.GetJSONPostMap(r)
 	if err != nil {
-		ReturnError(w, r, "failed to decode request body", 405, err, nil)
+		utils.ReturnError(w, r, "failed to decode request body", 405, err, nil)
 		return
 	}
 	newbrief := utils.GetStringValue(records["brief"])
 	if len(newbrief) > 0 && newbrief != brief {
 		if utils.CheckValidBrief(newbrief) == false {
-			ReturnError(w, r, "bad brief format", 405, nil, nil)
+			utils.ReturnError(w, r, "bad brief format", 405, nil, nil)
 			return
 		}
 	}
@@ -88,7 +88,7 @@ func (e mainEnv) deleteLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 	}
 	brief = utils.NormalizeBrief(brief)
 	if utils.CheckValidBrief(brief) == false {
-		ReturnError(w, r, "bad brief format", 405, nil, nil)
+		utils.ReturnError(w, r, "bad brief format", 405, nil, nil)
 		return
 	}
 	e.db.unlinkProcessingActivityBrief(brief)
@@ -104,7 +104,7 @@ func (e mainEnv) listLegalBasisRecords(w http.ResponseWriter, r *http.Request, p
 	}
 	resultJSON, numRecords, err := e.db.getLegalBasisRecords()
 	if err != nil {
-		ReturnError(w, r, "internal error", 405, err, nil)
+		utils.ReturnError(w, r, "internal error", 405, err, nil)
 		return
 	}
 	log.Printf("Total count of rows: %d\n", numRecords)

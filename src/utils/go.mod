@@ -4,7 +4,10 @@ go 1.21
 
 toolchain go1.23.2
 
+replace github.com/securitybunker/databunker/src/audit => ../audit
+
 require (
+	github.com/securitybunker/databunker/src/audit v0.0.0
 	github.com/ttacon/libphonenumber v1.2.1
 	golang.org/x/sys v0.28.0
 )
