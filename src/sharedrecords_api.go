@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/securitybunker/databunker/src/audit"
 	"github.com/securitybunker/databunker/src/utils"
 	"github.com/tidwall/gjson"
 )
@@ -16,8 +17,8 @@ import (
 func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit("create shareable record by "+mode, identity, "token", identity)
-	defer func() { event.submit(e.db, e.conf) }()
+	event := audit.CreateAuditEvent("create shareable record by "+mode, identity, "token", identity)
+	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
 	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
 	if userTOKEN == "" {
@@ -28,7 +29,7 @@ func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps http
 	}
 	records, err := utils.GetJSONPostMap(r)
 	if err != nil {
-		ReturnError(w, r, "failed to decode request body", 405, err, event)
+		utils.ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	fields := ""
@@ -55,7 +56,7 @@ func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps http
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			expiration = utils.SetExpiration(e.conf.Policy.MaxShareableRecordRetentionPeriod, value.(string))
 		} else {
-			ReturnError(w, r, "failed to parse expiration field", 405, err, event)
+			utils.ReturnError(w, r, "failed to parse expiration field", 405, err, event)
 			return
 		}
 	}
@@ -63,11 +64,11 @@ func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps http
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			appName = strings.ToLower(value.(string))
 			if len(appName) > 0 && utils.CheckValidApp(appName) == false {
-				ReturnError(w, r, "unknown app name", 405, nil, event)
+				utils.ReturnError(w, r, "unknown app name", 405, nil, event)
 			}
 		} else {
 			// type is different
-			ReturnError(w, r, "failed to parse app field", 405, nil, event)
+			utils.ReturnError(w, r, "failed to parse app field", 405, nil, event)
 		}
 	}
 	if len(expiration) == 0 {
@@ -76,7 +77,7 @@ func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps http
 	}
 	recordUUID, err := e.db.saveSharedRecord(userTOKEN, fields, expiration, session, appName, partner, e.conf)
 	if err != nil {
-		ReturnError(w, r, err.Error(), 405, err, event)
+		utils.ReturnError(w, r, err.Error(), 405, err, event)
 		return
 	}
 	event.Record = userTOKEN
@@ -88,10 +89,10 @@ func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps http
 
 func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	record := ps.ByName("record")
-	event := audit("get shareable record by token", record, "record", record)
-	defer func() { event.submit(e.db, e.conf) }()
+	event := audit.CreateAuditEvent("get shareable record by token", record, "record", record)
+	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
-	if EnforceUUID(w, record, event) == false {
+	if utils.EnforceUUID(w, record, event) == false {
 		return
 	}
 	recordInfo, err := e.db.getSharedRecord(record)
@@ -115,11 +116,11 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 			resultJSON, err = e.db.getUserJSON(recordInfo.token)
 		}
 		if err != nil {
-			ReturnError(w, r, "internal error", 405, err, event)
+			utils.ReturnError(w, r, "internal error", 405, err, event)
 			return
 		}
 		if resultJSON == nil {
-			ReturnError(w, r, "not found", 405, err, event)
+			utils.ReturnError(w, r, "not found", 405, err, event)
 			return
 		}
 		log.Printf("Full json: %s\n", resultJSON)

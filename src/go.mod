@@ -8,6 +8,8 @@ replace github.com/securitybunker/databunker/src/storage => ./storage
 
 replace github.com/securitybunker/databunker/src/utils => ./utils
 
+replace github.com/securitybunker/databunker/src/audit => ./audit
+
 require (
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/evanphx/json-patch v5.9.0+incompatible
@@ -18,6 +20,7 @@ require (
 	github.com/oschwald/geoip2-golang v1.11.0
 	github.com/prometheus/client_golang v1.20.5
 	github.com/qri-io/jsonpointer v0.1.1
+	github.com/securitybunker/databunker/src/audit v0.0.0
 	github.com/securitybunker/databunker/src/storage v0.0.0
 	github.com/securitybunker/databunker/src/utils v0.0.0
 	github.com/securitybunker/jsonschema v0.2.1-0.20201128224651-d77c1a3cb787
@@ -62,7 +65,7 @@ require (
 	google.golang.org/protobuf v1.36.1 // indirect
 	modernc.org/gc/v3 v3.0.0-20241223112719-96e2e1e4408d // indirect
 	modernc.org/libc v1.61.5 // indirect
-	modernc.org/mathutil v1.7.0 // indirect
+	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.8.0 // indirect
 	modernc.org/sqlite v1.34.4 // indirect
 	modernc.org/strutil v1.2.0 // indirect

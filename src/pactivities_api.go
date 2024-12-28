@@ -18,12 +18,12 @@ func (e mainEnv) pactivityCreate(w http.ResponseWriter, r *http.Request, ps http
 	}
 	activity = utils.NormalizeBrief(activity)
 	if utils.CheckValidBrief(activity) == false {
-		ReturnError(w, r, "bad activity format", 405, nil, nil)
+		utils.ReturnError(w, r, "bad activity format", 405, nil, nil)
 		return
 	}
 	records, err := utils.GetJSONPostMap(r)
 	if err != nil {
-		ReturnError(w, r, "failed to decode request body", 405, err, nil)
+		utils.ReturnError(w, r, "failed to decode request body", 405, err, nil)
 		return
 	}
 	defer func() {
@@ -76,7 +76,7 @@ func (e mainEnv) pactivityDelete(w http.ResponseWriter, r *http.Request, ps http
 	}
 	activity = utils.NormalizeBrief(activity)
 	if utils.CheckValidBrief(activity) == false {
-		ReturnError(w, r, "bad activity format", 405, nil, nil)
+		utils.ReturnError(w, r, "bad activity format", 405, nil, nil)
 		return
 	}
 	e.db.deleteProcessingActivity(activity)
@@ -93,26 +93,26 @@ func (e mainEnv) pactivityLink(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 	activity = utils.NormalizeBrief(activity)
 	if utils.CheckValidBrief(activity) == false {
-		ReturnError(w, r, "bad activity format", 405, nil, nil)
+		utils.ReturnError(w, r, "bad activity format", 405, nil, nil)
 		return
 	}
 	brief = utils.NormalizeBrief(brief)
 	if utils.CheckValidBrief(brief) == false {
-		ReturnError(w, r, "bad brief format", 405, nil, nil)
+		utils.ReturnError(w, r, "bad brief format", 405, nil, nil)
 		return
 	}
 	exists, err := e.db.checkLegalBasis(brief)
 	if err != nil {
-		ReturnError(w, r, "internal error", 405, nil, nil)
+		utils.ReturnError(w, r, "internal error", 405, nil, nil)
 		return
 	}
 	if exists == false {
-		ReturnError(w, r, "not found", 405, nil, nil)
+		utils.ReturnError(w, r, "not found", 405, nil, nil)
 		return
 	}
 	_, err = e.db.linkProcessingActivity(activity, brief)
 	if err != nil {
-		ReturnError(w, r, "internal error", 405, err, nil)
+		utils.ReturnError(w, r, "internal error", 405, err, nil)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -128,17 +128,17 @@ func (e mainEnv) pactivityUnlink(w http.ResponseWriter, r *http.Request, ps http
 	}
 	activity = utils.NormalizeBrief(activity)
 	if utils.CheckValidBrief(activity) == false {
-		ReturnError(w, r, "bad activity format", 405, nil, nil)
+		utils.ReturnError(w, r, "bad activity format", 405, nil, nil)
 		return
 	}
 	brief = utils.NormalizeBrief(brief)
 	if utils.CheckValidBrief(brief) == false {
-		ReturnError(w, r, "bad brief format", 405, nil, nil)
+		utils.ReturnError(w, r, "bad brief format", 405, nil, nil)
 		return
 	}
 	_, err := e.db.unlinkProcessingActivity(activity, brief)
 	if err != nil {
-		ReturnError(w, r, "internal error", 405, err, nil)
+		utils.ReturnError(w, r, "internal error", 405, err, nil)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -152,7 +152,7 @@ func (e mainEnv) pactivityList(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 	resultJSON, numRecords, err := e.db.listProcessingActivities()
 	if err != nil {
-		ReturnError(w, r, "internal error", 405, err, nil)
+		utils.ReturnError(w, r, "internal error", 405, err, nil)
 		return
 	}
 	log.Printf("Total count of rows: %d\n", numRecords)

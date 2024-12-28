@@ -18,6 +18,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/securitybunker/databunker/src/audit"
 	"github.com/securitybunker/databunker/src/autocontext"
 	"github.com/securitybunker/databunker/src/storage"
 	"github.com/securitybunker/databunker/src/utils"
@@ -383,15 +384,15 @@ func (e mainEnv) dbCleanup() {
 }
 
 // helper function to load user details by idex name
-func (e mainEnv) loadUserToken(w http.ResponseWriter, r *http.Request, mode string, identity string, event *auditEvent) string {
+func (e mainEnv) loadUserToken(w http.ResponseWriter, r *http.Request, mode string, identity string, event *audit.AuditEvent) string {
 	var err error
 	if utils.ValidateMode(mode) == false {
-		ReturnError(w, r, "bad mode", 405, nil, event)
+		utils.ReturnError(w, r, "bad mode", 405, nil, event)
 		return ""
 	}
 	var userBson bson.M
 	if mode == "token" {
-		if EnforceUUID(w, identity, event) == false {
+		if utils.EnforceUUID(w, identity, event) == false {
 			return ""
 		}
 		userBson, err = e.db.lookupUserRecord(identity)
@@ -399,7 +400,7 @@ func (e mainEnv) loadUserToken(w http.ResponseWriter, r *http.Request, mode stri
 		userBson, err = e.db.lookupUserRecordByIndex(mode, identity, e.conf)
 	}
 	if userBson == nil || err != nil {
-		ReturnError(w, r, "internal error", 405, nil, event)
+		utils.ReturnError(w, r, "internal error", 405, nil, event)
 		return ""
 	}
 	event.Record = userBson["token"].(string)

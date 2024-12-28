@@ -6,41 +6,18 @@ import (
 	"fmt"
 
 	//"log"
-	"time"
 
 	uuid "github.com/hashicorp/go-uuid"
+	"github.com/securitybunker/databunker/src/audit"
 	"github.com/securitybunker/databunker/src/storage"
 	"github.com/securitybunker/databunker/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type auditEvent struct {
-	When     int32  `json:"when"`
-	Who      string `json:"who"`
-	Mode     string `json:"mode"`
-	Identity string `json:"identity"`
-	Record   string `json:"record"`
-	App      string `json:"app"`
-	Title    string `json:"title"`
-	Status   string `json:"status"`
-	Msg      string `json:"msg"`
-	Debug    string `json:"debug"`
-	Before   string `json:"before"`
-	After    string `json:"after"`
-	Atoken   string `json:"atoken"`
-}
-
-func audit(title string, record string, mode string, identity string) *auditEvent {
-	//fmt.Printf("/%s : %s\n", title, record)
-	return &auditEvent{Title: title, Mode: mode, Who: identity, Record: record, Status: "ok", When: int32(time.Now().Unix())}
-}
-
-func auditApp(title string, record string, app string, mode string, identity string) *auditEvent {
-	//fmt.Printf("/%s : %s : %s\n", title, app, record)
-	return &auditEvent{Title: title, Mode: mode, Who: identity, Record: record, Status: "ok", When: int32(time.Now().Unix())}
-}
-
-func (event auditEvent) submit(db *dbcon, conf Config) {
+func SaveAuditEvent(event *audit.AuditEvent, db *dbcon, conf Config) {
+	if event == nil {
+		return
+	}
 	if conf.Generic.DisableAudit == true {
 		return
 	}

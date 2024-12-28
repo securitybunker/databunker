@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"math/rand"
 	"mime"
@@ -387,7 +387,7 @@ func GetJSONPostMap(r *http.Request) (map[string]interface{}, error) {
 		// otherwise data is not parsed!
 		r.Method = "PATCH"
 	}
-	body0, err := ioutil.ReadAll(r.Body)
+	body0, err := io.ReadAll(r.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -446,7 +446,7 @@ func GetJSONPostData(r *http.Request) ([]byte, error) {
 		// otherwise data is not parsed!
 		r.Method = "PATCH"
 	}
-	body0, err := ioutil.ReadAll(r.Body)
+	body0, err := io.ReadAll(r.Body)
 	if err != nil {
 		return nil, err
 	}

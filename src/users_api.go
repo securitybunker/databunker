@@ -7,14 +7,15 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/securitybunker/databunker/src/audit"
 	"github.com/securitybunker/databunker/src/storage"
 	"github.com/securitybunker/databunker/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	event := audit("create user record", "", "", "")
-	defer func() { event.submit(e.db, e.conf) }()
+	event := audit.CreateAuditEvent("create user record", "", "", "")
+	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
 	if e.conf.Generic.CreateUserWithoutAccessToken == false {
 		// anonymous user can not create user record, check token
@@ -25,60 +26,60 @@ func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	userJSON, err := utils.GetUserJSONStruct(r, e.conf.Sms.DefaultCountry)
 	if err != nil {
-		ReturnError(w, r, "failed to decode request body", 405, err, event)
+		utils.ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	if len(userJSON.JsonData) == 0 {
-		ReturnError(w, r, "empty request body", 405, nil, event)
+		utils.ReturnError(w, r, "empty request body", 405, nil, event)
 		return
 	}
 	err = validateUserRecord(userJSON.JsonData)
 	if err != nil {
-		ReturnError(w, r, "user schema error: "+err.Error(), 405, err, event)
+		utils.ReturnError(w, r, "user schema error: "+err.Error(), 405, err, event)
 		return
 	}
 	// make sure that login, email and phone are unique
 	if len(userJSON.LoginIdx) > 0 {
 		otherUserBson, err := e.db.lookupUserRecordByIndex("login", userJSON.LoginIdx, e.conf)
 		if err != nil {
-			ReturnError(w, r, "internal error", 405, err, event)
+			utils.ReturnError(w, r, "internal error", 405, err, event)
 			return
 		}
 		if otherUserBson != nil {
-			ReturnError(w, r, "duplicate index: login", 405, nil, event)
+			utils.ReturnError(w, r, "duplicate index: login", 405, nil, event)
 			return
 		}
 	}
 	if len(userJSON.EmailIdx) > 0 {
 		otherUserBson, err := e.db.lookupUserRecordByIndex("email", userJSON.EmailIdx, e.conf)
 		if err != nil {
-			ReturnError(w, r, "internal error", 405, err, event)
+			utils.ReturnError(w, r, "internal error", 405, err, event)
 			return
 		}
 		if otherUserBson != nil {
-			ReturnError(w, r, "duplicate index: email", 405, nil, event)
+			utils.ReturnError(w, r, "duplicate index: email", 405, nil, event)
 			return
 		}
 	}
 	if len(userJSON.PhoneIdx) > 0 {
 		otherUserBson, err := e.db.lookupUserRecordByIndex("phone", userJSON.PhoneIdx, e.conf)
 		if err != nil {
-			ReturnError(w, r, "internal error", 405, err, event)
+			utils.ReturnError(w, r, "internal error", 405, err, event)
 			return
 		}
 		if otherUserBson != nil {
-			ReturnError(w, r, "duplicate index: phone", 405, nil, event)
+			utils.ReturnError(w, r, "duplicate index: phone", 405, nil, event)
 			return
 		}
 	}
 	if len(userJSON.CustomIdx) > 0 {
 		otherUserBson, err := e.db.lookupUserRecordByIndex("custom", userJSON.CustomIdx, e.conf)
 		if err != nil {
-			ReturnError(w, r, "internal error", 405, err, event)
+			utils.ReturnError(w, r, "internal error", 405, err, event)
 			return
 		}
 		if otherUserBson != nil {
-			ReturnError(w, r, "duplicate index: custom", 405, nil, event)
+			utils.ReturnError(w, r, "duplicate index: custom", 405, nil, event)
 			return
 		}
 	}
@@ -86,13 +87,13 @@ func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httproute
 		len(userJSON.EmailIdx) == 0 &&
 		len(userJSON.PhoneIdx) == 0 &&
 		len(userJSON.CustomIdx) == 0 {
-		ReturnError(w, r, "failed to create user, all user lookup fields are missing", 405, err, event)
+		utils.ReturnError(w, r, "failed to create user, all user lookup fields are missing", 405, err, event)
 		return
 	}
 
 	userTOKEN, err := e.db.createUserRecord(userJSON, event)
 	if err != nil {
-		ReturnError(w, r, "internal error", 405, err, event)
+		utils.ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	encPhoneIdx := ""
@@ -127,17 +128,17 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	var resultJSON []byte
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit("get user record by "+mode, identity, mode, identity)
-	defer func() { event.submit(e.db, e.conf) }()
+	event := audit.CreateAuditEvent("get user record by "+mode, identity, mode, identity)
+	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
 	if utils.ValidateMode(mode) == false {
-		ReturnError(w, r, "bad mode", 405, nil, event)
+		utils.ReturnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
 	userTOKEN := ""
 	authResult := ""
 	if mode == "token" {
-		if EnforceUUID(w, identity, event) == false {
+		if utils.EnforceUUID(w, identity, event) == false {
 			return
 		}
 		resultJSON, err = e.db.getUserJSON(identity)
@@ -147,7 +148,7 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		event.Record = userTOKEN
 	}
 	if err != nil {
-		ReturnError(w, r, "internal error", 405, err, event)
+		utils.ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	authResult = e.EnforceAuth(w, r, event)
@@ -155,7 +156,7 @@ func (e mainEnv) userGet(w http.ResponseWriter, r *http.Request, ps httprouter.P
 		return
 	}
 	if resultJSON == nil {
-		ReturnError(w, r, "record not found", 405, nil, event)
+		utils.ReturnError(w, r, "record not found", 405, nil, event)
 		return
 	}
 	finalJSON := fmt.Sprintf(`{"status":"ok","token":"%s","data":%s}`, userTOKEN, resultJSON)
@@ -171,7 +172,7 @@ func (e mainEnv) userList(w http.ResponseWriter, r *http.Request, ps httprouter.
 		return
 	}
 	if e.conf.Generic.ListUsers == false {
-		ReturnError(w, r, "access denied", 403, nil, nil)
+		utils.ReturnError(w, r, "access denied", 403, nil, nil)
 		return
 	}
 	var offset int32 = 0
@@ -199,28 +200,28 @@ func (e mainEnv) userList(w http.ResponseWriter, r *http.Request, ps httprouter.
 func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit("change user record by "+mode, identity, mode, identity)
-	defer func() { event.submit(e.db, e.conf) }()
+	event := audit.CreateAuditEvent("change user record by "+mode, identity, mode, identity)
+	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
 	if utils.ValidateMode(mode) == false {
-		ReturnError(w, r, "bad index", 405, nil, event)
+		utils.ReturnError(w, r, "bad index", 405, nil, event)
 		return
 	}
 
 	jsonData, err := utils.GetJSONPostData(r)
 	if err != nil {
-		ReturnError(w, r, "failed to decode request body", 405, err, event)
+		utils.ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	if jsonData == nil {
-		ReturnError(w, r, "empty request body", 405, nil, event)
+		utils.ReturnError(w, r, "empty request body", 405, nil, event)
 		return
 	}
 	userTOKEN := ""
 	var userJSON []byte
 	var userBSON bson.M
 	if mode == "token" {
-		if EnforceUUID(w, identity, event) == false {
+		if utils.EnforceUUID(w, identity, event) == false {
 			return
 		}
 		userTOKEN = identity
@@ -230,11 +231,11 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		event.Record = userTOKEN
 	}
 	if err != nil {
-		ReturnError(w, r, "internal error", 405, err, event)
+		utils.ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	if userJSON == nil {
-		ReturnError(w, r, "user record not found", 405, nil, event)
+		utils.ReturnError(w, r, "user record not found", 405, nil, event)
 		return
 	}
 	authResult := e.EnforceAuth(w, r, event)
@@ -245,7 +246,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	if UserSchemaEnabled() {
 		adminRecordChanged, err = e.db.validateUserRecordChange(userJSON, jsonData, userTOKEN, authResult)
 		if err != nil {
-			ReturnError(w, r, "schema validation error: "+err.Error(), 405, err, event)
+			utils.ReturnError(w, r, "schema validation error: "+err.Error(), 405, err, event)
 			return
 		}
 	}
@@ -254,7 +255,7 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 		if e.conf.SelfService.UserRecordChange == false || adminRecordChanged == true {
 			rtoken, rstatus, err := e.db.saveUserRequest("change-profile", userTOKEN, "", "", jsonData, e.conf)
 			if err != nil {
-				ReturnError(w, r, "internal error", 405, err, event)
+				utils.ReturnError(w, r, "internal error", 405, err, event)
 				return
 			}
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -265,11 +266,11 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	oldJSON, newJSON, lookupErr, err := e.db.updateUserRecord(jsonData, userTOKEN, userBSON, event, e.conf)
 	if lookupErr {
-		ReturnError(w, r, "record not found", 405, errors.New("record not found"), event)
+		utils.ReturnError(w, r, "record not found", 405, errors.New("record not found"), event)
 		return
 	}
 	if err != nil {
-		ReturnError(w, r, "error updating user", 405, err, event)
+		utils.ReturnError(w, r, "error updating user", 405, err, event)
 		return
 	}
 	utils.ReturnUUID(w, userTOKEN)
@@ -281,11 +282,11 @@ func (e mainEnv) userChange(w http.ResponseWriter, r *http.Request, ps httproute
 func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit("delete user record by "+mode, identity, mode, identity)
-	defer func() { event.submit(e.db, e.conf) }()
+	event := audit.CreateAuditEvent("delete user record by "+mode, identity, mode, identity)
+	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
 	if utils.ValidateMode(mode) == false {
-		ReturnError(w, r, "bad mode", 405, nil, event)
+		utils.ReturnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
 	var err error
@@ -293,7 +294,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	var userJSON []byte
 	userTOKEN := identity
 	if mode == "token" {
-		if EnforceUUID(w, identity, event) == false {
+		if utils.EnforceUUID(w, identity, event) == false {
 			return
 		}
 		userJSON, userBSON, err = e.db.getUser(identity)
@@ -302,7 +303,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 		event.Record = userTOKEN
 	}
 	if err != nil {
-		ReturnError(w, r, "internal error", 405, nil, event)
+		utils.ReturnError(w, r, "internal error", 405, nil, event)
 		return
 	}
 	authResult := e.EnforceAuth(w, r, event)
@@ -316,7 +317,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 			w.WriteHeader(200)
 			fmt.Fprintf(w, `{"status":"ok","result":"done"}`)
 		}
-		ReturnError(w, r, "record not found", 405, nil, event)
+		utils.ReturnError(w, r, "record not found", 405, nil, event)
 		return
 	}
 
@@ -325,7 +326,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 		if e.conf.SelfService.ForgetMe == false {
 			rtoken, rstatus, err := e.db.saveUserRequest("forget-me", userTOKEN, "", "", nil, e.conf)
 			if err != nil {
-				ReturnError(w, r, "internal error", 405, err, event)
+				utils.ReturnError(w, r, "internal error", 405, err, event)
 				return
 			}
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -341,7 +342,7 @@ func (e mainEnv) userDelete(w http.ResponseWriter, r *http.Request, ps httproute
 	//fmt.Printf("deleting user %s\n", userTOKEN)
 	_, err = e.db.deleteUserRecord(userJSON, userTOKEN, e.conf)
 	if err != nil {
-		ReturnError(w, r, "internal error", 405, err, event)
+		utils.ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -356,8 +357,8 @@ func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprou
 	code := ps.ByName("code")
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit("user prelogin by "+mode, identity, mode, identity)
-	defer func() { event.submit(e.db, e.conf) }()
+	event := audit.CreateAuditEvent("user prelogin by "+mode, identity, mode, identity)
+	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
 	code0, err := decryptCaptcha(captcha)
 	if err != nil || code0 != code {
@@ -367,12 +368,12 @@ func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 	if mode != "phone" && mode != "email" {
-		ReturnError(w, r, "bad mode", 405, nil, event)
+		utils.ReturnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
 	userBson, err := e.db.lookupUserRecordByIndex(mode, identity, e.conf)
 	if err != nil {
-		ReturnError(w, r, "internal error", 405, err, event)
+		utils.ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	if userBson != nil {
@@ -395,7 +396,7 @@ func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprou
 			//notifyURL := e.conf.Notification.NotificationURL
 			//notifyBadLogin(notifyURL, mode, identity)
 			e.pluginUserLookup(identity)
-			//ReturnError(w, r, "record not found", 405, errors.New("record not found"), event)
+			//utils.ReturnError(w, r, "record not found", 405, errors.New("record not found"), event)
 			captcha, _ := generateCaptcha()
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.WriteHeader(403)
@@ -413,17 +414,17 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	tmp := utils.Atoi(ps.ByName("tmp"))
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit("user login by "+mode, identity, mode, identity)
-	defer func() { event.submit(e.db, e.conf) }()
+	event := audit.CreateAuditEvent("user login by "+mode, identity, mode, identity)
+	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
 	if mode != "phone" && mode != "email" {
-		ReturnError(w, r, "bad mode", 405, nil, event)
+		utils.ReturnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
 
 	userBson, err := e.db.lookupUserRecordByIndex(mode, identity, e.conf)
 	if userBson == nil || err != nil {
-		ReturnError(w, r, "internal error", 405, err, event)
+		utils.ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 
@@ -439,7 +440,7 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		xtoken, hashedToken, err := e.db.generateUserLoginXtoken(userTOKEN)
 		//fmt.Printf("generate user access token: %s\n", xtoken)
 		if err != nil {
-			ReturnError(w, r, "internal error", 405, err, event)
+			utils.ReturnError(w, r, "internal error", 405, err, event)
 			return
 		}
 		event.Msg = "generated: " + hashedToken
@@ -448,5 +449,5 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		fmt.Fprintf(w, `{"status":"ok","xtoken":"%s","token":"%s"}`, xtoken, userTOKEN)
 		return
 	}
-	ReturnError(w, r, "internal error", 405, nil, event)
+	utils.ReturnError(w, r, "internal error", 405, nil, event)
 }
