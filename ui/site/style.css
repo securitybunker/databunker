@@ -46,4 +46,4 @@ transition:background-color .15s ease-in-out,border-color .15s ease-in-out,box-s
 .container .bigblock .bootstrap-table .fixed-table-container .fixed-table-body .fixed-table-loading .loading-wrap .loading-text {font-size:14px;}
 input[type=checkbox].form-control:focus {box-shadow:unset;}
 .terminal {background-color:#f9f9f9;color:#c7254e;padding:20px;border-radius:.25rem;font-family:'Monaco',monospace;border:1px solid #eaeded;}
-pre {margin:0;white-space:pre-wrap;word-break:break-all;line-height:1.5;color:unset;}
+pre {margin:0;white-space:pre;word-break:break-all;line-height:1.5;color:unset;}
