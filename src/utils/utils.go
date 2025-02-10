@@ -96,6 +96,24 @@ func getMeta(r *http.Request) string {
 }
 */
 
+func GetUuidString(u interface{}) string {
+	if u == nil {
+		return ""
+	}
+	//return hex.EncodeToString(uuidBytes)
+	//uuidStr := fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
+	//	uuidBytes[0:4], uuidBytes[4:6], uuidBytes[6:8],
+	//	uuidBytes[8:10], uuidBytes[10:16])
+	//return uuidStr
+	switch u.(type) {
+	case string:
+		return strings.TrimSpace(u.(string))
+	case []byte:
+		return string(u.([]byte))
+	}
+	return ""
+}
+
 func GetStringValue(r interface{}) string {
 	if r == nil {
 		return ""
