@@ -10,19 +10,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type legalBasis struct {
-	Brief        string `json:"brief" structs:"brief"`
-	Status       string `json:"status" structs:"status"`
-	Module       string `json:"module,omitempty" structs:"module,omitempty"`
-	Shortdesc    string `json:"shortdesc,omitempty" structs:"shortdesc,omitempty"`
-	Fulldesc     string `json:"fulldesc,omitempty" structs:"fulldesc,omitempty"`
-	Basistype    string `json:"basistype,omitempty" structs:"basistype"`
-	Requiredmsg  string `json:"requiredmsg,omitempty" structs:"requiredmsg,omitempty"`
-	Usercontrol  bool   `json:"usercontrol" structs:"usercontrol"`
-	Requiredflag bool   `json:"requiredflag" structs:"requiredflag"`
-	Creationtime int32  `json:"creationtime" structs:"creationtime"`
-}
-
 func (dbobj dbcon) createLegalBasis(brief string, newbrief string, module string, shortdesc string,
 	fulldesc string, basistype string, requiredmsg string, status string,
 	usercontrol bool, requiredflag bool) (bool, error) {
