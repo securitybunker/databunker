@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"reflect"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/securitybunker/databunker/src/utils"
@@ -32,40 +31,16 @@ func (e mainEnv) pactivityCreate(w http.ResponseWriter, r *http.Request, ps http
 		w.Write([]byte(`{"status":"ok"}`))
 	}()
 
-	title := ""
-	script := ""
-	fulldesc := ""
 	legalbasis := ""
-	newactivity := ""
-	applicableto := ""
-	if value, ok := records["title"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			title = value.(string)
-		}
-	}
+	title := utils.GetStringValue(records["title"])
 	if len(title) == 0 {
 		title = activity
 	}
-	if value, ok := records["script"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			script = value.(string)
-		}
-	}
-	if value, ok := records["fulldesc"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			fulldesc = value.(string)
-		}
-	}
-	if value, ok := records["activity"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			newactivity = value.(string)
-		}
-	}
-	if value, ok := records["applicableto"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			applicableto = value.(string)
-		}
-	}
+	script := utils.GetStringValue(records["script"])
+	fulldesc := utils.GetStringValue(records["fulldesc"])
+	newactivity := utils.GetStringValue(records["activity"])
+	applicableto := utils.GetStringValue(records["applicableto"])
+
 	e.db.createProcessingActivity(activity, newactivity, title, script, fulldesc, legalbasis, applicableto)
 }
 
