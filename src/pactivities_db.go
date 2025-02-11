@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"reflect"
 	"strings"
 	"time"
 
@@ -69,12 +68,7 @@ func (dbobj dbcon) linkProcessingActivity(activity string, brief string) (bool, 
 	if raw == nil {
 		return false, errors.New("not found")
 	}
-	legalbasis := ""
-	if value, ok := raw["legalbasis"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			legalbasis = value.(string)
-		}
-	}
+	legalbasis := utils.GetStringValue(raw["legalbasis"])
 	briefs := strings.Split(legalbasis, ",")
 	if utils.SliceContains(briefs, brief) == true {
 		// nothing to do here
@@ -100,12 +94,7 @@ func (dbobj dbcon) unlinkProcessingActivity(activity string, brief string) (bool
 	if raw == nil {
 		return false, errors.New("not found")
 	}
-	legalbasis := ""
-	if val, ok := raw["legalbasis"]; ok {
-		if reflect.TypeOf(val) == reflect.TypeOf("string") {
-			legalbasis = val.(string)
-		}
-	}
+	legalbasis := utils.GetStringValue(raw["legalbasis"])
 	briefs := strings.Split(legalbasis, ",")
 	if utils.SliceContains(briefs, brief) == false {
 		// nothing to do here
