@@ -9,7 +9,6 @@ import (
 )
 
 func ReturnError(w http.ResponseWriter, r *http.Request, message string, code int, err error, event *audit.AuditEvent) {
-	log.Printf("[%d] %s %s -> Return error\n", code, r.Method, r.URL.Path)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
 	fmt.Fprintf(w, `{"status":"error","message":%q}`, message)
@@ -18,9 +17,9 @@ func ReturnError(w http.ResponseWriter, r *http.Request, message string, code in
 		event.Msg = message
 		if err != nil {
 			event.Debug = err.Error()
-			log.Printf("Generate error response: %s, Error: %s\n", message, err.Error())
+			log.Printf("ERROR [%d] %s %s -> %s : %s", code, r.Method, r.URL.Path, message, event.Debug)
 		} else {
-			log.Printf("Generate error response: %s\n", message)
+			log.Printf("ERROR [%d] %s %s -> %s", code, r.Method, r.URL.Path, message)
 		}
 	}
 	//http.Error(w, http.StatusText(405), 405)
