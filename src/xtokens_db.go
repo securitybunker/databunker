@@ -50,13 +50,12 @@ func (dbobj dbcon) createRootXtoken(customRootXtoken string) (string, error) {
 	return rootToken, nil
 }
 
-func (dbobj dbcon) generateUserLoginXtoken(userTOKEN string) (string, string, error) {
-	// check if user record exists
-	record, err := dbobj.lookupUserRecord(userTOKEN)
-	if record == nil || err != nil {
-		// not found
-		return "", "", errors.New("not found")
-	}
+func (dbobj dbcon) genUserLoginXtoken(userTOKEN string) (string, string, error) {
+	// record, err := dbobj.lookupUserRecord(userTOKEN)
+	// if record == nil || err != nil {
+	// 	// not found
+	// 	return "", "", errors.New("not found")
+	// }
 	tokenUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return "", "", err

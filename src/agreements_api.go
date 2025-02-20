@@ -16,16 +16,25 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	identity := ps.ByName("identity")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
-	event := audit.CreateAuditEvent("accept agreement by "+brief, identity, mode, identity)
+
+	brief = utils.NormalizeBrief(brief)
+	event := audit.CreateAuditEvent("accept agreement for "+brief, identity, mode, identity)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
-	if utils.ValidateMode(mode) == false {
-		utils.ReturnError(w, r, "bad mode", 405, nil, event)
+	strictCheck := true
+	if mode == "phone" || mode == "email" {
+		strictCheck = false
+	}
+	userTOKEN, _, err := e.getUserToken(w, r, mode, identity, event, strictCheck)
+	if strictCheck == true && userTOKEN == "" {
 		return
 	}
-	brief = utils.NormalizeBrief(brief)
+	if err != nil {
+		return
+	}
+
 	if utils.CheckValidBrief(brief) == false {
-		utils.ReturnError(w, r, "bad brief format", 405, nil, event)
+		utils.ReturnError(w, r, "incorrect brief format", 405, nil, event)
 		return
 	}
 	exists, err := e.db.checkLegalBasis(brief)
@@ -37,64 +46,32 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 		utils.ReturnError(w, r, "not found", 404, nil, event)
 		return
 	}
-	userTOKEN := ""
-	if mode == "token" {
-		if utils.EnforceUUID(w, identity, event) == false {
-			return
-		}
-		userBson, err := e.db.lookupUserRecord(identity)
-		if err != nil || userBson == nil {
-			utils.ReturnError(w, r, "internal error", 405, err, event)
-			return
-		}
-		if e.EnforceAuth(w, r, event) == "" {
-			return
-		}
-		userTOKEN = identity
-	} else {
-		userBson, err := e.db.lookupUserRecordByIndex(mode, identity, e.conf)
-		if err != nil {
-			utils.ReturnError(w, r, "internal error", 405, err, event)
-			return
-		}
-		if userBson != nil {
-			userTOKEN = userBson["token"].(string)
-			event.Record = userTOKEN
-		} else {
-			if mode == "login" {
-				utils.ReturnError(w, r, "internal error", 405, nil, event)
-				return
-			}
-			// else user not found - we allow to save consent for unlinked users!
-		}
-	}
-
-	records, err := utils.GetJSONPostMap(r)
+	postData, err := utils.GetJSONPostMap(r)
 	if err != nil {
 		utils.ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	starttime := int32(0)
 	expiration := int32(0)
-	referencecode := utils.GetStringValue(records["referencecode"])
-	lastmodifiedby := utils.GetStringValue(records["lastmodifiedby"])
-	agreementmethod := utils.GetStringValue(records["agreementmethod"])
-	status := utils.GetStringValue(records["status"])
+	referencecode := utils.GetStringValue(postData["referencecode"])
+	lastmodifiedby := utils.GetStringValue(postData["lastmodifiedby"])
+	agreementmethod := utils.GetStringValue(postData["agreementmethod"])
+	status := utils.GetStringValue(postData["status"])
 	if len(status) == 0 {
 		status = "yes"
 	} else {
 		status = utils.NormalizeConsentValue(status)
 	}
-	if value, ok := records["expiration"]; ok {
-		switch records["expiration"].(type) {
+	if value, ok := postData["expiration"]; ok {
+		switch postData["expiration"].(type) {
 		case string:
 			expiration, _ = utils.ParseExpiration(value.(string))
 		case float64:
 			expiration = int32(value.(float64))
 		}
 	}
-	if value, ok := records["starttime"]; ok {
-		switch records["starttime"].(type) {
+	if value, ok := postData["starttime"]; ok {
+		switch postData["starttime"].(type) {
 		case string:
 			starttime, _ = utils.ParseExpiration(value.(string))
 		case float64:
@@ -107,6 +84,7 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	case "phone":
 		identity = utils.NormalizePhone(identity, e.conf.Sms.DefaultCountry)
 	}
+
 	log.Printf("Processing agreement, status: %s\n", status)
 	e.db.acceptAgreement(userTOKEN, mode, identity, brief, status, agreementmethod,
 		referencecode, lastmodifiedby, starttime, expiration)
@@ -130,15 +108,23 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	identity := ps.ByName("identity")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
-	event := audit.CreateAuditEvent("withdraw agreement by "+brief, identity, mode, identity)
-	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
-
-	if utils.ValidateMode(mode) == false {
-		utils.ReturnError(w, r, "bad mode", 405, nil, event)
-		return
-	}
 
 	brief = utils.NormalizeBrief(brief)
+	event := audit.CreateAuditEvent("withdraw agreement for "+brief, identity, mode, identity)
+	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
+
+	strictCheck := true
+	if mode == "phone" || mode == "email" {
+		strictCheck = false
+	}
+	userTOKEN, userBSON, err := e.getUserToken(w, r, mode, identity, event, strictCheck)
+	if strictCheck == true && userTOKEN == "" {
+		//log.Printf("Strict check err")
+		return
+	}
+	if err != nil {
+		return
+	}
 	if utils.CheckValidBrief(brief) == false {
 		utils.ReturnError(w, r, "bad brief format", 405, nil, event)
 		return
@@ -152,42 +138,12 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 		utils.ReturnError(w, r, "not  found", 405, nil, event)
 		return
 	}
-	userTOKEN := ""
-	authResult := ""
-	if mode == "token" {
-		if utils.EnforceUUID(w, identity, event) == false {
-			return
-		}
-		userBson, _ := e.db.lookupUserRecord(identity)
-		if userBson == nil {
-			utils.ReturnError(w, r, "internal error", 405, nil, event)
-			return
-		}
-		authResult = e.EnforceAuth(w, r, event)
-		if authResult == "" {
-			return
-		}
-		userTOKEN = identity
-	} else {
-		// TODO: decode url in code!
-		userBson, _ := e.db.lookupUserRecordByIndex(mode, identity, e.conf)
-		if userBson != nil {
-			userTOKEN = userBson["token"].(string)
-			event.Record = userTOKEN
-		} else {
-			if mode == "login" {
-				utils.ReturnError(w, r, "internal error", 405, nil, event)
-				return
-			}
-			// else user not found - we allow to save consent for unlinked users!
-		}
-	}
-	records, err := utils.GetJSONPostMap(r)
+	postData, err := utils.GetJSONPostMap(r)
 	if err != nil {
 		utils.ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	lastmodifiedby := utils.GetStringValue(records["lastmodifiedby"])
+	lastmodifiedby := utils.GetStringValue(postData["lastmodifiedby"])
 	selfService := false
 	if value, ok := lbasis["usercontrol"]; ok {
 		if reflect.TypeOf(value).Kind() == reflect.Bool {
@@ -199,6 +155,7 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 			}
 		}
 	}
+	authResult := e.EnforceAuth(w, r, event)
 	if selfService == false {
 		// user can change consent only for briefs defined in self-service
 		if len(authResult) == 0 {
@@ -207,9 +164,8 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 			}
 		}
 	}
-
 	if authResult == "login" && selfService == false {
-		rtoken, rstatus, err := e.db.saveUserRequest("agreement-withdraw", userTOKEN, "", brief, nil, e.conf)
+		rtoken, rstatus, err := e.db.saveUserRequest("agreement-withdraw", userTOKEN, userBSON, "", brief, nil, e.conf)
 		if err != nil {
 			utils.ReturnError(w, r, "internal error", 405, err, event)
 			return
@@ -239,10 +195,10 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 
 func (e mainEnv) agreementRevokeAll(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	brief := ps.ByName("brief")
+	brief = utils.NormalizeBrief(brief)
 	if e.EnforceAdmin(w, r, nil) == "" {
 		return
 	}
-	brief = utils.NormalizeBrief(brief)
 	if utils.CheckValidBrief(brief) == false {
 		utils.ReturnError(w, r, "bad brief format", 405, nil, nil)
 		return
@@ -265,48 +221,11 @@ func (e mainEnv) agreementRevokeAll(w http.ResponseWriter, r *http.Request, ps h
 func (e mainEnv) getUserAgreements(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit.CreateAuditEvent("privacy agreements for "+mode, identity, mode, identity)
+	event := audit.CreateAuditEvent("get agreements for "+mode, identity, mode, identity)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
-	if utils.ValidateMode(mode) == false {
-		utils.ReturnError(w, r, "bad mode", 405, nil, event)
-		return
-	}
-
-	userTOKEN := ""
-	if mode == "token" {
-		if utils.EnforceUUID(w, identity, event) == false {
-			return
-		}
-		userBson, _ := e.db.lookupUserRecord(identity)
-		if userBson == nil {
-			utils.ReturnError(w, r, "internal error", 405, nil, event)
-			return
-		}
-		if e.EnforceAuth(w, r, event) == "" {
-			return
-		}
-		userTOKEN = identity
-	} else {
-		// TODO: decode url in code!
-		userBson, _ := e.db.lookupUserRecordByIndex(mode, identity, e.conf)
-		if userBson != nil {
-			userTOKEN = userBson["token"].(string)
-			event.Record = userTOKEN
-			if e.EnforceAuth(w, r, event) == "" {
-				return
-			}
-		} else {
-			if mode == "login" {
-				utils.ReturnError(w, r, "internal error", 405, nil, event)
-				return
-			}
-			// else user not found - we allow to save consent for unlinked users!
-
-		}
-	}
-	// make sure that user is logged in here, unless he wants to cancel emails
-	if e.EnforceAuth(w, r, event) == "" {
+	userTOKEN, _, _ := e.getUserToken(w, r, mode, identity, event, true)
+	if userTOKEN == "" {
 		return
 	}
 	var resultJSON []byte
@@ -317,6 +236,7 @@ func (e mainEnv) getUserAgreements(w http.ResponseWriter, r *http.Request, ps ht
 	} else {
 		resultJSON, numRecords, err = e.db.listAgreementRecordsByIdentity(identity)
 	}
+
 	if err != nil {
 		utils.ReturnError(w, r, "internal error", 405, err, event)
 		return
@@ -331,14 +251,15 @@ func (e mainEnv) getUserAgreement(w http.ResponseWriter, r *http.Request, ps htt
 	identity := ps.ByName("identity")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
-	event := audit.CreateAuditEvent("privacy agreements for "+mode, identity, mode, identity)
+
+	brief = utils.NormalizeBrief(brief)
+	event := audit.CreateAuditEvent("get agreements for "+brief, identity, mode, identity)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
-	if utils.ValidateMode(mode) == false {
-		utils.ReturnError(w, r, "bad mode", 405, nil, event)
+	userTOKEN, _, _ := e.getUserToken(w, r, mode, identity, event, true)
+	if userTOKEN == "" {
 		return
 	}
-	brief = utils.NormalizeBrief(brief)
 	if utils.CheckValidBrief(brief) == false {
 		utils.ReturnError(w, r, "bad brief format", 405, nil, event)
 		return
@@ -352,43 +273,8 @@ func (e mainEnv) getUserAgreement(w http.ResponseWriter, r *http.Request, ps htt
 		utils.ReturnError(w, r, "not found", 404, nil, event)
 		return
 	}
-	userTOKEN := ""
-	if mode == "token" {
-		if utils.EnforceUUID(w, identity, event) == false {
-			return
-		}
-		userBson, _ := e.db.lookupUserRecord(identity)
-		if userBson == nil {
-			utils.ReturnError(w, r, "internal error", 405, nil, event)
-			return
-		}
-		if e.EnforceAuth(w, r, event) == "" {
-			return
-		}
-		userTOKEN = identity
-	} else {
-		// TODO: decode url in code!
-		userBson, _ := e.db.lookupUserRecordByIndex(mode, identity, e.conf)
-		if userBson != nil {
-			userTOKEN = userBson["token"].(string)
-			event.Record = userTOKEN
-			if e.EnforceAuth(w, r, event) == "" {
-				return
-			}
-		} else {
-			if mode == "login" {
-				utils.ReturnError(w, r, "internal error", 405, nil, event)
-				return
-			}
-			// else user not found - we allow to save consent for unlinked users!
-		}
-	}
-	// make sure that user is logged in here, unless he wants to cancel emails
-	if e.EnforceAuth(w, r, event) == "" {
-		return
-	}
-	var resultJSON []byte
-	resultJSON, err = e.db.viewAgreementRecord(userTOKEN, brief)
+
+	resultJSON, err := e.db.viewAgreementRecord(userTOKEN, brief)
 	if err != nil {
 		utils.ReturnError(w, r, "internal error", 405, err, event)
 		return
@@ -430,7 +316,7 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 	} else {
 		userBson, _ = e.db.lookupUserRecordByIndex(mode, identity, e.conf)
 		if userBson != nil {
-			userTOKEN = userBson["token"].(string)
+			userTOKEN = utils.GetUuidString(userBson["token"])
 			event.Record = userTOKEN
 		}
 	}

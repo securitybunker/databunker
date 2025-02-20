@@ -118,7 +118,10 @@ func TestCreateUpdateUser(t *testing.T) {
 		t.Fatalf("Failed to get audit event/s\n")
 	}
 	records := raw["rows"].([]interface{})
-	if raw["total"].(float64) != 6 {
+	for num, r := range records {
+		log.Printf("audit record %d %v", num, r)
+	}
+	if raw["total"].(float64) != 8 {
 		t.Fatalf("Wrong number of audit event/s\n")
 	}
 	if len(records) != 1 {

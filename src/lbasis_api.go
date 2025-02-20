@@ -20,30 +20,30 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 		utils.ReturnError(w, r, "bad brief format", 405, nil, nil)
 		return
 	}
-	records, err := utils.GetJSONPostMap(r)
+	postData, err := utils.GetJSONPostMap(r)
 	if err != nil {
 		utils.ReturnError(w, r, "failed to decode request body", 405, err, nil)
 		return
 	}
-	newbrief := utils.GetStringValue(records["brief"])
+	newbrief := utils.GetStringValue(postData["brief"])
 	if len(newbrief) > 0 && newbrief != brief {
 		if utils.CheckValidBrief(newbrief) == false {
 			utils.ReturnError(w, r, "bad brief format", 405, nil, nil)
 			return
 		}
 	}
-	status := utils.GetStringValue(records["status"])
-	module := utils.GetStringValue(records["module"])
-	fulldesc := utils.GetStringValue(records["fulldesc"])
-	shortdesc := utils.GetStringValue(records["shortdesc"])
-	basistype := utils.GetStringValue(records["basistype"])
-	requiredmsg := utils.GetStringValue(records["requiredmsg"])
+	status := utils.GetStringValue(postData["status"])
+	module := utils.GetStringValue(postData["module"])
+	fulldesc := utils.GetStringValue(postData["fulldesc"])
+	shortdesc := utils.GetStringValue(postData["shortdesc"])
+	basistype := utils.GetStringValue(postData["basistype"])
+	requiredmsg := utils.GetStringValue(postData["requiredmsg"])
 	usercontrol := false
 	requiredflag := false
 	if status != "disabled" {
 		status = "active"
 	}
-	if value, ok := records["usercontrol"]; ok {
+	if value, ok := postData["usercontrol"]; ok {
 		if reflect.TypeOf(value).Kind() == reflect.Bool {
 			usercontrol = value.(bool)
 		} else {
@@ -53,7 +53,7 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 			}
 		}
 	}
-	if value, ok := records["requiredflag"]; ok {
+	if value, ok := postData["requiredflag"]; ok {
 		if reflect.TypeOf(value).Kind() == reflect.Bool {
 			requiredflag = value.(bool)
 		} else {

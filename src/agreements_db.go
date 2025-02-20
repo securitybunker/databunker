@@ -95,7 +95,10 @@ func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, identity strin
 func (dbobj dbcon) linkAgreementRecords(userTOKEN string, encIdentity string) error {
 	bdoc := bson.M{}
 	bdoc["token"] = userTOKEN
-	_, err := dbobj.store.UpdateRecord2(storage.TblName.Agreements, "token", "", "who", encIdentity, &bdoc, nil)
+	_, err := dbobj.store.UpdateRecord(storage.TblName.Agreements, "who", encIdentity, &bdoc)
+	if err != nil {
+		log.Printf("db error: %s", err)
+	}
 	return err
 }
 
@@ -114,7 +117,6 @@ func (dbobj dbcon) withdrawAgreement(userTOKEN string, brief string, mode string
 	bdoc["status"] = "no"
 	bdoc["lastmodifiedby"] = lastmodifiedby
 	if len(userTOKEN) > 0 {
-		log.Printf("%s %s\n", userTOKEN, brief)
 		dbobj.store.UpdateRecord2(storage.TblName.Agreements, "token", userTOKEN, "brief", brief, &bdoc, nil)
 	} else if len(identity) > 0 {
 		dbobj.store.UpdateRecord2(storage.TblName.Agreements, "who", encIdentity, "brief", brief, &bdoc, nil)
@@ -132,6 +134,7 @@ func (dbobj dbcon) listAgreementRecords(userTOKEN string) ([]byte, int, error) {
 		return []byte("[]"), 0, err
 	}
 	for _, rec := range records {
+		rec["token"] = utils.GetUuidString(rec["token"])
 		encIdentity := rec["who"].(string)
 		if len(encIdentity) > 0 {
 			identity, _ := utils.BasicStringDecrypt(encIdentity, dbobj.masterKey, dbobj.GetCode())
@@ -159,6 +162,7 @@ func (dbobj dbcon) listAgreementRecordsByIdentity(identity string) ([]byte, int,
 		return []byte("[]"), 0, err
 	}
 	for _, rec := range records {
+	        rec["token"] = utils.GetUuidString(rec["token"])
 		rec["who"] = identity
 	}
 	resultJSON, err := json.Marshal(records)
@@ -174,6 +178,7 @@ func (dbobj dbcon) viewAgreementRecord(userTOKEN string, brief string) ([]byte, 
 	if record == nil || err != nil {
 		return nil, err
 	}
+	record["token"] = utils.GetUuidString(record["token"])
 	encIdentity := record["who"].(string)
 	if len(encIdentity) > 0 {
 		identity, _ := utils.BasicStringDecrypt(encIdentity, dbobj.masterKey, dbobj.GetCode())
@@ -200,7 +205,7 @@ func (dbobj dbcon) expireAgreementRecords(notifyURL string) error {
 		bdoc := bson.M{}
 		bdoc["when"] = now
 		bdoc["status"] = "expired"
-		userTOKEN := rec["token"].(string)
+		userTOKEN := utils.GetUuidString(rec["token"])
 		brief := rec["brief"].(string)
 		log.Printf("This agreement record is expired: %s - %s\n", userTOKEN, brief)
 		if len(userTOKEN) > 0 {

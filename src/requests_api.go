@@ -13,7 +13,8 @@ import (
 
 // This function retrieves all requests that require admin approval. This function supports result pager.
 func (e mainEnv) getUserRequests(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	if e.EnforceAuth(w, r, nil) == "" {
+	event := audit.CreateAuditEvent("view user requests", "", "", "")
+	if e.EnforceAdmin(w, r, event) == "" {
 		return
 	}
 	var offset int32
@@ -31,7 +32,7 @@ func (e mainEnv) getUserRequests(w http.ResponseWriter, r *http.Request, ps http
 	}
 	resultJSON, counter, err := e.db.getRequests(status, offset, limit)
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, nil)
+		utils.ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -47,13 +48,11 @@ func (e mainEnv) getCustomUserRequests(w http.ResponseWriter, r *http.Request, p
 	event := audit.CreateAuditEvent("get user privacy requests", identity, mode, identity)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
-	if e.EnforceAuth(w, r, event) == "" {
-		return
-	}
-	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
+	userTOKEN, _, _ := e.getUserToken(w, r, mode, identity, event, true)
 	if userTOKEN == "" {
 		return
 	}
+
 	var offset int32
 	var limit int32 = 10
 	args := r.URL.Query()
@@ -97,17 +96,22 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 	if len(userTOKEN) != 0 {
 		event.Record = userTOKEN
 	}
-	if e.EnforceAdmin(w, r, event) == "" {
+	if e.EnforceAuth(w, r, event) == "" {
 		return
 	}
-	change := utils.GetStringValue(requestInfo["change"])
 	appName := utils.GetStringValue(requestInfo["app"])
 	brief := utils.GetStringValue(requestInfo["brief"])
 	if strings.HasPrefix(action, "plugin") {
 		brief = ""
 	}
+	userBSON, err := e.db.lookupUserRecord(userTOKEN)
+	if err != nil {
+		utils.ReturnError(w, r, "internal error", 405, err, event)
+		return
+	}
 	if len(appName) > 0 {
-		resultJSON, err = e.db.getUserApp(userTOKEN, appName, e.conf)
+		resultJSON, err = e.db.getUserApp(userTOKEN, userBSON, appName, e.conf)
+
 	} else if len(brief) > 0 {
 		resultJSON, err = e.db.viewAgreementRecord(userTOKEN, brief)
 	} else {
@@ -134,8 +138,15 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 	if len(resultJSON) > 0 {
 		str = fmt.Sprintf(`%s,"original":%s`, str, resultJSON)
 	}
-	if len(change) > 0 {
-		str = fmt.Sprintf(`%s,"change":%s`, str, change)
+	if value, ok := requestInfo["change"]; ok {
+		change := value.(string)
+		//recBson := bson.M{}
+	        if len(change) > 0 {
+			change2, _ := e.db.userDecrypt(userBSON, change)
+			//log.Printf("change: %s", change2)
+			requestInfo["change"] = change2
+			str = fmt.Sprintf(`%s,"change":%s`, str, string(change2))
+		}
 	}
 	str = fmt.Sprintf(`{%s}`, str)
 	//fmt.Printf("result: %s\n", str)
@@ -154,12 +165,12 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 	if authResult == "" {
 		return
 	}
-	records, err := utils.GetJSONPostMap(r)
+	postData, err := utils.GetJSONPostMap(r)
 	if err != nil {
 		utils.ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	reason := utils.GetStringValue(records["reason"])
+	reason := utils.GetStringValue(postData["reason"])
 	requestInfo, err := e.db.getRequest(request)
 	if err != nil {
 		utils.ReturnError(w, r, "internal error", 405, err, event)
@@ -188,6 +199,16 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		utils.ReturnError(w, r, "not found", 405, err, event)
 		return
 	}
+	if value, ok := requestInfo["change"]; ok {
+		change := value.(string)
+		//recBson := bson.M{}
+		if len(change) > 0 {
+			change2, _ := e.db.userDecrypt(userBSON, change)
+			//log.Printf("change: %s", change2)
+			requestInfo["change"] = change2
+		}
+	}
+
 	if action == "forget-me" {
 		email := utils.GetStringValue(userBSON["email"])
 		if len(email) > 0 {
@@ -220,7 +241,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		notifyProfileChange(notifyURL, oldJSON, newJSON, "token", userTOKEN)
 	} else if action == "change-app-data" {
 		app := requestInfo["app"].(string)
-		_, err = e.db.updateAppRecord(requestInfo["change"].([]uint8), userTOKEN, app, event, e.conf)
+		_, err = e.db.updateAppRecord(requestInfo["change"].([]uint8), userTOKEN, userBSON, app, event, e.conf)
 		if err != nil {
 			utils.ReturnError(w, r, "internal error", 405, err, event)
 			return
@@ -234,6 +255,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		pluginid := requestInfo["brief"].(string)
 		e.pluginUserDelete(pluginid, userTOKEN)
 	}
+
 	e.db.updateRequestStatus(request, "approved", reason)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(200)
@@ -248,12 +270,12 @@ func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps ht
 	if utils.EnforceUUID(w, request, event) == false {
 		return
 	}
-	records, err := utils.GetJSONPostMap(r)
+	postData, err := utils.GetJSONPostMap(r)
 	if err != nil {
 		utils.ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	reason := utils.GetStringValue(records["reason"])
+	reason := utils.GetStringValue(postData["reason"])
 	requestInfo, err := e.db.getRequest(request)
 	if err != nil {
 		utils.ReturnError(w, r, "internal error", 405, err, event)

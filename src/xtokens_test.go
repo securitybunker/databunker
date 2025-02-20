@@ -101,7 +101,7 @@ func TestUserLoginDelete(t *testing.T) {
 	}
 	raw, _ = helpWithdrawAgreement("token", userTOKEN, "contract1")
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
-		t.Fatalf("Failed to accept on consent")
+		t.Fatalf("Failed to withdraw on consent")
 	}
 	raw, _ = helpChangeUser("token", userTOKEN, `{"login":null}`)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {

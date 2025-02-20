@@ -20,55 +20,33 @@ func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps http
 	event := audit.CreateAuditEvent("create shareable record by "+mode, identity, "token", identity)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
-	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
+	userTOKEN, _, _ := e.getUserToken(w, r, mode, identity, event, true)
 	if userTOKEN == "" {
 		return
 	}
-	if e.EnforceAuth(w, r, event) == "" {
-		return
-	}
-	records, err := utils.GetJSONPostMap(r)
+	postData, err := utils.GetJSONPostMap(r)
 	if err != nil {
 		utils.ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	fields := ""
-	session := ""
-	partner := ""
-	appName := ""
+	fields := utils.GetStringValue(postData["fields"])
+	session := utils.GetStringValue(postData["session"])
+	partner := utils.GetStringValue(postData["partner"])
+	appName := utils.GetStringValue(postData["app"])
 	expiration := e.conf.Policy.MaxShareableRecordRetentionPeriod
-	if value, ok := records["fields"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			fields = value.(string)
+
+	if len(appName) > 0 {
+		appName = strings.ToLower(appName)
+		if utils.CheckValidApp(appName) == false {
+			utils.ReturnError(w, r, "unknown app name", 405, nil, event)
 		}
 	}
-	if value, ok := records["session"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			session = value.(string)
-		}
-	}
-	if value, ok := records["partner"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			partner = value.(string)
-		}
-	}
-	if value, ok := records["expiration"]; ok {
+	if value, ok := postData["expiration"]; ok {
 		if reflect.TypeOf(value) == reflect.TypeOf("string") {
 			expiration = utils.SetExpiration(e.conf.Policy.MaxShareableRecordRetentionPeriod, value.(string))
 		} else {
 			utils.ReturnError(w, r, "failed to parse expiration field", 405, err, event)
 			return
-		}
-	}
-	if value, ok := records["app"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			appName = strings.ToLower(value.(string))
-			if len(appName) > 0 && utils.CheckValidApp(appName) == false {
-				utils.ReturnError(w, r, "unknown app name", 405, nil, event)
-			}
-		} else {
-			// type is different
-			utils.ReturnError(w, r, "failed to parse app field", 405, nil, event)
 		}
 	}
 	if len(expiration) == 0 {
@@ -106,10 +84,17 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 	if len(recordInfo.token) > 0 {
 		event.Record = recordInfo.token
 		event.App = recordInfo.appName
-		log.Printf("field to display: %s, user token: %s\n", recordInfo.fields, recordInfo.token)
+		log.Printf("fields to display: %s, user token: %s\n", recordInfo.fields, recordInfo.token)
 
 		if len(recordInfo.appName) > 0 {
-			resultJSON, err = e.db.getUserApp(recordInfo.token, recordInfo.appName, e.conf)
+			if len(recordInfo.token) > 0 {
+				userBSON, err := e.db.lookupUserRecord(recordInfo.token)
+				if err != nil {
+					utils.ReturnError(w, r, "internal error", 405, err, event)
+					return
+				}
+				resultJSON, err = e.db.getUserApp(recordInfo.token, userBSON, recordInfo.appName, e.conf)
+			}
 		} else if len(recordInfo.session) > 0 {
 			_, resultJSON, _, err = e.db.getSession(recordInfo.session)
 		} else {
@@ -123,7 +108,7 @@ func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter
 			utils.ReturnError(w, r, "not found", 405, err, event)
 			return
 		}
-		log.Printf("Full json: %s\n", resultJSON)
+		//log.Printf("Full json: %s\n", resultJSON)
 		if len(recordInfo.fields) > 0 {
 			raw := make(map[string]interface{})
 			//var newJSON json

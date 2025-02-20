@@ -14,7 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (dbobj dbcon) getUserApp(userTOKEN string, appName string, conf Config) ([]byte, error) {
+func (dbobj dbcon) getUserApp(userTOKEN string, userBSON map[string]interface{}, appName string, conf Config) ([]byte, error) {
 	appNameFull := "app_" + appName
 	var record bson.M
 	var err error
@@ -30,7 +30,7 @@ func (dbobj dbcon) getUserApp(userTOKEN string, appName string, conf Config) ([]
 		return nil, nil
 	}
 	encData0 := record["data"].(string)
-	return dbobj.userDecrypt(userTOKEN, encData0)
+	return dbobj.userDecrypt(userBSON, encData0)
 }
 
 func (dbobj dbcon) deleteUserApp(userTOKEN string, appName string, conf Config) {
@@ -55,10 +55,10 @@ func (dbobj dbcon) deleteUserApps(userTOKEN string, conf Config) {
 	}
 }
 
-func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, appName string, event *audit.AuditEvent, conf Config) (string, error) {
+func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, userBSON map[string]interface{}, appName string, event *audit.AuditEvent, conf Config) (string, error) {
 	appNameFull := "app_" + appName
 	//log.Printf("Going to create app record: %s\n", appName)
-	encodedStr, err := dbobj.userEncrypt(userTOKEN, jsonData)
+	encodedStr, err := dbobj.userEncrypt(userBSON, jsonData)
 	if err != nil {
 		return userTOKEN, err
 	}
@@ -104,16 +104,11 @@ func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, appName st
 	return userTOKEN, err
 }
 
-func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appName string, event *audit.AuditEvent, conf Config) (string, error) {
+func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, userBSON map[string]interface{}, appName string, event *audit.AuditEvent, conf Config) (string, error) {
 	//_, err = collection.InsertOne(context.TODO(), bson.M{"name": "The Go Language2", "genre": "Coding", "authorId": "4"})
 	appNameFull := "app_" + appName
-	userBson, err := dbobj.lookupUserRecord(userTOKEN)
-	if userBson == nil || err != nil {
-		// not found
-		return userTOKEN, err
-	}
 	// get user key
-	userKey := userBson["key"].(string)
+	userKey := userBSON["key"].(string)
 	recordKey, err := base64.StdEncoding.DecodeString(userKey)
 	if err != nil {
 		return userTOKEN, err
@@ -196,11 +191,6 @@ func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, appNa
 // go over app collections and check if we have user record inside
 func (dbobj dbcon) listUserApps(userTOKEN string, conf Config) ([]byte, error) {
 	//_, err = collection.InsertOne(context.TODO(), bson.M{"name": "The Go Language2", "genre": "Coding", "authorId": "4"})
-	record, err := dbobj.lookupUserRecord(userTOKEN)
-	if record == nil || err != nil {
-		// not found
-		return nil, err
-	}
 	var result []string
 	if conf.Generic.UseSeparateAppTables == true {
 		allCollections, err := dbobj.store.GetAllTables()

@@ -12,7 +12,6 @@ import (
 	"github.com/securitybunker/databunker/src/audit"
 	"github.com/securitybunker/databunker/src/storage"
 	"github.com/securitybunker/databunker/src/utils"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -30,25 +29,25 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 	if e.EnforceAdmin(w, r, event) == "" {
 		return
 	}
-	records, err := utils.GetJSONPostMap(r)
+	postData, err := utils.GetJSONPostMap(r)
 	if err != nil {
 		utils.ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	if len(records) == 0 {
+	if len(postData) == 0 {
 		utils.ReturnError(w, r, "empty body", 405, nil, event)
 		return
 	}
-	expirationStr := utils.GetStringValue(records["expiration"])
+	expirationStr := utils.GetStringValue(postData["expiration"])
 	expiration := utils.SetExpiration(e.conf.Policy.MaxSessionRetentionPeriod, expirationStr)
 	log.Printf("Record expiration: %s", expiration)
-	userToken := utils.GetStringValue(records["token"])
-	userLogin := utils.GetStringValue(records["login"])
-	userEmail := utils.GetStringValue(records["email"])
-	userPhone := utils.GetStringValue(records["phone"])
-	userCustomIdx := utils.GetStringValue(records["custom"])
+	userToken := utils.GetStringValue(postData["token"])
+	userLogin := utils.GetStringValue(postData["login"])
+	userEmail := utils.GetStringValue(postData["email"])
+	userPhone := utils.GetStringValue(postData["phone"])
+	userCustomIdx := utils.GetStringValue(postData["custom"])
 
-	var userBson bson.M
+	var userBson map[string]interface{}
 	if len(userLogin) > 0 {
 		userBson, err = e.db.lookupUserRecordByIndex("login", userLogin, e.conf)
 	} else if len(userEmail) > 0 {
@@ -67,10 +66,10 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 	userTOKEN := ""
 	if userBson != nil {
 		event = audit.CreateAuditEvent("create session", session, "session", session)
-		userTOKEN = userBson["token"].(string)
+		userTOKEN = utils.GetUuidString(userBson["token"])
 		event.Record = userTOKEN
 	}
-	jsonData, err := json.Marshal(records)
+	jsonData, err := json.Marshal(postData)
 	if err != nil {
 		utils.ReturnError(w, r, "internal error", 405, err, event)
 		return
@@ -109,26 +108,23 @@ func (e mainEnv) newUserSession(w http.ResponseWriter, r *http.Request, ps httpr
 	event := audit.CreateAuditEvent("create user session by "+mode, identity, mode, identity)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
-	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
+	userTOKEN, _, _ := e.getUserToken(w, r, mode, identity, event, true)
 	if userTOKEN == "" {
 		return
 	}
-	if e.EnforceAuth(w, r, event) == "" {
-		return
-	}
-	records, err := utils.GetJSONPostMap(r)
+	postData, err := utils.GetJSONPostMap(r)
 	if err != nil {
 		utils.ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	if len(records) == 0 {
+	if len(postData) == 0 {
 		utils.ReturnError(w, r, "empty body", 405, nil, event)
 		return
 	}
-	expirationStr := utils.GetStringValue(records["expiration"])
+	expirationStr := utils.GetStringValue(postData["expiration"])
 	expiration := utils.SetExpiration(e.conf.Policy.MaxSessionRetentionPeriod, expirationStr)
 	log.Printf("Record expiration: %s", expiration)
-	jsonData, err := json.Marshal(records)
+	jsonData, err := json.Marshal(postData)
 	if err != nil {
 		utils.ReturnError(w, r, "internal error", 405, err, event)
 		return
@@ -154,13 +150,11 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 	event := audit.CreateAuditEvent("get all user sessions", identity, mode, identity)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
-	userTOKEN := e.loadUserToken(w, r, mode, identity, event)
+	userTOKEN, _, _ := e.getUserToken(w, r, mode, identity, event, true)
 	if userTOKEN == "" {
 		return
 	}
-	if e.EnforceAuth(w, r, event) == "" {
-		return
-	}
+
 	e.db.store.DeleteExpired(storage.TblName.Sessions, "token", userTOKEN)
 	args := r.URL.Query()
 	var offset int32

@@ -23,7 +23,7 @@ func helpServe0(request *http.Request) ([]byte, error) {
 	request.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, request)
-	log.Printf("[%d] %s%s\n", rr.Code, request.Host, request.URL.Path)
+	log.Printf("[%d] %s %s\n", rr.Code, request.Method, request.URL.Path)
 	if rr.Code != 200 {
 		return rr.Body.Bytes(), fmt.Errorf("wrong status: %d", rr.Code)
 	}
@@ -35,7 +35,7 @@ func helpServe(request *http.Request) (map[string]interface{}, error) {
 	request.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, request)
-	log.Printf("[%d] %s%s %s\n", rr.Code, request.Host, request.URL.Path, rr.Body.Bytes())
+	log.Printf("[%d] %s %s %s\n", rr.Code, request.Method, request.URL.Path, rr.Body.Bytes())
 	var raw map[string]interface{}
 	if rr.Body.Bytes()[0] == '{' {
 		json.Unmarshal(rr.Body.Bytes(), &raw)
@@ -50,7 +50,7 @@ func helpServe2(request *http.Request) (map[string]interface{}, error) {
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, request)
-	log.Printf("[%d] %s%s %s\n", rr.Code, request.Host, request.URL.Path, rr.Body.Bytes())
+	log.Printf("[%d] %s %s %s\n", rr.Code, request.Method, request.URL.Path, rr.Body.Bytes())
 	var raw map[string]interface{}
 	if rr.Body.Bytes()[0] == '{' {
 		json.Unmarshal(rr.Body.Bytes(), &raw)
@@ -112,8 +112,8 @@ func TestAnonPage(t *testing.T) {
 		{"url": "/site/site.js", "pattern": "dateFormat"},
 		{"url": "/site/style.css", "pattern": "html"},
 		{"url": "/site/user-profile.html", "pattern": "profile"},
-		{"url": "/not-fund-page.html", "pattern": "not found"},
-		{"url": "/site/not-fund-page.html", "pattern": "not found"},
+		{"url": "/not-found-page.html", "pattern": "endpoint is missing"},
+		{"url": "/site/not-found-page.html", "pattern": "url not found"},
 	}
 	for _, value := range goodJsons {
 		url := "http://localhost:3000" + value["url"].(string)
@@ -121,7 +121,7 @@ func TestAnonPage(t *testing.T) {
 		request := httptest.NewRequest("GET", url, nil)
 		raw, _ := helpServe0(request)
 		if strings.Contains(string(raw), pattern) == false {
-			t.Fatalf("pattern detection failed\n")
+			t.Fatalf("pattern detection failed for %s: %s\nresp: %s", url, pattern, string(raw))
 		}
 	}
 }
