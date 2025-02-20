@@ -408,11 +408,16 @@ func (e mainEnv) getUserToken(w http.ResponseWriter, r *http.Request, mode strin
 		if event != nil {
 			event.Record = userToken
 		}
+		_, exists := r.Header["X-Bunker-Token"]
+                // if strict check is disabled and we have no auth token
+                if exists == false && strictCheck == false {
+                        return userToken, userBSON, nil
+                }
 		//log.Printf("getUserToken -> EnforceAuth()")
 		if e.EnforceAuth(w, r, event) == "" {
 			//log.Printf("XToken validation error")
 			return "", userBSON, errors.New("incorrect access token")
-	}
+		}
 		return userToken, userBSON, nil
 	}
 	// not found
