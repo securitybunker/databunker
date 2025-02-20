@@ -35,7 +35,7 @@ func (e mainEnv) cookieSettings(w http.ResponseWriter, r *http.Request, ps httpr
 }
 
 func (e mainEnv) configurationDump(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	if e.EnforceAuth(w, r, nil) == "" {
+	if e.EnforceAdmin(w, r, nil) == "" {
 		return
 	}
 	resultJSON, _ := json.Marshal(e.conf)
