@@ -5,6 +5,7 @@ package main
 import (
 	"bytes"
 	"compress/gzip"
+	"errors"
 	"io"
 	"log"
 	"math/rand"
@@ -22,7 +23,6 @@ import (
 	"github.com/securitybunker/databunker/src/autocontext"
 	"github.com/securitybunker/databunker/src/storage"
 	"github.com/securitybunker/databunker/src/utils"
-	"go.mongodb.org/mongo-driver/bson"
 	"gopkg.in/yaml.v2"
 )
 
@@ -146,7 +146,7 @@ func (e mainEnv) metrics(w http.ResponseWriter, r *http.Request, ps httprouter.P
 
 // backupDB API call.
 func (e mainEnv) backupDB(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	if e.EnforceAuth(w, r, nil) == "" {
+	if e.EnforceAdmin(w, r, nil) == "" {
 		return
 	}
 	w.WriteHeader(200)
@@ -338,7 +338,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(`{"status":"error", "message":"url not found"}`))
+		w.Write([]byte(`{"status":"error", "message":"endpoint is missing"}`))
 	})
 	router.GlobalOPTIONS = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//if r.Header.Get("Access-Control-Request-Method") != "" {
@@ -384,27 +384,44 @@ func (e mainEnv) dbCleanup() {
 }
 
 // helper function to load user details by idex name
-func (e mainEnv) loadUserToken(w http.ResponseWriter, r *http.Request, mode string, identity string, event *audit.AuditEvent) string {
+func (e mainEnv) getUserToken(w http.ResponseWriter, r *http.Request, mode string, identity string, event *audit.AuditEvent, strictCheck bool) (string, map[string]interface{}, error) {
+	var userBSON map[string]interface{}
 	var err error
 	if utils.ValidateMode(mode) == false {
 		utils.ReturnError(w, r, "bad mode", 405, nil, event)
-		return ""
+		return "", userBSON, errors.New("bad mode")
 	}
-	var userBson bson.M
 	if mode == "token" {
 		if utils.EnforceUUID(w, identity, event) == false {
-			return ""
+			return "", userBSON, errors.New("uuid is incorrect")
 		}
-		userBson, err = e.db.lookupUserRecord(identity)
+		userBSON, err = e.db.lookupUserRecord(identity)
 	} else {
-		userBson, err = e.db.lookupUserRecordByIndex(mode, identity, e.conf)
+		userBSON, err = e.db.lookupUserRecordByIndex(mode, identity, e.conf)
 	}
-	if userBson == nil || err != nil {
+	if err != nil {
 		utils.ReturnError(w, r, "internal error", 405, nil, event)
-		return ""
+		return "", userBSON, err
 	}
-	event.Record = userBson["token"].(string)
-	return event.Record
+	userToken := utils.GetUuidString(userBSON["token"])
+	if len(userToken) > 0 {
+		if event != nil {
+			event.Record = userToken
+		}
+		//log.Printf("getUserToken -> EnforceAuth()")
+		if e.EnforceAuth(w, r, event) == "" {
+			//log.Printf("XToken validation error")
+			return "", userBSON, errors.New("incorrect access token")
+	}
+		return userToken, userBSON, nil
+	}
+	// not found
+	if strictCheck == true {
+		utils.ReturnError(w, r, "not found", 405, nil, event)
+		return "", userBSON, errors.New("not found")
+	}
+	// make sure to check if user is admin
+	return "", userBSON, nil
 }
 
 // CustomResponseWriter struct is a custom wrapper for ResponseWriter
@@ -484,7 +501,7 @@ func (e mainEnv) reqMiddleware(handler http.Handler) http.Handler {
 		} else {
 			statusCounter = 0
 			statusErrorCounter = 0
-			log.Printf("%d %s %s\n", w2.Code, r.Method, r.URL)
+			log.Printf("[%d] %s %s\n", w2.Code, r.Method, r.URL)
 		}
 	})
 }

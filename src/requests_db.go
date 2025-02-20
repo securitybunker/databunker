@@ -7,24 +7,11 @@ import (
 
 	uuid "github.com/hashicorp/go-uuid"
 	"github.com/securitybunker/databunker/src/storage"
+	"github.com/securitybunker/databunker/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type requestEvent struct {
-	// time for update?
-	Creationtime int32  `json:"creationtime"`
-	When         int32  `json:"when"`
-	Token        string `json:"token"`
-	App          string `json:"app,omitempty"`
-	Brief        string `json:"brief,omitempty"`
-	Action       string `json:"action"`
-	Status       string `json:"status"`
-	Change       string `json:"change,omitempty"`
-	Rtoken       string `json:"rtoken"`
-	Reason       string `json:"reason"`
-}
-
-func (dbobj dbcon) saveUserRequest(action string, token string, app string, brief string, change []byte, cfg Config) (string, string, error) {
+func (dbobj dbcon) saveUserRequest(action, token string, userBSON map[string]interface{}, app, brief string, change []byte, cfg Config) (string, string, error) {
 	now := int32(time.Now().Unix())
 	bdoc := bson.M{}
 	bdoc["token"] = token
@@ -39,14 +26,14 @@ func (dbobj dbcon) saveUserRequest(action string, token string, app string, brie
 	record, err := dbobj.store.LookupRecord(storage.TblName.Requests, bdoc)
 	if record != nil {
 		fmt.Printf("This record already exists.\n")
-		return record["rtoken"].(string), "request-exists", nil
+		return utils.GetUuidString(record["rtoken"]), "request-exists", nil
 	}
 	rtoken, _ := uuid.GenerateUUID()
 	bdoc["when"] = now
 	bdoc["rtoken"] = rtoken
 	bdoc["creationtime"] = now
 	if change != nil {
-		encodedStr, err := dbobj.userEncrypt(token, change)
+		encodedStr, err := dbobj.userEncrypt(userBSON, change)
 		if err != nil {
 			return "", "", err
 		}
@@ -71,7 +58,6 @@ func (dbobj dbcon) getRequests(status string, offset int32, limit int32) ([]byte
 	if count == 0 {
 		return []byte("[]"), 0, err
 	}
-	var results []bson.M
 	records, err := dbobj.store.GetList(storage.TblName.Requests, "status", status, offset, limit, "when")
 	if err != nil {
 		return nil, 0, err
@@ -82,7 +68,8 @@ func (dbobj dbcon) getRequests(status string, offset int32, limit int32) ([]byte
 			element["more"] = true
 			delete(element, "change")
 		}
-		results = append(results, element)
+		element["token"] = utils.GetUuidString(element["token"])
+		element["rtoken"] = utils.GetUuidString(element["rtoken"])
 	}
 
 	resultJSON, err := json.Marshal(records)
@@ -109,6 +96,8 @@ func (dbobj dbcon) getUserRequests(userTOKEN string, offset int32, limit int32) 
 			element["more"] = true
 			delete(element, "change")
 		}
+		element["token"] = userTOKEN
+		element["rtoken"] = utils.GetUuidString(element["rtoken"])
 		results = append(results, element)
 	}
 
@@ -119,7 +108,7 @@ func (dbobj dbcon) getUserRequests(userTOKEN string, offset int32, limit int32) 
 	return resultJSON, count, nil
 }
 
-func (dbobj dbcon) getRequest(rtoken string) (bson.M, error) {
+func (dbobj dbcon) getRequest(rtoken string) (map[string]interface{}, error) {
 	record, err := dbobj.store.GetRecord(storage.TblName.Requests, "rtoken", rtoken)
 	if err != nil {
 		return record, err
@@ -129,19 +118,10 @@ func (dbobj dbcon) getRequest(rtoken string) (bson.M, error) {
 	}
 	//fmt.Printf("request record: %s\n", record)
 	userTOKEN := ""
-	change := ""
-	if value, ok := record["token"]; ok {
-		userTOKEN = value.(string)
-	}
-	if value, ok := record["change"]; ok {
-		change = value.(string)
-	}
-	//recBson := bson.M{}
-	if len(change) > 0 {
-		change2, _ := dbobj.userDecrypt(userTOKEN, change)
-		//log.Printf("change: %s", change2)
-		record["change"] = change2
-	}
+	
+	userTOKEN = utils.GetUuidString(record["token"])
+	record["token"] = userTOKEN
+	record["rtoken"] = utils.GetUuidString(record["rtoken"])
 	return record, nil
 }
 

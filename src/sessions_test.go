@@ -56,7 +56,7 @@ func TestCreateQuickSession(t *testing.T) {
 	}
 	sessionTOKEN := raw["session"].(string)
 	time.Sleep(5 * time.Second)
-	log.Printf("After delay--------")
+	log.Printf("After delay")
 	raw, _ = helpGetSession(sessionTOKEN)
 	log.Printf("Got: %v", raw)
 	if _, ok := raw["status"]; !ok || raw["status"].(string) == "ok" {
@@ -74,6 +74,7 @@ func TestCreateSessionRecord(t *testing.T) {
 		t.Fatalf("failed to create user")
 	}
 	userTOKEN := raw["token"].(string)
+	log.Printf("Created user token %s", userTOKEN)
 	data := `{"expiration":"1m","cookie":"abcdefg","login":"alex"}`
 	sid, _ := uuid.GenerateUUID()
 	raw, _ = helpCreateSession(sid, data)

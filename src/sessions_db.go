@@ -70,7 +70,7 @@ func (dbobj dbcon) getSession(sessionUUID string) (int32, []byte, string, error)
 		return 0, nil, "", errors.New("session expired")
 	}
 	when := record["when"].(int32)
-	userTOKEN := record["token"].(string)
+	userTOKEN := utils.GetUuidString(record["token"])
 	encData0 := record["data"].(string)
 	recordKey0 := record["key"].(string)
 	recordKey, err := base64.StdEncoding.DecodeString(recordKey0)

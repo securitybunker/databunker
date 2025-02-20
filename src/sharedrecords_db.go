@@ -31,12 +31,6 @@ func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, expiration 
 	if err != nil {
 		return "", err
 	}
-	// check if user record exists
-	record, err := dbobj.lookupUserRecord(userTOKEN)
-	if record == nil || err != nil {
-		// not found
-		return "", errors.New("not found")
-	}
 	recordUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return "", err
@@ -81,7 +75,7 @@ func (dbobj dbcon) getSharedRecord(recordUUID string) (checkRecordResult, error)
 	if now > record["endtime"].(int32) {
 		return result, errors.New("xtoken expired")
 	}
-	result.token = record["token"].(string)
+	result.token = utils.GetUuidString(record["token"])
 	if value, ok := record["fields"]; ok {
 		result.fields = value.(string)
 	}
@@ -91,6 +85,5 @@ func (dbobj dbcon) getSharedRecord(recordUUID string) (checkRecordResult, error)
 	if value, ok := record["app"]; ok {
 		result.appName = value.(string)
 	}
-
 	return result, nil
 }

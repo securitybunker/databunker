@@ -176,8 +176,12 @@ func (dbobj dbcon) getAuditEvent(atoken string) (string, []byte, error) {
 		return userTOKEN, nil, errors.New("empty token")
 	}
 	userTOKEN, _ = utils.BasicStringDecrypt(userTOKENEnc, dbobj.masterKey, dbobj.GetCode())
+	userBSON, err := dbobj.lookupUserRecord(userTOKEN)
+	if err != nil {
+		return "", nil, err
+	}
 	if len(before) > 0 {
-		before2, after2, _ := dbobj.userDecrypt2(userTOKEN, before, after)
+		before2, after2, _ := dbobj.userDecrypt2(userBSON, before, after)
 		//log.Printf("before: %s", before2)
 		//log.Printf("after: %s", after2)
 		record["before"] = before2
@@ -190,7 +194,7 @@ func (dbobj dbcon) getAuditEvent(atoken string) (string, []byte, error) {
 		return userTOKEN, []byte(result), nil
 	}
 	if len(after) > 0 {
-		after2, _ := dbobj.userDecrypt(userTOKEN, after)
+		after2, _ := dbobj.userDecrypt(userBSON, after)
 		//log.Printf("after: %s", after2)
 		record["after"] = after2
 		result := fmt.Sprintf(`{"after":%s,"debug":"%s"}`, after2, debug)
