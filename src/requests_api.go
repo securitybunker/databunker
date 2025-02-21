@@ -12,7 +12,7 @@ import (
 )
 
 // This function retrieves all requests that require admin approval. This function supports result pager.
-func (e mainEnv) getUserRequests(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) userReqList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	event := audit.CreateAuditEvent("view user requests", "", "", "")
 	if e.EnforceAdmin(w, r, event) == "" {
 		return
@@ -42,7 +42,7 @@ func (e mainEnv) getUserRequests(w http.ResponseWriter, r *http.Request, ps http
 }
 
 // Get list of requests for specific user
-func (e mainEnv) getCustomUserRequests(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) userReqListForUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit.CreateAuditEvent("get user privacy requests", identity, mode, identity)
@@ -73,7 +73,7 @@ func (e mainEnv) getCustomUserRequests(w http.ResponseWriter, r *http.Request, p
 	w.Write([]byte(str))
 }
 
-func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) userReqGet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	request := ps.ByName("request")
 	event := audit.CreateAuditEvent("get user request by request token", request, "request", request)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
@@ -153,7 +153,7 @@ func (e mainEnv) getUserRequest(w http.ResponseWriter, r *http.Request, ps httpr
 	w.Write([]byte(str))
 }
 
-func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) userReqApprove(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	request := ps.ByName("request")
 	event := audit.CreateAuditEvent("approve user request", request, "request", request)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
@@ -251,9 +251,6 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 		mode := "token"
 		lastmodifiedby := "admin"
 		e.db.withdrawAgreement(userTOKEN, brief, mode, userTOKEN, lastmodifiedby)
-	} else if action == "plugin-delete" {
-		pluginid := requestInfo["brief"].(string)
-		e.pluginUserDelete(pluginid, userTOKEN)
 	}
 
 	e.db.updateRequestStatus(request, "approved", reason)
@@ -262,7 +259,7 @@ func (e mainEnv) approveUserRequest(w http.ResponseWriter, r *http.Request, ps h
 	fmt.Fprintf(w, `{"status":"ok","result":"done"}`)
 }
 
-func (e mainEnv) cancelUserRequest(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) userReqCancel(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	request := ps.ByName("request")
 	event := audit.CreateAuditEvent("cancel user request", request, "request", request)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()

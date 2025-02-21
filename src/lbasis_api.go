@@ -10,7 +10,7 @@ import (
 	//"go.mongodb.org/mongo-driver/bson"
 )
 
-func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) legalBasisCreate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	brief := ps.ByName("brief")
 	if e.EnforceAdmin(w, r, nil) == "" {
 		return
@@ -80,7 +80,7 @@ func (e mainEnv) createLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 	w.Write([]byte(`{"status":"ok"}`))
 }
 
-func (e mainEnv) deleteLegalBasis(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) legalBasisDelete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	brief := ps.ByName("brief")
 	if e.EnforceAdmin(w, r, nil) == "" {
 		return
@@ -97,7 +97,7 @@ func (e mainEnv) deleteLegalBasis(w http.ResponseWriter, r *http.Request, ps htt
 	w.Write([]byte(`{"status":"ok"}`))
 }
 
-func (e mainEnv) listLegalBasisRecords(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) legalBasisList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if e.EnforceAdmin(w, r, nil) == "" {
 		return
 	}
