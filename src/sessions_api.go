@@ -14,7 +14,7 @@ import (
 	"github.com/securitybunker/databunker/src/utils"
 )
 
-func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) sessionCreate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	session := ps.ByName("session")
 	var event *audit.AuditEvent
 	defer func() {
@@ -84,7 +84,7 @@ func (e mainEnv) createSession(w http.ResponseWriter, r *http.Request, ps httpro
 	fmt.Fprintf(w, `{"status":"ok","session":"%s"}`, session)
 }
 
-func (e mainEnv) deleteSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) sessionDelete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	session := ps.ByName("session")
 	event := audit.CreateAuditEvent("delete session", session, "session", session)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
@@ -102,7 +102,7 @@ func (e mainEnv) deleteSession(w http.ResponseWriter, r *http.Request, ps httpro
 }
 
 // the following function is currently not used
-func (e mainEnv) newUserSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) sessionNewOld(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit.CreateAuditEvent("create user session by "+mode, identity, mode, identity)
@@ -144,7 +144,7 @@ func (e mainEnv) newUserSession(w http.ResponseWriter, r *http.Request, ps httpr
 	fmt.Fprintf(w, `{"status":"ok","session":"%s"}`, sessionID)
 }
 
-func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) sessionListForUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit.CreateAuditEvent("get all user sessions", identity, mode, identity)
@@ -176,7 +176,7 @@ func (e mainEnv) getUserSessions(w http.ResponseWriter, r *http.Request, ps http
 	fmt.Fprintf(w, `{"status":"ok","total":%d,"rows":[%s]}`, count, data)
 }
 
-func (e mainEnv) getSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) sessionGet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	session := ps.ByName("session")
 	event := audit.CreateAuditEvent("get session", session, "session", session)
 	defer func() {

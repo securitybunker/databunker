@@ -14,7 +14,7 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) sharedRecordCreate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit.CreateAuditEvent("create shareable record by "+mode, identity, "token", identity)
@@ -65,7 +65,7 @@ func (e mainEnv) newSharedRecord(w http.ResponseWriter, r *http.Request, ps http
 	fmt.Fprintf(w, `{"status":"ok","record":%q}`, recordUUID)
 }
 
-func (e mainEnv) getRecord(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) sharedRecordGet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	record := ps.ByName("record")
 	event := audit.CreateAuditEvent("get shareable record by token", record, "record", record)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
