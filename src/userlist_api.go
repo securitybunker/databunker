@@ -9,7 +9,7 @@ import (
 	"github.com/securitybunker/databunker/src/utils"
 )
 
-func (e mainEnv) userList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) userListAll(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if e.EnforceAdmin(w, r, nil) == "" {
 		return
 	}

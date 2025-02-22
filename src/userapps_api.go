@@ -122,7 +122,7 @@ func (e mainEnv) userappChange(w http.ResponseWriter, r *http.Request, ps httpro
 	fmt.Fprintf(w, `{"status":"ok","result":"%s","rtoken":"%s"}`, rstatus, rtoken)
 }
 
-func (e mainEnv) userappListForUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) userappList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit.CreateAuditEvent("get user app list by "+mode, identity, mode, identity)
@@ -197,7 +197,7 @@ func (e mainEnv) userappDelete(w http.ResponseWriter, r *http.Request, ps httpro
 	w.Write([]byte(finalJSON))
 }
 
-func (e mainEnv) userappList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) userappListNames(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if e.EnforceAuth(w, r, nil) == "" {
 		return
 	}

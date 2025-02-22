@@ -12,7 +12,7 @@ import (
 )
 
 // This function retrieves all requests that require admin approval. This function supports result pager.
-func (e mainEnv) userReqList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) userReqListAll(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	event := audit.CreateAuditEvent("view user requests", "", "", "")
 	if e.EnforceAdmin(w, r, event) == "" {
 		return
@@ -42,7 +42,7 @@ func (e mainEnv) userReqList(w http.ResponseWriter, r *http.Request, ps httprout
 }
 
 // Get list of requests for specific user
-func (e mainEnv) userReqListForUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) userReqList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit.CreateAuditEvent("get user privacy requests", identity, mode, identity)

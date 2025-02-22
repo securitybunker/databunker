@@ -97,7 +97,7 @@ func (e mainEnv) legalBasisDelete(w http.ResponseWriter, r *http.Request, ps htt
 	w.Write([]byte(`{"status":"ok"}`))
 }
 
-func (e mainEnv) legalBasisList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) legalBasisListAll(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if e.EnforceAdmin(w, r, nil) == "" {
 		return
 	}

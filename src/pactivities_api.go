@@ -121,7 +121,7 @@ func (e mainEnv) pactivityUnlink(w http.ResponseWriter, r *http.Request, ps http
 	w.Write([]byte(`{"status":"ok"}`))
 }
 
-func (e mainEnv) pactivityList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) pactivityListAll(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if e.EnforceAdmin(w, r, nil) == "" {
 		return
 	}

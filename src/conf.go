@@ -68,15 +68,6 @@ func (dbobj dbcon) GetTenantAdmin(cfg Config) string {
 	return cfg.Generic.AdminEmail
 }
 
-func (e mainEnv) pluginUserDelete(pluginid string, userTOKEN string) {
-	// not implemented
-}
-
-func (e mainEnv) pluginUserLookup(email string) string {
-	// not implemented
-	return ""
-}
-
 func (dbobj dbcon) GlobalUserChangeEmail(oldEmail string, newEmail string) {
 	// not implemented
 }
