@@ -68,7 +68,7 @@ func (e mainEnv) EnforceAdmin(w http.ResponseWriter, r *http.Request, event *aud
 	return ""
 }
 
-func (e mainEnv) auditEventListForUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) auditEventList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	userTOKEN := ps.ByName("token")
 	event := audit.CreateAuditEvent("view audit events", userTOKEN, "token", userTOKEN)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
@@ -99,7 +99,7 @@ func (e mainEnv) auditEventListForUser(w http.ResponseWriter, r *http.Request, p
 	w.Write([]byte(str))
 }
 
-func (e mainEnv) auditEventList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) auditEventListAll(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if e.EnforceAdmin(w, r, nil) == "" {
 		return
 	}

@@ -332,7 +332,6 @@ func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprou
 		if mode == "email" {
 			//notifyURL := e.conf.Notification.NotificationURL
 			//notifyBadLogin(notifyURL, mode, identity)
-			e.pluginUserLookup(identity)
 			//utils.ReturnError(w, r, "record not found", 405, errors.New("record not found"), event)
 			captcha, _ := generateCaptcha()
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")

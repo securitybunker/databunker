@@ -218,7 +218,7 @@ func (e mainEnv) agreementRevokeAll(w http.ResponseWriter, r *http.Request, ps h
 	w.Write([]byte(`{"status":"ok"}`))
 }
 
-func (e mainEnv) agreementListForUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) agreementList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit.CreateAuditEvent("get agreements for "+mode, identity, mode, identity)

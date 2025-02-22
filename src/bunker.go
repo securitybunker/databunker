@@ -205,7 +205,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/sys/backup", e.backupDB)
 
 	router.POST("/v1/user", e.userCreate)
-	router.POST("/v1/users", e.userList)
+	router.POST("/v1/users", e.userListAll)
 	router.GET("/v1/user/:mode/:identity", e.userGet)
 	router.DELETE("/v1/user/:mode/:identity", e.userDelete)
 	router.PUT("/v1/user/:mode/:identity", e.userChange)
@@ -225,16 +225,16 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/request/:request", e.userReqGet)
 	router.POST("/v1/request/:request", e.userReqApprove)
 	router.DELETE("/v1/request/:request", e.userReqCancel)
-	router.GET("/v1/requests/:mode/:identity", e.userReqListForUser)
-	router.GET("/v1/requests", e.userReqList)
+	router.GET("/v1/requests/:mode/:identity", e.userReqList)
+	router.GET("/v1/requests", e.userReqListAll)
 
-	router.GET("/v1/pactivity", e.pactivityList)
+	router.GET("/v1/pactivity", e.pactivityListAll)
 	router.POST("/v1/pactivity/:activity", e.pactivityCreate)
 	router.DELETE("/v1/pactivity/:activity", e.pactivityDelete)
 	router.POST("/v1/pactivity/:activity/:brief", e.pactivityLink)
 	router.DELETE("/v1/pactivity/:activity/:brief", e.pactivityUnlink)
 
-	router.GET("/v1/lbasis", e.legalBasisList)
+	router.GET("/v1/lbasis", e.legalBasisListAll)
 	router.POST("/v1/lbasis/:brief", e.legalBasisCreate)
 	router.DELETE("/v1/lbasis/:brief", e.legalBasisDelete)
 
@@ -242,7 +242,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.POST("/v1/agreement/:brief/:mode/:identity", e.agreementAccept)
 	router.DELETE("/v1/agreement/:brief", e.agreementRevokeAll)
 	router.DELETE("/v1/agreement/:brief/:mode/:identity", e.agreementWithdraw)
-	router.GET("/v1/agreements/:mode/:identity", e.agreementListForUser)
+	router.GET("/v1/agreements/:mode/:identity", e.agreementList)
 
 	//router.GET("/v1/consent/:mode/:identity", e.consentAllUserRecords)
 	//router.GET("/v1/consent/:mode/:identity/:brief", e.consentUserRecord)
@@ -251,19 +251,19 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/userapp/:mode/:identity/:appname", e.userappGet)
 	router.PUT("/v1/userapp/:mode/:identity/:appname", e.userappChange)
 	router.DELETE("/v1/userapp/:mode/:identity/:appname", e.userappDelete)
-	router.GET("/v1/userapp/:mode/:identity", e.userappListForUser)
-	router.GET("/v1/userapps", e.userappList)
+	router.GET("/v1/userapp/:mode/:identity", e.userappList)
+	router.GET("/v1/userapps", e.userappListNames)
 
 	router.GET("/v1/session/:session", e.sessionGet)
 	router.POST("/v1/session/:session", e.sessionCreate)
 	router.DELETE("/v1/session/:session", e.sessionDelete)
 	//router.POST("/v1/sessions/:mode/:identity", e.sessionNewOld)
-	router.GET("/v1/sessions/:mode/:identity", e.sessionListForUser)
+	router.GET("/v1/sessions/:mode/:identity", e.sessionList)
 
 	router.GET("/v1/metrics", e.metrics)
 
-	router.GET("/v1/audit/admin", e.auditEventList)
-	router.GET("/v1/audit/list/:token", e.auditEventListForUser)
+	router.GET("/v1/audit/admin", e.auditEventListAll)
+	router.GET("/v1/audit/list/:token", e.auditEventList)
 	router.GET("/v1/audit/get/:atoken", e.auditEventGet)
 
 	router.GET("/v1/captcha/:code", e.showCaptcha)

@@ -144,7 +144,7 @@ func (e mainEnv) sessionNewOld(w http.ResponseWriter, r *http.Request, ps httpro
 	fmt.Fprintf(w, `{"status":"ok","session":"%s"}`, sessionID)
 }
 
-func (e mainEnv) sessionListForUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (e mainEnv) sessionList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
 	event := audit.CreateAuditEvent("get all user sessions", identity, mode, identity)
