@@ -191,7 +191,7 @@ func GetExpirationNum(val interface{}) int32 {
 			return Atoi(match[1])
 		}
 		if len(match) != 3 {
-			e := fmt.Sprintf("failed to parse expiration value: %s", expiration)
+			log.Printf("failed to parse expiration value: %s", expiration)
 			return 0
 		}
 		num2 := match[1]
@@ -199,6 +199,7 @@ func GetExpirationNum(val interface{}) int32 {
 		if len(format) == 0 {
 			return Atoi(num)
 		}
+		start := int32(0)
 		switch format {
 		case "d": // day
 			start = (Atoi(num2) * 24 * 3600)
