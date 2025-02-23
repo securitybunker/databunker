@@ -197,7 +197,7 @@ func GetExpirationNum(val interface{}) int32 {
 		num2 := match[1]
 		format := match[2]
 		if len(format) == 0 {
-			return Atoi(num)
+			return Atoi(num2)
 		}
 		start := int32(0)
 		switch format {
