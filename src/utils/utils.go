@@ -153,6 +153,67 @@ func GetInt64Value(records map[string]interface{}, key string) int64 {
 	return 0
 }
 
+func GetExpirationNum(val interface{}) int32 {
+	now := int32(time.Now().Unix())
+	num := int32(0)
+	switch val.(type) {
+	case nil:
+		return 0
+	case int:
+		num = int32(val.(int))
+		if num > now {
+			return num - now
+		}
+		return num
+	case int32:
+		num = val.(int32)
+		if num > now {
+			return num - now
+		}
+		return num
+	case int64:
+		num = int32(val.(int64))
+		if num > now {
+			return num - now
+		}
+		return num
+	case float64:
+		num = int32(val.(float64))
+		if num > now {
+			return num - now
+		}
+		return num
+	case string:
+		expiration := val.(string)
+		match := regexExpiration.FindStringSubmatch(expiration)
+		// expiration format: 10d, 10h, 10m, 10s
+		if len(match) == 2 {
+			return Atoi(match[1])
+		}
+		if len(match) != 3 {
+			e := fmt.Sprintf("failed to parse expiration value: %s", expiration)
+			return 0
+		}
+		num2 := match[1]
+		format := match[2]
+		if len(format) == 0 {
+			return Atoi(num)
+		}
+		switch format {
+		case "d": // day
+			start = (Atoi(num2) * 24 * 3600)
+		case "h": // hour
+			start = (Atoi(num2) * 3600)
+		case "m": // month
+			start = (Atoi(num2) * 24 * 31 * 3600)
+		case "s":
+			start = (Atoi(num2))
+		}
+		return start
+	}
+	return 0
+}
+
 func GetArgEnvFileVariable(vname string, masterKeyPtr *string) string {
 	strvalue := ""
 	if masterKeyPtr != nil && len(*masterKeyPtr) > 0 {
