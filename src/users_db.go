@@ -363,7 +363,7 @@ func (dbobj dbcon) getUsers(offset int32, limit int32) ([]byte, int64, error) {
 		decrypted, err := dbobj.userProfileDecrypt(element)
 		if err == nil {
 			rec := make(map[string]interface{})
-			userTOKEN := element["token"].(string)
+			userTOKEN := utils.GetUuidString(element["token"])
 			rec["private"] = decrypted
 
 			expstatus := utils.GetStringValue(element["expstatus"])
