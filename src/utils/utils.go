@@ -170,7 +170,6 @@ func GetExpirationNum(val interface{}) int32 {
         case string:
                 expiration := val.(string)
                 match := regexExpiration.FindStringSubmatch(expiration)
-                log.Printf("match: %v", match)
                 // expiration format: 10d, 10h, 10m, 10s
                 if len(match) == 2 {
                         num = Atoi(match[1])
@@ -314,10 +313,7 @@ func Atoi(s string) int32 {
 	return int32(n)
 }
 
-func SetExpiration(maxExpiration string, userExpiration string) string {
-	if len(userExpiration) == 0 {
-		return maxExpiration
-	}
+func SetExpiration(maxExpiration interface{}, userExpiration interface{}) int32 {
 	userExpirationNum, _ := ParseExpiration(userExpiration)
 	maxExpirationNum, _ := ParseExpiration(maxExpiration)
 	if maxExpirationNum == 0 {
@@ -325,12 +321,12 @@ func SetExpiration(maxExpiration string, userExpiration string) string {
 		maxExpirationNum, _ = ParseExpiration(maxExpiration)
 	}
 	if userExpirationNum == 0 {
-		return maxExpiration
+		return maxExpirationNum
 	}
 	if userExpirationNum > maxExpirationNum {
-		return maxExpiration
+		return maxExpirationNum
 	}
-	return userExpiration
+	return userExpirationNum
 }
 
 func ParseExpiration0(expiration string) (int32, error) {
@@ -357,7 +353,7 @@ func ParseExpiration0(expiration string) (int32, error) {
 }
 
 func ParseExpiration(expiration interface{}) (int32, error) {
-	now := int32(time.Now().Unix()) + 10
+	now := int32(time.Now().Unix())
 	result := GetExpirationNum(expiration)
 	if result == 0 {
 		return 0, nil

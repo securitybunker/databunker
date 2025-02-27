@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"reflect"
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
@@ -33,26 +32,13 @@ func (e mainEnv) sharedRecordCreate(w http.ResponseWriter, r *http.Request, ps h
 	session := utils.GetStringValue(postData["session"])
 	partner := utils.GetStringValue(postData["partner"])
 	appName := utils.GetStringValue(postData["app"])
-	expiration := e.conf.Policy.MaxShareableRecordRetentionPeriod
-
 	if len(appName) > 0 {
 		appName = strings.ToLower(appName)
 		if utils.CheckValidApp(appName) == false {
 			utils.ReturnError(w, r, "unknown app name", 405, nil, event)
 		}
 	}
-	if value, ok := postData["expiration"]; ok {
-		if reflect.TypeOf(value) == reflect.TypeOf("string") {
-			expiration = utils.SetExpiration(e.conf.Policy.MaxShareableRecordRetentionPeriod, value.(string))
-		} else {
-			utils.ReturnError(w, r, "failed to parse expiration field", 405, err, event)
-			return
-		}
-	}
-	if len(expiration) == 0 {
-		// using default expiration time for record
-		expiration = "1m"
-	}
+	expiration := utils.SetExpiration(e.conf.Policy.MaxShareableRecordRetentionPeriod, postData["expiration"])
 	recordUUID, err := e.db.saveSharedRecord(userTOKEN, fields, expiration, session, appName, partner, e.conf)
 	if err != nil {
 		utils.ReturnError(w, r, err.Error(), 405, err, event)

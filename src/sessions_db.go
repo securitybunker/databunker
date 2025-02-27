@@ -16,17 +16,7 @@ type sessionEvent struct {
 	Data string `json:"data"`
 }
 
-func (dbobj dbcon) createSessionRecord(sessionUUID string, userTOKEN string, expiration string, data []byte) (string, error) {
-	var endtime int32
-	var err error
-	now := int32(time.Now().Unix())
-	if len(expiration) > 0 {
-		endtime, err = utils.ParseExpiration(expiration)
-		if err != nil {
-			return "", err
-		}
-		//log.Printf("expiration set to: %d, now: %d", endtime, now)
-	}
+func (dbobj dbcon) createSessionRecord(sessionUUID string, userTOKEN string, endtime int32, data []byte) (string, error) {
 	recordKey, err := utils.GenerateRecordKey()
 	if err != nil {
 		return "", err
@@ -36,6 +26,7 @@ func (dbobj dbcon) createSessionRecord(sessionUUID string, userTOKEN string, exp
 		return "", err
 	}
 	encodedStr := base64.StdEncoding.EncodeToString(encoded)
+	now := int32(time.Now().Unix())
 	bdoc := bson.M{}
 	bdoc["token"] = userTOKEN
 	bdoc["session"] = sessionUUID
@@ -65,7 +56,7 @@ func (dbobj dbcon) getSession(sessionUUID string) (int32, []byte, string, error)
 	}
 	// check expiration
 	now := int32(time.Now().Unix())
-	//log.Printf("getSession checking now: %d exp %d", now, record["endtime"].(int32))
+	// fmt.Printf("getSession checking now: %d exp %d\n", now, record["endtime"].(int32))
 	if now > record["endtime"].(int32) {
 		return 0, nil, "", errors.New("session expired")
 	}
