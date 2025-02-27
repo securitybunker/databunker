@@ -154,65 +154,53 @@ func GetInt64Value(records map[string]interface{}, key string) int64 {
 }
 
 func GetExpirationNum(val interface{}) int32 {
-	now := int32(time.Now().Unix())
-	num := int32(0)
-	switch val.(type) {
-	case nil:
-		return 0
-	case int:
-		num = int32(val.(int))
-		if num > now {
-			return num - now
-		}
-		return num
-	case int32:
-		num = val.(int32)
-		if num > now {
-			return num - now
-		}
-		return num
-	case int64:
-		num = int32(val.(int64))
-		if num > now {
-			return num - now
-		}
-		return num
-	case float64:
-		num = int32(val.(float64))
-		if num > now {
-			return num - now
-		}
-		return num
-	case string:
-		expiration := val.(string)
-		match := regexExpiration.FindStringSubmatch(expiration)
-		// expiration format: 10d, 10h, 10m, 10s
-		if len(match) == 2 {
-			return Atoi(match[1])
-		}
-		if len(match) != 3 {
-			log.Printf("failed to parse expiration value: %s", expiration)
-			return 0
-		}
-		num2 := match[1]
-		format := match[2]
-		if len(format) == 0 {
-			return Atoi(num2)
-		}
-		start := int32(0)
-		switch format {
-		case "d": // day
-			start = (Atoi(num2) * 24 * 3600)
-		case "h": // hour
-			start = (Atoi(num2) * 3600)
-		case "m": // month
-			start = (Atoi(num2) * 24 * 31 * 3600)
-		case "s":
-			start = (Atoi(num2))
-		}
-		return start
-	}
-	return 0
+        now := int32(time.Now().Unix())
+        num := int32(0)
+        switch val.(type) {
+        case nil:
+                return 0
+        case int:
+                num = int32(val.(int))
+        case int32:
+                num = val.(int32)
+        case int64:
+                num = int32(val.(int64))
+        case float64:
+                num = int32(val.(float64))
+        case string:
+                expiration := val.(string)
+                match := regexExpiration.FindStringSubmatch(expiration)
+                log.Printf("match: %v", match)
+                // expiration format: 10d, 10h, 10m, 10s
+                if len(match) == 2 {
+                        num = Atoi(match[1])
+                } else {
+                        if len(match) != 3 {
+                                log.Printf("failed to parse expiration value: %s", expiration)
+                                return 0
+                        }
+                        numStr := match[1]
+                        format := match[2]
+                        if len(format) == 0 {
+                                num = Atoi(numStr)
+                        } else {
+                                switch format {
+                                case "d": // day
+                                        num = (Atoi(numStr) * 24 * 3600)
+                                case "h": // hour
+                                        num = (Atoi(numStr) * 3600)
+                                case "m": // month
+                                        num = (Atoi(numStr) * 24 * 31 * 3600)
+                                case "s":
+                                        num = (Atoi(numStr))
+                                }
+                        }
+                }
+        }
+        if num > now {
+                return num - now
+        }
+        return num
 }
 
 func GetArgEnvFileVariable(vname string, masterKeyPtr *string) string {
@@ -368,33 +356,13 @@ func ParseExpiration0(expiration string) (int32, error) {
 	return start, nil
 }
 
-func ParseExpiration(expiration string) (int32, error) {
-	match := regexExpiration.FindStringSubmatch(expiration)
-	// expiration format: 10d, 10h, 10m, 10s
-	if len(match) == 2 {
-		return Atoi(match[1]), nil
+func ParseExpiration(expiration interface{}) (int32, error) {
+	now := int32(time.Now().Unix()) + 10
+	result := GetExpirationNum(expiration)
+	if result == 0 {
+		return 0, nil
 	}
-	if len(match) != 3 {
-		e := fmt.Sprintf("failed to parse expiration value: %s", expiration)
-		return 0, errors.New(e)
-	}
-	num := match[1]
-	format := match[2]
-	if len(format) == 0 {
-		return Atoi(num), nil
-	}
-	start := int32(time.Now().Unix())
-	switch format {
-	case "d": // day
-		start = start + (Atoi(num) * 24 * 3600)
-	case "h": // hour
-		start = start + (Atoi(num) * 3600)
-	case "m": // month
-		start = start + (Atoi(num) * 24 * 31 * 3600)
-	case "s":
-		start = start + (Atoi(num))
-	}
-	return start, nil
+	return result + now, nil
 }
 
 func LockMemory() error {
