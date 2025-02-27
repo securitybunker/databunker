@@ -38,9 +38,9 @@ func (e mainEnv) sessionCreate(w http.ResponseWriter, r *http.Request, ps httpro
 		utils.ReturnError(w, r, "empty body", 405, nil, event)
 		return
 	}
-	expirationStr := utils.GetStringValue(postData["expiration"])
-	expiration := utils.SetExpiration(e.conf.Policy.MaxSessionRetentionPeriod, expirationStr)
-	log.Printf("Record expiration: %s", expiration)
+	expiration := utils.SetExpiration(e.conf.Policy.MaxSessionRetentionPeriod, postData["expiration"])
+	// now := int32(time.Now().Unix())
+	// log.Printf("Record expiration: %d now %d", expiration, now)
 	userToken := utils.GetStringValue(postData["token"])
 	userLogin := utils.GetStringValue(postData["login"])
 	userEmail := utils.GetStringValue(postData["email"])
@@ -123,7 +123,7 @@ func (e mainEnv) sessionNewOld(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 	expirationStr := utils.GetStringValue(postData["expiration"])
 	expiration := utils.SetExpiration(e.conf.Policy.MaxSessionRetentionPeriod, expirationStr)
-	log.Printf("Record expiration: %s", expiration)
+	log.Printf("Record expiration: %d", expiration)
 	jsonData, err := json.Marshal(postData)
 	if err != nil {
 		utils.ReturnError(w, r, "internal error", 405, err, event)

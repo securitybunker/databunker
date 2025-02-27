@@ -149,9 +149,8 @@ func (e mainEnv) expStart(w http.ResponseWriter, r *http.Request, ps httprouter.
 		utils.ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
-	expirationStr := utils.GetStringValue(postData["expiration"])
-	expiration := utils.SetExpiration(e.conf.Policy.MaxUserRetentionPeriod, expirationStr)
-	endtime, _ := utils.ParseExpiration(expiration)
+	endtime := utils.SetExpiration(e.conf.Policy.MaxUserRetentionPeriod, postData["expiration"])
+	// fmt.Printf("Set exp time: %d\n", endtime)
 	status := utils.GetStringValue(postData["status"])
 	if len(status) == 0 {
 		status = "wait"

@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"log"
 	"strings"
 	"time"
 
@@ -12,24 +11,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, expiration string, session string, appName string, partner string, conf Config) (string, error) {
+func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, endtime int32, session string, appName string, partner string, conf Config) (string, error) {
 	if utils.CheckValidUUID(userTOKEN) == false {
 		return "", errors.New("bad uuid")
-	}
-	if len(expiration) == 0 {
-		return "", errors.New("failed to parse expiration")
 	}
 	if len(appName) > 0 {
 		apps, _ := dbobj.listAllApps(conf)
 		if strings.Contains(string(apps), appName) == false {
 			return "", errors.New("app not found")
 		}
-	}
-
-	log.Printf("Expiration is : %s\n", expiration)
-	start, err := utils.ParseExpiration(expiration)
-	if err != nil {
-		return "", err
 	}
 	recordUUID, err := uuid.GenerateUUID()
 	if err != nil {
@@ -40,7 +30,7 @@ func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, expiration 
 	bdoc["token"] = userTOKEN
 	bdoc["record"] = recordUUID
 	bdoc["when"] = now
-	bdoc["endtime"] = start
+	bdoc["endtime"] = endtime
 	if len(fields) > 0 {
 		bdoc["fields"] = fields
 	}
