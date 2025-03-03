@@ -7,7 +7,6 @@ import (
 	"reflect"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/securitybunker/databunker/src/audit"
 	"github.com/securitybunker/databunker/src/utils"
 	//"go.mongodb.org/mongo-driver/bson"
 )
@@ -18,7 +17,7 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	mode := ps.ByName("mode")
 
 	brief = utils.NormalizeBrief(brief)
-	event := audit.CreateAuditEvent("accept agreement for "+brief, identity, mode, identity)
+	event := CreateAuditEvent("accept agreement for "+brief, identity, mode, identity)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
 	strictCheck := true
@@ -34,21 +33,21 @@ func (e mainEnv) agreementAccept(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	if utils.CheckValidBrief(brief) == false {
-		utils.ReturnError(w, r, "incorrect brief format", 405, nil, event)
+		ReturnError(w, r, "incorrect brief format", 405, nil, event)
 		return
 	}
 	exists, err := e.db.checkLegalBasis(brief)
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	if exists == false {
-		utils.ReturnError(w, r, "not found", 404, nil, event)
+		ReturnError(w, r, "not found", 404, nil, event)
 		return
 	}
 	postData, err := utils.GetJSONPostMap(r)
 	if err != nil {
-		utils.ReturnError(w, r, "failed to decode request body", 405, err, event)
+		ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	starttime := int32(0)
@@ -110,7 +109,7 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	mode := ps.ByName("mode")
 
 	brief = utils.NormalizeBrief(brief)
-	event := audit.CreateAuditEvent("withdraw agreement for "+brief, identity, mode, identity)
+	event := CreateAuditEvent("withdraw agreement for "+brief, identity, mode, identity)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
 	strictCheck := true
@@ -126,21 +125,21 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 		return
 	}
 	if utils.CheckValidBrief(brief) == false {
-		utils.ReturnError(w, r, "bad brief format", 405, nil, event)
+		ReturnError(w, r, "bad brief format", 405, nil, event)
 		return
 	}
 	lbasis, err := e.db.getLegalBasis(brief)
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	if lbasis == nil {
-		utils.ReturnError(w, r, "not  found", 405, nil, event)
+		ReturnError(w, r, "not  found", 405, nil, event)
 		return
 	}
 	postData, err := utils.GetJSONPostMap(r)
 	if err != nil {
-		utils.ReturnError(w, r, "failed to decode request body", 405, err, event)
+		ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	lastmodifiedby := utils.GetStringValue(postData["lastmodifiedby"])
@@ -167,7 +166,7 @@ func (e mainEnv) agreementWithdraw(w http.ResponseWriter, r *http.Request, ps ht
 	if authResult == "login" && selfService == false {
 		rtoken, rstatus, err := e.db.saveUserRequest("agreement-withdraw", userTOKEN, userBSON, "", brief, nil, e.conf)
 		if err != nil {
-			utils.ReturnError(w, r, "internal error", 405, err, event)
+			ReturnError(w, r, "internal error", 405, err, event)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -200,16 +199,16 @@ func (e mainEnv) agreementRevokeAll(w http.ResponseWriter, r *http.Request, ps h
 		return
 	}
 	if utils.CheckValidBrief(brief) == false {
-		utils.ReturnError(w, r, "bad brief format", 405, nil, nil)
+		ReturnError(w, r, "bad brief format", 405, nil, nil)
 		return
 	}
 	exists, err := e.db.checkLegalBasis(brief)
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, nil, nil)
+		ReturnError(w, r, "internal error", 405, nil, nil)
 		return
 	}
 	if exists == false {
-		utils.ReturnError(w, r, "not found", 405, nil, nil)
+		ReturnError(w, r, "not found", 405, nil, nil)
 		return
 	}
 	e.db.revokeLegalBasis(brief)
@@ -221,7 +220,7 @@ func (e mainEnv) agreementRevokeAll(w http.ResponseWriter, r *http.Request, ps h
 func (e mainEnv) agreementList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit.CreateAuditEvent("get agreements for "+mode, identity, mode, identity)
+	event := CreateAuditEvent("get agreements for "+mode, identity, mode, identity)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
 	userTOKEN, _, _ := e.getUserToken(w, r, mode, identity, event, true)
@@ -238,7 +237,7 @@ func (e mainEnv) agreementList(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -253,7 +252,7 @@ func (e mainEnv) agreementGet(w http.ResponseWriter, r *http.Request, ps httprou
 	mode := ps.ByName("mode")
 
 	brief = utils.NormalizeBrief(brief)
-	event := audit.CreateAuditEvent("get agreements for "+brief, identity, mode, identity)
+	event := CreateAuditEvent("get agreements for "+brief, identity, mode, identity)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
 	userTOKEN, _, _ := e.getUserToken(w, r, mode, identity, event, true)
@@ -261,26 +260,26 @@ func (e mainEnv) agreementGet(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 	if utils.CheckValidBrief(brief) == false {
-		utils.ReturnError(w, r, "bad brief format", 405, nil, event)
+		ReturnError(w, r, "bad brief format", 405, nil, event)
 		return
 	}
 	exists, err := e.db.checkLegalBasis(brief)
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	if exists == false {
-		utils.ReturnError(w, r, "not found", 404, nil, event)
+		ReturnError(w, r, "not found", 404, nil, event)
 		return
 	}
 
 	resultJSON, err := e.db.viewAgreementRecord(userTOKEN, brief)
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	if resultJSON == nil {
-		utils.ReturnError(w, r, "not found", 405, err, event)
+		ReturnError(w, r, "not found", 405, err, event)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -294,16 +293,16 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 	identity := ps.ByName("identity")
 	brief := ps.ByName("brief")
 	mode := ps.ByName("mode")
-	event := audit.CreateAuditEvent("consent record for "+brief, identity, mode, identity)
+	event := CreateAuditEvent("consent record for "+brief, identity, mode, identity)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
 	if utils.ValidateMode(mode) == false {
-		utils.ReturnError(w, r, "bad mode", 405, nil, event)
+		ReturnError(w, r, "bad mode", 405, nil, event)
 		return
 	}
 	brief = utils.NormalizeBrief(brief)
 	if utils.CheckValidBrief(brief) == false {
-		utils.ReturnError(w, r, "bad brief format", 405, nil, event)
+		ReturnError(w, r, "bad brief format", 405, nil, event)
 		return
 	}
 	userTOKEN := identity
@@ -321,7 +320,7 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 		}
 	}
 	if userBson == nil {
-		utils.ReturnError(w, r, "internal error", 405, nil, event)
+		ReturnError(w, r, "internal error", 405, nil, event)
 		return
 	}
 	// make sure that user is logged in here, unless he wants to cancel emails
@@ -330,11 +329,11 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 	}
 	resultJSON, err := e.db.viewConsentRecord(userTOKEN, brief)
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	if resultJSON == nil {
-		utils.ReturnError(w, r, "not found", 405, nil, event)
+		ReturnError(w, r, "not found", 405, nil, event)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -347,7 +346,7 @@ func (e mainEnv) consentUserRecord(w http.ResponseWriter, r *http.Request, ps ht
 /*
 func (e mainEnv) consentFilterRecords(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	brief := ps.ByName("brief")
-	event := audit.CreateAuditEvent("consent get all for "+brief, brief, "brief", brief)
+	event := CreateAuditEvent("consent get all for "+brief, brief, "brief", brief)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 	if e.EnforceAuth(w, r, event) == "" {
 		return
@@ -363,7 +362,7 @@ func (e mainEnv) consentFilterRecords(w http.ResponseWriter, r *http.Request, ps
 	}
 	resultJSON, numRecords, err := e.db.filterConsentRecords(brief, offset, limit)
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	log.Printf("Total count of rows: %d\n", numRecords)

@@ -4,13 +4,39 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/securitybunker/databunker/src/audit"
 	"github.com/securitybunker/databunker/src/utils"
 )
 
-func (e mainEnv) EnforceAuth(w http.ResponseWriter, r *http.Request, event *audit.AuditEvent) string {
+type AuditEvent struct {
+	When     int32  `json:"when"`
+	Who      string `json:"who"`
+	Mode     string `json:"mode"`
+	Identity string `json:"identity"`
+	Record   string `json:"record"`
+	App      string `json:"app"`
+	Title    string `json:"title"`
+	Status   string `json:"status"`
+	Msg      string `json:"msg"`
+	Debug    string `json:"debug"`
+	Before   string `json:"before"`
+	After    string `json:"after"`
+	Atoken   string `json:"atoken"`
+}
+
+func CreateAuditEvent(title string, record string, mode string, identity string) *AuditEvent {
+	//fmt.Printf("/%s : %s\n", title, record)
+	return &AuditEvent{Title: title, Mode: mode, Who: identity, Record: record, Status: "ok", When: int32(time.Now().Unix())}
+}
+
+func CreateAuditAppEvent(title string, record string, app string, mode string, identity string) *AuditEvent {
+	//fmt.Printf("/%s : %s : %s\n", title, app, record)
+	return &AuditEvent{Title: title, Mode: mode, Who: identity, Record: record, Status: "ok", When: int32(time.Now().Unix())}
+}
+
+func (e mainEnv) EnforceAuth(w http.ResponseWriter, r *http.Request, event *AuditEvent) string {
 	/*
 		for key, value := range r.Header {
 			fmt.Printf("%s => %s\n", key, value)
@@ -49,7 +75,7 @@ func (e mainEnv) EnforceAuth(w http.ResponseWriter, r *http.Request, event *audi
 	return ""
 }
 
-func (e mainEnv) EnforceAdmin(w http.ResponseWriter, r *http.Request, event *audit.AuditEvent) string {
+func (e mainEnv) EnforceAdmin(w http.ResponseWriter, r *http.Request, event *AuditEvent) string {
 	if token, ok := r.Header["X-Bunker-Token"]; ok {
 		authResult, err := e.db.checkUserAuthXToken(token[0])
 		//fmt.Printf("error in auth? error %s - %s\n", err, token[0])
@@ -70,9 +96,9 @@ func (e mainEnv) EnforceAdmin(w http.ResponseWriter, r *http.Request, event *aud
 
 func (e mainEnv) auditEventList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	userTOKEN := ps.ByName("token")
-	event := audit.CreateAuditEvent("view audit events", userTOKEN, "token", userTOKEN)
+	event := CreateAuditEvent("view audit events", userTOKEN, "token", userTOKEN)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
-	if utils.EnforceUUID(w, userTOKEN, event) == false {
+	if EnforceUUID(w, userTOKEN, event) == false {
 		return
 	}
 	if e.EnforceAuth(w, r, event) == "" {
@@ -89,7 +115,7 @@ func (e mainEnv) auditEventList(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 	resultJSON, counter, err := e.db.getAuditEvents(userTOKEN, offset, limit)
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	//fmt.Printf("Total count of events: %d\n", counter)
@@ -114,7 +140,7 @@ func (e mainEnv) auditEventListAll(w http.ResponseWriter, r *http.Request, ps ht
 	}
 	resultJSON, counter, err := e.db.getAdminAuditEvents(offset, limit)
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, nil)
+		ReturnError(w, r, "internal error", 405, err, nil)
 		return
 	}
 	//fmt.Printf("Total count of events: %d\n", counter)
@@ -126,16 +152,16 @@ func (e mainEnv) auditEventListAll(w http.ResponseWriter, r *http.Request, ps ht
 
 func (e mainEnv) auditEventGet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	atoken := ps.ByName("atoken")
-	event := audit.CreateAuditEvent("view audit event", atoken, "token", atoken)
+	event := CreateAuditEvent("view audit event", atoken, "token", atoken)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 	//fmt.Println("error code")
-	if utils.EnforceUUID(w, atoken, event) == false {
+	if EnforceUUID(w, atoken, event) == false {
 		return
 	}
 	userTOKEN, resultJSON, err := e.db.getAuditEvent(atoken)
 	log.Printf("extracted user token: %s", userTOKEN)
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	event.Record = userTOKEN

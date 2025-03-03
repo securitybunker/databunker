@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/securitybunker/databunker/src/audit"
 	"github.com/securitybunker/databunker/src/utils"
 	"github.com/tidwall/gjson"
 )
@@ -16,7 +15,7 @@ import (
 func (e mainEnv) sharedRecordCreate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit.CreateAuditEvent("create shareable record by "+mode, identity, "token", identity)
+	event := CreateAuditEvent("create shareable record by "+mode, identity, "token", identity)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
 	userTOKEN, _, _ := e.getUserToken(w, r, mode, identity, event, true)
@@ -25,7 +24,7 @@ func (e mainEnv) sharedRecordCreate(w http.ResponseWriter, r *http.Request, ps h
 	}
 	postData, err := utils.GetJSONPostMap(r)
 	if err != nil {
-		utils.ReturnError(w, r, "failed to decode request body", 405, err, event)
+		ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	fields := utils.GetStringValue(postData["fields"])
@@ -35,13 +34,13 @@ func (e mainEnv) sharedRecordCreate(w http.ResponseWriter, r *http.Request, ps h
 	if len(appName) > 0 {
 		appName = strings.ToLower(appName)
 		if utils.CheckValidApp(appName) == false {
-			utils.ReturnError(w, r, "unknown app name", 405, nil, event)
+			ReturnError(w, r, "unknown app name", 405, nil, event)
 		}
 	}
 	expiration := utils.SetExpiration(e.conf.Policy.MaxShareableRecordRetentionPeriod, postData["expiration"])
 	recordUUID, err := e.db.saveSharedRecord(userTOKEN, fields, expiration, session, appName, partner, e.conf)
 	if err != nil {
-		utils.ReturnError(w, r, err.Error(), 405, err, event)
+		ReturnError(w, r, err.Error(), 405, err, event)
 		return
 	}
 	event.Record = userTOKEN
@@ -53,10 +52,10 @@ func (e mainEnv) sharedRecordCreate(w http.ResponseWriter, r *http.Request, ps h
 
 func (e mainEnv) sharedRecordGet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	record := ps.ByName("record")
-	event := audit.CreateAuditEvent("get shareable record by token", record, "record", record)
+	event := CreateAuditEvent("get shareable record by token", record, "record", record)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
-	if utils.EnforceUUID(w, record, event) == false {
+	if EnforceUUID(w, record, event) == false {
 		return
 	}
 	recordInfo, err := e.db.getSharedRecord(record)
@@ -76,7 +75,7 @@ func (e mainEnv) sharedRecordGet(w http.ResponseWriter, r *http.Request, ps http
 			if len(recordInfo.token) > 0 {
 				userBSON, err := e.db.lookupUserRecord(recordInfo.token)
 				if err != nil {
-					utils.ReturnError(w, r, "internal error", 405, err, event)
+					ReturnError(w, r, "internal error", 405, err, event)
 					return
 				}
 				resultJSON, err = e.db.getUserApp(recordInfo.token, userBSON, recordInfo.appName, e.conf)
@@ -87,11 +86,11 @@ func (e mainEnv) sharedRecordGet(w http.ResponseWriter, r *http.Request, ps http
 			resultJSON, err = e.db.getUserJSON(recordInfo.token)
 		}
 		if err != nil {
-			utils.ReturnError(w, r, "internal error", 405, err, event)
+			ReturnError(w, r, "internal error", 405, err, event)
 			return
 		}
 		if resultJSON == nil {
-			utils.ReturnError(w, r, "not found", 405, err, event)
+			ReturnError(w, r, "not found", 405, err, event)
 			return
 		}
 		//log.Printf("Full json: %s\n", resultJSON)
