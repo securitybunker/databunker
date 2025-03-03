@@ -1,14 +1,14 @@
-package utils
+package main
 
 import (
 	"fmt"
 	"log"
 	"net/http"
 
-	"github.com/securitybunker/databunker/src/audit"
+	"github.com/securitybunker/databunker/src/utils"
 )
 
-func ReturnError(w http.ResponseWriter, r *http.Request, message string, code int, err error, event *audit.AuditEvent) {
+func ReturnError(w http.ResponseWriter, r *http.Request, message string, code int, err error, event *AuditEvent) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
 	fmt.Fprintf(w, `{"status":"error","message":%q}`, message)
@@ -25,8 +25,8 @@ func ReturnError(w http.ResponseWriter, r *http.Request, message string, code in
 	//http.Error(w, http.StatusText(405), 405)
 }
 
-func EnforceUUID(w http.ResponseWriter, uuidCode string, event *audit.AuditEvent) bool {
-	if CheckValidUUID(uuidCode) == false {
+func EnforceUUID(w http.ResponseWriter, uuidCode string, event *AuditEvent) bool {
+	if utils.CheckValidUUID(uuidCode) == false {
 		//fmt.Printf("405 bad uuid in : %s\n", uuidCode)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(405)

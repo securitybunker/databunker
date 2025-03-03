@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	jsonpatch "github.com/evanphx/json-patch"
-	"github.com/securitybunker/databunker/src/audit"
 	"github.com/securitybunker/databunker/src/storage"
 	"github.com/securitybunker/databunker/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
@@ -55,7 +54,7 @@ func (dbobj dbcon) deleteUserApps(userTOKEN string, conf Config) {
 	}
 }
 
-func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, userBSON map[string]interface{}, appName string, event *audit.AuditEvent, conf Config) (string, error) {
+func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, userBSON map[string]interface{}, appName string, event *AuditEvent, conf Config) (string, error) {
 	appNameFull := "app_" + appName
 	//log.Printf("Going to create app record: %s\n", appName)
 	encodedStr, err := dbobj.userEncrypt(userBSON, jsonData)
@@ -104,7 +103,7 @@ func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, userBSON m
 	return userTOKEN, err
 }
 
-func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, userBSON map[string]interface{}, appName string, event *audit.AuditEvent, conf Config) (string, error) {
+func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, userBSON map[string]interface{}, appName string, event *AuditEvent, conf Config) (string, error) {
 	//_, err = collection.InsertOne(context.TODO(), bson.M{"name": "The Go Language2", "genre": "Coding", "authorId": "4"})
 	appNameFull := "app_" + appName
 	// get user key

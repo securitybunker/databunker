@@ -14,7 +14,7 @@ func (e mainEnv) userListAll(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 	if e.conf.Generic.ListUsers == false {
-		utils.ReturnError(w, r, "access denied", 403, nil, nil)
+		ReturnError(w, r, "access denied", 403, nil, nil)
 		return
 	}
 	var offset int32 = 0

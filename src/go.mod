@@ -8,8 +8,6 @@ replace github.com/securitybunker/databunker/src/storage => ./storage
 
 replace github.com/securitybunker/databunker/src/utils => ./utils
 
-replace github.com/securitybunker/databunker/src/audit => ./audit
-
 require (
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/evanphx/json-patch v5.9.0+incompatible
@@ -20,7 +18,6 @@ require (
 	github.com/oschwald/geoip2-golang v1.11.0
 	github.com/prometheus/client_golang v1.20.5
 	github.com/qri-io/jsonpointer v0.1.1
-	github.com/securitybunker/databunker/src/audit v0.0.0
 	github.com/securitybunker/databunker/src/storage v0.0.0
 	github.com/securitybunker/databunker/src/utils v0.0.0
 	github.com/securitybunker/jsonschema v0.2.1-0.20201128224651-d77c1a3cb787

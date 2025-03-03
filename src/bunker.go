@@ -19,7 +19,6 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/securitybunker/databunker/src/audit"
 	"github.com/securitybunker/databunker/src/autocontext"
 	"github.com/securitybunker/databunker/src/storage"
 	"github.com/securitybunker/databunker/src/utils"
@@ -384,15 +383,15 @@ func (e mainEnv) dbCleanup() {
 }
 
 // helper function to load user details by idex name
-func (e mainEnv) getUserToken(w http.ResponseWriter, r *http.Request, mode string, identity string, event *audit.AuditEvent, strictCheck bool) (string, map[string]interface{}, error) {
+func (e mainEnv) getUserToken(w http.ResponseWriter, r *http.Request, mode string, identity string, event *AuditEvent, strictCheck bool) (string, map[string]interface{}, error) {
 	var userBSON map[string]interface{}
 	var err error
 	if utils.ValidateMode(mode) == false {
-		utils.ReturnError(w, r, "bad mode", 405, nil, event)
+		ReturnError(w, r, "bad mode", 405, nil, event)
 		return "", userBSON, errors.New("bad mode")
 	}
 	if mode == "token" {
-		if utils.EnforceUUID(w, identity, event) == false {
+		if EnforceUUID(w, identity, event) == false {
 			return "", userBSON, errors.New("uuid is incorrect")
 		}
 		userBSON, err = e.db.lookupUserRecord(identity)
@@ -400,7 +399,7 @@ func (e mainEnv) getUserToken(w http.ResponseWriter, r *http.Request, mode strin
 		userBSON, err = e.db.lookupUserRecordByIndex(mode, identity, e.conf)
 	}
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, nil, event)
+		ReturnError(w, r, "internal error", 405, nil, event)
 		return "", userBSON, err
 	}
 	userToken := utils.GetUuidString(userBSON["token"])
@@ -409,10 +408,10 @@ func (e mainEnv) getUserToken(w http.ResponseWriter, r *http.Request, mode strin
 			event.Record = userToken
 		}
 		_, exists := r.Header["X-Bunker-Token"]
-                // if strict check is disabled and we have no auth token
-                if exists == false && strictCheck == false {
-                        return userToken, userBSON, nil
-                }
+		// if strict check is disabled and we have no auth token
+		if exists == false && strictCheck == false {
+			return userToken, userBSON, nil
+		}
 		//log.Printf("getUserToken -> EnforceAuth()")
 		if e.EnforceAuth(w, r, event) == "" {
 			//log.Printf("XToken validation error")
@@ -422,7 +421,7 @@ func (e mainEnv) getUserToken(w http.ResponseWriter, r *http.Request, mode strin
 	}
 	// not found
 	if strictCheck == true {
-		utils.ReturnError(w, r, "not found", 405, nil, event)
+		ReturnError(w, r, "not found", 405, nil, event)
 		return "", userBSON, errors.New("not found")
 	}
 	// make sure to check if user is admin

@@ -8,13 +8,12 @@ import (
 	//"log"
 
 	uuid "github.com/hashicorp/go-uuid"
-	"github.com/securitybunker/databunker/src/audit"
 	"github.com/securitybunker/databunker/src/storage"
 	"github.com/securitybunker/databunker/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func SaveAuditEvent(event *audit.AuditEvent, db *dbcon, conf Config) {
+func SaveAuditEvent(event *AuditEvent, db *dbcon, conf Config) {
 	if event == nil {
 		return
 	}

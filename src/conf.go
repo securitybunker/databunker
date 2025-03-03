@@ -7,7 +7,6 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/securitybunker/databunker/src/autocontext"
-	"github.com/securitybunker/databunker/src/utils"
 )
 
 func (e mainEnv) setupConfRouter(router *httprouter.Router) *httprouter.Router {
@@ -24,7 +23,7 @@ func (e mainEnv) initContext(r *http.Request) {
 func (e mainEnv) cookieSettings(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	resultJSON, scriptsJSON, _, err := e.db.getLegalBasisCookieConf()
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, nil)
+		ReturnError(w, r, "internal error", 405, err, nil)
 		return
 	}
 	resultUIConfJSON, _ := json.Marshal(e.conf.UI)

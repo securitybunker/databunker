@@ -9,21 +9,20 @@ import (
 
 	uuid "github.com/hashicorp/go-uuid"
 	"github.com/julienschmidt/httprouter"
-	"github.com/securitybunker/databunker/src/audit"
 	"github.com/securitybunker/databunker/src/storage"
 	"github.com/securitybunker/databunker/src/utils"
 )
 
 func (e mainEnv) sessionCreate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	session := ps.ByName("session")
-	var event *audit.AuditEvent
+	var event *AuditEvent
 	defer func() {
 		if event != nil {
 			SaveAuditEvent(event, e.db, e.conf)
 		}
 	}()
-	if utils.EnforceUUID(w, session, event) == false {
-		//utils.ReturnError(w, r, "bad session format", nil, event)
+	if EnforceUUID(w, session, event) == false {
+		//ReturnError(w, r, "bad session format", nil, event)
 		return
 	}
 	if e.EnforceAdmin(w, r, event) == "" {
@@ -31,11 +30,11 @@ func (e mainEnv) sessionCreate(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 	postData, err := utils.GetJSONPostMap(r)
 	if err != nil {
-		utils.ReturnError(w, r, "failed to decode request body", 405, err, event)
+		ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	if len(postData) == 0 {
-		utils.ReturnError(w, r, "empty body", 405, nil, event)
+		ReturnError(w, r, "empty body", 405, nil, event)
 		return
 	}
 	expiration := utils.SetExpiration(e.conf.Policy.MaxSessionRetentionPeriod, postData["expiration"])
@@ -60,23 +59,23 @@ func (e mainEnv) sessionCreate(w http.ResponseWriter, r *http.Request, ps httpro
 		userBson, err = e.db.lookupUserRecord(userToken)
 	}
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	userTOKEN := ""
 	if userBson != nil {
-		event = audit.CreateAuditEvent("create session", session, "session", session)
+		event = CreateAuditEvent("create session", session, "session", session)
 		userTOKEN = utils.GetUuidString(userBson["token"])
 		event.Record = userTOKEN
 	}
 	jsonData, err := json.Marshal(postData)
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	session, err = e.db.createSessionRecord(session, userTOKEN, expiration, jsonData)
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -86,10 +85,10 @@ func (e mainEnv) sessionCreate(w http.ResponseWriter, r *http.Request, ps httpro
 
 func (e mainEnv) sessionDelete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	session := ps.ByName("session")
-	event := audit.CreateAuditEvent("delete session", session, "session", session)
+	event := CreateAuditEvent("delete session", session, "session", session)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
-	if utils.EnforceUUID(w, session, event) == false {
-		//utils.ReturnError(w, r, "bad session format", nil, event)
+	if EnforceUUID(w, session, event) == false {
+		//ReturnError(w, r, "bad session format", nil, event)
 		return
 	}
 	if e.EnforceAdmin(w, r, event) == "" {
@@ -105,7 +104,7 @@ func (e mainEnv) sessionDelete(w http.ResponseWriter, r *http.Request, ps httpro
 func (e mainEnv) sessionNewOld(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit.CreateAuditEvent("create user session by "+mode, identity, mode, identity)
+	event := CreateAuditEvent("create user session by "+mode, identity, mode, identity)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
 	userTOKEN, _, _ := e.getUserToken(w, r, mode, identity, event, true)
@@ -114,11 +113,11 @@ func (e mainEnv) sessionNewOld(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 	postData, err := utils.GetJSONPostMap(r)
 	if err != nil {
-		utils.ReturnError(w, r, "failed to decode request body", 405, err, event)
+		ReturnError(w, r, "failed to decode request body", 405, err, event)
 		return
 	}
 	if len(postData) == 0 {
-		utils.ReturnError(w, r, "empty body", 405, nil, event)
+		ReturnError(w, r, "empty body", 405, nil, event)
 		return
 	}
 	expirationStr := utils.GetStringValue(postData["expiration"])
@@ -126,17 +125,17 @@ func (e mainEnv) sessionNewOld(w http.ResponseWriter, r *http.Request, ps httpro
 	log.Printf("Record expiration: %d", expiration)
 	jsonData, err := json.Marshal(postData)
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	sessionUUID, err := uuid.GenerateUUID()
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	sessionID, err := e.db.createSessionRecord(sessionUUID, userTOKEN, expiration, jsonData)
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -147,7 +146,7 @@ func (e mainEnv) sessionNewOld(w http.ResponseWriter, r *http.Request, ps httpro
 func (e mainEnv) sessionList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	identity := ps.ByName("identity")
 	mode := ps.ByName("mode")
-	event := audit.CreateAuditEvent("get all user sessions", identity, mode, identity)
+	event := CreateAuditEvent("get all user sessions", identity, mode, identity)
 	defer func() { SaveAuditEvent(event, e.db, e.conf) }()
 
 	userTOKEN, _, _ := e.getUserToken(w, r, mode, identity, event, true)
@@ -167,7 +166,7 @@ func (e mainEnv) sessionList(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 	records, count, err := e.db.getUserSessionsByToken(userTOKEN, offset, limit)
 	if err != nil {
-		utils.ReturnError(w, r, "internal error", 405, err, event)
+		ReturnError(w, r, "internal error", 405, err, event)
 		return
 	}
 	data := strings.Join(records, ",")
@@ -178,7 +177,7 @@ func (e mainEnv) sessionList(w http.ResponseWriter, r *http.Request, ps httprout
 
 func (e mainEnv) sessionGet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	session := ps.ByName("session")
-	event := audit.CreateAuditEvent("get session", session, "session", session)
+	event := CreateAuditEvent("get session", session, "session", session)
 	defer func() {
 		if event != nil {
 			SaveAuditEvent(event, e.db, e.conf)
@@ -190,7 +189,7 @@ func (e mainEnv) sessionGet(w http.ResponseWriter, r *http.Request, ps httproute
 		e.db.store.DeleteExpired(storage.TblName.Sessions, "token", userTOKEN)
 	}
 	if err != nil {
-		utils.ReturnError(w, r, err.Error(), 405, err, event)
+		ReturnError(w, r, err.Error(), 405, err, event)
 		return
 	}
 

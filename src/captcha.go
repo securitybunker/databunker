@@ -28,19 +28,19 @@ func (e mainEnv) showCaptcha(w http.ResponseWriter, r *http.Request, ps httprout
 	code := ps.ByName("code")
 	if len(code) == 0 {
 		err := errors.New("Bad code")
-		utils.ReturnError(w, r, "bad code", 405, err, nil)
+		ReturnError(w, r, "bad code", 405, err, nil)
 		return
 	}
 	s, err := decryptCaptcha(code)
 	if err != nil {
-		utils.ReturnError(w, r, err.Error(), 405, err, nil)
+		ReturnError(w, r, err.Error(), 405, err, nil)
 		return
 	}
 	log.Printf("Decoded captcha: %s", s)
 	//box := packr.NewBox("../ui")
 	//comic, err := box.Find("site/fonts/comic.ttf")
 	//if err != nil {
-	//  utils.ReturnError(w, r, err.Error(), 405, err, nil)
+	//  ReturnError(w, r, err.Error(), 405, err, nil)
 	//  return
 	//}
 	cap := captcha.New()
