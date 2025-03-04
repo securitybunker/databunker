@@ -366,6 +366,9 @@ func LockMemory() error {
 }
 
 func CheckValidUUID(uuidCode string) bool {
+	if len(uuidCode) == 0 {
+		return false
+	}
 	return regexUUID.MatchString(uuidCode)
 }
 
