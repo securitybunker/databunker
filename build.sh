@@ -15,7 +15,7 @@ else
 fi
 
 cd src
-go get -v -v
+go get -u -v
 
 cat go.mod
 
