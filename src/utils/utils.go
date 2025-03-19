@@ -169,13 +169,16 @@ func GetExpirationNum(val interface{}) int32 {
                 num = int32(val.(float64))
         case string:
                 expiration := val.(string)
+                if len(expiration) == 0 {
+                        return 0
+                }
                 match := regexExpiration.FindStringSubmatch(expiration)
                 // expiration format: 10d, 10h, 10m, 10s
                 if len(match) == 2 {
                         num = Atoi(match[1])
                 } else {
                         if len(match) != 3 {
-                                log.Printf("failed to parse expiration value: %s", expiration)
+                                log.Printf("Failed to parse expiration value: %s", expiration)
                                 return 0
                         }
                         numStr := match[1]
