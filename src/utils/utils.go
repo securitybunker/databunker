@@ -41,6 +41,7 @@ var (
 	}
 	consentValueTypes = map[string]bool{
 		"1":       true,
+		"active":  true,
 		"accept":  true,
 		"agree":   true,
 		"approve": true,
