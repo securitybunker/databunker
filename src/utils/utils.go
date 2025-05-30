@@ -138,6 +138,12 @@ func GetIntValue(r interface{}) int {
 		return int(r.(int32))
 	case float64:
 		return int(r.(float64))
+	case string:
+		val, err := strconv.Atoi(r.(string))
+		if err != nil {
+			return 0
+		}
+		return val
 	}
 	return 0
 }
@@ -155,55 +161,55 @@ func GetInt64Value(records map[string]interface{}, key string) int64 {
 }
 
 func GetExpirationNum(val interface{}) int32 {
-        now := int32(time.Now().Unix())
-        num := int32(0)
-        switch val.(type) {
-        case nil:
-                return 0
-        case int:
-                num = int32(val.(int))
-        case int32:
-                num = val.(int32)
-        case int64:
-                num = int32(val.(int64))
-        case float64:
-                num = int32(val.(float64))
-        case string:
-                expiration := val.(string)
-                if len(expiration) == 0 {
-                        return 0
-                }
-                match := regexExpiration.FindStringSubmatch(expiration)
-                // expiration format: 10d, 10h, 10m, 10s
-                if len(match) == 2 {
-                        num = Atoi(match[1])
-                } else {
-                        if len(match) != 3 {
-                                log.Printf("Failed to parse expiration value: %s", expiration)
-                                return 0
-                        }
-                        numStr := match[1]
-                        format := match[2]
-                        if len(format) == 0 {
-                                num = Atoi(numStr)
-                        } else {
-                                switch format {
-                                case "d": // day
-                                        num = (Atoi(numStr) * 24 * 3600)
-                                case "h": // hour
-                                        num = (Atoi(numStr) * 3600)
-                                case "m": // month
-                                        num = (Atoi(numStr) * 24 * 31 * 3600)
-                                case "s":
-                                        num = (Atoi(numStr))
-                                }
-                        }
-                }
-        }
-        if num > now {
-                return num - now
-        }
-        return num
+	now := int32(time.Now().Unix())
+	num := int32(0)
+	switch val.(type) {
+	case nil:
+		return 0
+	case int:
+		num = int32(val.(int))
+	case int32:
+		num = val.(int32)
+	case int64:
+		num = int32(val.(int64))
+	case float64:
+		num = int32(val.(float64))
+	case string:
+		expiration := val.(string)
+		if len(expiration) == 0 {
+			return 0
+		}
+		match := regexExpiration.FindStringSubmatch(expiration)
+		// expiration format: 10d, 10h, 10m, 10s
+		if len(match) == 2 {
+			num = Atoi(match[1])
+		} else {
+			if len(match) != 3 {
+				log.Printf("Failed to parse expiration value: %s", expiration)
+				return 0
+			}
+			numStr := match[1]
+			format := match[2]
+			if len(format) == 0 {
+				num = Atoi(numStr)
+			} else {
+				switch format {
+				case "d": // day
+					num = (Atoi(numStr) * 24 * 3600)
+				case "h": // hour
+					num = (Atoi(numStr) * 3600)
+				case "m": // month
+					num = (Atoi(numStr) * 24 * 31 * 3600)
+				case "s":
+					num = (Atoi(numStr))
+				}
+			}
+		}
+	}
+	if num > now {
+		return num - now
+	}
+	return num
 }
 
 func GetArgEnvFileVariable(vname string, masterKeyPtr *string) string {
