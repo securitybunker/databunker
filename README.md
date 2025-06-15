@@ -136,21 +136,6 @@ const user = await db.users.findByEmail('user@example.com');
 - **Identity Management**: Secure user authentication and session storage
 - **GDPR Compliance**: Built-in tools for data privacy regulations
 
-## 💻 Available Editions
-
-### Community Edition (Free)
-- Full encryption capabilities
-- MySQL/PostgreSQL support
-- Basic audit logging
-- MIT license
-
-### Enterprise Edition (Startup-friendly pricing)
-- Multi-tenancy support
-- Advanced monitoring
-- Priority support
-- Custom deployment options
-- Aurora PostgreSQL auto-scaling
-
 ## 🔧 Technical Specifications
 
 - Written in Go for high performance
