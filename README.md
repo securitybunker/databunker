@@ -2,7 +2,7 @@
 
 # Databunker
 
-**Databunker is a self-hosted, GDPR compliant, secure database for personal records - PII/PHI/KYC: https://databunker.org/**
+**Databunker is a self-hosted, GDPR compliant, Go-based tool for secure personal records tokenization and storage - PII/PHI/KYC: https://databunker.org/**
 
 <div align="center">
  <p>
@@ -15,6 +15,47 @@
   <a href="https://github.com/securitybunker/databunker-session-store"><img src="https://nodei.co/npm/@databunker/session-store.png?mini=true" alt="npm install @databunker/session-store" /></a>
  </p>
 </div>
+
+## Databunker intro
+
+### 💣 The Big Problem with Traditional Database Encryption
+Traditional database encryption solutions often provide a false sense of security. While they may encrypt data at rest, they leave critical vulnerabilities:
+
+* **Encryption alone isn’t enough:** Most vendors offer only basic database or disk encryption, leaving data vulnerable
+* **Vulnerable GraphQL Queries:** Unfiltered queries can expose unencrypted data to attackers
+* **SQL Injection Risks:** Attackers can retrieve plaintext data through SQL injections
+
+Databunker addresses these gaps with a secure, developer-focused solution for personal data tokenization and storage.
+
+### 🛠️  DataBunker Features
+
+- **Tokenization Engine**: Generates UUID tokens for safe data referencing in applications
+- **Encrypted Storage**: Secures sensitive data with a robust architecture, surpassing traditional solutions
+- **Injection Protection**: Blocks SQL and GraphQL injection attacks by design
+- **Secure Indexing**: Uses hash-based indexing for search queries
+- **No Plaintext Storage**: Ensures all data is encrypted at rest
+- **Restricted Bulk Retrieval**: Disabled by default to prevent data leaks
+- **API-Based Access**: Integrates with your backend via a NoSQL-like API
+- **Fast Integration**: Set up secure data protection in under 10 minutes
+
+For **credit-card tokenization** or **enterprise security features** check out the <a href="/databunker-pro-docs/introduction/">Databunker Pro</a>.
+
+
+### ⚡ Why Databunker?
+
+Databunker provides a robust, open-source vault that eliminates the false sense of security from traditional encryption methods, offering developers a practical way to protect sensitive data.
+
+### 🚀 Deployment & Usage
+- **Self-Hosted**: Run on your cloud or on-premises infrastructure
+- **Open-Source**: Licensed under MIT for free commercial use
+- **GDPR Compliant**: Meets modern privacy regulation requirements
+- **High Performance**: Go-powered API ensures fast tokenization and data access
+
+### 🔐 How It Works
+1. Store sensitive data in Databunker via API calls
+2. Receive UUID tokens to reference data securely in your application
+3. Query data using secure, hash-based indexing
+4. Benefit from built-in protections against injections and bulk data leaks
 
 ## 🚀 Quick Start (5 minutes)
 
