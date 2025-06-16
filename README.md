@@ -21,7 +21,7 @@
 ### 💣 The Big Problem with Traditional Database Encryption
 Traditional database encryption solutions often provide a false sense of security. While they may encrypt data at rest, they leave critical vulnerabilities:
 
-* **Encryption alone isn’t enough:** Most vendors offer only basic database or disk encryption, leaving data vulnerable
+* **Encryption alone isn’t enough:** Most vendors offer only disk-block encryption, ignoring API-level encryption
 * **Vulnerable GraphQL Queries:** Unfiltered queries can expose unencrypted data to attackers
 * **SQL Injection Risks:** Attackers can retrieve plaintext data through SQL injections
 
