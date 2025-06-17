@@ -30,7 +30,7 @@ Databunker addresses these gaps with a secure, developer-focused solution for pe
 ### 🛠️  DataBunker Features
 
 - **Tokenization Engine**: Generates UUID tokens for safe data referencing in applications
-- **Encrypted Storage**: Secures sensitive data with a robust architecture, surpassing traditional solutions
+- **Encrypted Storage**: Secures sensitive records with advanced encryption layer
 - **Injection Protection**: Blocks SQL and GraphQL injection attacks by design
 - **Secure Indexing**: Uses hash-based indexing for search queries
 - **No Plaintext Storage**: Ensures all data is encrypted at rest
