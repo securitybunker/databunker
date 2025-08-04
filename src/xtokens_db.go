@@ -40,7 +40,7 @@ func (dbobj dbcon) createRootXtoken(customRootXtoken string) (string, error) {
 		}
 	}
 	bdoc := bson.M{}
-	bdoc["xtoken"] = utils.HashString(dbobj.hash, rootToken)
+	bdoc["xtoken"] = utils.HashString(dbobj.salt, rootToken)
 	bdoc["type"] = "root"
 	bdoc["token"] = ""
 	_, err = dbobj.store.CreateRecord(storage.TblName.Xtokens, &bdoc)
@@ -60,7 +60,7 @@ func (dbobj dbcon) genUserLoginXtoken(userTOKEN string) (string, string, error) 
 	if err != nil {
 		return "", "", err
 	}
-	hashedToken := utils.HashString(dbobj.hash, tokenUUID)
+	hashedToken := utils.HashString(dbobj.salt, tokenUUID)
 	// by default login token for 30 minutes only
 	expired := int32(time.Now().Unix()) + 10*60
 	bdoc := bson.M{}
@@ -77,7 +77,7 @@ func (dbobj dbcon) checkUserAuthXToken(xtokenUUID string) (tokenAuthResult, erro
 	if xtokenUUID != "DEMO" && utils.CheckValidUUID(xtokenUUID) == false {
 		return result, errors.New("failed to authenticate")
 	}
-	xtokenHashed := utils.HashString(dbobj.hash, xtokenUUID)
+	xtokenHashed := utils.HashString(dbobj.salt, xtokenUUID)
 	if len(rootXTOKEN) > 0 && rootXTOKEN == xtokenHashed {
 		//log.Println("It is a root token")
 		result.ttype = "root"

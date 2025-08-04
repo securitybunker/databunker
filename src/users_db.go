@@ -44,16 +44,16 @@ func (dbobj dbcon) createUserRecord(parsedData utils.UserJSONStruct, event *Audi
 	// I use original md5(master_key) as a kind of salt here,
 	// so no additional configuration field is needed here.
 	if len(parsedData.LoginIdx) > 0 {
-		bdoc["loginidx"] = utils.HashString(dbobj.hash, parsedData.LoginIdx)
+		bdoc["loginidx"] = utils.HashString(dbobj.salt, parsedData.LoginIdx)
 	}
 	if len(parsedData.EmailIdx) > 0 {
-		bdoc["emailidx"] = utils.HashString(dbobj.hash, parsedData.EmailIdx)
+		bdoc["emailidx"] = utils.HashString(dbobj.salt, parsedData.EmailIdx)
 	}
 	if len(parsedData.PhoneIdx) > 0 {
-		bdoc["phoneidx"] = utils.HashString(dbobj.hash, parsedData.PhoneIdx)
+		bdoc["phoneidx"] = utils.HashString(dbobj.salt, parsedData.PhoneIdx)
 	}
 	if len(parsedData.CustomIdx) > 0 {
-		bdoc["customidx"] = utils.HashString(dbobj.hash, parsedData.CustomIdx)
+		bdoc["customidx"] = utils.HashString(dbobj.salt, parsedData.CustomIdx)
 	}
 	if event != nil {
 		event.After = encodedStr
@@ -235,7 +235,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 		}
 		if idxOldValue, ok := oldUserBson[idx+"idx"]; ok {
 			if len(newIdxFinalValue) > 0 && len(idxOldValue.(string)) >= 0 {
-				idxStringHashHex := utils.HashString(dbobj.hash, newIdxFinalValue)
+				idxStringHashHex := utils.HashString(dbobj.salt, newIdxFinalValue)
 				if idxStringHashHex == idxOldValue.(string) {
 					//log.Println("Index value NOT changed!")
 					actionCode = 0
@@ -255,7 +255,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 				return nil, nil, true, fmt.Errorf("duplicate %s index", idx)
 			}
 			//log.Printf("Adding index3? %s\n", raw[idx])
-			bdoc[idx+"idx"] = utils.HashString(dbobj.hash, newIdxFinalValue)
+			bdoc[idx+"idx"] = utils.HashString(dbobj.salt, newIdxFinalValue)
 		} else if len(newIdxFinalValue) == 0 {
 			bdel = append(bdel, idx+"idx")
 		}
@@ -314,7 +314,7 @@ func (dbobj dbcon) lookupUserRecordByIndex(indexName string, indexValue string, 
 	if indexName == "exptoken" {
 		return dbobj.store.GetRecord(storage.TblName.Users, "exptoken", indexValue)
 	}
-	idxStringHashHex := utils.HashString(dbobj.hash, indexValue)
+	idxStringHashHex := utils.HashString(dbobj.salt, indexValue)
 	//log.Printf("Loading by %s, value: %s\n", indexName, indexValue)
 	return dbobj.store.GetRecord(storage.TblName.Users, indexName+"idx", idxStringHashHex)
 }

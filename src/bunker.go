@@ -30,7 +30,7 @@ var version string
 type dbcon struct {
 	store     storage.BackendDB
 	masterKey []byte
-	hash      []byte
+	salt      []byte
 }
 
 // Config is u	sed to store application configuration

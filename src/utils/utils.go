@@ -225,8 +225,8 @@ func GetArgEnvFileVariable(vname string, masterKeyPtr *string) string {
 	return strings.TrimSpace(strvalue)
 }
 
-func HashString(md5Salt []byte, src string) string {
-	stringToHash := append(md5Salt, []byte(src)...)
+func HashString(salt []byte, src string) string {
+	stringToHash := append(salt, []byte(src)...)
 	hashed := sha256.Sum256(stringToHash)
 	return base64.StdEncoding.EncodeToString(hashed[:])
 }

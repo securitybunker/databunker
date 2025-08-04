@@ -72,6 +72,6 @@ func (dbobj dbcon) GlobalUserChangeEmail(oldEmail string, newEmail string) {
 }
 
 func (dbobj dbcon) GetCode() []byte {
-	code := dbobj.hash[4:12]
+	code := dbobj.salt[4:12]
 	return code
 }
