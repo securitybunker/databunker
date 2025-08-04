@@ -88,12 +88,12 @@ func loadService() {
 		log.Printf("Filed to open db: %s", err)
 		os.Exit(0)
 	}
-	hash := md5.Sum(masterKey)
-	db := &dbcon{store, masterKey, hash[:]}
+	md5hash := md5.Sum(masterKey)
+	db := &dbcon{store, masterKey, md5hash[:]}
 	e := mainEnv{db, cfg, make(chan struct{})}
 	e.dbCleanup()
 	initGeoIP()
-	initCaptcha(hash)
+	initCaptcha(md5hash)
 	router := e.setupRouter()
 	router = e.setupConfRouter(router)
 	tlsConfig := &tls.Config{
@@ -180,7 +180,7 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 		}
 		log.Printf("Master key: %x\n", masterKey)
 	}
-	hash := md5.Sum(masterKey)
+	md5hash := md5.Sum(masterKey)
 	log.Println("Init database")
 	store, err := storage.InitDB(dbPtr)
 	for numAttempts := 60; err != nil && numAttempts > 0; numAttempts-- {
@@ -193,7 +193,7 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 		log.Fatalf("Databunker failed to init database, error %s\n\n", err.Error())
 		os.Exit(0)
 	}
-	db := &dbcon{store, masterKey, hash[:]}
+	db := &dbcon{store, masterKey, md5hash[:]}
 	rootToken, err := db.createRootXtoken(customRootToken)
 	if err != nil {
 		//log.Panic("error %s", err.Error())
