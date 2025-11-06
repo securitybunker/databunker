@@ -150,14 +150,15 @@ const user = await db.users.findByEmail('user@example.com');
 
 1. GDPR compliance and Databunker introduction video https://www.youtube.com/watch?v=QESOuL3LMj0
 1. https://oppetmoln.se/20220223/databunker-en-oppen-losning-for-gdpr-saker-lagring-av-kundinformation/
-1. https://www.freecodecamp.org/news/how-to-stay-gdpr-compliant-with-access-logs/
-1. https://news.ycombinator.com/item?id=26690279
-1. https://hackernoon.com/data-leak-prevention-with-databunker-xnn33u9
 1. https://anchor.fm/techandmain/episodes/Huawei--Microsoft-and-DataBunker--Yuli-Stremovsky-evl385
+1. https://www.freecodecamp.org/news/how-to-stay-gdpr-compliant-with-access-logs/
+1. https://hackernoon.com/data-leak-prevention-with-databunker-xnn33u9
 1. https://nocomplexity.com/documents/simplifyprivacy/databunker.html
+1. https://marcusolsson.dev/data-privacy-vaults-using-databunker/
 1. https://ipv6.rs/tutorial/FreeBSD_Latest/Databunker/
 1. https://selfhostedworld.com/software/databunker
 1. https://ipv6.rs/tutorial/Void_Linux/Databunker/
+1. https://news.ycombinator.com/item?id=26690279
 1. https://slashdot.org/software/p/Databunker/
 1. https://github.com/expressjs/session
 1. https://stackshare.io/databunker
