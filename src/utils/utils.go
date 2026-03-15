@@ -255,9 +255,6 @@ func NormalizeEmail(email0 string) string {
 	email, _ := url.QueryUnescape(email0)
 	email = strings.ToLower(email)
 	email = strings.TrimSpace(email)
-	if email0 != email {
-		log.Printf("Email before normalization: %s, after: %s\n", email0, email)
-	}
 	return email
 }
 
