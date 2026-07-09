@@ -157,6 +157,7 @@ func (e mainEnv) expStart(w http.ResponseWriter, r *http.Request, ps httprouter.
 	expToken, err := uuid.GenerateUUID()
 	if err != nil {
 		ReturnError(w, r, "internal error", 405, err, event)
+		return
 	}
 	err = e.db.initiateUserExpiration(userTOKEN, endtime, status, expToken)
 	if err != nil {

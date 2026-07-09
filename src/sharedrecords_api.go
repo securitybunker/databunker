@@ -35,6 +35,7 @@ func (e mainEnv) sharedRecordCreate(w http.ResponseWriter, r *http.Request, ps h
 		appName = strings.ToLower(appName)
 		if utils.CheckValidApp(appName) == false {
 			ReturnError(w, r, "unknown app name", 405, nil, event)
+			return
 		}
 	}
 	expiration := utils.SetExpiration(e.conf.Policy.MaxShareableRecordRetentionPeriod, postData["expiration"])
