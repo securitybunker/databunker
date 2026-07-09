@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/securitybunker/databunker/src/storage"
@@ -365,24 +366,39 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	userTOKEN := utils.GetUuidString(userBson["token"])
 	event.Record = userTOKEN
-	tmpCode := int32(0)
-	if _, ok := userBson["tempcode"]; ok {
-		tmpCode = userBson["tempcode"].(int32)
-	}
-	if tmp == tmpCode {
-		// user ented correct key
-		// generate temp user access code
-		xtoken, hashedToken, err := e.db.genUserLoginXtoken(userTOKEN)
-		//fmt.Printf("generate user access token: %s\n", xtoken)
-		if err != nil {
-			ReturnError(w, r, "internal error", 405, err, event)
-			return
-		}
-		event.Msg = "generated: " + hashedToken
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		fmt.Fprintf(w, `{"status":"ok","xtoken":"%s","token":"%s"}`, xtoken, userTOKEN)
+	// A login code must have been issued by prelogin first. If tempcode is
+	// absent (user never called prelogin), reject: otherwise an unset code
+	// would default to 0 and match a submitted "0", bypassing authentication.
+	tempcodeRaw, ok := userBson["tempcode"]
+	if !ok {
+		ReturnError(w, r, "internal error", 405, nil, event)
 		return
 	}
-	ReturnError(w, r, "internal error", 405, nil, event)
+	tmpCode := tempcodeRaw.(int32)
+	// A real code is never 0 (RandNum(6) is 100000-999999); reject it outright.
+	if tmp == 0 || tmp != tmpCode {
+		ReturnError(w, r, "internal error", 405, nil, event)
+		return
+	}
+	// Enforce the code expiration set by generateTempLoginCode (now + 60s).
+	tempcodeexp := int32(0)
+	if v, ok := userBson["tempcodeexp"]; ok {
+		tempcodeexp = v.(int32)
+	}
+	if tempcodeexp == 0 || int32(time.Now().Unix()) > tempcodeexp {
+		ReturnError(w, r, "internal error", 405, nil, event)
+		return
+	}
+	// user entered correct key
+	// generate temp user access code
+	xtoken, hashedToken, err := e.db.genUserLoginXtoken(userTOKEN)
+	//fmt.Printf("generate user access token: %s\n", xtoken)
+	if err != nil {
+		ReturnError(w, r, "internal error", 405, err, event)
+		return
+	}
+	event.Msg = "generated: " + hashedToken
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	fmt.Fprintf(w, `{"status":"ok","xtoken":"%s","token":"%s"}`, xtoken, userTOKEN)
 }

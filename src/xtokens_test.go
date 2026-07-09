@@ -243,6 +243,32 @@ func TestFakeLogin(t *testing.T) {
 	}
 }
 
+// Regression test for the auth-bypass: a user who never called prelogin has no
+// tempcode, and login must NOT succeed with code "0" (or any code).
+func TestLoginZeroCodeBypass(t *testing.T) {
+	email := "nologin-user@example.com"
+	jsonData := `{"email":"nologin-user@example.com","login":"nologinuser","name":"NoLogin"}`
+	raw, err := helpCreateUser(jsonData)
+	if err != nil {
+		t.Fatalf("failed to create user: %s", err)
+	}
+	if status, ok := raw["status"].(string); !ok || status != "ok" {
+		if msg, _ := raw["message"].(string); !strings.Contains(msg, "duplicate") {
+			t.Fatalf("failed to create user: %v", raw)
+		}
+	}
+	// No prelogin was performed, so any login attempt must be rejected.
+	for _, code := range []string{"0", "00", "4444"} {
+		resp, _ := helpUserLogin("email", email, code)
+		if status, ok := resp["status"].(string); ok && status == "ok" {
+			t.Fatalf("AUTH BYPASS: login succeeded with code %q and no prelogin: %v", code, resp)
+		}
+		if x, ok := resp["xtoken"]; ok && x != nil && x != "" {
+			t.Fatalf("AUTH BYPASS: got xtoken with code %q and no prelogin: %v", code, resp)
+		}
+	}
+}
+
 func TestGetFakeRequest(t *testing.T) {
 	rtoken, _ := uuid.GenerateUUID()
 	raw, _ := helpGetUserRequest(rtoken)
