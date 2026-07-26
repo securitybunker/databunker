@@ -88,7 +88,7 @@ func loadService() {
 		log.Printf("Filed to open db: %s", err)
 		os.Exit(0)
 	}
-	md5hash := md5.Sum(masterKey)
+	md5hash := md5.Sum(masterKey) // nosemgrep: go.lang.security.audit.crypto.use_of_weak_crypto.use-of-md5 -- non-cryptographic checksum (data sanity / indexing), not a security hash
 	db := &dbcon{store, masterKey, md5hash[:]}
 	e := mainEnv{db, cfg, make(chan struct{})}
 	e.dbCleanup()
@@ -180,7 +180,7 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 		}
 		log.Printf("Master key: %x\n", masterKey)
 	}
-	md5hash := md5.Sum(masterKey)
+	md5hash := md5.Sum(masterKey) // nosemgrep: go.lang.security.audit.crypto.use_of_weak_crypto.use-of-md5 -- non-cryptographic checksum (data sanity / indexing), not a security hash
 	log.Println("Init database")
 	store, err := storage.InitDB(dbPtr)
 	for numAttempts := 60; err != nil && numAttempts > 0; numAttempts-- {

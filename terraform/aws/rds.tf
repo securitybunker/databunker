@@ -62,6 +62,8 @@ resource "aws_db_instance" "databunkerdb" {
   parameter_group_name   = aws_db_parameter_group.databunkerparams.name
   publicly_accessible    = false
   skip_final_snapshot    = true
+  # Ship database logs to CloudWatch for audit/compliance retention.
+  enabled_cloudwatch_logs_exports = ["error", "general", "slowquery"]
   # The following list briefly describes the three storage types:
   #
   # - General Purpose SSD – Also known as gp2, volumes offer cost-effective storage that is ideal for a broad range of workloads.
