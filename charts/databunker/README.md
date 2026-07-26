@@ -365,9 +365,7 @@ In the first two cases, it's needed a certificate and a key. We would expect the
 
     ```console
     -----BEGIN RSA PRIVATE KEY-----
-    MIIEogIBAAKCAQEAvLYcyu8f3skuRyUgeeNpeDvYBCDcgq+LsWap6zbX5f8oLqp4
-    ...
-    wrj2wDbCDCFmfqnSJ+dKI3vFLlEz44sAV8jX/kd4Y6ZTQhlLbYc=
+    <your PEM-encoded RSA private key goes here>
     -----END RSA PRIVATE KEY-----
     ```
 

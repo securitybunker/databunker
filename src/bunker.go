@@ -8,7 +8,6 @@ import (
 	"errors"
 	"io"
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
 	"strings"
@@ -512,7 +511,6 @@ func (e mainEnv) reqMiddleware(handler http.Handler) http.Handler {
 
 // main application function
 func main() {
-	rand.Seed(time.Now().UnixNano())
 	utils.LockMemory()
 	loadService()
 }
