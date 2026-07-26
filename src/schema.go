@@ -79,7 +79,7 @@ func validateUserRecord(record []byte) error {
 	if userSchema == nil {
 		return nil
 	}
-	var doc interface{}
+	var doc interface{} // nosemgrep: go.lang.security.deserialization.unsafe-deserialization-interface.go-unsafe-deserialization-interface -- json.Unmarshal into interface{} is safe in Go (no gadget chains)
 	if err := json.Unmarshal(record, &doc); err != nil {
 		return err
 	}
@@ -94,8 +94,8 @@ func validateUserRecordChange(oldRecord []byte, newRecord []byte, authResult str
 	if userSchema == nil {
 		return false, nil
 	}
-	var oldDoc interface{}
-	var newDoc interface{}
+	var oldDoc interface{} // nosemgrep: go.lang.security.deserialization.unsafe-deserialization-interface.go-unsafe-deserialization-interface -- json.Unmarshal into interface{} is safe in Go (no gadget chains)
+	var newDoc interface{} // nosemgrep: go.lang.security.deserialization.unsafe-deserialization-interface.go-unsafe-deserialization-interface -- json.Unmarshal into interface{} is safe in Go (no gadget chains)
 	if err := json.Unmarshal(oldRecord, &oldDoc); err != nil {
 		return false, err
 	}
@@ -139,7 +139,7 @@ func cleanupRecord(record []byte) ([]byte, map[string]interface{}) {
 	if userSchema == nil {
 		return nil, nil
 	}
-	var doc interface{}
+	var doc interface{} // nosemgrep: go.lang.security.deserialization.unsafe-deserialization-interface.go-unsafe-deserialization-interface -- json.Unmarshal into interface{} is safe in Go (no gadget chains)
 	if err := json.Unmarshal(record, &doc); err != nil {
 		return nil, nil
 	}

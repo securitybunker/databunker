@@ -1,6 +1,7 @@
 package utils
 
 import (
+	crand "crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
@@ -8,7 +9,7 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"math/rand"
+	"math/big"
 	"mime"
 	"net/http"
 	"net/url"
@@ -526,7 +527,7 @@ func GetJSONPostData(r *http.Request) ([]byte, error) {
 		}
 		return json.Marshal(records)
 	} else if strings.HasPrefix(cType, "application/json") || strings.HasPrefix(cType, "application/xml") {
-		var data interface{}
+		var data interface{} // nosemgrep: go.lang.security.deserialization.unsafe-deserialization-interface.go-unsafe-deserialization-interface -- json.Unmarshal into interface{} is safe in Go (no gadget chains)
 		err := json.Unmarshal([]byte(body), &data)
 		if err != nil {
 			return nil, errors.New("error decoding json data")
@@ -589,10 +590,22 @@ func GetUserJSONStruct(r *http.Request, defaultCountry string) (UserJSONStruct, 
 	return result, err
 }
 
+// secureIntn returns a uniformly distributed int in [0, max) using a
+// cryptographically secure source. These generators produce verification /
+// captcha codes, so predictable math/rand output must not be used here.
+func secureIntn(max int) int {
+	n, err := crand.Int(crand.Reader, big.NewInt(int64(max)))
+	if err != nil {
+		// crypto/rand should never fail; if it does, failing loudly is correct.
+		panic("crypto/rand unavailable: " + err.Error())
+	}
+	return int(n.Int64())
+}
+
 func RandSeq(n int) string {
 	b := make([]rune, n)
 	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
+		b[i] = letters[secureIntn(len(letters))]
 	}
 	return string(b)
 }
@@ -600,8 +613,8 @@ func RandSeq(n int) string {
 func RandNum(n int) int32 {
 	b := make([]rune, n)
 	for i := range b {
-		b[i] = numbers[rand.Intn(len(numbers))]
+		b[i] = numbers[secureIntn(len(numbers))]
 	}
-	b[0] = numbers0[rand.Intn(len(numbers0))]
+	b[0] = numbers0[secureIntn(len(numbers0))]
 	return Atoi(string(b))
 }
