@@ -13,7 +13,7 @@ require (
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/oschwald/geoip2-golang v1.13.0
-	github.com/prometheus/client_golang v1.23.2
+	github.com/prometheus/client_golang v1.24.1
 	github.com/qri-io/jsonpointer v0.1.1
 	//      github.com/securitybunker/databunker/src/storage v0.0.0
 	//      github.com/securitybunker/databunker/src/utils v0.0.0
@@ -24,8 +24,8 @@ require (
 )
 
 require (
-	github.com/securitybunker/databunker/src/storage v0.0.0-20260315122847-8ca881769bdb
-	github.com/securitybunker/databunker/src/utils v0.0.0-20260315122847-8ca881769bdb
+	github.com/securitybunker/databunker/src/storage v0.0.0-20260709154828-0588df696df5
+	github.com/securitybunker/databunker/src/utils v0.0.0-20260709154828-0588df696df5
 )
 
 require (
@@ -41,12 +41,12 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/lib/pq v1.12.3 // indirect
-	github.com/mattn/go-isatty v0.0.22 // indirect
+	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/oschwald/maxminddb-golang v1.13.1 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
-	github.com/prometheus/common v0.69.0 // indirect
+	github.com/prometheus/common v0.70.1 // indirect
 	github.com/prometheus/procfs v0.21.1 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rogpeppe/go-internal v1.15.0 // indirect
@@ -58,8 +58,8 @@ require (
 	golang.org/x/mod v0.38.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
-	modernc.org/libc v1.74.1 // indirect
+	modernc.org/libc v1.74.3 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
-	modernc.org/sqlite v1.53.0 // indirect
+	modernc.org/sqlite v1.54.0 // indirect
 )
