@@ -93,11 +93,11 @@ func (dbobj MySQLDB) CreateTestDB() string {
 		return testDBName
 	}
 	fmt.Printf("** recreate database: %s\n", testDBName)
-	_, err = db.Exec(fmt.Sprintf("drop database %s", testDBName))
+	_, err = db.Exec(fmt.Sprintf("drop database %s", testDBName)) // nosemgrep: go.lang.security.audit.database.string-formatted-query.string-formatted-query -- DDL with a controlled identifier; db/table names cannot be parameterized
 	if err != nil {
 		fmt.Printf("error: %s\n", err)
 	}
-	_, err = db.Exec(fmt.Sprintf("create database %s", testDBName))
+	_, err = db.Exec(fmt.Sprintf("create database %s", testDBName)) // nosemgrep: go.lang.security.audit.database.string-formatted-query.string-formatted-query -- DDL with a controlled identifier; db/table names cannot be parameterized
 	if err != nil {
 		fmt.Printf("error: %s\n", err)
 	}

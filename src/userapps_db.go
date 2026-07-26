@@ -69,7 +69,7 @@ func (dbobj dbcon) createAppRecord(jsonData []byte, userTOKEN string, userBSON m
 	bdoc := bson.M{}
 	bdoc["data"] = encodedStr
 	//it is ok to use md5 here, it is only for data sanity
-	md5Hash := md5.Sum([]byte(encodedStr))
+	md5Hash := md5.Sum([]byte(encodedStr)) // nosemgrep: go.lang.security.audit.crypto.use_of_weak_crypto.use-of-md5 -- non-cryptographic checksum (data sanity / indexing), not a security hash
 	bdoc["md5"] = base64.StdEncoding.EncodeToString(md5Hash[:])
 	bdoc["token"] = userTOKEN
 	if event != nil {
@@ -159,7 +159,7 @@ func (dbobj dbcon) updateAppRecord(jsonDataPatch []byte, userTOKEN string, userB
 	encodedStr := base64.StdEncoding.EncodeToString(encoded)
 	bdoc["data"] = encodedStr
 	//it is ok to use md5 here, it is only for data sanity
-	md5Hash := md5.Sum([]byte(encodedStr))
+	md5Hash := md5.Sum([]byte(encodedStr)) // nosemgrep: go.lang.security.audit.crypto.use_of_weak_crypto.use-of-md5 -- non-cryptographic checksum (data sanity / indexing), not a security hash
 	bdoc["md5"] = base64.StdEncoding.EncodeToString(md5Hash[:])
 	bdoc["token"] = userTOKEN
 

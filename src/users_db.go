@@ -37,7 +37,7 @@ func (dbobj dbcon) createUserRecord(parsedData utils.UserJSONStruct, event *Audi
 	bdoc["key"] = base64.StdEncoding.EncodeToString(userKeyBinary)
 	bdoc["data"] = encodedStr
 	//it is ok to use md5 here, it is only for data sanity
-	md5Hash := md5.Sum([]byte(encodedStr))
+	md5Hash := md5.Sum([]byte(encodedStr)) // nosemgrep: go.lang.security.audit.crypto.use_of_weak_crypto.use-of-md5 -- non-cryptographic checksum (data sanity / indexing), not a security hash
 	bdoc["md5"] = base64.StdEncoding.EncodeToString(md5Hash[:])
 	bdoc["token"] = userTOKEN
 	// the index search field is hashed here, to be not-reversible
@@ -266,7 +266,7 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 	bdoc["key"] = userKey
 	bdoc["data"] = encodedStr
 	//it is ok to use md5 here, it is only for data sanity
-	md5Hash := md5.Sum([]byte(encodedStr))
+	md5Hash := md5.Sum([]byte(encodedStr)) // nosemgrep: go.lang.security.audit.crypto.use_of_weak_crypto.use-of-md5 -- non-cryptographic checksum (data sanity / indexing), not a security hash
 	bdoc["md5"] = base64.StdEncoding.EncodeToString(md5Hash[:])
 	bdoc["token"] = userTOKEN
 
@@ -467,7 +467,7 @@ func (dbobj dbcon) deleteUserRecord(userJSON []byte, userTOKEN string, conf Conf
 		encodedStr := base64.StdEncoding.EncodeToString(encoded)
 		bdoc["key"] = userKey
 		bdoc["data"] = encodedStr
-		md5Hash := md5.Sum([]byte(encodedStr))
+		md5Hash := md5.Sum([]byte(encodedStr)) // nosemgrep: go.lang.security.audit.crypto.use_of_weak_crypto.use-of-md5 -- non-cryptographic checksum (data sanity / indexing), not a security hash
 		bdoc["md5"] = base64.StdEncoding.EncodeToString(md5Hash[:])
 		bdoc["token"] = userTOKEN
 		result, err := dbobj.store.UpdateRecord2(storage.TblName.Users, "token", userTOKEN, "md5", sig, &bdoc, bdel)
