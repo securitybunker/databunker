@@ -24,8 +24,8 @@ require (
 )
 
 require (
-	github.com/securitybunker/databunker/src/storage v0.0.0-20260709154828-0588df696df5
-	github.com/securitybunker/databunker/src/utils v0.0.0-20260709154828-0588df696df5
+	github.com/securitybunker/databunker/src/storage v0.0.0-20260726151859-42a219ee2cb3
+	github.com/securitybunker/databunker/src/utils v0.0.0-20260726151859-42a219ee2cb3
 )
 
 require (
@@ -58,7 +58,7 @@ require (
 	golang.org/x/mod v0.38.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
-	modernc.org/libc v1.74.3 // indirect
+	modernc.org/libc v1.74.4 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
 	modernc.org/sqlite v1.54.0 // indirect
