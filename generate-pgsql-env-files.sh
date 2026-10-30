@@ -1,8 +1,5 @@
 #!/bin/sh
 
-echo 'creating ./data directory'
-mkdir -p data
-chmod 777 data
 mkdir -p .env
 
 echo 'generating .env/postgresql-postgres.env'
