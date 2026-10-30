@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rand"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -36,7 +37,6 @@ func (e mainEnv) showCaptcha(w http.ResponseWriter, r *http.Request, ps httprout
 		ReturnError(w, r, err.Error(), 405, err, nil)
 		return
 	}
-	log.Printf("Decoded captcha: %s", s)
 	//box := packr.NewBox("../ui")
 	//comic, err := box.Find("site/fonts/comic.ttf")
 	//if err != nil {
@@ -70,7 +70,6 @@ func generateCaptcha() (string, error) {
 	s := fmt.Sprintf("%d:%d", code, now)
 	plaintext := []byte(s)
 	//log.Printf("Going to encrypt %s", plaintext)
-	nonce := []byte("$DataBunker$")
 	block, err := aes.NewCipher(captchaKey)
 	if err != nil {
 		log.Printf("error in aes.NewCipher %s", err)
@@ -81,7 +80,12 @@ func generateCaptcha() (string, error) {
 		log.Printf("error in cipher.NewGCM: %s", err)
 		return "", err
 	}
-	ciphertext := aesgcm.Seal(nil, nonce, []byte(plaintext), nil)
+	// GCM requires a unique nonce per token; it is sent as the ciphertext prefix.
+	nonce := make([]byte, aesgcm.NonceSize())
+	if _, err := rand.Read(nonce); err != nil {
+		return "", err
+	}
+	ciphertext := aesgcm.Seal(nonce, nonce, []byte(plaintext), nil)
 	result := hex.EncodeToString(ciphertext)
 	//log.Printf("Encoded captcha: %s", result)
 	//log.Printf("ciphertext : %s", result)
@@ -89,14 +93,13 @@ func generateCaptcha() (string, error) {
 }
 
 func decryptCaptcha(data string) (string, error) {
-	if len(data) > 100 {
+	if len(data) > 128 {
 		return "", errors.New("Ciphertext too long")
 	}
 	ciphertext, err := hex.DecodeString(data)
 	if err != nil {
 		return "", err
 	}
-	nonce := []byte("$DataBunker$")
 	block, err := aes.NewCipher(captchaKey)
 	if err != nil {
 		return "", err
@@ -105,6 +108,10 @@ func decryptCaptcha(data string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if len(ciphertext) < aesgcm.NonceSize() {
+		return "", errors.New("Ciphertext too short")
+	}
+	nonce, ciphertext := ciphertext[:aesgcm.NonceSize()], ciphertext[aesgcm.NonceSize():]
 	plaintext, err := aesgcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
 		return "", err
