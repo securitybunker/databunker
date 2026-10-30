@@ -7,6 +7,5 @@ databunker
 databunker.db*
 databunker.yaml
 bql.db
-go.sum
 .*
 data/*
