@@ -1,7 +1,7 @@
 version: '3'
 services:
   postgresql:
-    image: postgres
+    image: postgres:16
     restart: unless-stopped
     env_file:
       - .env/postgresql-postgres.env
