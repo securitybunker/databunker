@@ -922,6 +922,7 @@ func (dbobj MySQLDB) initUsers() error {
 			`endtime int,` +
 			`tempcodeexp int,` +
 			`tempcode int,` +
+			`tempcodeattempts int,` +
 			`data TEXT);`,
 		`CREATE UNIQUE INDEX users_token ON users (token(36));`,
 		`CREATE INDEX users_login ON users (loginidx(36));`,

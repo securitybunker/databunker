@@ -94,11 +94,11 @@ func (dbobj dbcon) updateUserExpStatus(userTOKEN string, status string) error {
 
 func (dbobj dbcon) generateTempLoginCode(userTOKEN string) int32 {
 	rnd := utils.RandNum(6)
-	log.Printf("Random: %d\n", rnd)
 	bdoc := bson.M{}
 	bdoc["tempcode"] = rnd
 	expired := int32(time.Now().Unix()) + 60
 	bdoc["tempcodeexp"] = expired
+	bdoc["tempcodeattempts"] = 0
 	//log.Printf("op json: %s\n", update)
 	dbobj.store.UpdateRecord(storage.TblName.Users, "token", userTOKEN, &bdoc)
 	return rnd
@@ -106,14 +106,40 @@ func (dbobj dbcon) generateTempLoginCode(userTOKEN string) int32 {
 
 func (dbobj dbcon) generateDemoLoginCode(userTOKEN string) int32 {
 	rnd := int32(4444)
-	log.Printf("Demo random: %d\n", rnd)
 	bdoc := bson.M{}
 	bdoc["tempcode"] = 4444
 	expired := int32(time.Now().Unix()) + 60
 	bdoc["tempcodeexp"] = expired
+	bdoc["tempcodeattempts"] = 0
 	//log.Printf("op json: %s\n", update)
 	dbobj.store.UpdateRecord(storage.TblName.Users, "token", userTOKEN, &bdoc)
 	return rnd
+}
+
+// countLoginAttempt atomically increments the attempt counter so parallel guesses can't share a slot.
+func (dbobj dbcon) countLoginAttempt(userTOKEN string) error {
+	if !utils.CheckValidUUID(userTOKEN) {
+		return errors.New("bad token")
+	}
+	// nosemgrep: go.lang.security.audit.database.string-formatted-query.string-formatted-query -- userTOKEN is a validated UUID
+	return dbobj.store.Exec("UPDATE users SET tempcodeattempts = COALESCE(tempcodeattempts, 0) + 1 WHERE token = '" + userTOKEN + "'")
+}
+
+func (dbobj dbcon) clearTempLoginCode(userTOKEN string) {
+	bdoc := bson.M{}
+	bdoc["tempcode"] = 0
+	bdoc["tempcodeexp"] = 0
+	dbobj.store.UpdateRecord(storage.TblName.Users, "token", userTOKEN, &bdoc)
+}
+
+// migrateUsersTable adds the tempcodeattempts column to databases created before it existed.
+func migrateUsersTable(store storage.BackendDB) {
+	if store.Exec("SELECT tempcodeattempts FROM users WHERE 1=0") == nil {
+		return
+	}
+	if err := store.Exec("ALTER TABLE users ADD COLUMN tempcodeattempts int"); err != nil {
+		log.Fatalf("Failed to add tempcodeattempts column to users table: %s", err)
+	}
 }
 
 func (dbobj dbcon) validateUserRecordChange(oldUserJSON []byte, jsonDataPatch []byte, userTOKEN string, authResult string) (bool, error) {

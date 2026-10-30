@@ -908,6 +908,7 @@ func (dbobj SQLiteDB) initUsers() error {
 			  endtime int,
 			  tempcodeexp int,
 			  tempcode int,
+			  tempcodeattempts int,
 			  data TEXT
 			);`,
 		`CREATE INDEX users_token ON users (token);`,

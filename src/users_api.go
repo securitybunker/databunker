@@ -346,6 +346,9 @@ func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprou
 	fmt.Fprintf(w, `{"status":"ok","result":"done"}`)
 }
 
+// maxLoginAttempts is how many guesses one login code allows before it is invalidated.
+const maxLoginAttempts = 5
+
 func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	tmp := utils.Atoi(ps.ByName("tmp"))
 	identity := ps.ByName("identity")
@@ -369,12 +372,27 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	// A login code must have been issued by prelogin first. If tempcode is
 	// absent (user never called prelogin), reject: otherwise an unset code
 	// would default to 0 and match a submitted "0", bypassing authentication.
-	tempcodeRaw, ok := userBson["tempcode"]
-	if !ok {
+	if _, ok := userBson["tempcode"]; !ok {
 		ReturnError(w, r, "internal error", 405, nil, event)
 		return
 	}
-	tmpCode := tempcodeRaw.(int32)
+	// Count the attempt before comparing, then re-read so the count is current.
+	if err = e.db.countLoginAttempt(userTOKEN); err != nil {
+		ReturnError(w, r, "internal error", 405, err, event)
+		return
+	}
+	userBson, err = e.db.store.GetRecord(storage.TblName.Users, "token", userTOKEN)
+	if userBson == nil || err != nil {
+		ReturnError(w, r, "internal error", 405, err, event)
+		return
+	}
+	tmpCode, _ := userBson["tempcode"].(int32)
+	attempts, _ := userBson["tempcodeattempts"].(int32)
+	if attempts > maxLoginAttempts {
+		e.db.clearTempLoginCode(userTOKEN)
+		ReturnError(w, r, "internal error", 405, nil, event)
+		return
+	}
 	// A real code is never 0 (RandNum(6) is 100000-999999); reject it outright.
 	if tmp == 0 || tmp != tmpCode {
 		ReturnError(w, r, "internal error", 405, nil, event)
@@ -389,7 +407,8 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		ReturnError(w, r, "internal error", 405, nil, event)
 		return
 	}
-	// user entered correct key
+	// user entered correct key; codes are single-use
+	e.db.clearTempLoginCode(userTOKEN)
 	// generate temp user access code
 	xtoken, hashedToken, err := e.db.genUserLoginXtoken(userTOKEN)
 	//fmt.Printf("generate user access token: %s\n", xtoken)
