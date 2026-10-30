@@ -929,6 +929,7 @@ func (dbobj PGSQLDB) initUsers() error {
 			`endtime int,` +
 			`tempcodeexp int,` +
 			`tempcode int,` +
+			`tempcodeattempts int,` +
 			`data TEXT);`,
 		`CREATE UNIQUE INDEX users_token ON users (token);`,
 		`CREATE INDEX users_login ON users (loginidx);`,

@@ -3,10 +3,12 @@ package main
 import (
 	"log"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
 	uuid "github.com/hashicorp/go-uuid"
+	"github.com/securitybunker/databunker/src/storage"
 )
 
 func helpUserPrelogin(mode string, identity string) (map[string]interface{}, error) {
@@ -266,6 +268,85 @@ func TestLoginZeroCodeBypass(t *testing.T) {
 		if x, ok := resp["xtoken"]; ok && x != nil && x != "" {
 			t.Fatalf("AUTH BYPASS: got xtoken with code %q and no prelogin: %v", code, resp)
 		}
+	}
+}
+
+func helpCreateLoginUser(t *testing.T, email string) string {
+	raw, err := helpCreateUser(`{"email":"` + email + `"}`)
+	if err != nil {
+		t.Fatalf("failed to create user: %s", err)
+	}
+	if status, ok := raw["status"].(string); !ok || status != "ok" {
+		if msg, _ := raw["message"].(string); !strings.Contains(msg, "duplicate") {
+			t.Fatalf("failed to create user: %v", raw)
+		}
+	}
+	raw, _ = helpGetUser("email", email)
+	return raw["token"].(string)
+}
+
+func helpGetTempCode(t *testing.T, userTOKEN string) string {
+	rec, err := e.db.store.GetRecord(storage.TblName.Users, "token", userTOKEN)
+	if err != nil || rec == nil {
+		t.Fatalf("failed to read user record: %v", err)
+	}
+	return strconv.Itoa(int(rec["tempcode"].(int32)))
+}
+
+// Wrong guesses must burn the code, so brute force can't succeed within its validity window.
+func TestLoginCodeInvalidatedAfterMaxAttempts(t *testing.T) {
+	email := "bruteforce-user@example.com"
+	userTOKEN := helpCreateLoginUser(t, email)
+	helpUserPrelogin("email", email)
+	code := helpGetTempCode(t, userTOKEN)
+	wrong := "100000"
+	if code == wrong {
+		wrong = "100001"
+	}
+	for i := 0; i < maxLoginAttempts; i++ {
+		helpUserLogin("email", email, wrong)
+	}
+	resp, _ := helpUserLogin("email", email, code)
+	if status, _ := resp["status"].(string); status == "ok" {
+		t.Fatalf("login succeeded with correct code after %d failed attempts: %v", maxLoginAttempts, resp)
+	}
+	// A fresh code resets the counter.
+	helpUserPrelogin("email", email)
+	code = helpGetTempCode(t, userTOKEN)
+	resp, _ = helpUserLogin("email", email, code)
+	if status, _ := resp["status"].(string); status != "ok" {
+		t.Fatalf("login failed with fresh code: %v", resp)
+	}
+}
+
+func TestLoginCodeSingleUse(t *testing.T) {
+	email := "singleuse-user@example.com"
+	userTOKEN := helpCreateLoginUser(t, email)
+	helpUserPrelogin("email", email)
+	code := helpGetTempCode(t, userTOKEN)
+	resp, _ := helpUserLogin("email", email, code)
+	if status, _ := resp["status"].(string); status != "ok" {
+		t.Fatalf("first login failed: %v", resp)
+	}
+	resp, _ = helpUserLogin("email", email, code)
+	if status, _ := resp["status"].(string); status == "ok" {
+		t.Fatalf("login code was accepted twice: %v", resp)
+	}
+}
+
+func TestCaptchaUniqueNonce(t *testing.T) {
+	c1, _ := generateCaptcha()
+	c2, _ := generateCaptcha()
+	if c1[:24] == c2[:24] {
+		t.Fatalf("captcha tokens share a nonce")
+	}
+	if _, err := decryptCaptcha(c1); err != nil {
+		t.Fatalf("failed to decrypt captcha: %s", err)
+	}
+	tampered := []byte(c1)
+	tampered[len(tampered)-1] ^= 1
+	if _, err := decryptCaptcha(string(tampered)); err == nil {
+		t.Fatalf("tampered captcha accepted")
 	}
 }
 
