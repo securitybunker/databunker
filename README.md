@@ -8,6 +8,9 @@
  <p>
   <a href="https://github.com/securitybunker/databunker/stargazers" target="_blank"><img src="https://img.shields.io/github/stars/securitybunker/databunker.svg?logo=github&maxAge=86400" alt="Stars" /></a>
   <a href="https://github.com/securitybunker/databunker/actions?query=workflow%3ATests" target="_blank"><img src="https://github.com/securitybunker/databunker/workflows/Tests/badge.svg" alt="Tests" /></a>
+
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/template/LNAUBQ)
+
   <a href="https://hub.docker.com/r/securitybunker/databunker"><img src="https://img.shields.io/docker/pulls/securitybunker/databunker?color=f02e65&style=flat-square" /></a>
  </p>
  <p>
