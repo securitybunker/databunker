@@ -38,7 +38,7 @@ Databunker addresses these gaps with a secure, developer-focused solution for pe
 - **API-Based Access**: Integrates with your backend via a NoSQL-like API
 - **Fast Integration**: Set up secure data protection in under 10 minutes
 
-For **credit-card tokenization** or **enterprise security features** check out the <a href="/databunker-pro-docs/introduction/">Databunker Pro</a>.
+For **credit-card tokenization** or **enterprise security features** check out the <a href="https://docs.databunker.org/pro/get-started/overview">Databunker Pro</a>.
 
 
 ### ⚡ Why Databunker?
@@ -95,7 +95,7 @@ curl -s -H "X-Bunker-Token: DEMO" -X GET http://localhost:3000/v1/user/login/joh
    - Drop-in replacement for your user table
    - Built-in session management
 
-Project **demo** is available at: https://databunker.org/doc/demo/.
+Project **demo** is available at: https://docs.databunker.org/oss/get-started/quickstart
 
 Please add a **star** if you like our project.
 
@@ -176,7 +176,7 @@ const user = await db.users.findByEmail('user@example.com');
 
 ## ⚡ Databunker use cases
 
-Detailed information can be found at https://databunker.org/use-case/
+Detailed information can be found at https://databunker.org/use-cases/
 
 * [A perfect backend for a KYC system for a crypto startup](https://databunker.org/success-story/kyc-backend-for-crypto-startup/)
 * [Temporary record identities for secure data exchange](https://databunker.org/use-case/temporary-record-identity/)
