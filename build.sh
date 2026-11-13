@@ -15,9 +15,6 @@ else
 fi
 
 cd src
-go get -u -v
-
-cat go.mod
 
 if [ -x ~/go/bin/packr ]; then
   ~/go/bin/packr

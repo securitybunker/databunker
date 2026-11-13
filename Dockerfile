@@ -4,7 +4,7 @@
 FROM golang:1.27-alpine3.24 AS builder
 RUN apk upgrade --no-cache && apk add --no-cache git gcc libc-dev openssl && go install github.com/gobuffalo/packr/packr@latest
 WORKDIR /go/src/securitybunker/databunker/src/
-COPY src/go.mod ./go.mod
+COPY src/go.mod src/go.sum ./
 #RUN cat ./deps | grep -v storage | grep -v utils | grep -v audit > ./go.mod && go mod download
 RUN go mod download
 COPY . /go/src/securitybunker/databunker/
