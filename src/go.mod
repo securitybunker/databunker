@@ -18,14 +18,14 @@ require (
 	//      github.com/securitybunker/databunker/src/storage v0.0.0
 	//      github.com/securitybunker/databunker/src/utils v0.0.0
 	github.com/securitybunker/jsonschema v0.2.1-0.20201128224651-d77c1a3cb787
-	github.com/tidwall/gjson v1.20.2
+	github.com/tidwall/gjson v1.20.5
 	go.mongodb.org/mongo-driver v1.17.10
 	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
-	github.com/securitybunker/databunker/src/storage v0.0.0-20261110170012-0aa55807cc75
-	github.com/securitybunker/databunker/src/utils v0.0.0-20261110170012-0aa55807cc75
+	github.com/securitybunker/databunker/src/storage v0.0.0-20261113111708-5875cb8b31cf
+	github.com/securitybunker/databunker/src/utils v0.0.0-20261113111708-5875cb8b31cf
 )
 
 require (
@@ -33,7 +33,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dustin/go-humanize v1.1.0 // indirect
-	github.com/go-sql-driver/mysql v1.10.1 // indirect
+	github.com/go-sql-driver/mysql v1.10.2 // indirect
 	github.com/gobuffalo/envy v1.10.2 // indirect
 	github.com/gobuffalo/packd v1.0.2 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
@@ -59,8 +59,8 @@ require (
 	golang.org/x/mod v0.43.0 // indirect
 	golang.org/x/sys v0.50.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
-	modernc.org/libc v1.81.0 // indirect
+	modernc.org/libc v1.82.3 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
-	modernc.org/memory v1.12.1 // indirect
+	modernc.org/memory v1.13.0 // indirect
 	modernc.org/sqlite v1.62.0 // indirect
 )
