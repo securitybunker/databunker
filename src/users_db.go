@@ -96,6 +96,10 @@ func (dbobj dbcon) updateUserExpStatus(userTOKEN string, status string) error {
 // generateTempLoginCode returns the user's login code and whether guesses remain for it.
 // A new code (and a reset attempt counter) is issued only once the current code has expired.
 func (dbobj dbcon) generateTempLoginCode(userTOKEN string) (int32, bool) {
+	// Reject malformed tokens before they reach the storage layer.
+	if !utils.CheckValidUUID(userTOKEN) {
+		return 0, false
+	}
 	rec, err := dbobj.store.GetRecord(storage.TblName.Users, "token", userTOKEN)
 	if err != nil || rec == nil {
 		return 0, false
