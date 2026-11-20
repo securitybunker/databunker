@@ -321,11 +321,13 @@ func (e mainEnv) userPrelogin(w http.ResponseWriter, r *http.Request, ps httprou
 			// no need to send any notifications
 			e.db.generateDemoLoginCode(userTOKEN)
 		} else {
-			rnd := e.db.generateTempLoginCode(userTOKEN)
-			if mode == "email" {
-				go sendCodeByEmail(rnd, identity, e.conf)
-			} else if mode == "phone" {
-				go sendCodeByPhone(rnd, identity, e.conf)
+			// Skip sending when the current code has no guesses left.
+			if rnd, ok := e.db.generateTempLoginCode(userTOKEN); ok {
+				if mode == "email" {
+					go sendCodeByEmail(rnd, identity, e.conf)
+				} else if mode == "phone" {
+					go sendCodeByPhone(rnd, identity, e.conf)
+				}
 			}
 		}
 	} else {
@@ -388,8 +390,8 @@ func (e mainEnv) userLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	}
 	tmpCode, _ := userBson["tempcode"].(int32)
 	attempts, _ := userBson["tempcodeattempts"].(int32)
+	// Keep the exhausted code until it expires so prelogin can't hand out a fresh counter.
 	if attempts > maxLoginAttempts {
-		e.db.clearTempLoginCode(userTOKEN)
 		ReturnError(w, r, "internal error", 405, nil, event)
 		return
 	}

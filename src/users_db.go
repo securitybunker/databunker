@@ -92,16 +92,28 @@ func (dbobj dbcon) updateUserExpStatus(userTOKEN string, status string) error {
 	return err
 }
 
-func (dbobj dbcon) generateTempLoginCode(userTOKEN string) int32 {
+// generateTempLoginCode returns the user's login code and whether guesses remain for it.
+// A new code (and a reset attempt counter) is issued only once the current code has expired.
+func (dbobj dbcon) generateTempLoginCode(userTOKEN string) (int32, bool) {
+	if !utils.CheckValidUUID(userTOKEN) {
+		return 0, false
+	}
+	now := int32(time.Now().Unix())
 	rnd := utils.RandNum(6)
-	bdoc := bson.M{}
-	bdoc["tempcode"] = rnd
-	expired := int32(time.Now().Unix()) + 60
-	bdoc["tempcodeexp"] = expired
-	bdoc["tempcodeattempts"] = 0
-	//log.Printf("op json: %s\n", update)
-	dbobj.store.UpdateRecord(storage.TblName.Users, "token", userTOKEN, &bdoc)
-	return rnd
+	// nosemgrep: go.lang.security.audit.database.string-formatted-query.string-formatted-query -- integers and a validated UUID
+	q := fmt.Sprintf("UPDATE users SET tempcode = %d, tempcodeexp = %d, tempcodeattempts = 0 WHERE token = '%s' AND COALESCE(tempcodeexp, 0) < %d",
+		rnd, now+60, userTOKEN, now)
+	if err := dbobj.store.Exec(q); err != nil {
+		log.Printf("Failed to generate login code: %s", err)
+		return 0, false
+	}
+	rec, err := dbobj.store.GetRecord(storage.TblName.Users, "token", userTOKEN)
+	if err != nil || rec == nil {
+		return 0, false
+	}
+	code, _ := rec["tempcode"].(int32)
+	attempts, _ := rec["tempcodeattempts"].(int32)
+	return code, code != 0 && attempts < maxLoginAttempts
 }
 
 func (dbobj dbcon) generateDemoLoginCode(userTOKEN string) int32 {
