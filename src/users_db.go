@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	jsonpatch "github.com/evanphx/json-patch"
@@ -92,16 +93,40 @@ func (dbobj dbcon) updateUserExpStatus(userTOKEN string, status string) error {
 	return err
 }
 
-func (dbobj dbcon) generateTempLoginCode(userTOKEN string) int32 {
-	rnd := utils.RandNum(6)
-	bdoc := bson.M{}
-	bdoc["tempcode"] = rnd
-	expired := int32(time.Now().Unix()) + 60
-	bdoc["tempcodeexp"] = expired
-	bdoc["tempcodeattempts"] = 0
-	//log.Printf("op json: %s\n", update)
-	dbobj.store.UpdateRecord(storage.TblName.Users, "token", userTOKEN, &bdoc)
-	return rnd
+// generateTempLoginCode returns the user's login code and whether guesses remain for it.
+// A new code (and a reset attempt counter) is issued only once the current code has expired.
+func (dbobj dbcon) generateTempLoginCode(userTOKEN string) (int32, bool) {
+	// Reject malformed tokens before they reach the storage layer.
+	if !utils.CheckValidUUID(userTOKEN) {
+		return 0, false
+	}
+	rec, err := dbobj.store.GetRecord(storage.TblName.Users, "token", userTOKEN)
+	if err != nil || rec == nil {
+		return 0, false
+	}
+	now := int32(time.Now().Unix())
+	oldExp, hasExp := rec["tempcodeexp"].(int32)
+	if oldExp < now {
+		rnd := utils.RandNum(6)
+		bdoc := bson.M{"tempcode": rnd, "tempcodeexp": now + 60, "tempcodeattempts": 0}
+		var n int64
+		if hasExp {
+			// Compare-and-swap on the old expiry so parallel prelogins can't reset the counter twice.
+			n, err = dbobj.store.UpdateRecord2(storage.TblName.Users, "token", userTOKEN,
+				"tempcodeexp", strconv.Itoa(int(oldExp)), &bdoc, nil)
+		} else {
+			n, err = dbobj.store.UpdateRecord(storage.TblName.Users, "token", userTOKEN, &bdoc)
+		}
+		if err == nil && n == 1 {
+			return rnd, true
+		}
+		if rec, err = dbobj.store.GetRecord(storage.TblName.Users, "token", userTOKEN); err != nil || rec == nil {
+			return 0, false
+		}
+	}
+	code, _ := rec["tempcode"].(int32)
+	attempts, _ := rec["tempcodeattempts"].(int32)
+	return code, code != 0 && attempts < maxLoginAttempts
 }
 
 func (dbobj dbcon) generateDemoLoginCode(userTOKEN string) int32 {

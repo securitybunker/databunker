@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"image/png"
@@ -24,6 +25,19 @@ var (
 	captchaKey   = make([]byte, 16)
 	regexCaptcha = regexp.MustCompile("^([a-zA-Z0-9]+):([0-9]+)$")
 )
+
+// newCaptcha issues a fresh captcha token so the login page can refresh it without a reload.
+func (e mainEnv) newCaptcha(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	code, err := generateCaptcha()
+	if err != nil {
+		ReturnError(w, r, "internal error", 500, err, nil)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-store")
+	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(map[string]string{"status": "ok", "captchacode": code})
+}
 
 func (e mainEnv) showCaptcha(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	code := ps.ByName("code")
@@ -47,6 +61,8 @@ func (e mainEnv) showCaptcha(w http.ResponseWriter, r *http.Request, ps httprout
 	cap.SetSize(128, 64)
 	cap.AddFontFromBytes(comic)
 	img := cap.CreateCustom(s)
+	w.Header().Set("Content-Type", "image/png")
+	w.Header().Set("Cache-Control", "no-store")
 	w.WriteHeader(200)
 	png.Encode(w, img)
 }

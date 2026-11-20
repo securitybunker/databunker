@@ -58,7 +58,8 @@ if (conf["custom_css_link"]) {
               placeholder="Enter token...">
           </div>
           <div id="captcha-form">
-           <img id="captchaurl" src="/v1/captcha/%CAPTCHAURL%" />
+           <img id="captchaurl" src="/v1/captcha/%CAPTCHAURL%" onclick="refreshCaptcha();"
+             style="cursor: pointer;" title="Click to get a new captcha" alt="captcha" />
            <input id="captchavalue" type="login" autocomplete="off" class="form-control" onclick="hidealert();"
              style="float: right; width: 50%; margin-top: 12px;" placeholder="Enter captcha">
           </div>
@@ -93,6 +94,33 @@ if (conf["custom_css_link"]) {
 var lookupTimer;
 var lookupCount;
 var captchaCode = "%CAPTCHAURL%";
+var captchaTimer;
+// Tokens expire after 120s on the server, so swap in a new one a bit earlier.
+var captchaRefreshMs = 100000;
+
+function refreshCaptcha() {
+  clearTimeout(captchaTimer);
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '/v1/captcha');
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      var data = JSON.parse(xhr.responseText);
+      if (data.status == "ok" && data.captchacode) {
+        captchaCode = data.captchacode;
+        document.getElementById('captchaurl').src = '/v1/captcha/' + captchaCode;
+        document.getElementById('captchavalue').value = '';
+      }
+    }
+  };
+  xhr.send();
+  captchaTimer = setTimeout(refreshCaptcha, captchaRefreshMs);
+}
+captchaTimer = setTimeout(refreshCaptcha, captchaRefreshMs);
+
+function captchaFailed() {
+  refreshCaptcha();
+  showalert("Wrong or expired captcha. Please enter the new code.");
+}
 
 function lookupUser(url) {
   if (lookupCount > 0) {
@@ -103,26 +131,21 @@ function lookupUser(url) {
       if (xhr10.status === 200) {
          var data = JSON.parse(xhr10.responseText);
          if (data.status == "error" && data.result && data.result == "captcha-error") {
-           showalert("Captcha error. Refresh the page and try again.");
+           clearInterval(lookupTimer);
+           document.getElementById('loading').style.display = "none";
+           captchaFailed();
+           return;
          } else if (data.status == "ok") {
            document.location = "/site/login.html";
            return;
          }
-      } else if (xhr10.status === 403) {
-        var data = JSON.parse(xhr10.responseText);
-        if (data.status == "error" && data.captchaurl) {
-          if (lookupCount === 0) {
-            var captchaurl = document.getElementById('captchaurl');
-            captchaCode = data.captchaurl;
-          }
-        }
       }
     }
     lookupCount = lookupCount - 1;
     xhr10.send();
   } else {
-    clearTimeout(lookupTimer);
-    captchaurl.src = '/v1/captcha/' + captchaCode;
+    clearInterval(lookupTimer);
+    refreshCaptcha();
     var loading = document.getElementById('loading');
     loading.style.display = "none";
     showalert("Failed to find user record. User record might be deleted.");
@@ -262,8 +285,9 @@ function submitbtn() {
              var data = JSON.parse(xhr.responseText);
              if (data.status == "error") {
                if (data.result && data.result == "captcha-error") {
-                 showalert("Captcha error. Refresh the page and try again.");
+                 captchaFailed();
                } else {
+                 refreshCaptcha();
                  showalert("Login error. Try again.");
                }
                return;
@@ -295,13 +319,15 @@ function submitbtn() {
           if (xhr.status === 200) {
              var data = JSON.parse(xhr.responseText);
              if (data.status == "error" && data.result && data.result == "captcha-error") {
-               showalert("Captcha error. Refresh the page and try again.");
+               captchaFailed();
                return;
              } else if (data.status == "ok") {
                document.location = "/site/login.html";
                return;
              }
           }
+          refreshCaptcha();
+          showalert("Login error. Try again.");
         }
         xhr.send();
       }

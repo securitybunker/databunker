@@ -310,7 +310,17 @@ func TestLoginCodeInvalidatedAfterMaxAttempts(t *testing.T) {
 	if status, _ := resp["status"].(string); status == "ok" {
 		t.Fatalf("login succeeded with correct code after %d failed attempts: %v", maxLoginAttempts, resp)
 	}
-	// A fresh code resets the counter.
+	// Prelogin while the exhausted code is still valid must not reset the counter.
+	helpUserPrelogin("email", email)
+	if helpGetTempCode(t, userTOKEN) != code {
+		t.Fatalf("prelogin replaced a code that had not expired")
+	}
+	resp, _ = helpUserLogin("email", email, code)
+	if status, _ := resp["status"].(string); status == "ok" {
+		t.Fatalf("prelogin reset the attempt counter: %v", resp)
+	}
+	// Once the code expires, prelogin issues a fresh code with a fresh counter.
+	e.db.store.Exec("UPDATE users SET tempcodeexp = 1 WHERE token = '" + userTOKEN + "'")
 	helpUserPrelogin("email", email)
 	code = helpGetTempCode(t, userTOKEN)
 	resp, _ = helpUserLogin("email", email, code)
@@ -379,5 +389,16 @@ func TestGetFakeRequestToken(t *testing.T) {
 	raw, _ = helpCancelUserRequest(rtoken)
 	if _, ok := raw["status"]; ok && raw["status"].(string) == "ok" {
 		t.Fatalf("Shoud fail to cancel request")
+	}
+}
+
+func TestCaptchaCreate(t *testing.T) {
+	request := httptest.NewRequest("GET", "http://localhost:3000/v1/captcha", nil)
+	raw, _ := helpServe(request)
+	if raw["status"] != "ok" {
+		t.Fatalf("failed to create captcha: %v", raw)
+	}
+	if _, err := decryptCaptcha(raw["captchacode"].(string)); err != nil {
+		t.Fatalf("issued captcha does not decrypt: %s", err)
 	}
 }

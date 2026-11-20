@@ -264,6 +264,7 @@ func (e mainEnv) setupRouter() *httprouter.Router {
 	router.GET("/v1/audit/list/:token", e.auditEventList)
 	router.GET("/v1/audit/get/:atoken", e.auditEventGet)
 
+	router.GET("/v1/captcha", e.newCaptcha)
 	router.GET("/v1/captcha/:code", e.showCaptcha)
 
 	router.GET("/", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
