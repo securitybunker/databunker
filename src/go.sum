@@ -106,10 +106,10 @@ github.com/rogpeppe/go-internal v1.9.0/go.mod h1:WtVeX8xhTBvf0smdhujwtBcq4Qrzq/f
 github.com/rogpeppe/go-internal v1.16.0 h1:O9DK+vNMDVGLr2BeZqmpLeMjiMNkuXfcqntWbZV6S5g=
 github.com/rogpeppe/go-internal v1.16.0/go.mod h1:DrUVZyrJU+txYW5/1kwtXQSMFio52ZOxX7yM1VHvnxs=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
-github.com/securitybunker/databunker/src/storage v0.0.0-20261113111708-5875cb8b31cf h1:+dWeWwz9Anykvh8mWlvUpHRwbZ/AXt+zlWlSVZ2VvMY=
-github.com/securitybunker/databunker/src/storage v0.0.0-20261113111708-5875cb8b31cf/go.mod h1:7paYHzvG/IIdTHD2Yx59JcslRodKL2VuIjPbK2EJqfU=
-github.com/securitybunker/databunker/src/utils v0.0.0-20261113111708-5875cb8b31cf h1:37ph7UxcDWHIq2gg2q4tP8YMjQDlHSqs/CuimOEVc18=
-github.com/securitybunker/databunker/src/utils v0.0.0-20261113111708-5875cb8b31cf/go.mod h1:nNLJi8hR3q9iHy0M4RYTRq4Za5fVDjDBR5U8L0zxlmY=
+github.com/securitybunker/databunker/src/storage v0.0.0-20261120145731-cb3b4b16b44e h1:YUCuAixDbunZRxuEIg7kwsIlg7UcIZnQ+LS7OAdT2Z0=
+github.com/securitybunker/databunker/src/storage v0.0.0-20261120145731-cb3b4b16b44e/go.mod h1:n64kC7OEJSGFK7eb/318zvcOQXKFL6xNbFyWmy+GV+Q=
+github.com/securitybunker/databunker/src/utils v0.0.0-20261120145731-cb3b4b16b44e h1:zIjcFrHXEfx023aaQRytvlD6IvYIw2Ye3K/MhJm49F4=
+github.com/securitybunker/databunker/src/utils v0.0.0-20261120145731-cb3b4b16b44e/go.mod h1:nNLJi8hR3q9iHy0M4RYTRq4Za5fVDjDBR5U8L0zxlmY=
 github.com/securitybunker/jsonschema v0.2.1-0.20201128224651-d77c1a3cb787 h1:NP32/ldA6VUYC7/ukTBCDUlUTEKkH6F+bH/SQyRj5D4=
 github.com/securitybunker/jsonschema v0.2.1-0.20201128224651-d77c1a3cb787/go.mod h1:DDJqyMxGi3pUbyDokP2CCx8XFpLRTyNZk+xchdSvw4E=
 github.com/sergi/go-diff v1.0.0 h1:Kpca3qRNrduNnOQeazBd0ysaKrUJiIuISHxogkT9RPQ=
