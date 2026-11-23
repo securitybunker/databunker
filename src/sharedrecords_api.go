@@ -131,6 +131,5 @@ func (e mainEnv) sharedRecordGet(w http.ResponseWriter, r *http.Request, ps http
 		str = fmt.Sprintf(`{"status":"ok","data":%s}`, resultJSON)
 	}
 
-	log.Printf("result: %s\n", str)
 	w.Write([]byte(str))
 }
