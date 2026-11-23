@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, endtime int32, session string, appName string, partner string, conf Config) (string, error) {
+func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, endtime int32, appName string, partner string, conf Config) (string, error) {
 	if utils.CheckValidUUID(userTOKEN) == false {
 		return "", errors.New("bad uuid")
 	}
@@ -40,9 +40,6 @@ func (dbobj dbcon) saveSharedRecord(userTOKEN string, fields string, endtime int
 	if len(partner) > 0 {
 		bdoc["partner"] = partner
 	}
-	if len(session) > 0 {
-		bdoc["session"] = session
-	}
 	_, err = dbobj.store.CreateRecord(storage.TblName.Sharedrecords, &bdoc)
 	if err != nil {
 		return "", err
@@ -69,8 +66,9 @@ func (dbobj dbcon) getSharedRecord(recordUUID string) (checkRecordResult, error)
 	if value, ok := record["fields"]; ok {
 		result.fields = value.(string)
 	}
-	if value, ok := record["session"]; ok {
-		result.session = value.(string)
+	// session shares are no longer supported; old ones must not fall back to the profile
+	if len(utils.GetStringValue(record["session"])) > 0 {
+		return result, errors.New("session shares are not supported")
 	}
 	if value, ok := record["app"]; ok {
 		result.appName = value.(string)
