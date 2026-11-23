@@ -119,7 +119,6 @@ type checkRecordResult struct {
 	token   string
 	fields  string
 	appName string
-	session string
 }
 
 func prometheusHandler() http.Handler {

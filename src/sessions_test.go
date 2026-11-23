@@ -108,7 +108,7 @@ func TestCreateSessionRecord(t *testing.T) {
 	}
 }
 
-func TestCreateSessionAndSharedRecord(t *testing.T) {
+func TestSharedRecordRejectsSession(t *testing.T) {
 	userJSON := `{"login":"dima"}`
 	raw, err := helpCreateUser(userJSON)
 	if err != nil {
@@ -125,13 +125,11 @@ func TestCreateSessionAndSharedRecord(t *testing.T) {
 		t.Fatalf("failed to create session")
 	}
 	sessionTOKEN := raw["session"].(string)
+	// session shares were removed: they exposed sessions without an ownership check
 	data = fmt.Sprintf(`{"expiration":"1d","session":"%s","fields":"cookie,missing"}`, sessionTOKEN)
 	raw, _ = helpCreateSharedRecord("token", userTOKEN, data)
-	recordTOKEN := raw["record"].(string)
-	log.Printf("User record token: %s\n", recordTOKEN)
-	raw, _ = helpGetSharedRecord(recordTOKEN)
-	if _, ok := raw["status"]; !ok || raw["status"].(string) != "ok" {
-		t.Fatalf("Failed to get shared record: %s\n", raw["message"])
+	if raw["status"] == "ok" {
+		t.Fatalf("Shared record with a session was accepted: %v", raw)
 	}
 }
 

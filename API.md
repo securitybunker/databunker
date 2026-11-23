@@ -411,7 +411,7 @@ curl --header "X-Bunker-Token: $XTOKEN" -XGET \
 
 ## Shareable record API
 
-Sometimes you want to share part of user profile, part fo app data or a part of session details
+Sometimes you want to share part of user profile or part of app data
 with a partner or to save in logs. Data Bunker provides an easy API to do it.
 
 Each record created has an expiration time. Access to the record data is open to anyone without
@@ -428,7 +428,7 @@ any access token or without a password.
 
 ### Explanation
 
-This API is used to create shared record that is referencing other object in the database (user, user-app, session).
+This API is used to create shared record that is referencing other object in the database (user or user-app).
 It returns `{record}` token on success.
 
 You can user this token, for example when you need to 3rd party system as a user identity.
@@ -442,7 +442,6 @@ POST Body can contain regular form data or JSON. Expected optional values are `m
 | app         | No        | Application name.                                    |
 | partner     | No        | Partner name. For example coralogix.                 |
 | expiration  | No        | Record expiration time.                              |
-| session     | No        | Session record token.                                |
 | fields      | No        | List of records to extract. Separated by commas.     |
 
 ### Example:

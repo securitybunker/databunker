@@ -28,7 +28,10 @@ func (e mainEnv) sharedRecordCreate(w http.ResponseWriter, r *http.Request, ps h
 		return
 	}
 	fields := utils.GetStringValue(postData["fields"])
-	session := utils.GetStringValue(postData["session"])
+	if _, ok := postData["session"]; ok {
+		ReturnError(w, r, "session shares are not supported", 403, nil, event)
+		return
+	}
 	partner := utils.GetStringValue(postData["partner"])
 	appName := utils.GetStringValue(postData["app"])
 	if len(appName) > 0 {
@@ -39,7 +42,7 @@ func (e mainEnv) sharedRecordCreate(w http.ResponseWriter, r *http.Request, ps h
 		}
 	}
 	expiration := utils.SetExpiration(e.conf.Policy.MaxShareableRecordRetentionPeriod, postData["expiration"])
-	recordUUID, err := e.db.saveSharedRecord(userTOKEN, fields, expiration, session, appName, partner, e.conf)
+	recordUUID, err := e.db.saveSharedRecord(userTOKEN, fields, expiration, appName, partner, e.conf)
 	if err != nil {
 		ReturnError(w, r, err.Error(), 405, err, event)
 		return
@@ -81,8 +84,6 @@ func (e mainEnv) sharedRecordGet(w http.ResponseWriter, r *http.Request, ps http
 				}
 				resultJSON, err = e.db.getUserApp(recordInfo.token, userBSON, recordInfo.appName, e.conf)
 			}
-		} else if len(recordInfo.session) > 0 {
-			_, resultJSON, _, err = e.db.getSession(recordInfo.session)
 		} else {
 			resultJSON, err = e.db.getUserJSON(recordInfo.token)
 		}
@@ -126,9 +127,6 @@ func (e mainEnv) sharedRecordGet(w http.ResponseWriter, r *http.Request, ps http
 	if len(recordInfo.appName) > 0 {
 		str = fmt.Sprintf(`{"status":"ok","app":"%s","data":%s}`,
 			recordInfo.appName, resultJSON)
-	} else if len(recordInfo.session) > 0 {
-		str = fmt.Sprintf(`{"status":"ok","session":"%s","data":%s}`,
-			recordInfo.session, resultJSON)
 	} else {
 		str = fmt.Sprintf(`{"status":"ok","data":%s}`, resultJSON)
 	}
