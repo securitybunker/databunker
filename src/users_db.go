@@ -157,16 +157,6 @@ func (dbobj dbcon) clearTempLoginCode(userTOKEN string) {
 	dbobj.store.UpdateRecord(storage.TblName.Users, "token", userTOKEN, &bdoc)
 }
 
-// migrateUsersTable adds the tempcodeattempts column to databases created before it existed.
-func migrateUsersTable(store storage.BackendDB) {
-	if store.Exec("SELECT tempcodeattempts FROM users WHERE 1=0") == nil {
-		return
-	}
-	if err := store.Exec("ALTER TABLE users ADD COLUMN tempcodeattempts int"); err != nil {
-		log.Fatalf("Failed to add tempcodeattempts column to users table: %s", err)
-	}
-}
-
 func (dbobj dbcon) validateUserRecordChange(oldUserJSON []byte, jsonDataPatch []byte, userTOKEN string, authResult string) (bool, error) {
 	// prepare merge
 	//log.Printf("old json: %s\n", oldUserJSON)

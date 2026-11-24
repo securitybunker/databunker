@@ -88,7 +88,7 @@ func loadService() {
 		log.Printf("Filed to open db: %s", err)
 		os.Exit(0)
 	}
-	migrateUsersTable(store)
+	migrateSchema(store)
 	md5hash := md5.Sum(masterKey) // nosemgrep: go.lang.security.audit.crypto.use_of_weak_crypto.use-of-md5 -- non-cryptographic checksum (data sanity / indexing), not a security hash
 	db := &dbcon{store, masterKey, md5hash[:]}
 	e := mainEnv{db, cfg, make(chan struct{})}
@@ -161,6 +161,19 @@ func decodeMasterkey(masterKeyStr string) ([]byte, error) {
 	return masterKey, nil
 }
 
+// migrateSchema adds columns and indexes introduced after a database was created.
+func migrateSchema(store storage.BackendDB) {
+	if store.Exec("SELECT tempcodeattempts FROM users WHERE 1=0") != nil {
+		if err := store.Exec("ALTER TABLE users ADD COLUMN tempcodeattempts int"); err != nil {
+			log.Fatalf("Failed to add tempcodeattempts column to users table: %s", err)
+		}
+	}
+	if store.Exec("CREATE INDEX IF NOT EXISTS agreements_who ON agreements (who)") != nil {
+		// MySQL has no IF NOT EXISTS here and needs a prefix length; fails when the index exists
+		store.Exec("CREATE INDEX agreements_who ON agreements (who(36))")
+	}
+}
+
 func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbcon, string, error) {
 	log.Println("Databunker init")
 	var masterKey []byte
@@ -194,7 +207,7 @@ func setupDB(dbPtr *string, masterKeyPtr *string, customRootToken string) (*dbco
 		log.Fatalf("Databunker failed to init database, error %s\n\n", err.Error())
 		os.Exit(0)
 	}
-	migrateUsersTable(store)
+	migrateSchema(store)
 	db := &dbcon{store, masterKey, md5hash[:]}
 	rootToken, err := db.createRootXtoken(customRootToken)
 	if err != nil {
