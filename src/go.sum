@@ -110,6 +110,8 @@ github.com/securitybunker/databunker/src/storage v0.0.0-20261120150251-1cda59780
 github.com/securitybunker/databunker/src/storage v0.0.0-20261120150251-1cda59780b07/go.mod h1:n64kC7OEJSGFK7eb/318zvcOQXKFL6xNbFyWmy+GV+Q=
 github.com/securitybunker/databunker/src/utils v0.0.0-20261120150251-1cda59780b07 h1:VT227fwDTAiWYcOAW4TWafqGXg9sHz1cWSABm5lG650=
 github.com/securitybunker/databunker/src/utils v0.0.0-20261120150251-1cda59780b07/go.mod h1:nNLJi8hR3q9iHy0M4RYTRq4Za5fVDjDBR5U8L0zxlmY=
+github.com/securitybunker/databunker/src/utils v0.0.0-20261124091001-c896f2a498a2 h1:g1Cm6Kc6RZXwN7QO9rpxLpxmwRS/piOCKIYrl+EnxBA=
+github.com/securitybunker/databunker/src/utils v0.0.0-20261124091001-c896f2a498a2/go.mod h1:nNLJi8hR3q9iHy0M4RYTRq4Za5fVDjDBR5U8L0zxlmY=
 github.com/securitybunker/jsonschema v0.2.1-0.20201128224651-d77c1a3cb787 h1:NP32/ldA6VUYC7/ukTBCDUlUTEKkH6F+bH/SQyRj5D4=
 github.com/securitybunker/jsonschema v0.2.1-0.20201128224651-d77c1a3cb787/go.mod h1:DDJqyMxGi3pUbyDokP2CCx8XFpLRTyNZk+xchdSvw4E=
 github.com/sergi/go-diff v1.0.0 h1:Kpca3qRNrduNnOQeazBd0ysaKrUJiIuISHxogkT9RPQ=

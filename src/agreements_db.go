@@ -39,8 +39,14 @@ func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, identity strin
 		bdoc["referencecode"] = referencecode
 	}
 	encIdentity := ""
+	var lookupValues []string
 	if len(identity) > 0 {
-		encIdentity, _ = utils.BasicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
+		var err error
+		lookupValues, err = utils.BasicStringLookupValues(identity, dbobj.masterKey, dbobj.GetCode())
+		if err != nil {
+			return false, err
+		}
+		encIdentity = lookupValues[0]
 	}
 	if len(userTOKEN) > 0 {
 		// first check if this agreement exists, then update
@@ -58,18 +64,21 @@ func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, identity strin
 			return false, nil
 		}
 	} else if len(identity) > 0 {
-		raw, err := dbobj.store.GetRecord2(storage.TblName.Agreements, "who", encIdentity, "brief", brief)
-		if err != nil {
-			log.Printf("Error to find:%s", err)
-			return false, err
-		}
-		if raw != nil {
-			dbobj.store.UpdateRecord2(storage.TblName.Agreements, "who", encIdentity, "brief", brief, &bdoc, nil)
-			if status != raw["status"].(string) {
-				// status changed
-				return true, nil
+		for _, lookupValue := range lookupValues {
+			raw, err := dbobj.store.GetRecord2(storage.TblName.Agreements, "who", lookupValue, "brief", brief)
+			if err != nil {
+				log.Printf("Error to find:%s", err)
+				return false, err
 			}
-			return false, err
+			if raw != nil {
+				bdoc["who"] = encIdentity
+				dbobj.store.UpdateRecord2(storage.TblName.Agreements, "who", lookupValue, "brief", brief, &bdoc, nil)
+				if status != raw["status"].(string) {
+					// status changed
+					return true, nil
+				}
+				return false, err
+			}
 		}
 	}
 	bdoc["brief"] = brief
@@ -92,22 +101,35 @@ func (dbobj dbcon) acceptAgreement(userTOKEN string, mode string, identity strin
 }
 
 // link consent record to userToken
-func (dbobj dbcon) linkAgreementRecords(userTOKEN string, encIdentity string) error {
+func (dbobj dbcon) linkAgreementRecords(userTOKEN string, identity string) error {
+	lookupValues, err := utils.BasicStringLookupValues(identity, dbobj.masterKey, dbobj.GetCode())
+	if err != nil {
+		return err
+	}
 	bdoc := bson.M{}
 	bdoc["token"] = userTOKEN
-	_, err := dbobj.store.UpdateRecord(storage.TblName.Agreements, "who", encIdentity, &bdoc)
-	if err != nil {
-		log.Printf("db error: %s", err)
+	bdoc["who"] = lookupValues[0]
+	for _, lookupValue := range lookupValues {
+		if _, err = dbobj.store.UpdateRecord(storage.TblName.Agreements, "who", lookupValue, &bdoc); err != nil {
+			log.Printf("db error: %s", err)
+			return err
+		}
 	}
-	return err
+	return nil
 }
 
 func (dbobj dbcon) withdrawAgreement(userTOKEN string, brief string, mode string, identity string, lastmodifiedby string) error {
 	now := int32(time.Now().Unix())
 	// update date, status
 	encIdentity := ""
+	var lookupValues []string
 	if len(identity) > 0 {
-		encIdentity, _ = utils.BasicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
+		var err error
+		lookupValues, err = utils.BasicStringLookupValues(identity, dbobj.masterKey, dbobj.GetCode())
+		if err != nil {
+			return err
+		}
+		encIdentity = lookupValues[0]
 	}
 	bdoc := bson.M{}
 	bdoc["when"] = now
@@ -119,7 +141,9 @@ func (dbobj dbcon) withdrawAgreement(userTOKEN string, brief string, mode string
 	if len(userTOKEN) > 0 {
 		dbobj.store.UpdateRecord2(storage.TblName.Agreements, "token", userTOKEN, "brief", brief, &bdoc, nil)
 	} else if len(identity) > 0 {
-		dbobj.store.UpdateRecord2(storage.TblName.Agreements, "who", encIdentity, "brief", brief, &bdoc, nil)
+		for _, lookupValue := range lookupValues {
+			dbobj.store.UpdateRecord2(storage.TblName.Agreements, "who", lookupValue, "brief", brief, &bdoc, nil)
+		}
 	}
 	return nil
 }
@@ -137,7 +161,7 @@ func (dbobj dbcon) listAgreementRecords(userTOKEN string) ([]byte, int, error) {
 		rec["token"] = utils.GetUuidString(rec["token"])
 		encIdentity := rec["who"].(string)
 		if len(encIdentity) > 0 {
-			identity, _ := utils.BasicStringDecrypt(encIdentity, dbobj.masterKey, dbobj.GetCode())
+			identity, _ := utils.BasicStringDecrypt2(encIdentity, dbobj.masterKey, dbobj.GetCode())
 			if len(identity) > 0 {
 				rec["who"] = identity
 			}
@@ -152,10 +176,17 @@ func (dbobj dbcon) listAgreementRecords(userTOKEN string) ([]byte, int, error) {
 }
 
 func (dbobj dbcon) listAgreementRecordsByIdentity(identity string) ([]byte, int, error) {
-	encIdentity, _ := utils.BasicStringEncrypt(identity, dbobj.masterKey, dbobj.GetCode())
-	records, err := dbobj.store.GetList(storage.TblName.Agreements, "who", encIdentity, 0, 0, "")
+	lookupValues, err := utils.BasicStringLookupValues(identity, dbobj.masterKey, dbobj.GetCode())
 	if err != nil {
 		return nil, 0, err
+	}
+	var records []map[string]interface{}
+	for _, lookupValue := range lookupValues {
+		rows, err := dbobj.store.GetList(storage.TblName.Agreements, "who", lookupValue, 0, 0, "")
+		if err != nil {
+			return nil, 0, err
+		}
+		records = append(records, rows...)
 	}
 	count := len(records)
 	if count == 0 {
@@ -181,7 +212,7 @@ func (dbobj dbcon) viewAgreementRecord(userTOKEN string, brief string) ([]byte, 
 	record["token"] = utils.GetUuidString(record["token"])
 	encIdentity := record["who"].(string)
 	if len(encIdentity) > 0 {
-		identity, _ := utils.BasicStringDecrypt(encIdentity, dbobj.masterKey, dbobj.GetCode())
+		identity, _ := utils.BasicStringDecrypt2(encIdentity, dbobj.masterKey, dbobj.GetCode())
 		if len(identity) > 0 {
 			record["who"] = identity
 		}
@@ -215,7 +246,7 @@ func (dbobj dbcon) expireAgreementRecords(notifyURL string) error {
 		} else {
 			encIdentity := rec["who"].(string)
 			dbobj.store.UpdateRecord2(storage.TblName.Agreements, "who", encIdentity, "brief", brief, &bdoc, nil)
-			identity, _ := utils.BasicStringDecrypt(encIdentity, dbobj.masterKey, dbobj.GetCode())
+			identity, _ := utils.BasicStringDecrypt2(encIdentity, dbobj.masterKey, dbobj.GetCode())
 			notifyConsentChange(notifyURL, brief, "expired", rec["mode"].(string), identity)
 		}
 
