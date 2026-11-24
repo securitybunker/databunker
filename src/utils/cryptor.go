@@ -202,3 +202,16 @@ func BasicStringDecrypt2(data string, masterKey []byte, code []byte) (string, er
 	}
 	return string(plaintext), nil
 }
+
+// BasicStringLookupValues returns the encrypted forms a stored value may have, current form first.
+func BasicStringLookupValues(plaintext string, masterKey []byte, code []byte) ([]string, error) {
+	current, err := BasicStringEncrypt2(plaintext, masterKey, code)
+	if err != nil {
+		return nil, err
+	}
+	older, err := BasicStringEncrypt(plaintext, masterKey, code)
+	if err != nil {
+		return nil, err
+	}
+	return []string{current, older}, nil
+}

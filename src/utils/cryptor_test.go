@@ -128,3 +128,15 @@ func TestBasicString2RejectsBadInput(t *testing.T) {
 		}
 	}
 }
+
+func TestBasicStringLookupValues(t *testing.T) {
+	current, _ := BasicStringEncrypt2("user@example.com", cryptTestKey, cryptTestCode)
+	older, _ := BasicStringEncrypt("user@example.com", cryptTestKey, cryptTestCode)
+	got, err := BasicStringLookupValues("user@example.com", cryptTestKey, cryptTestCode)
+	if err != nil || len(got) != 2 || got[0] != current || got[1] != older {
+		t.Fatalf("expected the current form, then the older one: %v %v", got, err)
+	}
+	if got, err = BasicStringLookupValues("x", []byte("short"), cryptTestCode); err == nil || got != nil {
+		t.Fatalf("a bad key must return no values: %v %v", got, err)
+	}
+}
