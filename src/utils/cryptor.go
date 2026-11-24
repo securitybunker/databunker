@@ -3,11 +3,18 @@ package utils
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
+	"errors"
 	"io"
 	"log"
+	"strings"
 )
+
+// stringPrefix marks BasicStringEncrypt2 values; BasicStringEncrypt output never contains a colon.
+const stringPrefix = "v2:"
 
 // shamir secret split
 // https://github.com/hashicorp/vault/tree/master/shamir
@@ -87,6 +94,7 @@ func Encrypt(masterKey []byte, userKey []byte, plaintext []byte) ([]byte, error)
 	return ciphertext, nil
 }
 
+// Deprecated: use BasicStringEncrypt2.
 func BasicStringEncrypt(plaintext string, masterKey []byte, code []byte) (string, error) {
 	//log.Printf("Going to utils.Encrypt %s", plaintext)
 	nonce := []byte("$DataBunker$")
@@ -135,4 +143,62 @@ func BasicStringDecrypt(data string, masterKey []byte, code []byte) (string, err
 	}
 	//log.Printf("utils.Decrypt result : %s", string(plaintext))
 	return string(plaintext), err
+}
+
+func hmacSHA256(key []byte, data string) []byte {
+	mac := hmac.New(sha256.New, key)
+	mac.Write([]byte(data))
+	return mac.Sum(nil)
+}
+
+// stringCipher derives separate encryption and nonce keys, not shared with other functions.
+func stringCipher(masterKey []byte, code []byte) (cipher.AEAD, []byte, error) {
+	if len(masterKey) != 24 {
+		return nil, nil, errors.New("bad master key length")
+	}
+	key := make([]byte, 0, len(masterKey)+len(code))
+	key = append(key, masterKey...)
+	key = append(key, code...)
+	block, err := aes.NewCipher(hmacSHA256(key, "databunker v2 encryption"))
+	if err != nil {
+		return nil, nil, err
+	}
+	aesgcm, err := cipher.NewGCM(block)
+	return aesgcm, hmacSHA256(key, "databunker v2 nonce"), err
+}
+
+// BasicStringEncrypt2 derives the nonce from the value: equal values match, so they can be looked up.
+func BasicStringEncrypt2(plaintext string, masterKey []byte, code []byte) (string, error) {
+	aesgcm, nonceKey, err := stringCipher(masterKey, code)
+	if err != nil {
+		return "", err
+	}
+	nonce := hmacSHA256(nonceKey, plaintext)[:aesgcm.NonceSize()]
+	data := append([]byte{}, nonce...)
+	data = aesgcm.Seal(data, nonce, []byte(plaintext), nil)
+	return stringPrefix + base64.StdEncoding.EncodeToString(data), nil
+}
+
+// BasicStringDecrypt2 reads BasicStringEncrypt2 values and older BasicStringEncrypt ones.
+func BasicStringDecrypt2(data string, masterKey []byte, code []byte) (string, error) {
+	encoded, ok := strings.CutPrefix(data, stringPrefix)
+	if !ok {
+		return BasicStringDecrypt(data, masterKey, code)
+	}
+	raw, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		return "", err
+	}
+	aesgcm, _, err := stringCipher(masterKey, code)
+	if err != nil {
+		return "", err
+	}
+	if len(raw) < aesgcm.NonceSize() {
+		return "", errors.New("encrypted value is too short")
+	}
+	plaintext, err := aesgcm.Open(nil, raw[:aesgcm.NonceSize()], raw[aesgcm.NonceSize():], nil)
+	if err != nil {
+		return "", err
+	}
+	return string(plaintext), nil
 }
