@@ -34,4 +34,6 @@ jobs:
       run: |
         cd src
         go test
+        cd utils
+        go test
         echo done
