@@ -290,7 +290,10 @@ func (dbobj dbcon) updateUserRecordDo(jsonDataPatch []byte, userTOKEN string, ol
 		if len(newIdxFinalValue) > 0 && actionCode == 1 {
 			// check if new value is created
 			//log.Printf("Adding index? %s\n", raw[idx])
-			otherUserBson, _ := dbobj.lookupUserRecordByIndex(idx, newIdxFinalValue, conf)
+			otherUserBson, err := dbobj.lookupUserRecordByIndex(idx, newIdxFinalValue, conf)
+			if err != nil {
+				return nil, nil, false, err
+			}
 			if otherUserBson != nil {
 				// already exist user with same index value
 				return nil, nil, true, fmt.Errorf("duplicate %s index", idx)
