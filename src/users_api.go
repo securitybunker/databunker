@@ -97,12 +97,12 @@ func (e mainEnv) userCreate(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	encPhoneIdx := ""
 	if len(userJSON.EmailIdx) > 0 {
-		encEmailIdx, _ := utils.BasicStringEncrypt(userJSON.EmailIdx, e.db.masterKey, e.db.GetCode())
-		e.db.linkAgreementRecords(userTOKEN, encEmailIdx)
+		e.db.linkAgreementRecords(userTOKEN, userJSON.EmailIdx)
 	}
 	if len(userJSON.PhoneIdx) > 0 {
-		encPhoneIdx, _ = utils.BasicStringEncrypt(userJSON.PhoneIdx, e.db.masterKey, e.db.GetCode())
-		e.db.linkAgreementRecords(userTOKEN, encPhoneIdx)
+		// linking stores the current form, which is what the duplicate check below deletes by
+		encPhoneIdx, _ = utils.BasicStringEncrypt2(userJSON.PhoneIdx, e.db.masterKey, e.db.GetCode())
+		e.db.linkAgreementRecords(userTOKEN, userJSON.PhoneIdx)
 	}
 	if len(userJSON.EmailIdx) > 0 && len(userJSON.PhoneIdx) > 0 {
 		// delete duplicate consent records for user

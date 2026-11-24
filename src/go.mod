@@ -25,7 +25,7 @@ require (
 
 require (
 	github.com/securitybunker/databunker/src/storage v0.0.0-20261120150251-1cda59780b07
-	github.com/securitybunker/databunker/src/utils v0.0.0-20261120150251-1cda59780b07
+	github.com/securitybunker/databunker/src/utils v0.0.0-20261124091001-c896f2a498a2
 )
 
 require (

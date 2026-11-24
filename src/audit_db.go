@@ -25,7 +25,7 @@ func SaveAuditEvent(event *AuditEvent, db *dbcon, conf Config) {
 	bdoc["atoken"] = atoken
 	bdoc["when"] = event.When
 	if len(event.Who) > 0 {
-		bdoc["who"], _ = utils.BasicStringEncrypt(event.Who, db.masterKey, db.GetCode())
+		bdoc["who"], _ = utils.BasicStringEncrypt2(event.Who, db.masterKey, db.GetCode())
 	}
 	if len(event.Mode) > 0 {
 		bdoc["mode"] = event.Mode
@@ -34,7 +34,7 @@ func SaveAuditEvent(event *AuditEvent, db *dbcon, conf Config) {
 		bdoc["identity"] = event.Identity
 	}
 	if len(event.Record) > 0 {
-		bdoc["record"], _ = utils.BasicStringEncrypt(event.Record, db.masterKey, db.GetCode())
+		bdoc["record"], _ = utils.BasicStringEncrypt2(event.Record, db.masterKey, db.GetCode())
 	}
 	if len(event.App) > 0 {
 		bdoc["app"] = event.App
@@ -58,9 +58,51 @@ func SaveAuditEvent(event *AuditEvent, db *dbcon, conf Config) {
 	db.store.CreateRecord(storage.TblName.Audit, &bdoc)
 }
 
+// getAuditRecords pages over both encrypted forms. Rows in the older form are older, so they come last.
+func (dbobj dbcon) getAuditRecords(userTOKEN string, offset int32, limit int32) ([]map[string]interface{}, int64, error) {
+	lookupValues, err := utils.BasicStringLookupValues(userTOKEN, dbobj.masterKey, dbobj.GetCode())
+	if err != nil {
+		return nil, 0, err
+	}
+	// the same limits as in GetList: 100 rows at most, 0 means all
+	if limit > 100 {
+		limit = 100
+	}
+	offset, limit = max(offset, 0), max(limit, 0)
+	all := offset == 0 && limit == 0
+	left := limit
+	skip := int64(offset)
+	var total int64
+	var records []map[string]interface{}
+	for _, lookupValue := range lookupValues {
+		count, err := dbobj.store.CountRecords(storage.TblName.Audit, "record", lookupValue)
+		if err != nil {
+			return nil, 0, err
+		}
+		total += count
+		if skip >= count {
+			skip -= count
+			continue
+		}
+		if !all && left <= 0 {
+			continue
+		}
+		rows, err := dbobj.store.GetList(storage.TblName.Audit, "record", lookupValue, int32(skip), left, "when")
+		if err != nil {
+			return nil, 0, err
+		}
+		skip = 0
+		left -= int32(len(rows))
+		if all {
+			left = 0
+		}
+		records = append(records, rows...)
+	}
+	return records, total, nil
+}
+
 func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) ([]byte, int64, error) {
-	userTOKENEnc, _ := utils.BasicStringEncrypt(userTOKEN, dbobj.masterKey, dbobj.GetCode())
-	count, err := dbobj.store.CountRecords(storage.TblName.Audit, "record", userTOKENEnc)
+	records, count, err := dbobj.getAuditRecords(userTOKEN, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -68,10 +110,6 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 		return []byte("[]"), 0, err
 	}
 	var results []bson.M
-	records, err := dbobj.store.GetList(storage.TblName.Audit, "record", userTOKENEnc, offset, limit, "when")
-	if err != nil {
-		return nil, 0, err
-	}
 	code := dbobj.GetCode()
 	for _, element := range records {
 		element["more"] = false
@@ -88,7 +126,7 @@ func (dbobj dbcon) getAuditEvents(userTOKEN string, offset int32, limit int32) (
 			element["debug"] = ""
 		}
 		if _, ok := element["who"]; ok {
-			element["who"], _ = utils.BasicStringDecrypt(element["who"].(string), dbobj.masterKey, code)
+			element["who"], _ = utils.BasicStringDecrypt2(element["who"].(string), dbobj.masterKey, code)
 		}
 		element["record"] = userTOKEN
 		results = append(results, element)
@@ -129,10 +167,10 @@ func (dbobj dbcon) getAdminAuditEvents(offset int32, limit int32) ([]byte, int64
 			element["debug"] = ""
 		}
 		if _, ok := element["record"]; ok {
-			element["record"], _ = utils.BasicStringDecrypt(element["record"].(string), dbobj.masterKey, code)
+			element["record"], _ = utils.BasicStringDecrypt2(element["record"].(string), dbobj.masterKey, code)
 		}
 		if _, ok := element["who"]; ok {
-			element["who"], _ = utils.BasicStringDecrypt(element["who"].(string), dbobj.masterKey, code)
+			element["who"], _ = utils.BasicStringDecrypt2(element["who"].(string), dbobj.masterKey, code)
 		}
 		results = append(results, element)
 	}
@@ -174,7 +212,7 @@ func (dbobj dbcon) getAuditEvent(atoken string) (string, []byte, error) {
 	if len(userTOKENEnc) == 0 {
 		return userTOKEN, nil, errors.New("empty token")
 	}
-	userTOKEN, _ = utils.BasicStringDecrypt(userTOKENEnc, dbobj.masterKey, dbobj.GetCode())
+	userTOKEN, _ = utils.BasicStringDecrypt2(userTOKENEnc, dbobj.masterKey, dbobj.GetCode())
 	userBSON, err := dbobj.lookupUserRecord(userTOKEN)
 	if err != nil {
 		return "", nil, err
